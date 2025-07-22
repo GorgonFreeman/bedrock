@@ -1,4 +1,11 @@
 const servableFunctions = [
+  'printify/printifyOrderSubmit',
+  'printify/printifyOrdersGet',
+  'printify/printifyOrdersCreate',
+  'printify/printifyOrderGet',
+  'printify/printifyOrderCreate',
+  'printify/printifyOrderCancel',
+  'printify/printifyImageUpload',
   'printify/printifyBlueprintPrintProviderVariantsGet',
   'printify/printifyBlueprintPrintProvidersGet',
   'printify/printifyBlueprintGet',
