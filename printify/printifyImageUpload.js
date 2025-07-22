@@ -2,15 +2,22 @@ const { respond, mandateParam, logDeep } = require('../utils');
 const { printifyClient } = require('../printify/printify.utils');
 
 const printifyImageUpload = async (
-  arg,
+  imageUrl,
+  filename,
   {
     credsPath,
-    option,
   } = {},
 ) => {
 
+  const data = {
+    url: imageUrl,
+    file_name: filename,
+  };
+
   const response = await printifyClient.fetch({
-    url: '/things.json', 
+    url: '/uploads/images.json',
+    method: 'post',
+    body: data,
     verbose: true,
     credsPath,
   });
@@ -22,19 +29,22 @@ const printifyImageUpload = async (
 
 const printifyImageUploadApi = async (req, res) => {
   const { 
-    arg,
+    imageUrl,
+    filename,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'imageUrl', imageUrl),
+    mandateParam(res, 'filename', filename),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await printifyImageUpload(
-    arg,
+    imageUrl,
+    filename,
     options,
   );
   respond(res, 200, result);
@@ -45,4 +55,4 @@ module.exports = {
   printifyImageUploadApi,
 };
 
-// curl localhost:8000/printifyImageUpload -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/printifyImageUpload -H "Content-Type: application/json" -d '{ "imageUrl": "...", "filename": "..." }'
