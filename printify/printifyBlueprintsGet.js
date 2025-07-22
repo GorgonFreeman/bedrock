@@ -1,4 +1,4 @@
-const { respond } = require('../utils');
+const { respond, credsByPath } = require('../utils');
 
 const printifyBlueprintsGet = async (
   {
@@ -6,10 +6,12 @@ const printifyBlueprintsGet = async (
   } = {},
 ) => {
 
-  return { 
-    credsPath,
-  };
-  
+  const creds = credsByPath([
+    'printify', 
+    ...credsPath?.split('.') ?? [],
+  ]);
+  console.log(creds);
+  return creds;
 };
 
 const printifyBlueprintsGetApi = async (req, res) => {
