@@ -25,10 +25,10 @@ const printifyRequestSetup = ({ credsPath } = {}) => {
 
 // get base url for use in client
 const commonCreds = printifyRequestSetup();
-const { BASE_URL } = commonCreds;
+const { baseUrl } = commonCreds;
 
 const printifyClient = new CustomAxiosClient({
-  baseUrl: BASE_URL,
+  baseUrl,
   factory: ({ credsPath } = {}) => {
     // console.log('printifyClient factory', credsPath);
     const { headers } = printifyRequestSetup({ credsPath });
