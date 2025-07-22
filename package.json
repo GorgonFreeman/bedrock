@@ -4,6 +4,7 @@
   "description": "The template repository for pebl, my middleware. Key features are env in a .yml file, easy curling and standalone deployment for any function, and advanced patterns for pagination, fetching, etc.",
   "main": "index.js",
   "scripts": {
+    "new": "node _build_scripts/createNewFunction",
     "dev": "(trap 'kill 0' SIGINT; node _build_scripts/runScriptsOnFileSave & nodemon server)",
     "serve": "(trap 'kill 0' SIGINT; node _build_scripts/runScriptsOnFileSave & PORT=8100 node server)"
   },

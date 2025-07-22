@@ -1,8 +1,24 @@
 const jsYaml = require('js-yaml');
 const fs = require('fs').promises;
+const readline = require('readline');
+
+const wait = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms));
 
 const respond = (res, status, data, { contentType = 'application/json' } = {}) => {
   return res.writeHead(status, { 'Content-Type': contentType }).end(contentType === 'application/json' ? JSON.stringify(data) : data);
+};
+
+const askQuestion = (query) => {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    terminal: false,
+  });
+
+  return new Promise(resolve => rl.question(query, ans => {
+    rl.close();
+    resolve(ans);
+  }));
 };
 
 const arrayFromIntRange = (start, end, { step = 1 } = {}) => {
@@ -51,11 +67,16 @@ const writeFileYaml = async (filePath, json) => {
   return await fs.writeFile(filePath, yamlData);
 };
 
+const capitaliseString = (string) => `${ string[0].toUpperCase() }${ string.slice(1) }`;
+
 module.exports = {
+  wait,
   respond,
+  askQuestion,
   arrayFromIntRange,
   logDeep,
   extractCodeBetween,
   readFileYaml,
   writeFileYaml,
+  capitaliseString,
 };
