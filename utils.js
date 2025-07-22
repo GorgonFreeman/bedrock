@@ -1,6 +1,8 @@
+require('dotenv').config();
 const jsYaml = require('js-yaml');
 const fs = require('fs').promises;
 const readline = require('readline');
+const axios = require('axios');
 
 const wait = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms));
 
@@ -19,6 +21,86 @@ const askQuestion = (query) => {
     rl.close();
     resolve(ans);
   }));
+};
+
+// equivalent to customAxiosV3 in pebl
+const customAxios = async (url, {
+  method = 'get',
+  headers,
+  params,
+  body,
+  
+  verbose,
+} = {}) => {
+  
+  const axiosConfig = {
+    ...(headers && { headers }),
+    ...(params && { params }),
+  };
+  
+  let response;
+  let done = false;
+  let cooldown = 3000;
+  let retryAttempt = 0;
+  let maxRetries = 5;
+  
+  while (!done) {
+    try {
+      
+      response = method === 'get' 
+      ? await axios[method](url, axiosConfig)
+      : await axios[method](url, body, axiosConfig);
+      
+      return {
+        success: true,
+        result: response.data,
+      };
+      
+    } catch(error) {
+      
+      const { response: errResponse } = error;
+      const { code, status, statusText, config, headers = {}, data } = errResponse || {};
+      
+      verbose && console.error(status, code);
+
+      const shortErrResponse = {
+        code,
+        status,
+        statusText,
+        config,
+        data,
+      };
+
+      verbose && console.warn(shortErrResponse);
+      
+      const retryStatuses = [408, 429, ...arrayFromIntRange(500, 599)];
+      const retryCodes = ['ECONNRESET', 'ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT', 'ECONNABORTED'];
+      const shouldRetry = retryStatuses.includes(status) || retryCodes.includes(code);
+      
+      if (shouldRetry) {
+        if (retryAttempt >= maxRetries) {
+          console.log(`Ran out of retries`);
+          return {
+            success: false,
+            error: [shortErrResponse || errResponse || error],
+          };
+        }
+        
+        retryAttempt++;
+        const waitTime = headers?.['retry-after'] ? (headers['retry-after'] * 1000) : cooldown;
+        verbose && console.log(`Retry attempt #${ retryAttempt }, waiting ${ waitTime }`);
+        await wait(waitTime);
+        cooldown += cooldown;
+        continue;
+      }
+      
+      return {
+        success: false,
+        error: [shortErrResponse || errResponse || error],
+      };
+      
+    }
+  }
 };
 
 const arrayFromIntRange = (start, end, { step = 1 } = {}) => {
@@ -174,6 +256,7 @@ module.exports = {
   credsByPath,
   logDeep,
   mandateParam,
+  customAxios,
   
   // Misc
   arrayFromIntRange,
