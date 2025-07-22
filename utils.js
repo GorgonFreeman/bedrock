@@ -69,12 +69,75 @@ const writeFileYaml = async (filePath, json) => {
 
 const capitaliseString = (string) => `${ string[0].toUpperCase() }${ string.slice(1) }`;
 
+const credsByPath = (path) => {
+
+  const nodes = Array.isArray(path) ? path : path.split('.').filter(n => n);
+  // We conventionally call the first node the platform and the second the key, but it's up to you.
+  // In the actual platform functions, use a variable that makes sense.
+  // This could be region, or account, or shop, or whatever.
+
+  const { env } = process;
+  let { CREDS } = env;
+
+  try {
+    CREDS = JSON.parse(CREDS);
+  } catch (err) {
+    throw new Error(`Malformed CREDS environment variable: ${ err }`);
+  }
+
+  const creds = (() => {
+
+    let cumulativeCreds;
+    let currentNode = CREDS;
+
+    for (const [index, node] of nodes.entries()) {
+
+      const nextNode = currentNode?.[node];
+  
+      if (!nextNode) {
+        console.error(`No creds found at ${ path }, failed at ${ node } - falling back.`);
+        return cumulativeCreds;
+      }
+  
+      cumulativeCreds = {
+        ...cumulativeCreds,
+        ...nextNode,
+      };
+  
+      currentNode = nextNode;
+    }
+
+    return cumulativeCreds;
+
+  })();
+
+  // Keep only uppercase attributes
+  for (const k of Object.keys(creds)) {
+    if (k !== k.toUpperCase()) {
+      delete creds[k];
+    }
+  }
+  
+  // Turn certain props found as arrays into a single random value
+  // const arrayToSingleValueProps = [
+  // ];
+  // for (const [k, v] of Object.entries(creds)) {
+  //   if (Array.isArray(v) && arrayToSingleValueProps.includes(k)) {
+  //     creds[k] = v[randomNumber(0, v.length - 1)];
+  //   }
+  // }
+
+  return creds;
+};
+
 module.exports = {
   wait,
   respond,
   askQuestion,
-  arrayFromIntRange,
+  credsByPath,
   logDeep,
+
+  arrayFromIntRange,
   extractCodeBetween,
   readFileYaml,
   writeFileYaml,
