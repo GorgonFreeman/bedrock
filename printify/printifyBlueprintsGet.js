@@ -1,4 +1,5 @@
-const { respond, credsByPath, customAxios, logDeep } = require('../utils');
+const { respond, customAxios, logDeep } = require('../utils');
+const { printifyRequestSetup } = require('../printify/printify.utils');
 
 const printifyBlueprintsGet = async (
   {
@@ -6,23 +7,15 @@ const printifyBlueprintsGet = async (
   } = {},
 ) => {
 
-  const creds = credsByPath([
-    'printify', 
-    ...credsPath?.split('.') ?? [],
-  ]);
-  console.log(creds);
-
-  const { 
-    API_KEY,
-    BASE_URL,
-  } = creds;
-
-  const headers = {
-    'Authorization': `Bearer ${ API_KEY }`,
-  };
+  const {
+    baseUrl,
+    headers,
+  } = printifyRequestSetup({
+    credsPath,
+  });
 
   const response = await customAxios(
-    `${ BASE_URL }/catalog/blueprints.json`, 
+    `${ baseUrl }/catalog/blueprints.json`, 
     {
       headers,
     },
