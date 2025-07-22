@@ -1,0 +1,11 @@
+{
+  "name": "bedrock",
+  "version": "1.0.0",
+  "description": "The template repository for pebl, my middleware. Key features are env in a .yml file, easy curling and standalone deployment for any function, and advanced patterns for pagination, fetching, etc.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
