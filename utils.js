@@ -131,15 +131,20 @@ const credsByPath = (path) => {
 };
 
 module.exports = {
+
+  // Really core
   wait,
   respond,
   askQuestion,
   credsByPath,
   logDeep,
-
+  
+  // Misc
   arrayFromIntRange,
   extractCodeBetween,
   readFileYaml,
   writeFileYaml,
   capitaliseString,
+
+  // Classes
 };
