@@ -247,6 +247,138 @@ const mandateParam = async (
   return false;
 };
 
+class CustomAxiosClient {
+  constructor({ baseInterpreter, baseUrl, baseHeaders, factory } = {}) {
+    this.baseInterpreter = baseInterpreter;
+    this.baseUrl = baseUrl;
+    this.baseHeaders = baseHeaders;
+
+    // Factory is a function that takes credentials and returns auth like headers and base url
+    this.factory = factory;
+  }
+
+  async fetch({
+    url, // url is surprisingly optional because the base url may be all you need
+
+    // customAxios payload
+    method,
+    headers,
+    params,
+    body,
+    
+    verbose,
+    interpreter,
+    ...factoryArgs // Arguments for deriving auth
+  } = {}) {
+
+    let baseUrl = this.baseUrl;
+    let baseHeaders = this.baseHeaders;
+    
+    if (this.factory) {
+      const factoryOutput = this.factory(factoryArgs);
+
+      if (factoryOutput.baseUrl) {
+        baseUrl = factoryOutput.baseUrl;
+      }
+
+      if (factoryOutput.headers) {
+        baseHeaders = {
+          ...(baseHeaders ?? {}),
+          ...(factoryOutput.headers ?? {}),
+        };
+      }
+    }
+
+    if (!url) {
+      url = baseUrl;
+    } else if (baseUrl) {
+      // Remove trailing and leading slashes
+      baseUrl = baseUrl.replace(/\/$/, '');
+      url = url.replace(/^\//, '');
+      url = `${ baseUrl }/${ url }`;
+    }
+
+    headers = {
+      ...(baseHeaders ?? {}),
+      ...(headers ?? {}),
+    };
+    
+    let response;
+    let done = false;
+    let cooldown = 3000;
+    let retryAttempt = 0;
+    let maxRetries = 5;
+
+    while (!done) {
+      try {
+        
+        response = await customAxiosV3(url, {
+          method,
+          headers,
+          params,
+          body,
+          verbose,
+        });
+        
+        // If customAxios gives a failure, it's nothing to do with user errors or data, it's because something has gone technically wrong. Return it as-is.
+        if (!response?.success) {
+          verbose && console.log('client response failed');
+          return response;
+        }
+
+        if (!this.baseInterpreter && !interpreter) {
+          verbose && console.log('client response without interpretation');
+          return response;
+        }
+
+        response = this.baseInterpreter ? await this.baseInterpreter(response) : response;
+        response = interpreter ? await interpreter(response) : response;
+
+        let {
+          // success,
+          // result,
+          // error,
+          shouldRetry,
+          ...interpretedResponse
+        } = response;
+        
+        if (shouldRetry) {
+          if (retryAttempt >= maxRetries) {
+            console.warn(`Ran out of retries`);
+            return interpretedResponse;
+          }
+
+          retryAttempt++;
+          const waitTime = cooldown;
+          verbose && console.log(`Retry attempt #${ retryAttempt }, waiting ${ waitTime }`);
+          await wait(waitTime);
+          cooldown += cooldown;
+          continue;
+        }
+
+        if (!interpretedResponse || typeof interpretedResponse !== 'object') {
+          verbose && console.warn('client response interpreter failed');
+          return {
+            success: false,
+            error: ['Response interpreter failed'],
+          };
+        }
+        
+        verbose && console.log('client response successful and interpreted');
+        return interpretedResponse;
+
+      } catch(error) { 
+
+        verbose && console.warn('client response failed');
+        return {
+          success: false,
+          error,
+        } 
+      }
+    }
+  }
+}
+
 module.exports = {
 
   // Really core
@@ -266,4 +398,5 @@ module.exports = {
   capitaliseString,
 
   // Classes
+  CustomAxiosClient,
 };
