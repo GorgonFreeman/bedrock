@@ -1,5 +1,5 @@
-const { respond, customAxios, logDeep } = require('../utils');
-const { printifyRequestSetup } = require('../printify/printify.utils');
+const { respond, logDeep } = require('../utils');
+const { printifyClient } = require('../printify/printify.utils');
 
 const printifyBlueprintsGet = async (
   {
@@ -7,19 +7,11 @@ const printifyBlueprintsGet = async (
   } = {},
 ) => {
 
-  const {
-    baseUrl,
-    headers,
-  } = printifyRequestSetup({
+  const response = await printifyClient.fetch({
+    url: '/catalog/blueprints.json', 
+    verbose: true,
     credsPath,
   });
-
-  const response = await customAxios(
-    `${ baseUrl }/catalog/blueprints.json`, 
-    {
-      headers,
-    },
-  );
 
   logDeep(response);
   return response;
