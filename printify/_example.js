@@ -1,16 +1,22 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, logDeep } = require('../utils');
+const { printifyClient } = require('../printify/printify.utils');
 
 const FUNC = async (
   arg,
   {
+    credsPath,
     option,
   } = {},
 ) => {
 
-  return { 
-    arg, 
-    option,
-  };
+  const response = await printifyClient.fetch({
+    url: '/things.json', 
+    verbose: true,
+    credsPath,
+  });
+
+  logDeep(response);
+  return response;
   
 };
 
