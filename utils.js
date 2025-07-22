@@ -153,7 +153,23 @@ const capitaliseString = (string) => `${ string[0].toUpperCase() }${ string.slic
 
 const credsByPath = (path) => {
 
-  const nodes = Array.isArray(path) ? path : path.split('.').filter(n => n);
+  // First, break the path into nodes by '.'
+  // It can take a string, e.g. 'platform.key.subKey'
+  // or an array, e.g. ['platform', 'key', 'subKey']
+  // or a mix of both, e.g. ['platform', 'key.subKey']
+  // This is to allow ultimate flexibility when calling the function.
+
+  let nodes = Array.isArray(path) 
+  ? path.map(node => {
+    try {
+      return node.split('.');
+    } catch (err) {
+      return null;
+    }
+  }) 
+  : path.split('.');
+  nodes = nodes.flat().filter(n => n);
+
   // We conventionally call the first node the platform and the second the key, but it's up to you.
   // In the actual platform functions, use a variable that makes sense.
   // This could be region, or account, or shop, or whatever.
