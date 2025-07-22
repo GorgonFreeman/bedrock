@@ -1,4 +1,5 @@
 const servableFunctions = [
+  'printify/printifyBlueprintGet',
   'printify/printifyBlueprintsGet',
 ];
 
