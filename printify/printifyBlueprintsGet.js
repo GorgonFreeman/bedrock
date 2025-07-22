@@ -1,4 +1,4 @@
-const { respond, credsByPath, customAxios } = require('../utils');
+const { respond, credsByPath, customAxios, logDeep } = require('../utils');
 
 const printifyBlueprintsGet = async (
   {
@@ -28,7 +28,7 @@ const printifyBlueprintsGet = async (
     },
   );
 
-  console.log(response);
+  logDeep(response);
   return response;
 };
 
