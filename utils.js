@@ -167,31 +167,24 @@ const credsByPath = (path) => {
     throw new Error(`Malformed CREDS environment variable: ${ err }`);
   }
 
-  const creds = (() => {
+  console.log('CREDS', CREDS);
 
-    let cumulativeCreds;
-    let currentNode = CREDS;
+  let creds;
+  for (const node of nodes) {
+    const nodeCreds = (creds || CREDS)?.[node];
 
-    for (const [index, node] of nodes.entries()) {
-
-      const nextNode = currentNode?.[node];
-  
-      if (!nextNode) {
-        console.error(`No creds found at ${ path }, failed at ${ node } - falling back.`);
-        return cumulativeCreds;
-      }
-  
-      cumulativeCreds = {
-        ...cumulativeCreds,
-        ...nextNode,
-      };
-  
-      currentNode = nextNode;
+    if (!nodeCreds) {
+      console.error(`No creds found at ${ path }, failed at ${ node } - falling back.`);
+      break;
     }
 
-    return cumulativeCreds;
+    creds = {
+      ...creds,
+      ...nodeCreds,
+    };
+  }
 
-  })();
+  console.log('creds', creds);
 
   // Keep only uppercase attributes
   for (const k of Object.keys(creds)) {
