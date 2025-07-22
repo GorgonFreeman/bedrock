@@ -11,6 +11,16 @@ const printifyBlueprintsGet = async (
     ...credsPath?.split('.') ?? [],
   ]);
   console.log(creds);
+
+  const { 
+    API_KEY,
+    BASE_URL,
+  } = creds;
+
+  const headers = {
+    'Authorization': `Bearer ${ API_KEY }`,
+  };
+
   return creds;
 };
 
