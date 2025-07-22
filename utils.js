@@ -167,7 +167,7 @@ const credsByPath = (path) => {
     throw new Error(`Malformed CREDS environment variable: ${ err }`);
   }
 
-  console.log('CREDS', CREDS);
+  // console.log('CREDS', CREDS);
 
   let creds = CREDS;
   for (const node of nodes) {
@@ -184,7 +184,7 @@ const credsByPath = (path) => {
     };
   }
 
-  console.log('creds', creds);
+  // console.log('creds', creds);
 
   // Keep only uppercase attributes
   for (const k of Object.keys(creds)) {
@@ -193,7 +193,7 @@ const credsByPath = (path) => {
     }
   }
 
-  console.log('creds', creds);
+  // console.log('creds', creds);
   
   // Turn certain props found as arrays into a single random value
   // const arrayToSingleValueProps = [
