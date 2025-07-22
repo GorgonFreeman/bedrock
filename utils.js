@@ -169,9 +169,9 @@ const credsByPath = (path) => {
 
   console.log('CREDS', CREDS);
 
-  let creds;
+  let creds = CREDS;
   for (const node of nodes) {
-    const nodeCreds = (creds || CREDS)?.[node];
+    const nodeCreds = creds?.[node];
 
     if (!nodeCreds) {
       console.error(`No creds found at ${ path }, failed at ${ node } - falling back.`);
@@ -192,6 +192,8 @@ const credsByPath = (path) => {
       delete creds[k];
     }
   }
+
+  console.log('creds', creds);
   
   // Turn certain props found as arrays into a single random value
   // const arrayToSingleValueProps = [
