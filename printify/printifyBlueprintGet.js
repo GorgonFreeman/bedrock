@@ -2,15 +2,14 @@ const { respond, mandateParam, logDeep } = require('../utils');
 const { printifyClient } = require('../printify/printify.utils');
 
 const printifyBlueprintGet = async (
-  arg,
+  blueprintId,
   {
     credsPath,
-    option,
   } = {},
 ) => {
 
   const response = await printifyClient.fetch({
-    url: '/things.json', 
+    url: `/catalog/blueprints/${ blueprintId }.json`,
     verbose: true,
     credsPath,
   });
@@ -22,19 +21,19 @@ const printifyBlueprintGet = async (
 
 const printifyBlueprintGetApi = async (req, res) => {
   const { 
-    arg,
+    blueprintId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'blueprintId', blueprintId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await printifyBlueprintGet(
-    arg,
+    blueprintId,
     options,
   );
   respond(res, 200, result);
@@ -45,4 +44,4 @@ module.exports = {
   printifyBlueprintGetApi,
 };
 
-// curl localhost:8000/printifyBlueprintGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/printifyBlueprintGet -H "Content-Type: application/json" -d '{ "blueprintId": "421" }'
