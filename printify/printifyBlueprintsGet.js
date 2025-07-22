@@ -1,4 +1,4 @@
-const { respond, credsByPath } = require('../utils');
+const { respond, credsByPath, customAxios } = require('../utils');
 
 const printifyBlueprintsGet = async (
   {
@@ -21,7 +21,15 @@ const printifyBlueprintsGet = async (
     'Authorization': `Bearer ${ API_KEY }`,
   };
 
-  return creds;
+  const response = await customAxios(
+    `${ BASE_URL }/catalog/blueprints.json`, 
+    {
+      headers,
+    },
+  );
+
+  console.log(response);
+  return response;
 };
 
 const printifyBlueprintsGetApi = async (req, res) => {
