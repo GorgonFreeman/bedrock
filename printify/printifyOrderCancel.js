@@ -1,16 +1,35 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, credsByPath } = require('../utils');
 const { printifyClient } = require('../printify/printify.utils');
 
 const printifyOrderCancel = async (
-  arg,
+  orderId,
   {
     credsPath,
-    option,
+    shopId,
   } = {},
 ) => {
 
+  if (!shopId) {
+    const creds = credsByPath([
+      'printify', 
+      ...credsPath?.split('.') ?? [],
+    ]);
+    const {
+      SHOP_ID,
+    } = creds;
+    shopId = SHOP_ID;
+  }
+
+  if (!shopId) {
+    return {
+      success: false,
+      error: ['shopId is required'],
+    };
+  }
+
   const response = await printifyClient.fetch({
-    url: '/things.json', 
+    url: `/shops/${ shopId }/orders/${ orderId }/cancel.json`, 
+    method: 'post',
     verbose: true,
     credsPath,
   });
@@ -22,19 +41,19 @@ const printifyOrderCancel = async (
 
 const printifyOrderCancelApi = async (req, res) => {
   const { 
-    arg,
+    orderId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'orderId', orderId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await printifyOrderCancel(
-    arg,
+    orderId,
     options,
   );
   respond(res, 200, result);
@@ -45,4 +64,4 @@ module.exports = {
   printifyOrderCancelApi,
 };
 
-// curl localhost:8000/printifyOrderCancel -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/printifyOrderCancel -H "Content-Type: application/json" -d '{ "orderId": "67a9d86e097ec1497c0082b1" }'

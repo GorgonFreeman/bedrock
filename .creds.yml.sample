@@ -1,3 +1,4 @@
 printify:
   API_KEY: ____________________________
   BASE_URL: https://api.printify.com/v1
+  SHOP_ID: ____________________________
