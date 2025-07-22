@@ -271,6 +271,14 @@ class CustomAxiosClient {
     ...factoryArgs // Arguments for deriving auth
   } = {}) {
 
+    console.log('fetch: before factory', {
+      url,
+      method,
+      headers,
+      params,
+      body,
+    });
+
     let baseUrl = this.baseUrl;
     let baseHeaders = this.baseHeaders;
     
@@ -302,6 +310,14 @@ class CustomAxiosClient {
       ...(baseHeaders ?? {}),
       ...(headers ?? {}),
     };
+
+    console.log('fetch: after factory', {
+      url,
+      method,
+      headers,
+      params,
+      body,
+    });
     
     let response;
     let done = false;
