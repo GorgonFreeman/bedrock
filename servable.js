@@ -1,4 +1,5 @@
 const servableFunctions = [
+  'printify/printifyBlueprintsGet',
 ];
 
 module.exports = Object.fromEntries(servableFunctions.map(funcPath => {
