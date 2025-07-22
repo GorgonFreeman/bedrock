@@ -10,10 +10,7 @@ const printifyOrderCancel = async (
 ) => {
 
   if (!shopId) {
-    const creds = credsByPath([
-      'printify', 
-      ...credsPath?.split('.') ?? [],
-    ]);
+    const creds = credsByPath(['printify', credsPath]);
     const {
       SHOP_ID,
     } = creds;

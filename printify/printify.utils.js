@@ -2,10 +2,7 @@ const { credsByPath, CustomAxiosClient } = require('../utils');
 
 const printifyRequestSetup = ({ credsPath } = {}) => {
 
-  const creds = credsByPath([
-    'printify', 
-    ...credsPath?.split('.') ?? [],
-  ]);
+  const creds = credsByPath(['printify', credsPath]);
   // console.log(creds);
 
   const { 
