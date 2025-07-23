@@ -1,4 +1,4 @@
-const { respond, mandateParam, customAxios, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id title handle`;
@@ -28,11 +28,18 @@ const shopifyProductGet = async (
     method: 'post',
     body: { query, variables },
     factoryArgs: [credsPath, { apiVersion }],
+    interpreter: async (response) => {
+      return {
+        ...response,
+        ...response.result ? {
+          result: response.result.data.product,
+        } : {},
+      };
+    },
   });
 
   logDeep(response);
   return response;
-  
 };
 
 const shopifyProductGetApi = async (req, res) => {
