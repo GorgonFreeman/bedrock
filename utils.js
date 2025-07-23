@@ -258,6 +258,14 @@ const mandateParam = async (
   return false;
 };
 
+const arrayStandardResponse = (responses) => {
+  return {
+    success: responses.every(r => r?.success),
+    results: responses.map(r => r?.result),
+    errors: responses.map(r => r?.error),
+  };
+};
+
 class CustomAxiosClient {
   constructor({ baseInterpreter, baseUrl, baseHeaders, factory } = {}) {
     this.baseInterpreter = baseInterpreter;
@@ -503,6 +511,7 @@ module.exports = {
   readFileYaml,
   writeFileYaml,
   capitaliseString,
+  arrayStandardResponse,
 
   // Classes
   CustomAxiosClient,
