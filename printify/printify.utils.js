@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient } = require('../utils');
+const { credsByPath, CustomAxiosClient, Getter } = require('../utils');
 
 const printifyRequestSetup = ({ credsPath } = {}) => {
 
@@ -38,6 +38,19 @@ const printifyClient = new CustomAxiosClient({
   },
 });
 
+const printifyGetter = async () => {
+  return new Getter(
+    // url,
+    // {
+    //   payload,
+    //   paginator,
+    //   digester,
+    //   ...getterOptions
+    // },
+  );
+};
+
 module.exports = {
   printifyClient,
+  printifyGetter,
 };
