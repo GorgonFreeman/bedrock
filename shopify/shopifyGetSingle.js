@@ -1,27 +1,31 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, capitaliseString } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id`;
 
 const shopifyGetSingle = async (
   credsPath,
-  arg,
+  resource,
+  id,
   {
     apiVersion,
-    option,
+    attrs = defaultAttrs,
+    gidType,
   } = {},
 ) => {
 
+  const Resource = capitaliseString(resource);
+
   const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
+    query Get${ Resource } ${ resource === 'shop' ? '' : '($id: ID!)' } {
+      ${ resource }${ resource === 'shop' ? '' : '(id: $id)' } {
         ${ attrs }
-      }
+      } 
     }
   `;
 
   const variables = {
-    id: `gid://shopify/Product/${ arg }`,
+    id: `gid://shopify/${ gidType || Resource }/${ id }`,
   };
 
   const response = await shopifyClient.fetch({
@@ -33,7 +37,7 @@ const shopifyGetSingle = async (
       return {
         ...response,
         ...response.result ? {
-          result: response.result.product,
+          result: response.result[resource],
         } : {},
       };
     },
@@ -46,13 +50,15 @@ const shopifyGetSingle = async (
 const shopifyGetSingleApi = async (req, res) => {
   const { 
     credsPath,
-    arg,
+    resource,
+    id,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'resource', resource),
+    mandateParam(res, 'id', id),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -60,7 +66,8 @@ const shopifyGetSingleApi = async (req, res) => {
 
   const result = await shopifyGetSingle(
     credsPath,
-    arg,
+    resource,
+    id,
     options,
   );
   respond(res, 200, result);
