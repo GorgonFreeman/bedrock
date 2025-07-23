@@ -552,7 +552,8 @@ class Getter extends EventEmitter {
     
     while (!done) {
       
-      const response = this.client ? await this.client.fetch(this.url, {
+      const response = this.client ? await this.client.fetch({
+        url: this.url,
         ...paginatedPayload,
         ...(this.clientArgs ?? {}),
       }) : await customAxios(this.url, paginatedPayload);
