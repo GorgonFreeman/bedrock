@@ -9,6 +9,11 @@ const printifyWebhookDelete = async (
   } = {},
 ) => {
 
+  if (!shopId) {
+    const { SHOP_ID } = credsByPath(['printify', credsPath]);
+    shopId = SHOP_ID;
+  }
+
   const response = await printifyClient.fetch({
     url: '/things.json', 
     verbose: true,
