@@ -519,9 +519,6 @@ class Getter extends EventEmitter {
       onItems,
       onDone,
       logFlavourText,
-      useCustomAxiosV3,
-      client,
-      clientFactoryArgs,
     } = options;
     
     this.payload = payload;
@@ -529,10 +526,6 @@ class Getter extends EventEmitter {
     this.digester = digester;
     this.limit = limit;
     this.logFlavourText = logFlavourText;
-
-    this.client = client;
-    this.clientFactoryArgs = clientFactoryArgs;
-    this.fetchFunction = useCustomAxiosV3 ? customAxiosV3 : sonOfCustomAxios;
 
     if (onItems) {
       this.on('items', onItems);
@@ -554,10 +547,7 @@ class Getter extends EventEmitter {
     
     while (!done) {
       
-      const response = this.client ? await this.client.fetch(this.url, {
-        ...paginatedPayload,
-        ...(this.clientFactoryArgs ?? {}),
-      }) : await fetchFunction(this.url, paginatedPayload);
+      const response = await customAxios(this.url, paginatedPayload);
       
       let items = digester 
       ? await digester(response) 
