@@ -1,4 +1,4 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, credsByPath } = require('../utils');
 const { printifyClient } = require('../printify/printify.utils');
 
 const printifyWebhookDelete = async (
