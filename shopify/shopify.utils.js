@@ -1,4 +1,4 @@
-const { credsByPath } = require('../utils');
+const { credsByPath, CustomAxiosClient } = require('../utils');
 
 const shopifyRequestSetup = (
   credsPath,
@@ -13,6 +13,7 @@ const shopifyRequestSetup = (
   const { STORE_URL, SHOPIFY_API_KEY } = creds;
 
   const baseUrl = `https://${ STORE_URL }.myshopify.com/admin/api/${ apiVersion }/graphql.json`;
+
   const headers = {
     'X-Shopify-Access-Token': SHOPIFY_API_KEY,
   };
@@ -23,6 +24,13 @@ const shopifyRequestSetup = (
   }; 
 };
 
+const shopifyClient = new CustomAxiosClient({
+  factory: shopifyRequestSetup,
+  baseHeaders: {
+    'Content-Type': 'application/json',
+  },
+});
+
 module.exports = {
-  shopifyRequestSetup,
+  shopifyClient,
 };
