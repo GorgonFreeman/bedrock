@@ -2,39 +2,41 @@ const { respond, mandateParam, logDeep } = require('../utils');
 const { printifyClient } = require('../printify/printify.utils');
 
 const printifyShippingGet = async (
-  arg,
+  blueprintId,
+  printProviderId,
   {
     credsPath,
-    option,
   } = {},
 ) => {
 
   const response = await printifyClient.fetch({
-    url: '/things.json', 
+    url: `/catalog/blueprints/${ blueprintId }/print_providers/${ printProviderId }/shipping.json`, 
     verbose: true,
     credsPath,
   });
 
   logDeep(response);
   return response;
-  
 };
 
 const printifyShippingGetApi = async (req, res) => {
   const { 
-    arg,
+    blueprintId,
+    printProviderId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'blueprintId', blueprintId),
+    mandateParam(res, 'printProviderId', printProviderId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await printifyShippingGet(
-    arg,
+    blueprintId,
+    printProviderId,
     options,
   );
   respond(res, 200, result);
@@ -45,4 +47,4 @@ module.exports = {
   printifyShippingGetApi,
 };
 
-// curl localhost:8000/printifyShippingGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/printifyShippingGet -H "Content-Type: application/json" -d '{ "blueprintId": "421", "printProviderId": "23" }'
