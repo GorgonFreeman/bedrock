@@ -2,3 +2,8 @@ printify:
   API_KEY: ____________________________
   BASE_URL: https://api.printify.com/v1
   SHOP_ID: ____________________________
+  
+shopify:
+  store:
+    STORE_URL: shopify-store
+    SHOPIFY_API_KEY: shpat_____________
