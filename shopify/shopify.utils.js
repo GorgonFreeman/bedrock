@@ -31,6 +31,7 @@ const shopifyClient = new CustomAxiosClient({
   },
   baseInterpreter: (response) => {
     // console.log(response);
+    // TODO: strip edges and nodes
     return {
       ...response,
       ...response.result ? {
