@@ -406,6 +406,86 @@ class CustomAxiosClient {
   }
 }
 
+class Operation {
+  constructor(func, { args = [], options = {} } = {}) {
+    this.func = func;
+    this.args = args;
+    this.options = options;
+  }
+
+  async run() {
+    return this.func(...this.args, this.options);
+  }
+}
+
+class OperationQueue {
+  constructor(operations) {
+    
+    if (operations && operations.some(op => !(op instanceof Operation))) {
+      throw new Error('OperationQueue only takes Operations');
+    }
+
+    this.queue = operations || [];
+  }
+
+  add(operation) {
+    if (!(operation instanceof Operation)) {
+      throw new Error('OperationQueue only takes Operations');
+    }
+
+    this.queue.push(operation);
+  }
+
+  async run({ 
+    interval = false,
+    verbose = true,
+  } = {}) {
+
+    // Run at interval
+    if (interval) {
+      const results = new Array(this.queue.length);
+      let completedCount = 0;
+      
+      // For each operation, run it without awaiting, and await the interval
+      for (const [i, op] of this.queue.entries()) {
+        (async () => {
+          const result = await op.run();
+          // Preserve result order
+          results[i] = result;
+          completedCount++;
+          
+          if (verbose) {
+            console.log(`${ completedCount } / ${ this.queue.length }`);
+          }
+        })();
+
+        await wait(interval);
+      }
+      
+      // Wait for all operations to complete
+      while (completedCount < this.queue.length) {
+        await wait(seconds(1));
+      }
+      
+      this.queue.length = 0;
+      return results;
+    }
+
+    // Run in sequence
+    const results = [];
+    for (const op of this.queue) {
+      const result = await op.run();
+      results.push(result);
+      if (verbose) {
+        console.log(`${ results.length } / ${ this.queue.length }`);  
+      }
+    }
+
+    this.queue.length = 0;
+    return results;
+  }
+}
+
 module.exports = {
 
   // Really core
@@ -426,4 +506,6 @@ module.exports = {
 
   // Classes
   CustomAxiosClient,
+  Operation,
+  OperationQueue,
 };
