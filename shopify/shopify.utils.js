@@ -30,7 +30,7 @@ const shopifyClient = new CustomAxiosClient({
     'Content-Type': 'application/json',
   },
   baseInterpreter: (response) => {
-    console.log(response);
+    // console.log(response);
     return {
       ...response,
       ...response.result ? {
