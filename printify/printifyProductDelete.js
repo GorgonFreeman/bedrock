@@ -1,16 +1,29 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, credsByPath } = require('../utils');
 const { printifyClient } = require('../printify/printify.utils');
 
 const printifyProductDelete = async (
-  arg,
+  productId,
   {
     credsPath,
-    option,
+    shopId,
   } = {},
 ) => {
 
+  if (!shopId) {
+    const { SHOP_ID } = credsByPath(['printify', credsPath]);
+    shopId = SHOP_ID;
+  }
+
+  if (!shopId) {
+    return {
+      success: false,
+      error: ['shopId is required'],
+    };
+  }
+
   const response = await printifyClient.fetch({
-    url: '/things.json', 
+    url: `/shops/${ shopId }/products/${ productId }.json`, 
+    method: 'delete',
     verbose: true,
     credsPath,
   });
@@ -22,19 +35,19 @@ const printifyProductDelete = async (
 
 const printifyProductDeleteApi = async (req, res) => {
   const { 
-    arg,
+    productId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'productId', productId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await printifyProductDelete(
-    arg,
+    productId,
     options,
   );
   respond(res, 200, result);
@@ -45,4 +58,4 @@ module.exports = {
   printifyProductDeleteApi,
 };
 
-// curl localhost:8000/printifyProductDelete -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/printifyProductDelete -H "Content-Type: application/json" -d '{ "productId": "1234" }'
