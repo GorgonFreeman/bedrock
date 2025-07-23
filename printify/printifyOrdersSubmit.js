@@ -1,40 +1,45 @@
-const { respond, mandateParam, logDeep } = require('../utils');
-const { printifyClient } = require('../printify/printify.utils');
+const { respond, mandateParam, logDeep, Operation, OperationQueue, arrayStandardResponse } = require('../utils');
+const { printifyOrderSubmit } = require('../printify/printifyOrderSubmit');
 
 const printifyOrdersSubmit = async (
-  arg,
+  orderIds,
   {
-    credsPath,
-    option,
+    ...options
   } = {},
 ) => {
 
-  const response = await printifyClient.fetch({
-    url: '/things.json', 
-    verbose: true,
-    credsPath,
-  });
+  const responses = await new OperationQueue(
+    orderIds.map(orderId => {
+      return new Operation(
+        printifyOrderSubmit,
+        {
+          args: [orderId],
+          options: { ...options },
+        },
+      );
+    }),
+  ).run();
 
+  const response = arrayStandardResponse(responses);
   logDeep(response);
   return response;
-  
 };
 
 const printifyOrdersSubmitApi = async (req, res) => {
-  const { 
-    arg,
+  const {
+    orderIds,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'orderIds', orderIds, p => Array.isArray(p)),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await printifyOrdersSubmit(
-    arg,
+    orderIds,
     options,
   );
   respond(res, 200, result);
@@ -45,4 +50,4 @@ module.exports = {
   printifyOrdersSubmitApi,
 };
 
-// curl localhost:8000/printifyOrdersSubmit -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/printifyOrdersSubmit -H "Content-Type: application/json" -d '{ "orderIds": ["1234", "5678"] }'
