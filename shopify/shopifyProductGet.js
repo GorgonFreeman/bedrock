@@ -29,10 +29,11 @@ const shopifyProductGet = async (
     body: { query, variables },
     factoryArgs: [credsPath, { apiVersion }],
     interpreter: async (response) => {
+      // console.log(response);
       return {
         ...response,
         ...response.result ? {
-          result: response.result.data.product,
+          result: response.result.product,
         } : {},
       };
     },

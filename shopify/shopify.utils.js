@@ -29,6 +29,15 @@ const shopifyClient = new CustomAxiosClient({
   baseHeaders: {
     'Content-Type': 'application/json',
   },
+  baseInterpreter: (response) => {
+    console.log(response);
+    return {
+      ...response,
+      ...response.result ? {
+        result: response.result.data,
+      } : {},
+    };
+  },
 });
 
 module.exports = {
