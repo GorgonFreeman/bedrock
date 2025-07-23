@@ -51,7 +51,7 @@ const printifyGetterPaginator = async (customAxiosPayload, response) => {
   const { 
     current_page: currentPage, 
     last_page: lastPage,
-  } = result.data;
+  } = result;
 
   // 2. Supplement payload with next pagination info
   const paginatedPayload = {
