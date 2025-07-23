@@ -1,40 +1,50 @@
-const { respond, mandateParam, logDeep } = require('../utils');
-const { printifyClient } = require('../printify/printify.utils');
+const { respond, mandateParam, logDeep, credsByPath } = require('../utils');
+const { printifyGet } = require('../printify/printify.utils');
 
 const printifyWebhooksGet = async (
-  arg,
   {
     credsPath,
-    option,
+    shopId,
   } = {},
 ) => {
 
-  const response = await printifyClient.fetch({
-    url: '/things.json', 
-    verbose: true,
-    credsPath,
-  });
+  if (!shopId) {
+    const { SHOP_ID } = credsByPath(['printify', credsPath]);
+    shopId = SHOP_ID;
+  }
+
+  if (!shopId) {
+    return {
+      success: false,
+      error: ['shopId is required'],
+    };
+  }
+
+  const response = await printifyGet(
+    `/shops/${ shopId }/webhooks.json`, 
+    {
+      verbose: true,
+      credsPath,
+    },
+  );
 
   logDeep(response);
   return response;
-  
 };
 
 const printifyWebhooksGetApi = async (req, res) => {
   const { 
-    arg,
     options,
   } = req.body;
 
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
+  // const paramsValid = await Promise.all([
+  //   mandateParam(res, 'arg', arg),
+  // ]);
+  // if (paramsValid.some(valid => valid === false)) {
+  //   return;
+  // }
 
   const result = await printifyWebhooksGet(
-    arg,
     options,
   );
   respond(res, 200, result);
@@ -45,4 +55,4 @@ module.exports = {
   printifyWebhooksGetApi,
 };
 
-// curl localhost:8000/printifyWebhooksGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/printifyWebhooksGet
