@@ -2,18 +2,17 @@ const { respond, mandateParam, logDeep } = require('../utils');
 const { printifyClient } = require('../printify/printify.utils');
 
 const printifyWebhookDelete = async (
-  arg,
+  webhookId,
   {
     credsPath,
-    option,
+    shopId,
   } = {},
 ) => {
 
   const response = await printifyClient.fetch({
     url: '/things.json', 
     verbose: true,
-    credsPath,
-  });
+    credsPath,  });
 
   logDeep(response);
   return response;
