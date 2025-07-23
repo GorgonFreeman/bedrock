@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 
 const defaultAttrs = `id title handle`;
 
@@ -12,32 +12,15 @@ const shopifyProductGet = async (
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ productId }`,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    factoryArgs: [credsPath, { apiVersion }],
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
+  const response = await shopifyGetSingle(
+    credsPath,
+    'product',
+    productId,
+    {
+      apiVersion,
+      attrs,
     },
-  });
+  );
 
   logDeep(response);
   return response;
