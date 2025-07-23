@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, Getter } = require('../utils');
+const { credsByPath, CustomAxiosClient, Getter, logDeep, askQuestion } = require('../utils');
 
 const printifyRequestSetup = ({ credsPath } = {}) => {
 
@@ -38,15 +38,40 @@ const printifyClient = new CustomAxiosClient({
   },
 });
 
-const printifyGetter = async () => {
+const printifyGetterPaginator = async (customAxiosPayload, response) => {
+  logDeep('paginator', customAxiosPayload, response);
+  await askQuestion('?');
+};
+
+const printifyGetterDigester = async (response) => {
+  logDeep('paginator', response);
+  await askQuestion('?');
+};
+
+const printifyGetter = async (
+  url,
+  {
+    credsPath,
+    params,
+    ...getterOptions
+  } = {},
+) => {
   return new Getter(
-    // url,
-    // {
-    //   payload,
-    //   paginator,
-    //   digester,
-    //   ...getterOptions
-    // },
+    url,
+    {
+      payload: {
+        params,
+      },
+      paginator: printifyGetterPaginator,
+      digester: printifyGetterDigester,
+
+      client: printifyClient,
+      clientArgs: {
+        credsPath,
+      },
+
+      ...getterOptions
+    },
   );
 };
 

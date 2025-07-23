@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep, credsByPath } = require('../utils');
-const { printifyClient } = require('../printify/printify.utils');
+const { printifyGetter } = require('../printify/printify.utils');
 
 const printifyOrdersGet = async (
   {
@@ -29,46 +29,22 @@ const printifyOrdersGet = async (
     ...sku ? { sku } : {},
   };
 
-  const allItems = [];
-  let done = false;
-  let page;
-
-  while (!done) {
-    const response = await printifyClient.fetch({
-      url: `/shops/${ shopId }/orders.json`,
-      params: {
-        ...params,
-        page,
-      }, 
-      verbose: true,
+  const ordersGetter = await printifyGetter(
+    `/shops/${ shopId }/orders.json`, // url
+    {
+      // customAxios payload
+      params,
+      
+      // client args
       credsPath,
-    });
+    },
+  );
 
-    if (!response?.success) {
-      return {
-        success: false,
-        error: response.error,
-      };
-    }
-
-    const { 
-      current_page, 
-      last_page,
-      data: items, 
-    } = response.result;
-
-    allItems.push(...items);
-
-    if (current_page === last_page) {
-      done = true;
-    }
-
-    page = current_page + 1;
-  }
+  await ordersGetter.run();
 
   return {
     success: true,
-    result: allItems,
+    result: true,
   };  
 };
 
