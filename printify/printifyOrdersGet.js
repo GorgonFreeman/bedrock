@@ -1,16 +1,37 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, credsByPath } = require('../utils');
 const { printifyClient } = require('../printify/printify.utils');
 
 const printifyOrdersGet = async (
-  arg,
   {
     credsPath,
-    option,
+    shopId,
+    perPage,
+    status, // "on-hold", "in-production", "sending-to-production", "has-issues", "fulfilled", "canceled"
+    sku,
   } = {},
 ) => {
 
+  if (!shopId) {
+    const { SHOP_ID } = credsByPath(['printify', credsPath]);
+    shopId = SHOP_ID;
+  }
+
+  if (!shopId) {
+    return {
+      success: false,
+      error: ['shopId is required'],
+    };
+  }
+
+  const params = {
+    ...perPage ? { limit: perPage } : {},
+    ...status ? { status } : {},
+    ...sku ? { sku } : {},
+  };
+
   const response = await printifyClient.fetch({
-    url: '/things.json', 
+    url: `/shops/${ shopId }/orders.json`,
+    params, 
     verbose: true,
     credsPath,
   });
@@ -22,19 +43,17 @@ const printifyOrdersGet = async (
 
 const printifyOrdersGetApi = async (req, res) => {
   const { 
-    arg,
     options,
   } = req.body;
 
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
+  // const paramsValid = await Promise.all([
+  //   mandateParam(res, 'arg', arg),
+  // ]);
+  // if (paramsValid.some(valid => valid === false)) {
+  //   return;
+  // }
 
   const result = await printifyOrdersGet(
-    arg,
     options,
   );
   respond(res, 200, result);
@@ -45,4 +64,5 @@ module.exports = {
   printifyOrdersGetApi,
 };
 
-// curl localhost:8000/printifyOrdersGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/printifyOrdersGet
+// curl localhost:8000/printifyOrdersGet -H "Content-Type: application/json" -d '{ "options": { "perPage": 100, "status": "on-hold" } }'
