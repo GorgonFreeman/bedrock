@@ -1,4 +1,5 @@
-const { respond, mandateParam, credsByPath, customAxios, logDeep } = require('../utils');
+const { respond, mandateParam, customAxios, logDeep } = require('../utils');
+const { shopifyRequestSetup } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id title handle`;
 
@@ -7,21 +8,14 @@ const shopifyProductGet = async (
   productId,
   {
     attrs = defaultAttrs,
+    apiVersion,
   } = {},
 ) => {
 
-  const creds = credsByPath(['shopify', credsPath]);
-
-  const { STORE_URL, SHOPIFY_API_KEY } = creds;
-
-  const apiVersion = '2025-10';
-
-  const url = `https://${ STORE_URL }.myshopify.com/admin/api/${ apiVersion }/graphql.json`;
-  
-  const headers = {
-    'X-Shopify-Access-Token': SHOPIFY_API_KEY,
-    'Content-Type': 'application/json',
-  };
+  const { 
+    baseUrl: url, 
+    headers,
+  } = shopifyRequestSetup({ credsPath, apiVersion });
 
   const query = `
     query GetProduct($id: ID!) {
