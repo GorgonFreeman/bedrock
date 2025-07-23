@@ -12,7 +12,7 @@ const FUNC = async (
   const response = await printifyClient.fetch({
     url: '/things.json', 
     verbose: true,
-    credsPath,
+    factoryArgs: [credsPath],
   });
 
   logDeep(response);

@@ -28,7 +28,7 @@ const printifyOrderCancel = async (
     url: `/shops/${ shopId }/orders/${ orderId }/cancel.json`, 
     method: 'post',
     verbose: true,
-    credsPath,
+    factoryArgs: [credsPath],
   });
 
   logDeep(response);

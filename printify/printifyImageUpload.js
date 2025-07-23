@@ -19,7 +19,7 @@ const printifyImageUpload = async (
     method: 'post',
     body: data,
     verbose: true,
-    credsPath,
+    factoryArgs: [credsPath],
   });
 
   logDeep(response);

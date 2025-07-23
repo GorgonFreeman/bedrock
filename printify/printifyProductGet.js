@@ -24,7 +24,7 @@ const printifyProductGet = async (
   const response = await printifyClient.fetch({
     url: `/shops/${ shopId }/products/${ productId }.json`, 
     verbose: true,
-    credsPath,
+    factoryArgs: [credsPath],
   });
 
   logDeep(response);

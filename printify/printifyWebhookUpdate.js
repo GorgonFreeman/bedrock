@@ -27,7 +27,7 @@ const printifyWebhookUpdate = async (
     method: 'put',
     body: updatePayload,
     verbose: true,
-    credsPath,
+    factoryArgs: [credsPath],
   });
 
   logDeep(response);

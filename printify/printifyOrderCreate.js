@@ -44,7 +44,7 @@ const printifyOrderCreate = async (
     method: 'post',
     body: orderData,
     verbose: true,
-    credsPath,
+    factoryArgs: [credsPath],
   });
 
   logDeep(response);

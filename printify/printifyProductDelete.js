@@ -25,7 +25,7 @@ const printifyProductDelete = async (
     url: `/shops/${ shopId }/products/${ productId }.json`, 
     method: 'delete',
     verbose: true,
-    credsPath,
+    factoryArgs: [credsPath],
   });
 
   logDeep(response);

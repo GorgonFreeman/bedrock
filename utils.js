@@ -297,7 +297,7 @@ class CustomAxiosClient {
     
     verbose,
     interpreter,
-    ...factoryArgs // Arguments for deriving auth
+    factoryArgs, // Arguments for deriving auth
   } = {}) {
 
     console.log('fetch: before factory', {
@@ -312,7 +312,7 @@ class CustomAxiosClient {
     let baseHeaders = this.baseHeaders;
     
     if (this.factory) {
-      const factoryOutput = this.factory(factoryArgs);
+      const factoryOutput = this.factory(...factoryArgs);
 
       if (factoryOutput.baseUrl) {
         baseUrl = factoryOutput.baseUrl;

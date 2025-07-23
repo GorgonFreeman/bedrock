@@ -100,7 +100,7 @@ const printifyGetter = async (
 
       client: printifyClient,
       clientArgs: {
-        credsPath,
+        factoryArgs: [credsPath],
       },
 
       ...getterOptions
