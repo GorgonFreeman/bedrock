@@ -64,15 +64,18 @@ const customAxios = async (url, {
       
       verbose && console.error(status, code);
 
-      const shortErrResponse = {
-        code,
-        status,
-        statusText,
-        config,
-        data,
-      };
+      let errResponseTruncated = errResponse;
+      if ((code || status || statusText || config || data)) {
+        errResponseTruncated = {
+          code,
+          status,
+          statusText,
+          config,
+          data,
+        };
+      }
 
-      verbose && console.warn(shortErrResponse);
+      verbose && console.warn(errResponseTruncated);
       
       const retryStatuses = [408, 429, ...arrayFromIntRange(500, 599)];
       const retryCodes = ['ECONNRESET', 'ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT', 'ECONNABORTED'];
@@ -83,7 +86,7 @@ const customAxios = async (url, {
           console.log(`Ran out of retries`);
           return {
             success: false,
-            error: [shortErrResponse || errResponse || error],
+            error: [errResponseTruncated || error],
           };
         }
         
@@ -97,7 +100,7 @@ const customAxios = async (url, {
       
       return {
         success: false,
-        error: [shortErrResponse || errResponse || error],
+        error: [errResponseTruncated || error],
       };
       
     }
