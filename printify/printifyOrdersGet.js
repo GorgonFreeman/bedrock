@@ -29,16 +29,47 @@ const printifyOrdersGet = async (
     ...sku ? { sku } : {},
   };
 
-  const response = await printifyClient.fetch({
-    url: `/shops/${ shopId }/orders.json`,
-    params, 
-    verbose: true,
-    credsPath,
-  });
+  const allItems = [];
+  let done = false;
+  let page;
 
-  logDeep(response);
-  return response;
-  
+  while (!done) {
+    const response = await printifyClient.fetch({
+      url: `/shops/${ shopId }/orders.json`,
+      params: {
+        ...params,
+        page,
+      }, 
+      verbose: true,
+      credsPath,
+    });
+
+    if (!response?.success) {
+      return {
+        success: false,
+        error: response.error,
+      };
+    }
+
+    const { 
+      current_page, 
+      last_page,
+      data: items, 
+    } = response.result;
+
+    allItems.push(...items);
+
+    if (current_page === last_page) {
+      done = true;
+    }
+
+    page = current_page + 1;
+  }
+
+  return {
+    success: true,
+    result: allItems,
+  };  
 };
 
 const printifyOrdersGetApi = async (req, res) => {
