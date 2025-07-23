@@ -1,34 +1,38 @@
 const { respond, mandateParam } = require('../utils');
 
 const shopifyProductGet = async (
-  arg,
-  {
-    option,
-  } = {},
+  credsPath,
+  productId,
+  // {
+  //   option,
+  // } = {},
 ) => {
 
   return { 
-    arg, 
-    option,
+    credsPath, 
+    productId,
   };
   
 };
 
 const shopifyProductGetApi = async (req, res) => {
   const { 
-    arg,
+    credsPath,
+    productId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'credsPath', credsPath),
+    mandateParam(res, 'productId', productId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await shopifyProductGet(
-    arg,
+    credsPath,
+    productId,
     options,
   );
   respond(res, 200, result);
@@ -39,4 +43,4 @@ module.exports = {
   shopifyProductGetApi,
 };
 
-// curl localhost:8000/shopifyProductGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/shopifyProductGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "productId": "6979774283848" }'
