@@ -1,11 +1,13 @@
 const { respond, mandateParam, credsByPath, customAxios, logDeep } = require('../utils');
 
+const defaultAttrs = `id title handle`;
+
 const shopifyProductGet = async (
   credsPath,
   productId,
-  // {
-  //   option,
-  // } = {},
+  {
+    attrs = defaultAttrs,
+  } = {},
 ) => {
 
   const creds = credsByPath(['shopify', credsPath]);
@@ -24,8 +26,7 @@ const shopifyProductGet = async (
   const query = `
     query GetProduct($id: ID!) {
       product(id: $id) {
-        id
-        title
+        ${ attrs }
       }
     }
   `;
