@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient } = require('../utils');
+const { credsByPath, CustomAxiosClient, stripEdgesAndNodes } = require('../utils');
 
 const shopifyRequestSetup = (
   credsPath,
@@ -31,11 +31,12 @@ const shopifyClient = new CustomAxiosClient({
   },
   baseInterpreter: (response) => {
     // console.log(response);
+    const strippedResponse = stripEdgesAndNodes(response);
     // TODO: strip edges and nodes
     return {
-      ...response,
-      ...response.result ? {
-        result: response.result.data,
+      ...strippedResponse,
+      ...strippedResponse.result ? {
+        result: strippedResponse.result.data,
       } : {},
     };
   },

@@ -276,6 +276,48 @@ const ifTextThenSpace = (text) => {
   return text;
 };
 
+const isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+
+const transformGraphqlObject = (obj) => {
+  if (!obj.edges || !Array.isArray(obj.edges)) {
+    return obj;
+  }
+
+  const nodes = obj.edges.map(edge => edge.node);
+  const { edges, ...otherProps } = obj;
+
+  // If only edges exist, return just the nodes
+  if (Object.keys(otherProps).length === 0) {
+    return nodes;
+  }
+
+  // Otherwise, preserve other properties (like pageInfo) and add items
+  return {
+    ...otherProps,
+    items: nodes
+  };
+};
+
+const stripEdgesAndNodes = (input) => {
+  if (Array.isArray(input)) {
+    return input.map(stripEdgesAndNodes);
+  }
+  
+  if (isObject(input)) {
+    const transformed = transformGraphqlObject(input);
+    
+    // Recursively transform all properties
+    const result = {};
+    for (const [key, value] of Object.entries(transformed)) {
+      result[key] = stripEdgesAndNodes(value);
+    }
+    return result;
+  }
+
+  return input;
+};
+
+
 class CustomAxiosClient {
   constructor({ baseInterpreter, baseUrl, baseHeaders, factory } = {}) {
     this.baseInterpreter = baseInterpreter;
@@ -617,6 +659,7 @@ module.exports = {
   capitaliseString,
   arrayStandardResponse,
   ifTextThenSpace,
+  stripEdgesAndNodes,
 
   // Classes
   CustomAxiosClient,
