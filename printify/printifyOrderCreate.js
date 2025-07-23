@@ -8,6 +8,7 @@ const printifyOrderCreate = async (
   lineItems,
   {
     credsPath,
+    shopId,
     label,
     expressShipping,
     economyShipping,
@@ -15,7 +16,17 @@ const printifyOrderCreate = async (
   } = {},
 ) => {
 
-  const { SHOP_ID } = credsByPath(['printify', credsPath]);
+  if (!shopId) {
+    const { SHOP_ID } = credsByPath(['printify', credsPath]);
+    shopId = SHOP_ID;
+  }
+
+  if (!shopId) {
+    return {
+      success: false,
+      error: ['shopId is required'],
+    };
+  }
 
   const orderData = {
     external_id: externalId,
@@ -29,7 +40,7 @@ const printifyOrderCreate = async (
   };
 
   const response = await printifyClient.fetch({
-    url: `/shops/${ SHOP_ID }/orders.json`,
+    url: `/shops/${ shopId }/orders.json`,
     method: 'post',
     body: orderData,
     verbose: true,
