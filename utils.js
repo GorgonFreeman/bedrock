@@ -3,6 +3,7 @@ const jsYaml = require('js-yaml');
 const fs = require('fs').promises;
 const readline = require('readline');
 const axios = require('axios');
+const { EventEmitter } = require('events');
 
 const wait = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms));
 
@@ -266,6 +267,15 @@ const arrayStandardResponse = (responses) => {
   };
 };
 
+const ifTextThenSpace = (text) => {
+  try {
+    return text ? `${ text } ` : text;
+  } catch(err) {
+    // console.warn(err);
+  }
+  return text;
+};
+
 class CustomAxiosClient {
   constructor({ baseInterpreter, baseUrl, baseHeaders, factory } = {}) {
     this.baseInterpreter = baseInterpreter;
@@ -494,6 +504,101 @@ class OperationQueue {
   }
 }
 
+// https://codepen.io/gorgonfreeman/pen/QwbPNgG?editors=0010
+class Getter extends EventEmitter {
+  constructor(url, options = {}) {
+    super();
+
+    this.url = url;
+    
+    const {
+      payload, 
+      paginator, 
+      digester,
+      limit,
+      onItems,
+      onDone,
+      logFlavourText,
+      useCustomAxiosV3,
+      client,
+      clientFactoryArgs,
+    } = options;
+    
+    this.payload = payload;
+    this.paginator = paginator;
+    this.digester = digester;
+    this.limit = limit;
+    this.logFlavourText = logFlavourText;
+
+    this.client = client;
+    this.clientFactoryArgs = clientFactoryArgs;
+    this.fetchFunction = useCustomAxiosV3 ? customAxiosV3 : sonOfCustomAxios;
+
+    if (onItems) {
+      this.on('items', onItems);
+    }
+
+    if (onDone) {
+      this.on('done', onDone);
+    }
+  }
+
+  async run({
+    verbose = true,
+  } = {}) {
+    const { fetchFunction, paginator, digester } = this;
+    
+    let resultsCount = 0;
+    let done = false;
+    let paginatedPayload = this.payload;
+    
+    while (!done) {
+      
+      const response = this.client ? await this.client.fetch(this.url, {
+        ...paginatedPayload,
+        ...(this.clientFactoryArgs ?? {}),
+      }) : await fetchFunction(this.url, paginatedPayload);
+      
+      let items = digester 
+      ? await digester(response) 
+      : (Array.isArray(response) 
+        ? response 
+        : [response]
+      );
+
+      if (!items) {
+        this.emit('customError', response);
+        break;
+      }
+      
+      resultsCount = resultsCount + items.length;
+      
+      // Limit handling - trim the final return if it would result in more items than requested
+      if (this.limit && resultsCount >= this.limit) {
+        const overlimitAmount = resultsCount - this.limit;
+        if (overlimitAmount > 0) {
+          items = items.slice(0, -overlimitAmount);
+        }
+      }
+      
+      verbose && console.log(`${ ifTextThenSpace(this.logFlavourText) || '' }${ resultsCount } +${ items.length }`);
+      this.emit('items', items);
+      
+      if (!paginator) {
+        break;
+      }
+      
+      if (this.limit && resultsCount >= this.limit) {
+        break;
+      }
+      
+      [done, paginatedPayload] = await paginator(paginatedPayload, response);
+    }
+
+    this.emit('done');
+  }
+}
+
 module.exports = {
 
   // Really core
@@ -512,9 +617,11 @@ module.exports = {
   writeFileYaml,
   capitaliseString,
   arrayStandardResponse,
-
+  ifTextThenSpace,
+  
   // Classes
   CustomAxiosClient,
   Operation,
   OperationQueue,
+  Getter,
 };
