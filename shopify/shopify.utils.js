@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, stripEdgesAndNodes } = require('../utils');
+const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString } = require('../utils');
 
 const shopifyRequestSetup = (
   credsPath,
@@ -42,6 +42,78 @@ const shopifyClient = new CustomAxiosClient({
   },
 });
 
+const shopifyGetterPaginator = async (customAxiosPayload, response) => {
+  console.log('shopifyGetterPaginatorGraphqlStandard response', response);
+  await askQuestion('Continue?');
+};
+
+const shopifyGetterDigester = async (response) => {
+  console.log('shopifyGetterDigesterGraphqlStandard response', response);
+  await askQuestion('Continue?');
+};
+
+const shopifyGetter = async (
+  credsPath, 
+  resource, 
+  { 
+    apiVersion,
+    perPage = 250,
+    cursor,
+    attrs = 'id',
+    resources,
+    ...getterOptions
+  } = {},
+) => {
+
+  resources = resources || `${ resource }s`;
+  // Forgive me, this is a capital for legibility
+  const Resource = capitaliseString(resource);
+  const Resources = capitaliseString(resources);
+
+  const query = `
+    query Get${ Resources } ($first: Int!, $cursor: String) {
+      ${ resources }(
+        first: $first,
+        after: $cursor,
+      ) {
+        edges {
+          node {
+            ${ attrs }
+          }
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    first: perPage,
+    cursor,
+  };
+
+  const getter = new Getter({
+    payload: {
+      method: 'post',
+      body: {
+        query,
+        variables,
+      },
+    },
+    paginator: shopifyGetterPaginator,
+    digester: shopifyGetterDigester,
+
+    client: shopifyClient,
+    clientFactoryArgs: [credsPath, { apiVersion }],
+    ...getterOptions,
+  });
+
+  return getter;
+};
+
 module.exports = {
   shopifyClient,
+  shopifyGetter,
 };
