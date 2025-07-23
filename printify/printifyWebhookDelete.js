@@ -14,6 +14,13 @@ const printifyWebhookDelete = async (
     shopId = SHOP_ID;
   }
 
+  if (!shopId) {
+    return {
+      success: false,
+      error: ['shopId is required'],
+    };
+  }
+
   const response = await printifyClient.fetch({
     url: '/things.json', 
     verbose: true,
