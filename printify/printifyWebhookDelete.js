@@ -22,7 +22,8 @@ const printifyWebhookDelete = async (
   }
 
   const response = await printifyClient.fetch({
-    url: '/things.json', 
+    url: `/shops/${ shopId }/webhooks/${ webhookId }.json`, 
+    method: 'delete',
     verbose: true,
     credsPath,  });
 
