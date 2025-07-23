@@ -544,7 +544,7 @@ class Getter extends EventEmitter {
   async run({
     verbose = true,
   } = {}) {
-    const { fetchFunction, paginator, digester } = this;
+    const { paginator, digester } = this;
     
     let resultsCount = 0;
     let done = false;
