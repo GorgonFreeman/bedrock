@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep, credsByPath } = require('../utils');
-const { printifyGetter } = require('../printify/printify.utils');
+const { printifyGet } = require('../printify/printify.utils');
 
 const printifyOrdersGet = async (
   {
@@ -29,7 +29,7 @@ const printifyOrdersGet = async (
     ...sku ? { sku } : {},
   };
 
-  const ordersGetter = await printifyGetter(
+  const response = await printifyGet(
     `/shops/${ shopId }/orders.json`, // url
     {
       // customAxios payload
@@ -40,12 +40,7 @@ const printifyOrdersGet = async (
     },
   );
 
-  await ordersGetter.run();
-
-  return {
-    success: true,
-    result: true,
-  };  
+  return response;
 };
 
 const printifyOrdersGetApi = async (req, res) => {

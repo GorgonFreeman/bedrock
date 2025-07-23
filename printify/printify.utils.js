@@ -108,7 +108,52 @@ const printifyGetter = async (
   );
 };
 
+const printifyGet = async (
+  url,
+  {
+    credsPath,
+    params,
+    ...getterOptions
+  } = {},
+) => {
+
+  const allItems = [];
+  
+  const getter = await printifyGetter(
+    url, 
+    {
+      credsPath,
+      params,
+
+      onItems: (items) => {
+        allItems.push(...items);
+      },
+
+      ...getterOptions,
+    },
+  );
+
+  // TODO: Rethink error handling
+  let errored = false;
+  getter.on('customError', (errorResponse) => {
+    console.log('customError', errorResponse);
+    errored = errorResponse;
+  });
+
+  await getter.run();
+
+  if (errored) {
+    return errored;
+  }
+
+  return {
+    success: true,
+    result: allItems,
+  };
+};
+
 module.exports = {
   printifyClient,
   printifyGetter,
+  printifyGet,
 };
