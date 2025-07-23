@@ -1,27 +1,27 @@
 const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
+const defaultAttrs = `id name`;
 
 const shopifyOrderGet = async (
   credsPath,
-  arg,
+  orderId,
   {
     apiVersion,
-    option,
+    attrs = defaultAttrs,
   } = {},
 ) => {
 
   const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
+    query GetOrder($id: ID!) {
+      order(id: $id) {
         ${ attrs }
       }
     }
   `;
 
   const variables = {
-    id: `gid://shopify/Product/${ arg }`,
+    id: `gid://shopify/Order/${ orderId }`,
   };
 
   const response = await shopifyClient.fetch({
@@ -33,7 +33,7 @@ const shopifyOrderGet = async (
       return {
         ...response,
         ...response.result ? {
-          result: response.result.product,
+          result: response.result.order,
         } : {},
       };
     },
@@ -46,13 +46,13 @@ const shopifyOrderGet = async (
 const shopifyOrderGetApi = async (req, res) => {
   const { 
     credsPath,
-    arg,
+    orderId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'orderId', orderId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -60,7 +60,7 @@ const shopifyOrderGetApi = async (req, res) => {
 
   const result = await shopifyOrderGet(
     credsPath,
-    arg,
+    orderId,
     options,
   );
   respond(res, 200, result);
@@ -71,4 +71,4 @@ module.exports = {
   shopifyOrderGetApi,
 };
 
-// curl localhost:8000/shopifyOrderGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyOrderGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "orderId": "7015155466312" }'
