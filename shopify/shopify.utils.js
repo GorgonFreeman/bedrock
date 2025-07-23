@@ -106,7 +106,10 @@ const shopifyGetter = async (
     digester: shopifyGetterDigester,
 
     client: shopifyClient,
-    clientFactoryArgs: [credsPath, { apiVersion }],
+    clientArgs: {
+      factoryArgs: [credsPath, { apiVersion }],
+    },
+
     ...getterOptions,
   });
 
