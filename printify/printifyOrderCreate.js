@@ -1,16 +1,37 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, credsByPath } = require('../utils');
 const { printifyClient } = require('../printify/printify.utils');
 
 const printifyOrderCreate = async (
-  arg,
+  externalId,
+  shippingMethod,
+  addressTo,
+  lineItems,
   {
     credsPath,
-    option,
+    label,
+    expressShipping,
+    economyShipping,
+    sendShippingNotification = true,
   } = {},
 ) => {
 
+  const { SHOP_ID } = credsByPath(['printify', credsPath]);
+
+  const orderData = {
+    external_id: externalId,
+    shipping_method: shippingMethod,
+    address_to: addressTo,
+    line_items: lineItems,
+    ...label ? { label } : {},
+    ...expressShipping ? { is_express: expressShipping } : {},
+    ...economyShipping ? { is_economy: economyShipping } : {},
+    ...sendShippingNotification ? { send_shipping_notification: sendShippingNotification } : {},
+  };
+
   const response = await printifyClient.fetch({
-    url: '/things.json', 
+    url: `/shops/${ SHOP_ID }/orders.json`,
+    method: 'post',
+    body: orderData,
     verbose: true,
     credsPath,
   });
@@ -22,19 +43,28 @@ const printifyOrderCreate = async (
 
 const printifyOrderCreateApi = async (req, res) => {
   const { 
-    arg,
+    externalId,
+    shippingMethod,
+    addressTo,
+    lineItems,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'externalId', externalId, p => typeof p === 'string'),
+    mandateParam(res, 'shippingMethod', shippingMethod),
+    mandateParam(res, 'addressTo', addressTo),
+    mandateParam(res, 'lineItems', lineItems, p => Array.isArray(p) && p.every(i => ((i?.product_id && i?.variant_id) || i?.sku) && i?.quantity)),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await printifyOrderCreate(
-    arg,
+    externalId,
+    shippingMethod,
+    addressTo,
+    lineItems,
     options,
   );
   respond(res, 200, result);
@@ -45,4 +75,4 @@ module.exports = {
   printifyOrderCreateApi,
 };
 
-// curl localhost:8000/printifyOrderCreate -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/printifyOrderCreate -H "Content-Type: application/json" -d '{ "externalId": "1234", ... }'
