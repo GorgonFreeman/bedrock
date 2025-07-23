@@ -21,19 +21,19 @@ const printifyWebhookDelete = async (
 
 const printifyWebhookDeleteApi = async (req, res) => {
   const { 
-    arg,
+    webhookId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'webhookId', webhookId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await printifyWebhookDelete(
-    arg,
+    webhookId,
     options,
   );
   respond(res, 200, result);
