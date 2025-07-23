@@ -1,40 +1,51 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, credsByPath } = require('../utils');
 const { printifyClient } = require('../printify/printify.utils');
 
 const printifyProductImagesDownload = async (
-  arg,
+  productId,
+  downloadPath,
   {
     credsPath,
-    option,
+    shopId,
   } = {},
 ) => {
 
-  const response = await printifyClient.fetch({
-    url: '/things.json', 
-    verbose: true,
-    credsPath,
-  });
+  if (!shopId) {
+    const { SHOP_ID } = credsByPath(['printify', credsPath]);
+    shopId = SHOP_ID;
+  }
 
-  logDeep(response);
-  return response;
-  
+  if (!shopId) {
+    return {
+      success: false,
+      error: ['shopId is required'],
+    };
+  }
+
+  return {
+    success: false,
+    error: ['WIP'],
+  };
 };
 
 const printifyProductImagesDownloadApi = async (req, res) => {
   const { 
-    arg,
+    productId,
+    downloadPath,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'productId', productId),
+    mandateParam(res, 'downloadPath', downloadPath),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await printifyProductImagesDownload(
-    arg,
+    productId,
+    downloadPath,
     options,
   );
   respond(res, 200, result);
