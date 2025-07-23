@@ -15,7 +15,7 @@ const shopifyProductGet = async (
   const { 
     baseUrl: url, 
     headers,
-  } = shopifyRequestSetup({ credsPath, apiVersion });
+  } = shopifyRequestSetup(credsPath, { apiVersion });
 
   const query = `
     query GetProduct($id: ID!) {
