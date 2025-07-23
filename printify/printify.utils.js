@@ -69,8 +69,16 @@ const printifyGetterPaginator = async (customAxiosPayload, response) => {
 };
 
 const printifyGetterDigester = async (response) => {
-  logDeep('digester: get items from response', response);
-  await askQuestion('?');
+  // logDeep('digester: get items from response', response);
+  // await askQuestion('?');
+
+  const { success, result } = response;
+  if (!success) { // Return if failed
+    return [true, null]; 
+  }
+
+  const items = result?.data;
+  return items;
 };
 
 const printifyGetter = async (
