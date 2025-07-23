@@ -39,12 +39,12 @@ const printifyClient = new CustomAxiosClient({
 });
 
 const printifyGetterPaginator = async (customAxiosPayload, response) => {
-  logDeep('paginator', customAxiosPayload, response);
+  logDeep('paginator: decide when done and make next payload', customAxiosPayload, response);
   await askQuestion('?');
 };
 
 const printifyGetterDigester = async (response) => {
-  logDeep('paginator', response);
+  logDeep('digester: get items from response', response);
   await askQuestion('?');
 };
 
