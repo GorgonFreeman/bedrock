@@ -7,13 +7,14 @@ const pipe17GetSingle = async (
   {
     credsPath,
     resources,
+    idDecorator,
   } = {},
 ) => {
 
   resources = resources || `${ resource }s`;
 
   const response = await pipe17Client.fetch({
-    url: `/${ resources }/${ id }`,
+    url: `/${ resources }/${ idDecorator }${ id }`,
     factoryArgs: [credsPath],
     interpreter: (response) => {
       return {
