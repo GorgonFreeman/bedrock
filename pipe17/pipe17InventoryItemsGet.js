@@ -1,7 +1,7 @@
 const { respond, mandateParam, logDeep } = require('../utils');
 const { pipe17Get } = require('../pipe17/pipe17.utils');
 
-const pipe17ReceiptsGet = async (
+const pipe17InventoryItemsGet = async (
   {
     credsPath,
     // TODO: Add query params
@@ -22,7 +22,7 @@ const pipe17ReceiptsGet = async (
   return response;
 };
 
-const pipe17ReceiptsGetApi = async (req, res) => {
+const pipe17InventoryItemsGetApi = async (req, res) => {
   const { 
     options,
   } = req.body;
@@ -34,15 +34,15 @@ const pipe17ReceiptsGetApi = async (req, res) => {
   //   return;
   // }
 
-  const result = await pipe17ReceiptsGet(
+  const result = await pipe17InventoryItemsGet(
     options,
   );
   respond(res, 200, result);
 };
 
 module.exports = {
-  pipe17ReceiptsGet,
-  pipe17ReceiptsGetApi,
+  pipe17InventoryItemsGet,
+  pipe17InventoryItemsGetApi,
 };
 
-// curl localhost:8000/pipe17ReceiptsGet -H "Content-Type: application/json" -d '{ "options": { "limit": 300 } }'
+// curl localhost:8000/pipe17InventoryItemsGet -H "Content-Type: application/json" -d '{ "options": { "limit": 300 } }'
