@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction } = require('../utils');
+const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey } = require('../utils');
 
 const shopifyRequestSetup = (
   credsPath,
@@ -98,6 +98,10 @@ const shopifyGetter = async (
     perPage = 250,
     cursor,
     attrs = 'id',
+    queries,
+    reverse,
+    savedSearchId,
+    sortKey,
     
     // Helpers
     resources, // for when plural of the resource isn't `${ resource }s`
@@ -112,10 +116,21 @@ const shopifyGetter = async (
   const Resources = capitaliseString(resources);
 
   const query = `
-    query Get${ Resources } ($first: Int!, $cursor: String) {
+    query Get${ Resources } (
+      $first: Int!, 
+      $cursor: String,
+      $query: String!,
+      $reverse: Boolean,
+      $savedSearchId: ID,
+      $sortKey: ${ Resource }SortKeys,
+    ) {
       ${ resources }(
         first: $first,
         after: $cursor,
+        query: $query,
+        reverse: $reverse,
+        savedSearchId: $savedSearchId,
+        sortKey: $sortKey,
       ) {
         edges {
           node {
@@ -133,6 +148,10 @@ const shopifyGetter = async (
   const variables = {
     first: perPage,
     cursor,
+    ...!strictlyFalsey(reverse) && { reverse },
+    ...queries && { query: queries.join(' AND ') },
+    ...savedSearchId && { savedSearchId: `gid://shopify/SavedSearch/${ savedSearchId }` },
+    ...sortKey && { sortKey },
   };
 
   const getter = new Getter({

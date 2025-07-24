@@ -695,6 +695,7 @@ module.exports = {
   ifTextThenSpace,
   stripEdgesAndNodes,
   getterAsGetFunction,
+  strictlyFalsey,
 
   // Classes
   CustomAxiosClient,
