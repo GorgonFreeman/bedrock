@@ -10,8 +10,8 @@ const pipe17InventoryItemsGet = async (
 ) => {
 
   const response = await pipe17Get(
-    '/receipts', 
-    'receipts', 
+    '/inventory', 
+    'inventory', 
     {
       credsPath,
       ...getterOptions,
