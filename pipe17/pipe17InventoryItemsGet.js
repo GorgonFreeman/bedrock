@@ -1,42 +1,48 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, logDeep } = require('../utils');
+const { pipe17Get } = require('../pipe17/pipe17.utils');
 
-const pipe17InventoryItemsGet = async (
-  arg,
+const pipe17ReceiptsGet = async (
   {
-    option,
+    credsPath,
+    // TODO: Add query params
+    ...getterOptions
   } = {},
 ) => {
 
-  return { 
-    arg, 
-    option,
-  };
-  
+  const response = await pipe17Get(
+    '/receipts', 
+    'receipts', 
+    {
+      credsPath,
+      ...getterOptions,
+    },
+  );
+
+  logDeep(response);
+  return response;
 };
 
-const pipe17InventoryItemsGetApi = async (req, res) => {
+const pipe17ReceiptsGetApi = async (req, res) => {
   const { 
-    arg,
     options,
   } = req.body;
 
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
+  // const paramsValid = await Promise.all([
+  //   mandateParam(res, 'arg', arg),
+  // ]);
+  // if (paramsValid.some(valid => valid === false)) {
+  //   return;
+  // }
 
-  const result = await pipe17InventoryItemsGet(
-    arg,
+  const result = await pipe17ReceiptsGet(
     options,
   );
   respond(res, 200, result);
 };
 
 module.exports = {
-  pipe17InventoryItemsGet,
-  pipe17InventoryItemsGetApi,
+  pipe17ReceiptsGet,
+  pipe17ReceiptsGetApi,
 };
 
-// curl localhost:8000/pipe17InventoryItemsGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/pipe17ReceiptsGet -H "Content-Type: application/json" -d '{ "options": { "limit": 300 } }'
