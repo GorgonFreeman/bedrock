@@ -142,22 +142,28 @@ const shopifyGetter = async (
   const Resource = capitaliseString(resource);
   const Resources = capitaliseString(resources);
 
+  const queryTypeDeclaration = [
+    '$first: Int!',
+    '$cursor: String',
+    ...queries ? ['$query: String,'] : [],
+    ...!strictlyFalsey(reverse) ? ['$reverse: Boolean,'] : [],
+    ...savedSearchId ? ['$savedSearchId: ID,'] : [],
+  ].join('\n');
+
+  const queryVariableDeclaration = [
+    'first: $first',
+    'after: $cursor',
+    ...queries ? ['query: $query'] : [],
+    ...!strictlyFalsey(reverse) ? ['reverse: $reverse'] : [],
+    ...savedSearchId ? ['savedSearchId: $savedSearchId'] : [],
+  ].join('\n');
+
   const query = `
     query Get${ Resources } (
-      $first: Int!, 
-      $cursor: String,
-      ${ queries ? '$query: String,' : '' }
-      ${ !strictlyFalsey(reverse) ? '$reverse: Boolean,' : '' }
-      ${ savedSearchId ? '$savedSearchId: ID,' : '' }
-      ${ sortKey ? `$sortKey: ${ Resource }SortKeys,` : '' }
+      ${ queryTypeDeclaration }
     ) {
       ${ resources }(
-        first: $first,
-        after: $cursor,
-        ${ queries ? 'query: $query,' : '' }
-        ${ !strictlyFalsey(reverse) ? 'reverse: $reverse,' : '' }
-        ${ savedSearchId ? 'savedSearchId: $savedSearchId,' : '' }
-        ${ sortKey ? `sortKey: $sortKey,` : '' }
+        ${ queryVariableDeclaration }
       ) {
         edges {
           node {
