@@ -4,6 +4,7 @@ const { pipe17Get } = require('../pipe17/pipe17.utils');
 const pipe17ReturnsGet = async (
   {
     credsPath,
+    ...getterOptions
   } = {},
 ) => {
 
@@ -12,6 +13,7 @@ const pipe17ReturnsGet = async (
     'returns', 
     {
       credsPath,
+      ...getterOptions,
     },
   );
 
