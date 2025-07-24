@@ -57,21 +57,22 @@ const pipe17GetterPaginator = async (customAxiosPayload, response) => {
   return [done, paginatedPayload];
 };
 
-const pipe17GetterDigester = async (response) => {
-  logDeep('digester: get items from response', response);
-  await askQuestion('?');
+const pipe17GetterDigester = async (response, itemsNodeName) => {
+  // logDeep('digester: get items from response', response);
+  // await askQuestion('?');
 
   const { success, result } = response;
   if (!success) { // Return if failed
     return [true, null]; 
   }
 
-  // const items = result?.data;
-  // return items;
+  const items = result?.[itemsNodeName];
+  return items;
 };
 
 const pipe17Getter = async (
   url,
+  itemsNodeName,
   {
     credsPath,
     params,
@@ -85,7 +86,7 @@ const pipe17Getter = async (
         params,
       },
       paginator: pipe17GetterPaginator,
-      digester: pipe17GetterDigester,
+      digester: (response) => pipe17GetterDigester(response, itemsNodeName),
 
       client: pipe17Client,
       clientArgs: {

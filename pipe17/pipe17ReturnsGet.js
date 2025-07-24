@@ -7,9 +7,13 @@ const pipe17ReturnsGet = async (
   } = {},
 ) => {
 
-  const response = await pipe17Get('/returns', {
-    credsPath,
-  });
+  const response = await pipe17Get(
+    '/returns', 
+    'returns', 
+    {
+      credsPath,
+    },
+  );
 
   logDeep(response);
   return response;
