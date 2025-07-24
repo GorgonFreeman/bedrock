@@ -146,18 +146,18 @@ const shopifyGetter = async (
     query Get${ Resources } (
       $first: Int!, 
       $cursor: String,
-      $query: String,
-      $reverse: Boolean,
-      $savedSearchId: ID,
-      $sortKey: ${ Resource }SortKeys,
+      ${ queries ? '$query: String,' : '' }
+      ${ !strictlyFalsey(reverse) ? '$reverse: Boolean,' : '' }
+      ${ savedSearchId ? '$savedSearchId: ID,' : '' }
+      ${ sortKey ? `$sortKey: ${ Resource }SortKeys,` : '' }
     ) {
       ${ resources }(
         first: $first,
         after: $cursor,
-        query: $query,
-        reverse: $reverse,
-        savedSearchId: $savedSearchId,
-        sortKey: $sortKey,
+        ${ queries ? 'query: $query,' : '' }
+        ${ !strictlyFalsey(reverse) ? 'reverse: $reverse,' : '' }
+        ${ savedSearchId ? 'savedSearchId: $savedSearchId,' : '' }
+        ${ sortKey ? `sortKey: $sortKey,` : '' }
       ) {
         edges {
           node {
