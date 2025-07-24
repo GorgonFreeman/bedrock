@@ -132,6 +132,12 @@ const shopifyGetter = async (
     // https://shopify.dev/docs/api/admin-graphql/latest/queries/themes#arguments-names
     roles,
     names,
+    // https://shopify.dev/docs/api/admin-graphql/unstable/queries/metafielddefinitions
+    constraintStatus,
+    constraintSubtype,
+    namespace,
+    ownerType,
+    pinnedStatus,
     
     // Helpers
     resources, // for when plural of the resource isn't `${ resource }s`
@@ -154,6 +160,11 @@ const shopifyGetter = async (
     ...sortKey ? [`$sortKey: ${ Resource }SortKeys,`] : [],
     ...roles ? [`$roles: [${ Resource }Role],`] : [],
     ...names ? [`$names: [String],`] : [],
+    ...constraintStatus ? ['$constraintStatus: MetafieldDefinitionConstraintStatus,'] : [],
+    ...constraintSubtype ? ['$constraintSubtype: MetafieldDefinitionConstraintSubtypeIdentifier,'] : [],
+    ...namespace ? ['$namespace: String,'] : [],
+    ...ownerType ? ['$ownerType: MetafieldOwnerType!,'] : [],
+    ...pinnedStatus ? ['$pinnedStatus: MetafieldDefinitionPinnedStatus,'] : [],
   ].join('\n');
 
   const queryVariableDeclaration = [
@@ -165,6 +176,11 @@ const shopifyGetter = async (
     ...sortKey ? [`sortKey: $sortKey`] : [],
     ...roles ? [`roles: $roles`] : [],
     ...names ? [`names: $names`] : [],
+    ...constraintStatus ? ['constraintStatus: $constraintStatus'] : [],
+    ...constraintSubtype ? ['constraintSubtype: $constraintSubtype'] : [],
+    ...namespace ? ['namespace: $namespace'] : [],
+    ...ownerType ? ['ownerType: $ownerType'] : [],
+    ...pinnedStatus ? ['pinnedStatus: $pinnedStatus'] : [],
   ].join('\n');
 
   const query = `
@@ -196,6 +212,11 @@ const shopifyGetter = async (
     ...sortKey && { sortKey },
     ...roles && { roles },
     ...names && { names },
+    ...constraintStatus && { constraintStatus },
+    ...constraintSubtype && { constraintSubtype },
+    ...namespace && { namespace },
+    ...ownerType && { ownerType },
+    ...pinnedStatus && { pinnedStatus },
   };
 
   const getter = new Getter({
