@@ -129,6 +129,8 @@ const shopifyGetter = async (
     reverse,
     savedSearchId,
     sortKey,
+    roles,
+    names,
     
     // Helpers
     resources, // for when plural of the resource isn't `${ resource }s`
@@ -149,6 +151,8 @@ const shopifyGetter = async (
     ...!strictlyFalsey(reverse) ? ['$reverse: Boolean,'] : [],
     ...savedSearchId ? ['$savedSearchId: ID,'] : [],
     ...sortKey ? [`$sortKey: ${ Resource }SortKeys,`] : [],
+    ...roles ? [`$roles: [${ Resource }Role],`] : [],
+    ...names ? [`$names: [String],`] : [],
   ].join('\n');
 
   const queryVariableDeclaration = [
@@ -158,6 +162,8 @@ const shopifyGetter = async (
     ...!strictlyFalsey(reverse) ? ['reverse: $reverse'] : [],
     ...savedSearchId ? ['savedSearchId: $savedSearchId'] : [],
     ...sortKey ? [`sortKey: $sortKey`] : [],
+    ...roles ? [`roles: $roles`] : [],
+    ...names ? [`names: $names`] : [],
   ].join('\n');
 
   const query = `
@@ -187,6 +193,8 @@ const shopifyGetter = async (
     ...queries && { query: queries.join(' AND ') },
     ...savedSearchId && { savedSearchId: `gid://shopify/SavedSearch/${ savedSearchId }` },
     ...sortKey && { sortKey },
+    ...roles && { roles },
+    ...names && { names },
   };
 
   const getter = new Getter({
