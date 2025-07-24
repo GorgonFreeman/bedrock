@@ -1,3 +1,7 @@
+require('dotenv').config();
+const { env } = process;
+const debug = env.DEBUG === 'true';
+
 const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey, logDeep, furthestNode } = require('../utils');
 
 const shopifyRequestSetup = (
@@ -31,13 +35,13 @@ const shopifyClient = new CustomAxiosClient({
   },
   baseInterpreter: async (response) => {
     
-    logDeep('response', response);
-    await askQuestion('Continue?');
+    debug && logDeep('response', response);
+    debug && await askQuestion('Continue?');
 
     const strippedResponse = stripEdgesAndNodes(response);
 
-    logDeep('strippedResponse', strippedResponse);
-    await askQuestion('Continue?');
+    debug && logDeep('strippedResponse', strippedResponse);
+    debug && await askQuestion('Continue?');
 
     const unnestedResponse = {
       ...strippedResponse,
@@ -46,8 +50,8 @@ const shopifyClient = new CustomAxiosClient({
       } : {},
     };
 
-    logDeep('unnestedResponse', unnestedResponse);
-    await askQuestion('Continue?');
+    debug && logDeep('unnestedResponse', unnestedResponse);
+    debug && await askQuestion('Continue?');
 
     const { result } = unnestedResponse;
     const { errors } = result || {};

@@ -5,6 +5,9 @@ const readline = require('readline');
 const axios = require('axios');
 const { EventEmitter } = require('events');
 
+const { env } = process;
+const debug = env.DEBUG === 'true';
+
 const wait = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms));
 
 const respond = (res, status, data, { contentType = 'application/json' } = {}) => {
@@ -452,8 +455,8 @@ class CustomAxiosClient {
           verbose,
         });
 
-        logDeep('response', response);
-        await askQuestion('Continue?');
+        debug && logDeep('response', response);
+        debug && await askQuestion('Continue?');
         
         // If customAxios gives a failure, it's nothing to do with user errors or data, it's because something has gone technically wrong. Return it as-is.
         if (!response?.success) {
@@ -467,11 +470,11 @@ class CustomAxiosClient {
         }
 
         response = this.baseInterpreter ? await this.baseInterpreter(response) : response;
-        logDeep('response after baseInterpreter', response);
-        await askQuestion('Continue?');
+        debug && logDeep('response after baseInterpreter', response);
+        debug && await askQuestion('Continue?');
         response = interpreter ? await interpreter(response) : response;
-        logDeep('response after interpreter', response);
-        await askQuestion('Continue?');
+        debug && logDeep('response after interpreter', response);
+        debug && await askQuestion('Continue?');
 
         let {
           // success,
