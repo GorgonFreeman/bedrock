@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey } = require('../utils');
+const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey, logDeep } = require('../utils');
 
 const shopifyRequestSetup = (
   credsPath,
@@ -29,16 +29,27 @@ const shopifyClient = new CustomAxiosClient({
   baseHeaders: {
     'Content-Type': 'application/json',
   },
-  baseInterpreter: (response) => {
-    // console.log(response);
-    const strippedResponse = stripEdgesAndNodes(response);
+  baseInterpreter: async (response) => {
     
-    return {
+    logDeep('response', response);
+    await askQuestion('Continue?');
+
+    const strippedResponse = stripEdgesAndNodes(response);
+
+    logDeep('strippedResponse', strippedResponse);
+    await askQuestion('Continue?');
+
+    const unnestedResponse = {
       ...strippedResponse,
       ...strippedResponse.result ? {
         result: strippedResponse.result.data,
       } : {},
     };
+
+    logDeep('unnestedResponse', unnestedResponse);
+    await askQuestion('Continue?');
+    
+    return unnestedResponse;
   },
 });
 
