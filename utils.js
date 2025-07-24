@@ -440,6 +440,9 @@ class CustomAxiosClient {
           body,
           verbose,
         });
+
+        logDeep('response', response);
+        await askQuestion('Continue?');
         
         // If customAxios gives a failure, it's nothing to do with user errors or data, it's because something has gone technically wrong. Return it as-is.
         if (!response?.success) {
