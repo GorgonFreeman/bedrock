@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString } = require('../utils');
+const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion } = require('../utils');
 
 const shopifyRequestSetup = (
   credsPath,
