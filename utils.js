@@ -320,6 +320,37 @@ const stripEdgesAndNodes = (input) => {
   return input;
 };
 
+const getterAsGetFunction = (getterFactory) => async (...args) => {
+  const options = args[args.length - 1];
+  const argsWithoutOptions = args.slice(0, -1);
+
+  const allItems = [];
+  
+  const getter = await getterFactory(...argsWithoutOptions, {
+    ...options,
+    onItems: (items) => {
+      allItems.push(...items);
+    },
+  });
+
+  // TODO: Rethink error handling
+  let errored = false;
+  getter.on('customError', (errorResponse) => {
+    console.log('customError', errorResponse);
+    errored = errorResponse;
+  });
+
+  await getter.run();
+
+  if (errored) {
+    return errored;
+  }
+
+  return {
+    success: true,
+    result: allItems,
+  };
+};
 
 class CustomAxiosClient {
   constructor({ baseInterpreter, baseUrl, baseHeaders, factory } = {}) {
@@ -663,6 +694,7 @@ module.exports = {
   arrayStandardResponse,
   ifTextThenSpace,
   stripEdgesAndNodes,
+  getterAsGetFunction,
 
   // Classes
   CustomAxiosClient,

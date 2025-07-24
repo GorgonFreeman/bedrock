@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion } = require('../utils');
+const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction } = require('../utils');
 
 const shopifyRequestSetup = (
   credsPath,
@@ -152,38 +152,7 @@ const shopifyGetter = async (
   return getter;
 };
 
-const shopifyGet = async (...args) => {
-
-  const options = args[args.length - 1];
-  const argsWithoutOptions = args.slice(0, -1);
-
-  const allItems = [];
-  
-  const getter = await shopifyGetter(...argsWithoutOptions, {
-    ...options,
-    onItems: (items) => {
-      allItems.push(...items);
-    },
-  });
-
-  // TODO: Rethink error handling
-  let errored = false;
-  getter.on('customError', (errorResponse) => {
-    console.log('customError', errorResponse);
-    errored = errorResponse;
-  });
-
-  await getter.run();
-
-  if (errored) {
-    return errored;
-  }
-
-  return {
-    success: true,
-    result: allItems,
-  };
-};
+const shopifyGet = getterAsGetFunction(shopifyGetter);
 
 module.exports = {
   shopifyClient,
