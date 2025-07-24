@@ -156,7 +156,6 @@ const shopifyGet = async (...args) => {
 
   const options = args[args.length - 1];
   const argsWithoutOptions = args.slice(0, -1);
-  console.log(options, argsWithoutOptions);
 
   const allItems = [];
   
