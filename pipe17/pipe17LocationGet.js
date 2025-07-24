@@ -1,34 +1,39 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, logDeep } = require('../utils');
+const { pipe17GetSingle } = require('../pipe17/pipe17GetSingle');
 
 const pipe17LocationGet = async (
-  arg,
+  locationId,
   {
-    option,
+    credsPath,
   } = {},
 ) => {
 
-  return { 
-    arg, 
-    option,
-  };
-  
+  const response = await pipe17GetSingle(
+    'location',
+    locationId,
+    {
+      credsPath,
+    },
+  );  
+  logDeep(response);
+  return response;
 };
 
 const pipe17LocationGetApi = async (req, res) => {
   const { 
-    arg,
+    locationId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'locationId', locationId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await pipe17LocationGet(
-    arg,
+    locationId,
     options,
   );
   respond(res, 200, result);
@@ -39,4 +44,4 @@ module.exports = {
   pipe17LocationGetApi,
 };
 
-// curl localhost:8000/pipe17LocationGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/pipe17LocationGet -H "Content-Type: application/json" -d '{ "locationId": "6d9c18617ea2d279" }'
