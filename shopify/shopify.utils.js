@@ -93,10 +93,15 @@ const shopifyGetter = async (
   resource, 
   { 
     apiVersion,
+
+    // Related to the actual query
     perPage = 250,
     cursor,
     attrs = 'id',
-    resources,
+    
+    // Helpers
+    resources, // for when plural of the resource isn't `${ resource }s`
+
     ...getterOptions
   } = {},
 ) => {
