@@ -129,6 +129,7 @@ const shopifyGetter = async (
     reverse,
     savedSearchId,
     sortKey,
+    // https://shopify.dev/docs/api/admin-graphql/latest/queries/themes#arguments-names
     roles,
     names,
     
