@@ -1,74 +1,45 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+const { shopifyGet } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id`;
 
-const shopifyThemesGet = async (
+const shopifyProductsGet = async (
   credsPath,
-  arg,
-  {
-    apiVersion,
-    option,
-  } = {},
+  options,
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
+  const response = await shopifyGet(
+    credsPath, 
+    'product', 
+    options,
+  );
 
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    factoryArgs: [credsPath, { apiVersion }],
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
-
-  logDeep(response);
   return response;
 };
 
-const shopifyThemesGetApi = async (req, res) => {
+const shopifyProductsGetApi = async (req, res) => {
   const { 
     credsPath,
-    arg,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
-  const result = await shopifyThemesGet(
+  const result = await shopifyProductsGet(
     credsPath,
-    arg,
     options,
   );
   respond(res, 200, result);
 };
 
 module.exports = {
-  shopifyThemesGet,
-  shopifyThemesGetApi,
+  shopifyProductsGet,
+  shopifyProductsGetApi,
 };
 
-// curl localhost:8000/shopifyThemesGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyProductsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 2 } }'
