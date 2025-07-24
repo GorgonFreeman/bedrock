@@ -78,4 +78,4 @@ module.exports = {
   shopifyGetSingleApi,
 };
 
-// curl localhost:8000/shopifyGetSingle -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyGetSingle -H "Content-Type: application/json" -d '{ "credsPath": "au", "resource": "product", "id": "6979774283848" }'
