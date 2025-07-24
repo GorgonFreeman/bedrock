@@ -138,6 +138,8 @@ const shopifyGetter = async (
     namespace,
     ownerType,
     pinnedStatus,
+    // https://shopify.dev/docs/api/admin-graphql/unstable/queries/metafields#arguments-owner
+    ownerGid,
     
     // Helpers
     resources, // for when plural of the resource isn't `${ resource }s`
@@ -165,6 +167,7 @@ const shopifyGetter = async (
     ...namespace ? ['$namespace: String,'] : [],
     ...ownerType ? ['$ownerType: MetafieldOwnerType!,'] : [],
     ...pinnedStatus ? ['$pinnedStatus: MetafieldDefinitionPinnedStatus,'] : [],
+    ...ownerGid ? ['$owner: ID!,'] : [],
   ].join('\n');
 
   const queryVariableDeclaration = [
@@ -181,6 +184,7 @@ const shopifyGetter = async (
     ...namespace ? ['namespace: $namespace'] : [],
     ...ownerType ? ['ownerType: $ownerType'] : [],
     ...pinnedStatus ? ['pinnedStatus: $pinnedStatus'] : [],
+    ...ownerGid ? ['owner: $owner'] : [],
   ].join('\n');
 
   const query = `
@@ -217,6 +221,7 @@ const shopifyGetter = async (
     ...namespace && { namespace },
     ...ownerType && { ownerType },
     ...pinnedStatus && { pinnedStatus },
+    ...ownerGid && { owner: ownerGid },
   };
 
   const getter = new Getter({
