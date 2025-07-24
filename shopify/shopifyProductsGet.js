@@ -5,13 +5,19 @@ const defaultAttrs = `id`;
 
 const shopifyProductsGet = async (
   credsPath,
-  options,
+  {
+    attrs = defaultAttrs,
+    ...options
+  },
 ) => {
 
   const response = await shopifyGet(
     credsPath, 
     'product', 
-    options,
+    {
+      attrs,
+      ...options,
+    },
   );
 
   return response;
