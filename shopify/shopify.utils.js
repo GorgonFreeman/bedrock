@@ -154,7 +154,7 @@ const shopifyGetter = async (
 
 const shopifyGet = async (...args) => {
 
-  const options = args[2] || {}; // We're finding the options manually because we know shopifyGetter takes 2 args and then options
+  const options = args[2]; // Actually because our convention is { x, y } = {}, options is reliably passed even if it's empty
 
   const allItems = [];
   
