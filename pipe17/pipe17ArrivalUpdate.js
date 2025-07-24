@@ -56,4 +56,4 @@ module.exports = {
   pipe17ArrivalUpdateApi,
 };
 
-// curl localhost:8000/pipe17ArrivalUpdate -H "Content-Type: application/json" -d '{ "extArrivalId": "b9d03991a844e340", "updatePayload": { "senderName": "john c:" } }'
+// curl localhost:8000/pipe17ArrivalUpdate -H "Content-Type: application/json" -d '{ "extArrivalId": "US-WF-044-B", "updatePayload": { "senderName": "john c:" } }'
