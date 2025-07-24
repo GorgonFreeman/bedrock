@@ -11,6 +11,14 @@ const pipe17ReturnGet = async (
   const response = await pipe17Client.fetch({
     url: `/returns/${ returnId }`,
     factoryArgs: [credsPath],
+    interpreter: (response) => {
+      return {
+        ...response,
+        ...response.result ? {
+          result: response.result.return,
+        } : {},
+      };
+    },
   });
   
   logDeep(response);
