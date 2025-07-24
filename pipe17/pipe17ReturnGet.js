@@ -11,6 +11,7 @@ const pipe17ReturnGet = async (
   const response = await pipe17Client.fetch({
     url: `/returns/${ returnId }`,
     factoryArgs: [credsPath],
+    // TODO: Implement base interpreter to handle pipe17's own success node
     interpreter: (response) => {
       return {
         ...response,
