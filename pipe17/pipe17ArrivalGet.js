@@ -47,7 +47,7 @@ const pipe17ArrivalGetApi = async (req, res) => {
 
   const paramsValid = await Promise.all([
     // This validator allows us to identify an arrival by various means, mandating at least one be provided.
-    mandateParam(res, 'arrivalIdentifier', arrivalIdentifier, p => p.arrivalId || p.extArrivalId || p.extArrivalApiId || p.extReferenceId),
+    mandateParam(res, 'arrivalIdentifier', arrivalIdentifier, p => objHasAny(p, ['arrivalId', 'extArrivalId', 'extArrivalApiId', 'extReferenceId'])),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;

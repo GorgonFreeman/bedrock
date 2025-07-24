@@ -366,6 +366,14 @@ const furthestNode = (obj, ...nodes) => {
   return obj;
 };
 
+const objHasAny = (obj, propsArr) => {
+  return propsArr.some(prop => !strictlyFalsey(obj[prop]));
+};
+
+const objHasAll = (obj, propsArr) => {
+  return propsArr.every(prop => !strictlyFalsey(obj[prop]));
+};
+
 class CustomAxiosClient {
   constructor({ baseInterpreter, baseUrl, baseHeaders, factory } = {}) {
     this.baseInterpreter = baseInterpreter;
@@ -718,7 +726,9 @@ module.exports = {
   getterAsGetFunction,
   strictlyFalsey,
   furthestNode,
-
+  objHasAny,
+  objHasAll,
+  
   // Classes
   CustomAxiosClient,
   Operation,
