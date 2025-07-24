@@ -1,7 +1,7 @@
 const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyGet } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
+const defaultAttrs = `id name prefix role`;
 
 const shopifyThemesGet = async (
   credsPath,
@@ -10,7 +10,7 @@ const shopifyThemesGet = async (
 
   const response = await shopifyGet(
     credsPath, 
-    'product', 
+    'theme', 
     options,
   );
 
@@ -42,4 +42,4 @@ module.exports = {
   shopifyThemesGetApi,
 };
 
-// curl localhost:8000/shopifyThemesGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 2 } }'
+// curl localhost:8000/shopifyThemesGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "apiVersion": "unstable" } }'
