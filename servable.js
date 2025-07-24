@@ -1,4 +1,5 @@
 const servableFunctions = [
+  'pipe17/pipe17ReturnsGet',
   'pipe17/pipe17ReturnGet',
   'shopify/shopifyProductDelete',
   'shopify/shopifyProductUpdate',
