@@ -1,4 +1,5 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, logDeep } = require('../utils');
+const { pipe17Get } = require('../pipe17/pipe17.utils');
 
 const pipe17ReturnsGet = async (
   {
@@ -6,10 +7,12 @@ const pipe17ReturnsGet = async (
   } = {},
 ) => {
 
-  return { 
+  const response = await pipe17Get('/returns', {
     credsPath,
-  };
-  
+  });
+
+  logDeep(response);
+  return response;
 };
 
 const pipe17ReturnsGetApi = async (req, res) => {
