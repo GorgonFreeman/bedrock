@@ -154,12 +154,9 @@ const shopifyGetter = async (
 
 const shopifyGet = async (...args) => {
 
-  let [options, ...argsWithoutOptions] = [...args].reverse();
-  argsWithoutOptions = [...argsWithoutOptions].reverse();
-  // We can reliably use the last arg because its default is {}
-  // We're doing it in reverse because spread parameter has to be last
-  // Then we have to turn args back to normal because it's in the wrong order c:
-  console.log(options);
+  const options = args[args.length - 1];
+  const argsWithoutOptions = args.slice(0, -1);
+  console.log(options, argsWithoutOptions);
 
   const allItems = [];
   
