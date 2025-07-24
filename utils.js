@@ -456,7 +456,11 @@ class CustomAxiosClient {
         }
 
         response = this.baseInterpreter ? await this.baseInterpreter(response) : response;
+        logDeep('response after baseInterpreter', response);
+        await askQuestion('Continue?');
         response = interpreter ? await interpreter(response) : response;
+        logDeep('response after interpreter', response);
+        await askQuestion('Continue?');
 
         let {
           // success,
