@@ -3,7 +3,7 @@ const { shopifyGet } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id`;
 
-const shopifyProductsGet = async (
+const shopifyThemesGet = async (
   credsPath,
   options,
 ) => {
@@ -17,7 +17,7 @@ const shopifyProductsGet = async (
   return response;
 };
 
-const shopifyProductsGetApi = async (req, res) => {
+const shopifyThemesGetApi = async (req, res) => {
   const { 
     credsPath,
     options,
@@ -30,7 +30,7 @@ const shopifyProductsGetApi = async (req, res) => {
     return;
   }
 
-  const result = await shopifyProductsGet(
+  const result = await shopifyThemesGet(
     credsPath,
     options,
   );
@@ -38,8 +38,8 @@ const shopifyProductsGetApi = async (req, res) => {
 };
 
 module.exports = {
-  shopifyProductsGet,
-  shopifyProductsGetApi,
+  shopifyThemesGet,
+  shopifyThemesGetApi,
 };
 
-// curl localhost:8000/shopifyProductsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 2 } }'
+// curl localhost:8000/shopifyThemesGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 2 } }'
