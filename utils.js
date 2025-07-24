@@ -352,6 +352,17 @@ const getterAsGetFunction = (getterFactory) => async (...args) => {
   };
 };
 
+const furthestNode = (obj, ...nodes) => {
+  for (const node of nodes) {
+    if (strictlyFalsey(obj[node])) {
+      return obj;
+    }
+
+    obj = obj[node];
+  }
+  return obj;
+};
+
 class CustomAxiosClient {
   constructor({ baseInterpreter, baseUrl, baseHeaders, factory } = {}) {
     this.baseInterpreter = baseInterpreter;
@@ -703,6 +714,7 @@ module.exports = {
   stripEdgesAndNodes,
   getterAsGetFunction,
   strictlyFalsey,
+  furthestNode,
 
   // Classes
   CustomAxiosClient,

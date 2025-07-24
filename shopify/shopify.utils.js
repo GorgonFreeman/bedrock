@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey, logDeep } = require('../utils');
+const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey, logDeep, furthestNode } = require('../utils');
 
 const shopifyRequestSetup = (
   credsPath,
@@ -42,7 +42,7 @@ const shopifyClient = new CustomAxiosClient({
     const unnestedResponse = {
       ...strippedResponse,
       ...strippedResponse.result ? {
-        result: strippedResponse.result.data,
+        result: furthestNode(strippedResponse, 'result', 'data'),
       } : {},
     };
 
