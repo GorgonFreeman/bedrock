@@ -28,8 +28,8 @@ const pipe17Client = new CustomAxiosClient({
 });
 
 const pipe17GetterPaginator = async (customAxiosPayload, response) => {
-  logDeep('paginator: decide when done and make next payload', customAxiosPayload, response);
-  await askQuestion('?');
+  // logDeep('paginator: decide when done and make next payload', customAxiosPayload, response);
+  // await askQuestion('?');
 
   const { success, result } = response;
   if (!success) { // Return if failed
@@ -40,8 +40,8 @@ const pipe17GetterPaginator = async (customAxiosPayload, response) => {
   const { pagination } = result;
   const { last, pageSize } = pagination;
 
-  console.log(last, pageSize, customAxiosPayload?.params);
-  await askQuestion('?');
+  // console.log(last, pageSize, customAxiosPayload?.params);
+  // await askQuestion('?');
 
   // 2. Supplement payload with next pagination info
   const paginatedPayload = {
