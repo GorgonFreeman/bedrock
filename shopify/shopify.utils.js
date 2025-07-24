@@ -43,8 +43,8 @@ const shopifyClient = new CustomAxiosClient({
 });
 
 const shopifyGetterPaginator = async (customAxiosPayload, response, nodeName) => {
-  console.log('shopifyGetterPaginator response', response);
-  await askQuestion('Continue?');
+  // console.log('shopifyGetterPaginator response', response);
+  // await askQuestion('Continue?');
 
   const { success, result } = response;
   if (!success) { // Return if failed
@@ -52,22 +52,23 @@ const shopifyGetterPaginator = async (customAxiosPayload, response, nodeName) =>
   }
 
   // 1. Extract necessary pagination info
-  // const { 
-  //   current_page: currentPage, 
-  //   last_page: lastPage,
-  // } = result;
+  const { pageInfo } = result[nodeName];
+  const { hasNextPage, endCursor } = pageInfo;
 
   // 2. Supplement payload with next pagination info
-  // const paginatedPayload = {
-  //   ...customAxiosPayload,
-  //   params: {
-  //     ...customAxiosPayload?.params,
-  //     page: currentPage + 1,
-  //   },
-  // };
+  const paginatedPayload = {
+    ...customAxiosPayload,
+    body: {
+      ...customAxiosPayload?.body,
+      variables: {
+        ...customAxiosPayload?.body?.variables,
+        cursor: endCursor,
+      },
+    },
+  };
   
   // 3. Logic to determine done
-  // const done = currentPage === lastPage;
+  const done = !hasNextPage;
   
   return [done, paginatedPayload];
 };
