@@ -12,9 +12,12 @@ const shopifyProductUpdate = async (
     returnAttrs = defaultAttrs,
   } = {},
 ) => {
+  
+  const mutationName = 'productUpdate';
+
   const mutation = `
-    mutation productUpdate($product: ProductUpdateInput!) {
-      productUpdate(product: $product) {
+    mutation ${ mutationName }($product: ProductUpdateInput!) {
+      ${ mutationName }(product: $product) {
         product {
           ${ returnAttrs }
         }
@@ -41,7 +44,7 @@ const shopifyProductUpdate = async (
       return {
         ...response,
         ...response.result ? {
-          result: response.result.productUpdate,
+          result: response.result[mutationName],
         } : {},
       };
     },

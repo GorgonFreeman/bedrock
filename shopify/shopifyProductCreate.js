@@ -11,9 +11,12 @@ const shopifyProductCreate = async (
     returnAttrs = defaultAttrs,
   } = {},
 ) => {
+
+  const mutationName = 'productCreate';
+  
   const mutation = `
-    mutation productCreate($input: ProductInput!) {
-      productCreate(input: $input) {
+    mutation ${ mutationName }($input: ProductInput!) {
+      ${ mutationName }(input: $input) {
         product {
           ${ returnAttrs }
         }
@@ -37,7 +40,7 @@ const shopifyProductCreate = async (
       return {
         ...response,
         ...response.result ? {
-          result: response.result.productCreate,
+          result: response.result[mutationName],
         } : {},
       };
     },

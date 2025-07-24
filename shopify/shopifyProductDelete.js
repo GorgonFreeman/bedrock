@@ -8,9 +8,12 @@ const shopifyProductDelete = async (
     apiVersion,
   } = {},
 ) => {
+  
+  const mutationName = 'productDelete';
+
   const mutation = `
-    mutation productDelete($input: ProductDeleteInput!) {
-      productDelete(input: $input) {
+    mutation ${ mutationName }($input: ProductDeleteInput!) {
+      ${ mutationName }(input: $input) {
         deletedProductId
         userErrors {
           field
@@ -34,7 +37,7 @@ const shopifyProductDelete = async (
       return {
         ...response,
         ...response.result ? {
-          result: response.result.productDelete,
+          result: response.result[mutationName],
         } : {},
       };
     },
