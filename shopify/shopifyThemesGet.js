@@ -43,3 +43,4 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyThemesGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "apiVersion": "unstable" } }'
+// curl localhost:8000/shopifyThemesGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "apiVersion": "unstable", "names": ["*Backup*"], "attrs": "name" } }'
