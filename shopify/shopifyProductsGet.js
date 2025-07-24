@@ -8,6 +8,9 @@ const shopifyProductsGet = async (
   {
     apiVersion,
     attrs = defaultAttrs,
+
+    // getter options, e.g. limit
+    ...getterOptions
   } = {},
 ) => {
 
@@ -17,6 +20,8 @@ const shopifyProductsGet = async (
     {
       apiVersion,
       attrs,
+
+      ...getterOptions,
     },
   );
 
@@ -48,4 +53,4 @@ module.exports = {
   shopifyProductsGetApi,
 };
 
-// curl localhost:8000/shopifyProductsGet -H "Content-Type: application/json" -d '{ "credsPath": "au" }'
+// curl localhost:8000/shopifyProductsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 2 } }'
