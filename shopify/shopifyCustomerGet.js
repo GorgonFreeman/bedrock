@@ -1,43 +1,26 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 
-const defaultAttrs = `id`;
+const defaultAttrs = `id firstName lastName email phone`;
 
 const shopifyCustomerGet = async (
   credsPath,
-  arg,
+  customerId,
   {
     apiVersion,
-    option,
+    attrs = defaultAttrs,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    factoryArgs: [credsPath, { apiVersion }],
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
+  const response = await shopifyGetSingle(
+    credsPath,
+    'customer',
+    customerId,
+    {
+      apiVersion,
+      attrs,
     },
-  });
+  );
 
   logDeep(response);
   return response;
@@ -46,13 +29,13 @@ const shopifyCustomerGet = async (
 const shopifyCustomerGetApi = async (req, res) => {
   const { 
     credsPath,
-    arg,
+    customerId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'customerId', customerId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -60,7 +43,7 @@ const shopifyCustomerGetApi = async (req, res) => {
 
   const result = await shopifyCustomerGet(
     credsPath,
-    arg,
+    customerId,
     options,
   );
   respond(res, 200, result);
@@ -71,4 +54,4 @@ module.exports = {
   shopifyCustomerGetApi,
 };
 
-// curl localhost:8000/shopifyCustomerGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyCustomerGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerId": "5868161368132" }'
