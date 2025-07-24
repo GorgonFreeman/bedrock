@@ -1,13 +1,33 @@
 const { respond, mandateParam, logDeep } = require('../utils');
 const { pipe17Client } = require('../pipe17/pipe17.utils');
+const { pipe17ArrivalGet } = require('../pipe17/pipe17ArrivalGet');
 
 const pipe17ArrivalUpdate = async (
-  arrivalId,
+  arrivalIdentifier,
   updatePayload,
   {
     credsPath,
   } = {},
 ) => {
+
+  let { arrivalId } = arrivalIdentifier;
+
+  if (!arrivalId) {
+    const arrivalResponse = await pipe17ArrivalGet(arrivalIdentifier, { credsPath });
+
+    if (!arrivalResponse?.success) {
+      return arrivalResponse;
+    }
+
+    arrivalId = arrivalResponse?.result?.arrivalId;
+  }
+
+  if (!arrivalId) {
+    return {
+      success: false,
+      error: 'Arrival ID not found',
+    };
+  }
 
   const response = await pipe17Client.fetch({
     url: `/arrivals/${ arrivalId }`,
@@ -30,13 +50,13 @@ const pipe17ArrivalUpdate = async (
 
 const pipe17ArrivalUpdateApi = async (req, res) => {
   const { 
-    arrivalId,
+    arrivalIdentifier,
     updatePayload,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arrivalId', arrivalId),
+    mandateParam(res, 'arrivalIdentifier', arrivalIdentifier, p => objHasAny(p, ['arrivalId', 'extArrivalId', 'extArrivalApiId', 'extReferenceId'])),
     mandateParam(res, 'updatePayload', updatePayload),
   ]);
   if (paramsValid.some(valid => valid === false)) {
@@ -44,7 +64,7 @@ const pipe17ArrivalUpdateApi = async (req, res) => {
   }
 
   const result = await pipe17ArrivalUpdate(
-    arrivalId,
+    arrivalIdentifier,
     updatePayload,
     options,
   );
@@ -56,4 +76,5 @@ module.exports = {
   pipe17ArrivalUpdateApi,
 };
 
-// curl localhost:8000/pipe17ArrivalUpdate -H "Content-Type: application/json" -d '{ "arrivalId": "d22afa93793be1f1", "updatePayload": { "senderName": "john c:" } }'
+// curl localhost:8000/pipe17ArrivalUpdate -H "Content-Type: application/json" -d '{ "arrivalIdentifier": { "arrivalId": "d22afa93793be1f1" }, "updatePayload": { "senderName": "john c:" } }'
+// curl localhost:8000/pipe17ArrivalUpdate -H "Content-Type: application/json" -d '{ "arrivalIdentifier": { "extArrivalId": "US-WF-044-B" }, "updatePayload": { "senderName": "john c:" } }'
