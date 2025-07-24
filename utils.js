@@ -374,6 +374,10 @@ const objHasAll = (obj, propsArr) => {
   return propsArr.every(prop => !strictlyFalsey(obj[prop]));
 };
 
+const objSatisfies = (obj, validators) => {
+  return validators.every(validator => validator(obj));
+};
+
 class CustomAxiosClient {
   constructor({ baseInterpreter, baseUrl, baseHeaders, factory } = {}) {
     this.baseInterpreter = baseInterpreter;
@@ -728,6 +732,7 @@ module.exports = {
   furthestNode,
   objHasAny,
   objHasAll,
+  objSatisfies,
   
   // Classes
   CustomAxiosClient,
