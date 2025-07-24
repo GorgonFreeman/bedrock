@@ -42,14 +42,24 @@ const shopifyClient = new CustomAxiosClient({
   },
 });
 
-const shopifyGetterPaginator = async (customAxiosPayload, response) => {
-  console.log('shopifyGetterPaginatorGraphqlStandard response', response);
+const shopifyGetterPaginator = async (customAxiosPayload, response, nodeName) => {
+  console.log('shopifyGetterPaginator response', response);
   await askQuestion('Continue?');
 };
 
-const shopifyGetterDigester = async (response) => {
-  console.log('shopifyGetterDigesterGraphqlStandard response', response);
-  await askQuestion('Continue?');
+const shopifyGetterDigester = async (response, nodeName) => {
+  // console.log('shopifyGetterDigester response', response);
+  // await askQuestion('Continue?');
+
+  const { success, result } = response;
+  
+  // Return if error
+  if (!success) {
+    return null;
+  }
+
+  const items = result?.[nodeName]?.['items'] || result?.[nodeName];
+  return items;
 };
 
 const shopifyGetter = async (
@@ -102,8 +112,8 @@ const shopifyGetter = async (
         variables,
       },
     },
-    paginator: shopifyGetterPaginator,
-    digester: shopifyGetterDigester,
+    paginator: (...args) => shopifyGetterPaginator(...args, resources),
+    digester: (...args) => shopifyGetterDigester(...args, resources),
 
     client: shopifyClient,
     clientArgs: {
