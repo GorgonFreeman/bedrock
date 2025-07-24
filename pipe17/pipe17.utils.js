@@ -37,22 +37,23 @@ const pipe17GetterPaginator = async (customAxiosPayload, response) => {
   }
 
   // 1. Extract necessary pagination info
-  // const { 
-  //   current_page: currentPage, 
-  //   last_page: lastPage,
-  // } = result;
+  const { pagination } = result;
+  const { last, pageSize } = pagination;
+
+  console.log(last, pageSize, customAxiosPayload?.params);
+  await askQuestion('?');
 
   // 2. Supplement payload with next pagination info
-  // const paginatedPayload = {
-  //   ...customAxiosPayload,
-  //   params: {
-  //     ...customAxiosPayload?.params,
-  //     page: currentPage + 1,
-  //   },
-  // };
+  const paginatedPayload = {
+    ...customAxiosPayload,
+    params: {
+      ...customAxiosPayload?.params,
+      skip: (customAxiosPayload?.params?.skip || 0) + pageSize,
+    },
+  };
   
   // 3. Logic to determine done
-  // const done = currentPage === lastPage;
+  const done = last;
   
   return [done, paginatedPayload];
 };

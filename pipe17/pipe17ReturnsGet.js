@@ -42,4 +42,4 @@ module.exports = {
   pipe17ReturnsGetApi,
 };
 
-// curl localhost:8000/pipe17ReturnsGet -H "Content-Type: application/json" -d '{ "options": { "limit": 10 } }'
+// curl localhost:8000/pipe17ReturnsGet -H "Content-Type: application/json" -d '{ "options": { "limit": 300 } }'
