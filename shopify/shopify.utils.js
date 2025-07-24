@@ -148,6 +148,7 @@ const shopifyGetter = async (
     ...queries ? ['$query: String,'] : [],
     ...!strictlyFalsey(reverse) ? ['$reverse: Boolean,'] : [],
     ...savedSearchId ? ['$savedSearchId: ID,'] : [],
+    ...sortKey ? [`$sortKey: ${ Resource }SortKeys,`] : [],
   ].join('\n');
 
   const queryVariableDeclaration = [
@@ -156,6 +157,7 @@ const shopifyGetter = async (
     ...queries ? ['query: $query'] : [],
     ...!strictlyFalsey(reverse) ? ['reverse: $reverse'] : [],
     ...savedSearchId ? ['savedSearchId: $savedSearchId'] : [],
+    ...sortKey ? [`sortKey: $sortKey`] : [],
   ].join('\n');
 
   const query = `
