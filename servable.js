@@ -1,4 +1,5 @@
 const servableFunctions = [
+  'shopify/shopifyThemesGet',
   'shopify/shopifyProductsGet',
   'shopify/shopifyGetSingle',
   'shopify/shopifyOrderGet',
