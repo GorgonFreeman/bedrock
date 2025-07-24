@@ -1,34 +1,39 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, logDeep } = require('../utils');
+const { pipe17GetSingle } = require('../pipe17/pipe17GetSingle');
 
 const pipe17PurchaseGet = async (
-  arg,
+  purchaseId,
   {
-    option,
+    credsPath,
   } = {},
 ) => {
 
-  return { 
-    arg, 
-    option,
-  };
-  
+  const response = await pipe17GetSingle(
+    'purchase',
+    purchaseId,
+    {
+      credsPath,
+    },
+  );  
+  logDeep(response);
+  return response;
 };
 
 const pipe17PurchaseGetApi = async (req, res) => {
   const { 
-    arg,
+    purchaseId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'purchaseId', purchaseId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await pipe17PurchaseGet(
-    arg,
+    purchaseId,
     options,
   );
   respond(res, 200, result);
@@ -39,4 +44,4 @@ module.exports = {
   pipe17PurchaseGetApi,
 };
 
-// curl localhost:8000/pipe17PurchaseGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/pipe17PurchaseGet -H "Content-Type: application/json" -d '{ "purchaseId": "a906b740adf5f69a" }'
