@@ -1,4 +1,4 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, credsByPath } = require('../utils');
 
 const pipe17ReturnGet = async (
   returnId,
@@ -7,7 +7,9 @@ const pipe17ReturnGet = async (
   } = {},
 ) => {
 
-  return true;
+  const creds = credsByPath(['pipe17', credsPath]);
+
+  return creds;
 };
 
 const pipe17ReturnGetApi = async (req, res) => {
