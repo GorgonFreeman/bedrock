@@ -57,3 +57,4 @@ module.exports = {
 };
 
 // curl localhost:8000/pipe17ArrivalGet -H "Content-Type: application/json" -d '{ "arrivalIdentifier": { "extArrivalId": "US-WF-044-B" } }'
+// curl localhost:8000/pipe17ArrivalGet -H "Content-Type: application/json" -d '{ "arrivalIdentifier": { "arrivalId": "d22afa93793be1f1" } }'
