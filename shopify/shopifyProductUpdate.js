@@ -6,7 +6,7 @@ const defaultAttrs = `id title handle`;
 const shopifyProductUpdate = async (
   credsPath,
   productId,
-  productInput,
+  updatePayload,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
@@ -28,7 +28,7 @@ const shopifyProductUpdate = async (
 
   const variables = {
     id: productId,
-    input: productInput,
+    input: updatePayload,
   };
 
   const response = await shopifyClient.fetch({
@@ -53,14 +53,14 @@ const shopifyProductUpdateApi = async (req, res) => {
   const {
     credsPath,
     productId,
-    productInput,
+    updatePayload,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
     mandateParam(res, 'productId', productId),
-    mandateParam(res, 'productInput', productInput),
+    mandateParam(res, 'updatePayload', updatePayload),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -69,7 +69,7 @@ const shopifyProductUpdateApi = async (req, res) => {
   const result = await shopifyProductUpdate(
     credsPath,
     productId,
-    productInput,
+    updatePayload,
     options,
   );
   respond(res, 200, result);
@@ -87,7 +87,7 @@ curl -X POST \
   -d '{
     "credsPath": "au",
     "productId": "gid://shopify/Product/1234567890",
-    "productInput": {
+    "updatePayload": {
       "title": "Updated Product Title",
       "tags": ["updated", "test"]
     },
