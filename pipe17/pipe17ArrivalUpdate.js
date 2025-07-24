@@ -2,7 +2,7 @@ const { respond, mandateParam, logDeep } = require('../utils');
 const { pipe17Client } = require('../pipe17/pipe17.utils');
 
 const pipe17ArrivalUpdate = async (
-  extArrivalId,
+  arrivalId,
   updatePayload,
   {
     credsPath,
@@ -10,7 +10,7 @@ const pipe17ArrivalUpdate = async (
 ) => {
 
   const response = await pipe17Client.fetch({
-    url: `/arrivals/ext:${ extArrivalId }`,
+    url: `/arrivals/${ arrivalId }`,
     method: 'put',
     body: updatePayload,
     factoryArgs: [credsPath],
@@ -30,13 +30,13 @@ const pipe17ArrivalUpdate = async (
 
 const pipe17ArrivalUpdateApi = async (req, res) => {
   const { 
-    extArrivalId,
+    arrivalId,
     updatePayload,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'extArrivalId', extArrivalId),
+    mandateParam(res, 'arrivalId', arrivalId),
     mandateParam(res, 'updatePayload', updatePayload),
   ]);
   if (paramsValid.some(valid => valid === false)) {
@@ -44,7 +44,7 @@ const pipe17ArrivalUpdateApi = async (req, res) => {
   }
 
   const result = await pipe17ArrivalUpdate(
-    extArrivalId,
+    arrivalId,
     updatePayload,
     options,
   );
@@ -56,4 +56,4 @@ module.exports = {
   pipe17ArrivalUpdateApi,
 };
 
-// curl localhost:8000/pipe17ArrivalUpdate -H "Content-Type: application/json" -d '{ "extArrivalId": "US-WF-044-B", "updatePayload": { "senderName": "john c:" } }'
+// curl localhost:8000/pipe17ArrivalUpdate -H "Content-Type: application/json" -d '{ "arrivalId": "d22afa93793be1f1", "updatePayload": { "senderName": "john c:" } }'
