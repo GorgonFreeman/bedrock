@@ -9,7 +9,7 @@ shopify:
     SHOPIFY_API_KEY: shpat_____________
 
 pipe17:
-  URL: https://api-v3.pipe17.com/api/v3
+  BASE_URL: https://api-v3.pipe17.com/api/v3
   API_KEY: ____________________________
   sandbox:
     URL: https://api-v3.develop.pipe17.com/api/v3
