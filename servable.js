@@ -1,4 +1,6 @@
 const servableFunctions = [
+  'pipe17/pipe17ProductsGet',
+  'pipe17/pipe17ProductGet',
   'pipe17/pipe17PurchaseGet',
   'pipe17/pipe17PurchasesGet',
   'pipe17/pipe17LocationsGet',
