@@ -13,8 +13,8 @@ const shopifyProductUpdate = async (
   } = {},
 ) => {
   const mutation = `
-    mutation productUpdate($id: ID!, $input: ProductInput!) {
-      productUpdate(id: $id, input: $input) {
+    mutation productUpdate($product: ProductUpdateInput!) {
+      productUpdate(product: $product) {
         product {
           ${ returnAttrs }
         }
@@ -27,8 +27,10 @@ const shopifyProductUpdate = async (
   `;
 
   const variables = {
-    id: productId,
-    input: updatePayload,
+    product: {
+      id: `gid://shopify/Product/${ productId }`,
+      ...updatePayload,
+    },
   };
 
   const response = await shopifyClient.fetch({
@@ -86,7 +88,7 @@ curl -X POST \
   -H 'Content-Type: application/json' \
   -d '{
     "credsPath": "au",
-    "productId": "gid://shopify/Product/1234567890",
+    "productId": "6980096196680",
     "updatePayload": {
       "title": "Updated Product Title",
       "tags": ["updated", "test"]
