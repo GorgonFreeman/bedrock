@@ -94,7 +94,7 @@ const shopifyGetter = async (
     cursor,
   };
 
-  const getter = new Getter(undefined, {
+  const getter = new Getter({
     payload: {
       method: 'post',
       body: {

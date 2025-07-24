@@ -551,12 +551,11 @@ class OperationQueue {
 
 // https://codepen.io/gorgonfreeman/pen/QwbPNgG?editors=0010
 class Getter extends EventEmitter {
-  constructor(url, options = {}) {
+  constructor(options = {}) {
     super();
-
-    this.url = url;
     
     const {
+      url, // url is surprisingly optional because the base url may be all you need
       payload, 
       paginator, 
       digester,
@@ -568,6 +567,7 @@ class Getter extends EventEmitter {
       clientArgs,
     } = options;
     
+    this.url = url;
     this.payload = payload;
     this.paginator = paginator;
     this.digester = digester;

@@ -90,8 +90,8 @@ const printifyGetter = async (
   } = {},
 ) => {
   return new Getter(
-    url,
     {
+      url,
       payload: {
         params,
       },
