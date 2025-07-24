@@ -83,7 +83,7 @@ const shopifyGetterDigester = async (response, nodeName) => {
     return null;
   }
 
-  const items = result?.[nodeName]?.['items'] || result?.[nodeName];
+  const items = result?.[nodeName]?.['items'];
   return items;
 };
 
