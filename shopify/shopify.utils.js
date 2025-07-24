@@ -152,7 +152,40 @@ const shopifyGetter = async (
   return getter;
 };
 
+const shopifyGet = async (...args) => {
+
+  const options = args[2] || {}; // We're finding the options manually because we know shopifyGetter takes 2 args and then options
+
+  const allItems = [];
+  
+  const getter = await shopifyGetter(...args, {
+    ...options,
+    onItems: (items) => {
+      allItems.push(...items);
+    },
+  });
+
+  // TODO: Rethink error handling
+  let errored = false;
+  getter.on('customError', (errorResponse) => {
+    console.log('customError', errorResponse);
+    errored = errorResponse;
+  });
+
+  await getter.run();
+
+  if (errored) {
+    return errored;
+  }
+
+  return {
+    success: true,
+    result: allItems,
+  };
+};
+
 module.exports = {
   shopifyClient,
   shopifyGetter,
+  shopifyGet,
 };

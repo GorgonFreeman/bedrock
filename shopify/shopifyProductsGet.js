@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { shopifyGetter } = require('../shopify/shopify.utils');
+const { shopifyGet } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id`;
 
@@ -11,7 +11,7 @@ const shopifyProductsGet = async (
   } = {},
 ) => {
 
-  const getter = await shopifyGetter(
+  const response = await shopifyGet(
     credsPath, 
     'product', 
     {
@@ -20,9 +20,7 @@ const shopifyProductsGet = async (
     },
   );
 
-  await getter.run();
-
-  return getter;
+  return response;
 };
 
 const shopifyProductsGetApi = async (req, res) => {
