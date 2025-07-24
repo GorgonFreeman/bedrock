@@ -1,4 +1,4 @@
-const { respond, mandateParam, credsByPath } = require('../utils');
+const { respond, mandateParam, credsByPath, customAxios, logDeep } = require('../utils');
 
 const pipe17ReturnGet = async (
   returnId,
@@ -8,8 +8,24 @@ const pipe17ReturnGet = async (
 ) => {
 
   const creds = credsByPath(['pipe17', credsPath]);
+  const { 
+    BASE_URL,
+    API_KEY,
+  } = creds;
 
-  return creds;
+  const headers = {
+    'X-Pipe17-Key': `${ API_KEY }`,
+    'Content-Type': 'application/json',
+  };
+
+  const url = `${ BASE_URL }/returns/${ returnId }`;
+
+  const response = await customAxios(url, {
+    headers,
+  });
+  
+  logDeep(response);
+  return response;
 };
 
 const pipe17ReturnGetApi = async (req, res) => {
