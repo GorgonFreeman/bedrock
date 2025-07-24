@@ -146,7 +146,7 @@ const shopifyGetter = async (
     query Get${ Resources } (
       $first: Int!, 
       $cursor: String,
-      $query: String!,
+      $query: String,
       $reverse: Boolean,
       $savedSearchId: ID,
       $sortKey: ${ Resource }SortKeys,
