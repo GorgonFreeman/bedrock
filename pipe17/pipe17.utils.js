@@ -25,6 +25,17 @@ const pipe17Client = new CustomAxiosClient({
   baseHeaders: {
     'Content-Type': 'application/json',
   },
+  baseInterpreter: (response) => {
+
+    if (!response?.result?.success) {
+      return {
+        success: false,
+        error: [response.result],
+      };
+    }
+
+    return response;
+  },
 });
 
 const pipe17GetterPaginator = async (customAxiosPayload, response) => {
