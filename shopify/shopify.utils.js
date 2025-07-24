@@ -160,7 +160,7 @@ const shopifyGetter = async (
     ...!strictlyFalsey(reverse) ? ['$reverse: Boolean,'] : [],
     ...savedSearchId ? ['$savedSearchId: ID,'] : [],
     ...sortKey ? [`$sortKey: ${ Resource }SortKeys,`] : [],
-    ...roles ? [`$roles: [${ Resource }Role],`] : [],
+    ...roles ? [`$roles: [${ Resource }Role!],`] : [],
     ...names ? [`$names: [String],`] : [],
     ...constraintStatus ? ['$constraintStatus: MetafieldDefinitionConstraintStatus,'] : [],
     ...constraintSubtype ? ['$constraintSubtype: MetafieldDefinitionConstraintSubtypeIdentifier,'] : [],
