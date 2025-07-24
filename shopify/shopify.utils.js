@@ -48,6 +48,18 @@ const shopifyClient = new CustomAxiosClient({
 
     logDeep('unnestedResponse', unnestedResponse);
     await askQuestion('Continue?');
+
+    const { result } = unnestedResponse;
+    const { errors } = result || {};
+
+    if (errors) {
+      return {
+        ...unnestedResponse,
+        success: false,
+        result: null,
+        error: errors,
+      };
+    }
     
     return unnestedResponse;
   },
