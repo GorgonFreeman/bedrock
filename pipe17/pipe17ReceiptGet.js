@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { pipe17Client } = require('../pipe17/pipe17.utils');
+const { pipe17GetSingle } = require('../pipe17/pipe17GetSingle');
 
 const pipe17ReceiptGet = async (
   receiptId,
@@ -8,19 +8,13 @@ const pipe17ReceiptGet = async (
   } = {},
 ) => {
 
-  const response = await pipe17Client.fetch({
-    url: `/receipts/${ receiptId }`,
-    factoryArgs: [credsPath],
-    interpreter: (response) => {
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.receipt,
-        } : {},
-      };
+  const response = await pipe17GetSingle(
+    'receipt',
+    receiptId,
+    {
+      credsPath,
     },
-  });
-  
+  );  
   logDeep(response);
   return response;
 };

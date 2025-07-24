@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { pipe17Client } = require('../pipe17/pipe17.utils');
+const { pipe17GetSingle } = require('../pipe17/pipe17GetSingle');
 
 const pipe17ReturnGet = async (
   returnId,
@@ -8,20 +8,13 @@ const pipe17ReturnGet = async (
   } = {},
 ) => {
 
-  const response = await pipe17Client.fetch({
-    url: `/returns/${ returnId }`,
-    factoryArgs: [credsPath],
-    // TODO: Implement base interpreter to handle pipe17's own success node
-    interpreter: (response) => {
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.return,
-        } : {},
-      };
+  const response = await pipe17GetSingle(
+    'return',
+    returnId,
+    {
+      credsPath,
     },
-  });
-  
+  );  
   logDeep(response);
   return response;
 };
