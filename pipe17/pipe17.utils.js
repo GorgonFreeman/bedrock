@@ -58,8 +58,8 @@ const pipe17GetterPaginator = async (customAxiosPayload, response) => {
 };
 
 const pipe17GetterDigester = async (response) => {
-  // logDeep('digester: get items from response', response);
-  // await askQuestion('?');
+  logDeep('digester: get items from response', response);
+  await askQuestion('?');
 
   const { success, result } = response;
   if (!success) { // Return if failed
