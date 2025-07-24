@@ -4,6 +4,7 @@ const { pipe17Get } = require('../pipe17/pipe17.utils');
 const pipe17ReturnsGet = async (
   {
     credsPath,
+    // TODO: Add query params
     ...getterOptions
   } = {},
 ) => {
