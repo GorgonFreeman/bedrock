@@ -7,3 +7,8 @@ shopify:
   store:
     STORE_URL: shopify-store
     SHOPIFY_API_KEY: shpat_____________
+
+pipe17:
+  prod:
+    URL: https://api-v3.pipe17.com/api/v3
+    API_KEY: __________________________
