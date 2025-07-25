@@ -17,8 +17,8 @@ const shopifyPageCreate = async (
   const mutationName = 'pageCreate';
   
   const mutation = `
-    mutation ${ mutationName }($input: PageInput!) {
-      ${ mutationName }(input: $input) {
+    mutation ${ mutationName }($page: PageCreateInput!) {
+      ${ mutationName }(page: $page) {
         page {
           ${ returnAttrs }
         }
@@ -31,7 +31,7 @@ const shopifyPageCreate = async (
   `;
 
   const variables = {
-    input: pageInput,
+    page: pageInput,
   };
 
   const response = await shopifyClient.fetch({
