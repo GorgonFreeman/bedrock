@@ -1,16 +1,35 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 
 const defaultAttrs = `id firstName lastName email phone`;
 
 const shopifyCustomerGet = async (
   credsPath,
-  customerId,
+  {
+    customerId,
+    customId,
+    email,
+    phone,
+  },
   {
     apiVersion,
     attrs = defaultAttrs,
   } = {},
 ) => {
+
+  if (!customerId) {
+    return {
+      success: false,
+      error: ['Implement logic to find customerId from customId, email, or phone'],
+    };
+  }
+
+  if (!customerId) {
+    return {
+      success: false,
+      error: ['Customer ID not found'],
+    };
+  }
 
   const response = await shopifyGetSingle(
     credsPath,
@@ -29,13 +48,13 @@ const shopifyCustomerGet = async (
 const shopifyCustomerGetApi = async (req, res) => {
   const { 
     credsPath,
-    customerId,
+    customerIdentifier,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'customerId', customerId),
+    mandateParam(res, 'customerIdentifier', customerIdentifier, p => objHasAny(p, ['customerId', 'customId', 'email', 'phone'])),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -43,7 +62,7 @@ const shopifyCustomerGetApi = async (req, res) => {
 
   const result = await shopifyCustomerGet(
     credsPath,
-    customerId,
+    customerIdentifier,
     options,
   );
   respond(res, 200, result);
@@ -54,4 +73,4 @@ module.exports = {
   shopifyCustomerGetApi,
 };
 
-// curl localhost:8000/shopifyCustomerGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerId": "5868161368132" }'
+// curl localhost:8000/shopifyCustomerGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerIdentifier": { "customerId": "5868161368132" } }'
