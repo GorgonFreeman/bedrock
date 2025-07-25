@@ -18,7 +18,8 @@ const shopifyProductGet = async (
   } = {},
 ) => {
 
-  const response = await shopifyGetSingle(    credsPath,
+  const response = await shopifyGetSingle(
+    credsPath,
     'product',
     productId,
     {
