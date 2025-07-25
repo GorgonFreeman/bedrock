@@ -1,7 +1,18 @@
 const { askQuestion, capitaliseString } = require('../utils');
 const fs = require('fs').promises;
+const { exec } = require('child_process');
 
 const excludedDirs = ['node_modules'];
+
+const gitCommitAll = (message) => {
+  exec(`git add . && git commit -m '${ message }'`, (err, stdout, stderr) => {
+    if (err) {
+      console.error('Git commit failed:', stderr);
+    } else {
+      console.log('Git commit successful:', stdout);
+    }
+  });
+};
 
 const scriptFileContents = async (name, path) => {
   let exampleFileContents;
@@ -53,6 +64,11 @@ const createNewFunction = async () => {
 
     const script = await scriptFileContents(funcName, pathName);
     await fs.writeFile(`${ pathName }${ funcName }.js`, script);
+
+    // Only commit if 'commit' is present in argv
+    if (process.argv.includes('commit')) {
+      gitCommitAll(`${ funcName } stub`);
+    }
   } catch(err) {
     console.error(err);
   }
