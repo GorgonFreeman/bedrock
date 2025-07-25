@@ -24,7 +24,7 @@ const shopifyPagesGetShogun = async (
     const bodyCompare = body.toLowerCase();
     return bodyCompare.includes('shogun') 
     || bodyCompare.includes('shg-') 
-    || templateSuffix.includes('shogun');
+    || templateSuffix?.includes('shogun');
   });
 
   const response = {
