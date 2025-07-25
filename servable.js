@@ -1,4 +1,5 @@
 const servableFunctions = [
+  'shopify/shopifyPagesGetShogun',
   'shopify/shopifyPageDelete',
   'shopify/shopifyPageUpdate',
   'shopify/shopifyPageCreate',
