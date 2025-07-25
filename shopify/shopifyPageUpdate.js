@@ -40,7 +40,8 @@ const shopifyPageUpdate = async (
     method: 'post',
     body: { query: mutation, variables },
     factoryArgs: [credsPath, { apiVersion }],
-    interpreter: async (response) => {      return {
+    interpreter: async (response) => {
+      return {
         ...response,
         ...response.result ? {
           result: response.result[mutationName],
