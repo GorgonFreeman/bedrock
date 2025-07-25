@@ -1,43 +1,28 @@
-const { respond, mandateParam, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/page
 
-const defaultAttrs = `id`;
+const { respond, mandateParam, logDeep } = require('../utils');
+const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
+
+const defaultAttrs = `id title handle`;
 
 const shopifyPageGet = async (
   credsPath,
-  arg,
+  pageId,
   {
     apiVersion,
-    option,
+    attrs = defaultAttrs,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    factoryArgs: [credsPath, { apiVersion }],
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
+  const response = await shopifyGetSingle(
+    credsPath,
+    'page',
+    pageId,
+    {
+      apiVersion,
+      attrs,
     },
-  });
+  );
 
   logDeep(response);
   return response;
@@ -46,13 +31,13 @@ const shopifyPageGet = async (
 const shopifyPageGetApi = async (req, res) => {
   const { 
     credsPath,
-    arg,
+    pageId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'pageId', pageId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -60,7 +45,7 @@ const shopifyPageGetApi = async (req, res) => {
 
   const result = await shopifyPageGet(
     credsPath,
-    arg,
+    pageId,
     options,
   );
   respond(res, 200, result);
@@ -71,4 +56,4 @@ module.exports = {
   shopifyPageGetApi,
 };
 
-// curl localhost:8000/shopifyPageGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyPageGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "pageId": "45501415496" }'
