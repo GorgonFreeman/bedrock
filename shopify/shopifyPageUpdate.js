@@ -85,19 +85,4 @@ module.exports = {
   shopifyPageUpdateApi,
 };
 
-/*
-curl -X POST \
-  http://localhost:8000/shopifyPageUpdate \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "credsPath": "au",
-    "pageId": "1234567890",
-    "updatePayload": {
-      "title": "Updated Page Title",
-      "bodyHtml": "<strong>Updated page!</strong>"
-    },
-    "options": {
-      "returnAttrs": "id title handle"
-    }
-  }'
-*/ 
+// curl http://localhost:8000/shopifyPageUpdate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageId": "91912601672", "updatePayload": { "title": "Updated Page Title" } }'
