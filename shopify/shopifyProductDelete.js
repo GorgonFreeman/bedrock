@@ -1,3 +1,5 @@
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/productDelete
+
 const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 

@@ -1,3 +1,6 @@
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/customer
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/customerbyidentifier
+
 const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 const { shopifyClient } = require('../shopify/shopify.utils');

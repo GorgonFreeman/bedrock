@@ -1,3 +1,5 @@
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/themes
+
 const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyGet } = require('../shopify/shopify.utils');
 
