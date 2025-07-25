@@ -18,8 +18,8 @@ const shopifyPageUpdate = async (
   const mutationName = 'pageUpdate';
 
   const mutation = `
-    mutation ${ mutationName }($page: PageInput!) {
-      ${ mutationName }(page: $page) {
+    mutation ${ mutationName }($id: ID!, $page: PageUpdateInput!) {
+      ${ mutationName }(id: $id, page: $page) {
         page {
           ${ returnAttrs }
         }
@@ -32,18 +32,15 @@ const shopifyPageUpdate = async (
   `;
 
   const variables = {
-    page: {
-      id: `gid://shopify/Page/${ pageId }`,
-      ...updatePayload,
-    },
+    id: `gid://shopify/Page/${ pageId }`,
+    page: updatePayload,
   };
 
   const response = await shopifyClient.fetch({
     method: 'post',
     body: { query: mutation, variables },
     factoryArgs: [credsPath, { apiVersion }],
-    interpreter: async (response) => {
-      return {
+    interpreter: async (response) => {      return {
         ...response,
         ...response.result ? {
           result: response.result[mutationName],
