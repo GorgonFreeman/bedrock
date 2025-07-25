@@ -77,13 +77,4 @@ module.exports = {
   shopifyPageDeleteApi,
 };
 
-/*
-curl -X POST \
-  http://localhost:8000/shopifyPageDelete \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "credsPath": "au",
-    "pageId": "1234567890",
-    "options": {}
-  }'
-*/ 
+// curl http://localhost:8000/shopifyPageDelete -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageId": "91912568904" }'
