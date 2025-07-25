@@ -1,4 +1,5 @@
 const servableFunctions = [
+  'shopify/shopifyPageGet',
   'shopify/shopifyPagesGet',
   'shopify/shopifyCustomerGet',
   'pipe17/pipe17ArrivalUpdate',
