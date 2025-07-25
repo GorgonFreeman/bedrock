@@ -10,7 +10,7 @@ const shopifyPagesGetShogun = async (
 
   const pagesResponse = await shopifyPagesGet(credsPath, {
     apiVersion,
-    attrs: `id title handle body`,
+    attrs: `id title handle body templateSuffix`,
   });
 
   if (!pagesResponse?.success) {
@@ -20,9 +20,11 @@ const shopifyPagesGetShogun = async (
   const pages = pagesResponse?.result;
 
   const shogunPages = pages.filter(page => {
-    const { body } = page;
+    const { body, templateSuffix } = page;
     const bodyCompare = body.toLowerCase();
-    return bodyCompare.includes('shogun') || bodyCompare.includes('shg-');
+    return bodyCompare.includes('shogun') 
+    || bodyCompare.includes('shg-') 
+    || templateSuffix.includes('shogun');
   });
 
   const response = {
