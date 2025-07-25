@@ -1,5 +1,6 @@
 const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
+const { shopifyClient } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id firstName lastName email phone`;
 
@@ -18,17 +19,40 @@ const shopifyCustomerGet = async (
 ) => {
 
   if (!customerId) {
-    return {
-      success: false,
-      error: ['Implement logic to find customerId from customId, email, or phone'],
-    };
-  }
 
-  if (!customerId) {
-    return {
-      success: false,
-      error: ['Customer ID not found'],
+    const query = `
+      query GetCustomerByIdentifier ($identifier: CustomerIdentifierInput!) {
+        customer: customerByIdentifier(identifier: $identifier) {
+          ${ attrs }
+        } 
+      }
+    `;
+
+    const variables = {
+      identifier: {
+        ...customId && { customId },
+        ...email && { emailAddress: email },
+        ...phone && { phoneNumber: phone },
+      },
     };
+
+    const response = await shopifyClient.fetch({
+      method: 'post',
+      body: { query, variables },
+      factoryArgs: [credsPath, { apiVersion }],
+      interpreter: async (response) => {
+        // console.log(response);
+        return {
+          ...response,
+          ...response.result ? {
+            result: response.result.customer,
+          } : {},
+        };
+      },
+    });
+    
+    logDeep(response);
+    return response;
   }
 
   const response = await shopifyGetSingle(
@@ -73,4 +97,6 @@ module.exports = {
   shopifyCustomerGetApi,
 };
 
-// curl localhost:8000/shopifyCustomerGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerIdentifier": { "customerId": "5868161368132" } }'
+// curl localhost:8000/shopifyCustomerGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerIdentifier": { "customerId": "6940089385032" } }'
+// curl localhost:8000/shopifyCustomerGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerIdentifier": { "email": "john+testsms3@whitefoxboutique.com" } }'
+// curl localhost:8000/shopifyCustomerGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerIdentifier": { "phone": "+61400000000" } }'
