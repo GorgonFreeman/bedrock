@@ -80,4 +80,4 @@ module.exports = {
   shopifyPageCreateApi,
 };
 
-// curl http://localhost:8000/shopifyPageCreate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "bodyHtml": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyPageCreate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
