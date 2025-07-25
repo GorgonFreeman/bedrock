@@ -14,8 +14,8 @@ const shopifyPageDelete = async (
   const mutationName = 'pageDelete';
 
   const mutation = `
-    mutation ${ mutationName }($input: PageDeleteInput!) {
-      ${ mutationName }(input: $input) {
+    mutation ${ mutationName }($id: ID!) {
+      ${ mutationName }(id: $id) {
         deletedPageId
         userErrors {
           field
@@ -26,9 +26,7 @@ const shopifyPageDelete = async (
   `;
 
   const variables = {
-    input: {
-      id: `gid://shopify/Page/${ pageId }`,
-    },
+    id: `gid://shopify/Page/${ pageId }`,
   };
 
   const response = await shopifyClient.fetch({
