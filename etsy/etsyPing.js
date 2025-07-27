@@ -1,34 +1,43 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, credsByPath, customAxios, logDeep } = require('../utils');
 
 const etsyPing = async (
-  arg,
   {
-    option,
+    credsPath,
   } = {},
 ) => {
 
-  return { 
-    arg, 
-    option,
+  const { 
+    API_KEY,
+    API_URL,
+  } = credsByPath(['etsy', credsPath]);
+
+  const url = `${ API_URL }/application/openapi-ping`;
+
+  const headers = {
+    'x-api-key': API_KEY,
   };
-  
+
+  // TODO: Implement bearer token
+
+  const response = await customAxios(url, { headers });
+
+  logDeep(response);
+  return response;
 };
 
 const etsyPingApi = async (req, res) => {
   const { 
-    arg,
     options,
   } = req.body;
 
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
+  // const paramsValid = await Promise.all([
+  //   mandateParam(res, 'arg', arg),
+  // ]);
+  // if (paramsValid.some(valid => valid === false)) {
+  //   return;
+  // }
 
   const result = await etsyPing(
-    arg,
     options,
   );
   respond(res, 200, result);
@@ -39,4 +48,4 @@ module.exports = {
   etsyPingApi,
 };
 
-// curl localhost:8000/etsyPing -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/etsyPing
