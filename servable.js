@@ -1,4 +1,5 @@
 const servableFunctions = [
+  'etsy/etsyPing',
   'shopify/shopifyPageDelete',
   'shopify/shopifyPageUpdate',
   'shopify/shopifyPageCreate',
