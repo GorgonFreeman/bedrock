@@ -14,3 +14,11 @@ pipe17:
   sandbox:
     URL: https://api-v3.develop.pipe17.com/api/v3
     API_KEY: __________________________
+
+etsy:
+  API_KEY: ____________________________
+  API_URL: https://api.etsy.com/v3
+  OAUTH_URL: https://www.etsy.com/oauth/connect
+  OAUTH_REDIRECTURI: https://__________
+  AUTH_CODE: __________________________
+  AUTH_CODEVERIFIER: __________________
