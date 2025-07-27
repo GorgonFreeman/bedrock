@@ -1,20 +1,20 @@
 const { askQuestion, capitaliseString } = require('../utils');
 const fs = require('fs').promises;
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 
 const excludedDirs = ['node_modules'];
 
 const gitCommitAll = (message) => {
-  console.log('Waiting 2 seconds for servable.js to update...');
-  setTimeout(() => {
-    exec(`git add . && git commit -m '${ message }'`, (err, stdout, stderr) => {
-      if (err) {
-        console.error('Git commit failed:', stderr);
-      } else {
-        console.log('Git commit successful:', stdout);
-      }
-    });
-  }, 2000);
+  console.log('Committing in background (2 second delay)...');
+  
+  // Run the commit in a detached process
+  const commitProcess = spawn('sh', ['-c', `sleep 2 && git add . && git commit -m '${ message }'`], {
+    detached: true,
+    stdio: 'ignore',
+  });
+  
+  // Unref the process so it doesn't keep the parent alive
+  commitProcess.unref();
 };
 
 const scriptFileContents = async (name, path) => {
