@@ -17,7 +17,7 @@ pipe17:
 
 etsy:
   API_KEY: ____________________________
-  API_URL: https://api.etsy.com/v3
+  BASE_URL: https://api.etsy.com/v3
   OAUTH_URL: https://www.etsy.com/oauth/connect
   OAUTH_REDIRECTURI: https://__________
   AUTH_CODE: __________________________

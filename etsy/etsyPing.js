@@ -1,26 +1,15 @@
-const { respond, mandateParam, credsByPath, customAxios, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep } = require('../utils');
+const { etsyClient } = require('../etsy/etsy.utils');
 
 const etsyPing = async (
   {
     credsPath,
   } = {},
 ) => {
-
-  const { 
-    API_KEY,
-    API_URL,
-  } = credsByPath(['etsy', credsPath]);
-
-  const url = `${ API_URL }/application/openapi-ping`;
-
-  const headers = {
-    'x-api-key': API_KEY,
-  };
-
-  // TODO: Implement bearer token
-
-  const response = await customAxios(url, { headers });
-
+  const response = await etsyClient.fetch({ 
+    url: '/application/openapi-ping',
+    factoryArgs: [credsPath],
+  });
   logDeep(response);
   return response;
 };
