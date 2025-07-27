@@ -22,3 +22,7 @@ etsy:
   OAUTH_REDIRECTURI: https://__________
   AUTH_CODE: __________________________
   AUTH_CODEVERIFIER: __________________
+
+upstash:
+  BASE_URL: https://________.upstash.io
+  TOKEN: ______________________________
