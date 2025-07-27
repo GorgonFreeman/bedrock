@@ -5,13 +5,16 @@ const { exec } = require('child_process');
 const excludedDirs = ['node_modules'];
 
 const gitCommitAll = (message) => {
-  exec(`git add . && git commit -m '${ message }'`, (err, stdout, stderr) => {
-    if (err) {
-      console.error('Git commit failed:', stderr);
-    } else {
-      console.log('Git commit successful:', stdout);
-    }
-  });
+  console.log('Waiting 2 seconds for servable.js to update...');
+  setTimeout(() => {
+    exec(`git add . && git commit -m '${ message }'`, (err, stdout, stderr) => {
+      if (err) {
+        console.error('Git commit failed:', stderr);
+      } else {
+        console.log('Git commit successful:', stdout);
+      }
+    });
+  }, 2000);
 };
 
 const scriptFileContents = async (name, path) => {
