@@ -1,4 +1,8 @@
 module.exports = {
+  upstashGet: require('./upstash/upstash.utils').upstashGetApi,
+  upstashSet: require('./upstash/upstash.utils').upstashSetApi,
+  upstashDel: require('./upstash/upstash.utils').upstashDelApi,
+  upstashExists: require('./upstash/upstash.utils').upstashExistsApi,
   shopifyCustomerGet: require('./shopify/shopifyCustomerGet').shopifyCustomerGetApi,
   shopifyGetSingle: require('./shopify/shopifyGetSingle').shopifyGetSingleApi,
   shopifyOrderGet: require('./shopify/shopifyOrderGet').shopifyOrderGetApi,

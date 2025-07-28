@@ -378,6 +378,28 @@ const objSatisfies = (obj, validators) => {
   return validators.every(validator => validator(obj));
 };
 
+const funcApi = (func, { argNames, validatorsByArg } = {}) => {
+  return async (req, res) => {
+
+    const { body } = req;
+
+    if (argNames && validatorsByArg) {
+      const paramsValid = await Promise.all(
+        Object.entries(validatorsByArg).map(([argName, validator]) => {
+          return mandateParam(res, argName, body[argName], validator);
+        })
+      );
+      
+      if (paramsValid.some(valid => valid === false)) {
+        return;
+      }
+    }
+
+    const response = await func(...argNames.map(argName => body[argName]));
+    respond(res, 200, response);
+  };
+};
+
 class CustomAxiosClient {
   constructor({ baseInterpreter, baseUrl, baseHeaders, factory } = {}) {
     this.baseInterpreter = baseInterpreter;
@@ -717,6 +739,7 @@ module.exports = {
   logDeep,
   mandateParam,
   customAxios,
+  funcApi,
   
   // Misc
   arrayFromIntRange,

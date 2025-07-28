@@ -1,5 +1,5 @@
 const { Redis } = require('@upstash/redis');
-const { credsByPath } = require('../utils');
+const { credsByPath, funcApi } = require('../utils');
 
 const UPSTASH_INSTANCES = new Map();
 
@@ -138,4 +138,8 @@ module.exports = {
   upstashSet,
   upstashDel,
   upstashExists,
+  upstashGetApi: funcApi(upstashGet, { argNames: ['key', 'options'] }),
+  upstashSetApi: funcApi(upstashSet, { argNames: ['key', 'value', 'options'] }),
+  upstashDelApi: funcApi(upstashDel, { argNames: ['key', 'options'] }),
+  upstashExistsApi: funcApi(upstashExists, { argNames: ['key', 'options'] }),
 }; 
