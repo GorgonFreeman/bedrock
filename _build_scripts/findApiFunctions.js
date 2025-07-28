@@ -1,7 +1,15 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const excludedPaths = ['node_modules', '_retired', '_build_scripts'];
+const excludedPaths = [
+  'node_modules', 
+  '_retired', 
+  '_build_scripts', 
+  'utils.js', 
+  'servable.js', 
+  'server.js', 
+  'server.utils.js',
+];
 
 const findApiFunctions = async () => {
   const files = await fs.readdir('./', { recursive: true });
@@ -23,12 +31,7 @@ const findApiFunctions = async () => {
 
   for (const file of jsFiles) {
     try {
-      // Get the file path without extension for require
-      const extension = path.extname(file);
-      const extensionOnEndRegex = new RegExp(`${ extension }$`);
-      const requirePath = file.replace(extensionOnEndRegex, '');
-      
-      // Dynamically require the module
+      const requirePath = file.replace(/\.js$/, '');
       const moduleExports = require(`../${ requirePath }`);
       
       // Find all exported functions ending in "Api"
@@ -39,12 +42,11 @@ const findApiFunctions = async () => {
       if (apiFunctions.length > 0) {
         servableFunctions.push({
           path: requirePath,
-          name: path.basename(file, path.extname(file)),
-          apiFunctions, // Include the actual API function names found
+          apiFunctions,
         });
       }
     } catch (error) {
-      // Skip files that can't be required (like utils files)
+      // Skip files that can't be required
       console.warn(`Could not load ${ file }:`, error.message);
     }
   }
