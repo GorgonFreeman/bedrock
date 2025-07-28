@@ -1,15 +1,29 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, credsByPath, customAxios, logDeep } = require('../utils');
 
 const starshipitOrderGet = async (
   credsPath,
   orderId,
 ) => {
 
-  return { 
-    credsPath,
-    orderId,
+  const { 
+    API_KEY,
+    SUB_KEY,
+  } = credsByPath(['starshipit', credsPath]);
+
+  const headers = {
+    'StarShipIT-Api-Key': API_KEY,
+    'Ocp-Apim-Subscription-Key': SUB_KEY,
   };
-  
+
+  const response = await customAxios(`https://api.starshipit.com/api/orders`, {
+    params: {
+      order_number: orderId,
+    },
+    headers,
+  });
+
+  logDeep(response);
+  return response;
 };
 
 const starshipitOrderGetApi = async (req, res) => {
