@@ -1,4 +1,4 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
 const { pipe17GetSingle } = require('../pipe17/pipe17GetSingle');
 
 const pipe17FulfillmentGet = async (
@@ -32,7 +32,7 @@ const pipe17FulfillmentGetApi = async (req, res) => {
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'fulfillmentIdentifier', fulfillmentIdentifier),
+    mandateParam(res, 'fulfillmentIdentifier', fulfillmentIdentifier, p => objHasAny(p, ['fulfillmentId', 'extFulfillmentId'])),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
