@@ -26,8 +26,21 @@ const generateServable = async () => {
 ${ moduleExportsEntries.join('\n') }
 };`;
   
-  await fs.writeFile('./servable.js', newServableContent);
-  console.log(`Generated servable.js with ${ moduleExportsEntries.length } functions`);
+  // Check if the file exists and read current content
+  let existingContent = '';
+  try {
+    existingContent = await fs.readFile('./servable.js', 'utf8');
+  } catch (error) {
+    // File doesn't exist, which is fine for the first run
+  }
+  
+  // Only write if content has changed
+  if (existingContent !== newServableContent) {
+    await fs.writeFile('./servable.js', newServableContent);
+    console.log(`Generated servable.js with ${ moduleExportsEntries.length } functions`);
+  } else {
+    console.log(`servable.js unchanged, skipping write`);
+  }
 };
 
 generateServable();
