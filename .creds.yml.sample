@@ -28,6 +28,7 @@ upstash:
   TOKEN: ______________________________
 
 starshipit:
+  BASE_URL: https://api.starshipit.com/api
   acc:
     API_KEY: __________________________
     SUB_KEY: __________________________
