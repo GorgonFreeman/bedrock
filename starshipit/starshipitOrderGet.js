@@ -1,35 +1,34 @@
 const { respond, mandateParam } = require('../utils');
 
 const starshipitOrderGet = async (
-  arg,
-  {
-    option,
-  } = {},
+  credsPath,
+  orderId,
 ) => {
 
   return { 
-    arg, 
-    option,
+    credsPath,
+    orderId,
   };
   
 };
 
 const starshipitOrderGetApi = async (req, res) => {
   const { 
-    arg,
-    options,
+    credsPath,
+    orderId,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'credsPath', credsPath),
+    mandateParam(res, 'orderId', orderId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await starshipitOrderGet(
-    arg,
-    options,
+    credsPath,
+    orderId,
   );
   respond(res, 200, result);
 };
@@ -39,4 +38,4 @@ module.exports = {
   starshipitOrderGetApi,
 };
 
-// curl localhost:8000/starshipitOrderGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/starshipitOrderGet -H "Content-Type: application/json" -d '{ "credsPath": "wf", "orderId": 5989356896328 }'
