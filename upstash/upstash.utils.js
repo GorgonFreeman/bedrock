@@ -27,11 +27,13 @@ const upstashRedis = ({ credsPath } = {}) => {
 const getRedisInstance = ({ credsPath } = {}) => {
   const key = credsPath || 'default';
   
-  if (!UPSTASH_INSTANCES.has(key)) {
-    UPSTASH_INSTANCES.set(key, upstashRedis({ credsPath }));
+  if (UPSTASH_INSTANCES.has(key)) {
+    return UPSTASH_INSTANCES.get(key);
   }
   
-  return UPSTASH_INSTANCES.get(key);
+  const redis = upstashRedis({ credsPath });
+  UPSTASH_INSTANCES.set(key, redis);
+  return redis;
 };
 
 const upstashGet = async (
