@@ -1,6 +1,8 @@
 const { Redis } = require('@upstash/redis');
 const { credsByPath } = require('../utils');
 
+const UPSTASH_INSTANCES = new Map();
+
 const upstashRedis = ({ credsPath } = {}) => {
   // returns { redis }
   
@@ -22,11 +24,21 @@ const upstashRedis = ({ credsPath } = {}) => {
   return redis;
 };
 
+const getRedisInstance = ({ credsPath } = {}) => {
+  const key = credsPath || 'default';
+  
+  if (!UPSTASH_INSTANCES.has(key)) {
+    UPSTASH_INSTANCES.set(key, upstashRedis({ credsPath }));
+  }
+  
+  return UPSTASH_INSTANCES.get(key);
+};
+
 const upstashGet = async (
   key,
   { credsPath } = {},
 ) => {
-  const redis = upstashRedis({ credsPath });
+  const redis = getRedisInstance({ credsPath });
   
   try {
     const result = await redis.get(key);
@@ -56,7 +68,7 @@ const upstashSet = async (
     */
   } = {},
 ) => {
-  const redis = upstashRedis({ credsPath });
+  const redis = getRedisInstance({ credsPath });
   
   try {
     
@@ -79,7 +91,7 @@ const upstashDel = async (
   key,
   { credsPath } = {},
 ) => {
-  const redis = upstashRedis({ credsPath });
+  const redis = getRedisInstance({ credsPath });
   
   try {
     const result = await redis.del(key);
@@ -101,7 +113,7 @@ const upstashExists = async (
   key,
   { credsPath } = {},
 ) => {
-  const redis = upstashRedis({ credsPath });
+  const redis = getRedisInstance({ credsPath });
   
   try {
     const result = await redis.exists(key);
