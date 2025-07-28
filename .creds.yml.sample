@@ -26,3 +26,8 @@ etsy:
 upstash:
   BASE_URL: https://________.upstash.io
   TOKEN: ______________________________
+
+starshipit:
+  acc:
+    API_KEY: __________________________
+    SUB_KEY: __________________________
