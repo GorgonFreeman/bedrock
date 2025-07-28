@@ -44,6 +44,7 @@ module.exports = {
   pipe17ArrivalGet: require('./pipe17/pipe17ArrivalGet').pipe17ArrivalGetApi,
   pipe17ArrivalUpdate: require('./pipe17/pipe17ArrivalUpdate').pipe17ArrivalUpdateApi,
   pipe17ArrivalsGet: require('./pipe17/pipe17ArrivalsGet').pipe17ArrivalsGetApi,
+  pipe17FulfillmentGet: require('./pipe17/pipe17FulfillmentGet').pipe17FulfillmentGetApi,
   pipe17FulfillmentsGet: require('./pipe17/pipe17FulfillmentsGet').pipe17FulfillmentsGetApi,
   pipe17GetSingle: require('./pipe17/pipe17GetSingle').pipe17GetSingleApi,
   pipe17InventoryItemGet: require('./pipe17/pipe17InventoryItemGet').pipe17InventoryItemGetApi,
