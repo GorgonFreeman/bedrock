@@ -16,6 +16,7 @@
     "nodemon": "^3.1.10"
   },
   "dependencies": {
+    "@upstash/redis": "^1.28.4",
     "axios": "^1.10.0",
     "busboy": "^1.6.0",
     "dotenv": "^17.2.0",
