@@ -1,56 +1,54 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const excludedPaths = ['node_modules', '_retired'];
+const excludedPaths = ['node_modules', '_retired', '_build_scripts'];
 
 const findApiFunctions = async () => {
-
   const files = await fs.readdir('./', { recursive: true });
-  // console.log(files);
-
+  
   const filesWithoutExcluded = files.filter(file => {
     return !excludedPaths.some(excludedPath => {
       const beginsWithPathRegex = new RegExp(`^${ excludedPath }`);
       return beginsWithPathRegex.test(file);
     });
   });
-  // console.log(filesWithoutExcluded);
 
   const jsFiles = filesWithoutExcluded.filter(file => {
     const extension = path.extname(file);
     const basename = path.basename(file);
     return extension === '.js' && basename[0] !== '_';
   });
-  // console.log(jsFiles);
 
-  const endsWithApiRegex = /Api$/;
   const servableFunctions = [];
 
   for (const file of jsFiles) {
-    const fileContent = await fs.readFile(file, 'utf-8');
+    try {
+      // Get the file path without extension for require
+      const extension = path.extname(file);
+      const extensionOnEndRegex = new RegExp(`${ extension }$`);
+      const requirePath = file.replace(extensionOnEndRegex, '');
+      
+      // Dynamically require the module
+      const moduleExports = require(`../${ requirePath }`);
+      
+      // Find all exported functions ending in "Api"
+      const apiFunctions = Object.keys(moduleExports).filter(key => 
+        key.endsWith('Api') && typeof moduleExports[key] === 'function'
+      );
 
-    const moduleExportsRegex = /module\.exports\s*=\s*\{([^}]*)\}/gs;
-    const moduleExportsMatches = fileContent.match(moduleExportsRegex);
-    if (!moduleExportsMatches || moduleExportsMatches.length === 0) {
-      continue;
+      if (apiFunctions.length > 0) {
+        servableFunctions.push({
+          path: requirePath,
+          name: path.basename(file, path.extname(file)),
+          apiFunctions, // Include the actual API function names found
+        });
+      }
+    } catch (error) {
+      // Skip files that can't be required (like utils files)
+      console.warn(`Could not load ${ file }:`, error.message);
     }
+  }
 
-    const apiFuncRegex = /\b\w+Api\b/g;
-    const apiFuncMatches = moduleExportsMatches[0].match(apiFuncRegex);
-    if (!apiFuncMatches || apiFuncMatches.length === 0) {
-      continue;
-    }
-
-    const extension = path.extname(file);
-    const extensionOnEndRegex = new RegExp(`${ extension }$`);
-
-    servableFunctions.push({
-      path: file.replace(extensionOnEndRegex, ''),
-      name: path.basename(file, path.extname(file)),
-    });
-  };
-  // console.log('servableFunctions', servableFunctions);
-  
   return servableFunctions;
 };
 
