@@ -1,10 +1,20 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, credsByPath, customAxios } = require('../utils');
 
 const peoplevoxAuthGet = async (
   {
     credsPath,
   } = {},
 ) => {
+
+  const { 
+    CLIENT_ID, 
+  } = credsByPath(['peoplevox', credsPath]);
+
+  const url = `https://ap.peoplevox.net/${ CLIENT_ID }/Resources/IntegrationServicev4.asmx`;
+  
+  const headers = {
+    'Content-Type': 'text/xml; charset=utf-8',
+  };
 
   return { 
     credsPath,
