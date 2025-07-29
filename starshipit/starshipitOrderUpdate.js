@@ -20,8 +20,9 @@ const starshipitOrderUpdate = async (
     if (!starshipitOrderResponse?.success) {
       return starshipitOrderResponse;
     }
-
-    orderId = starshipitOrderResponse?.result?.order_id;
+    
+    // TODO: move this logic to the client
+    orderId = starshipitOrderResponse?.result?.order?.order_id;
   }
 
   if (!orderId) {
