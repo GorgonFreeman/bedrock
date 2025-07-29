@@ -5,6 +5,7 @@ module.exports = {
   upstashExists: require('./upstash/upstash.utils').upstashExistsApi,
   starshipitOrderDelete: require('./starshipit/starshipitOrderDelete').starshipitOrderDeleteApi,
   starshipitOrderGet: require('./starshipit/starshipitOrderGet').starshipitOrderGetApi,
+  starshipitOrderUpdate: require('./starshipit/starshipitOrderUpdate').starshipitOrderUpdateApi,
   shopifyCustomerGet: require('./shopify/shopifyCustomerGet').shopifyCustomerGetApi,
   shopifyGetSingle: require('./shopify/shopifyGetSingle').shopifyGetSingleApi,
   shopifyOrderGet: require('./shopify/shopifyOrderGet').shopifyOrderGetApi,
