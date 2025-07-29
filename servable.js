@@ -3,6 +3,7 @@ module.exports = {
   upstashSet: require('./upstash/upstash.utils').upstashSetApi,
   upstashDel: require('./upstash/upstash.utils').upstashDelApi,
   upstashExists: require('./upstash/upstash.utils').upstashExistsApi,
+  starshipitAddressesGet: require('./starshipit/starshipitAddressesGet').starshipitAddressesGetApi,
   starshipitOrderDelete: require('./starshipit/starshipitOrderDelete').starshipitOrderDeleteApi,
   starshipitOrderGet: require('./starshipit/starshipitOrderGet').starshipitOrderGetApi,
   starshipitOrderUpdate: require('./starshipit/starshipitOrderUpdate').starshipitOrderUpdateApi,
