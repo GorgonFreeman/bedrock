@@ -19,7 +19,10 @@ const starshipitAddressCreate = async (
       return {
         ...response,
         ...response.result ? {
-          result: response.result.address,
+          result: {
+            ...response.result?.id,
+            ...response.result?.address,
+          },
         } : {},
       };
     },
@@ -55,4 +58,4 @@ module.exports = {
   starshipitAddressCreateApi,
 };
 
-// curl localhost:8000/starshipitAddressCreate -H "Content-Type: application/json" -d '{ "credsPath": "wf", "addressPayload": { "name": "John Doe", "company": "Test Company", "address1": "123 Main St", "city": "Sydney", "state": "NSW", "postcode": "2000", "country": "AU", "phone": "0412345678", "email": "john@example.com" } }' 
+// curl localhost:8000/starshipitAddressCreate -H "Content-Type: application/json" -d '{ "credsPath": "wf", "addressPayload": { "name": "John Doe", "company": "Test Company", "street": "123 Main St", "suburb": "Wherever", "city": "Sydney", "state": "NSW", "post_code": "2000", "country": "Australia", "phone": "0412345678", "email": "john@example.com" } }' 
