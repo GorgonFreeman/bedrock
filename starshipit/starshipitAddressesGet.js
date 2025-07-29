@@ -12,6 +12,7 @@ const starshipitAddressesGet = async (
 ) => {
 
   const response = await starshipitGet(credsPath, '/addressbook/filtered', {
+    nodeName: 'addresses',
     params: {
       ...(page ? { page } : {}),
       ...(perPage ? { page_size: perPage } : {}),

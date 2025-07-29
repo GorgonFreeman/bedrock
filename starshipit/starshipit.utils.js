@@ -78,7 +78,7 @@ const starshipitGetterDigester = async (response, nodeName) => {
 
   const { success, result } = response;
   if (!success) { // Return if failed
-    return null; 
+    return null;
   }
 
   const items = result?.[nodeName];
@@ -90,6 +90,7 @@ const starshipitGetter = async (
   url,
   {
     params,
+    nodeName = 'results',
     ...getterOptions
   } = {},
 ) => {
@@ -99,8 +100,8 @@ const starshipitGetter = async (
       payload: {
         params,
       },
-      paginator: starshipitGetterPaginator,
-      digester: starshipitGetterDigester,
+      paginator: (...args) => starshipitGetterPaginator(...args, nodeName),
+      digester: (...args) => starshipitGetterDigester(...args, nodeName),
 
       client: starshipitClient,
       clientArgs: {
