@@ -1,20 +1,18 @@
-// https://api-docs.starshipit.com/#4f93a04a-c4db-40bf-86d5-f4f8fd3fb265
+// https://api-docs.starshipit.com/#0cd0b1b0-7ba4-4da3-8c94-67cb4e020a6d
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { starshipitClient } = require('../starshipit/starshipit.utils');
 
 const starshipitAddressDelete = async (
   credsPath,
-  {
-    addressId,
-  },
+  addressId,
 ) => {
 
   const response = await starshipitClient.fetch({
     url: '/addressbook/delete',
-    method: 'delete',
-    params: {
-      address_id: addressId,
+    method: 'post',
+    body: {
+      address_ids: [addressId],
     },
     factoryArgs: [{ credsPath }],
   });
@@ -26,12 +24,12 @@ const starshipitAddressDelete = async (
 const starshipitAddressDeleteApi = async (req, res) => {
   const { 
     credsPath,
-    addressIdentifier,
+    addressId,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'addressIdentifier', addressIdentifier, p => p.addressId),
+    mandateParam(res, 'addressId', addressId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -39,7 +37,7 @@ const starshipitAddressDeleteApi = async (req, res) => {
 
   const result = await starshipitAddressDelete(
     credsPath,
-    addressIdentifier,
+    addressId,
   );
   respond(res, 200, result);
 };
@@ -49,4 +47,4 @@ module.exports = {
   starshipitAddressDeleteApi,
 };
 
-// curl localhost:8000/starshipitAddressDelete -H "Content-Type: application/json" -d '{ "credsPath": "wf", "addressIdentifier": { "addressId": "123" } }' 
+// curl localhost:8000/starshipitAddressDelete -H "Content-Type: application/json" -d '{ "credsPath": "wf", "addressId": "14824686" }' 
