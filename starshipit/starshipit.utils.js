@@ -29,6 +29,17 @@ const { baseUrl } = commonCreds;
 const starshipitClient = new CustomAxiosClient({
   baseUrl,
   factory: starshipitRequestSetup,
+  baseInterpreter: (response) => {
+
+    if (!response?.result?.success) {
+      return {
+        success: false,
+        error: [response.result],
+      };
+    }
+
+    return response;
+  },
 });
 
 module.exports = {
