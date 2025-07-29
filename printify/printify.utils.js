@@ -74,7 +74,7 @@ const printifyGetterDigester = async (response) => {
 
   const { success, result } = response;
   if (!success) { // Return if failed
-    return [true, null]; 
+    return null; 
   }
 
   const items = result?.data;
