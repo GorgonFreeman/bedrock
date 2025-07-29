@@ -42,7 +42,7 @@ const starshipitClient = new CustomAxiosClient({
   },
 });
 
-const starshipitGetterPaginator = async (customAxiosPayload, response) => {
+const starshipitGetterPaginator = async (customAxiosPayload, response, nodeName) => {
   logDeep('paginator: decide when done and make next payload', customAxiosPayload, response);
   await askQuestion('?');
 
@@ -72,10 +72,16 @@ const starshipitGetterPaginator = async (customAxiosPayload, response) => {
   return [done, paginatedPayload];
 };
 
-const starshipitGetterDigester = async (response) => {
-  logDeep('digester: get items from response', response);
-  await askQuestion('?');
+const starshipitGetterDigester = async (response, nodeName) => {
+  // logDeep('digester: get items from response', response);
+  // await askQuestion('?');
 
+  const { success, result } = response;
+  if (!success) { // Return if failed
+    return null; 
+  }
+
+  const items = result?.[nodeName];
   return items;
 };
 
