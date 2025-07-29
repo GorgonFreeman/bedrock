@@ -3,13 +3,14 @@ const { starshipitClient } = require('../starshipit/starshipit.utils');
 
 const starshipitOrderDelete = async (
   credsPath,
-  arg,
+  orderId,
 ) => {
 
   const response = await starshipitClient.fetch({
-    url: '/things',
+    url: '/orders/delete',
+    method: 'delete',
     params: {
-      arg_value: arg,
+      order_id: orderId,
     },
     factoryArgs: [{ credsPath }],
   });
@@ -21,12 +22,12 @@ const starshipitOrderDelete = async (
 const starshipitOrderDeleteApi = async (req, res) => {
   const { 
     credsPath,
-    arg,
+    orderId,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'orderId', orderId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -34,7 +35,7 @@ const starshipitOrderDeleteApi = async (req, res) => {
 
   const result = await starshipitOrderDelete(
     credsPath,
-    arg,
+    orderId,
   );
   respond(res, 200, result);
 };
@@ -44,4 +45,4 @@ module.exports = {
   starshipitOrderDeleteApi,
 };
 
-// curl localhost:8000/starshipitOrderDelete -H "Content-Type: application/json" -d '{ "credsPath": "wf", "arg": "408418809" }' 
+// curl localhost:8000/starshipitOrderDelete -H "Content-Type: application/json" -d '{ "credsPath": "wf", "orderId": "408418809" }' 
