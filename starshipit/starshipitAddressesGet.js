@@ -4,7 +4,7 @@ const { starshipitClient } = require('../starshipit/starshipit.utils');
 const starshipitAddressesGet = async (
   credsPath,
   {
-    page,
+    page = 1,
     perPage,
     sort,
     sortDirection,
@@ -59,4 +59,4 @@ module.exports = {
   starshipitAddressesGetApi,
 };
 
-// curl localhost:8000/starshipitAddressesGet -H "Content-Type: application/json" -d '{ "credsPath": "wf", "options": { "page": 1 } }' 
+// curl localhost:8000/starshipitAddressesGet -H "Content-Type: application/json" -d '{ "credsPath": "wf" }'
