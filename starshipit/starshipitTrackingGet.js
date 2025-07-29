@@ -18,6 +18,14 @@ const starshipitTrackingGet = async (
       ...(orderNumber ? { order_number: orderNumber } : {}),
     },
     factoryArgs: [{ credsPath }],
+    interpreter: (response) => {
+      return {
+        ...response,
+        ...response.result ? {
+          result: response.result.results,
+        } : {},
+      };
+    },
   });
 
   logDeep(response);

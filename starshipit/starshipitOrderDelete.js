@@ -20,7 +20,7 @@ const starshipitOrderDelete = async (
       return starshipitOrderResponse;
     }
 
-    orderId = starshipitOrderResponse?.result?.order?.order_id;
+    orderId = starshipitOrderResponse?.result?.order_id;
   }
 
   if (!orderId) {

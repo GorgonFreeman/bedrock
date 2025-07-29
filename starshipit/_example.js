@@ -12,6 +12,14 @@ const FUNC = async (
       arg_value: arg,
     },
     factoryArgs: [{ credsPath }],
+    interpreter: (response) => {
+      return {
+        ...response,
+        ...response.result ? {
+          result: response.result.arg_value,
+        } : {},
+      };
+    },
   });
 
   logDeep(response);

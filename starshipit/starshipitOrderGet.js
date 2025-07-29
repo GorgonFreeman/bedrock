@@ -16,6 +16,14 @@ const starshipitOrderGet = async (
       ...orderNumber ? { order_number: orderNumber } : {},
     },
     factoryArgs: [{ credsPath }],
+    interpreter: (response) => {
+      return {
+        ...response,
+        ...response.result ? {
+          result: response.result.order,
+        } : {},
+      };
+    },
   });
 
   logDeep(response);
