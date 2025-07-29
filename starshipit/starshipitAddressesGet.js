@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { starshipitClient } = require('../starshipit/starshipit.utils');
+const { starshipitGet } = require('../starshipit/starshipit.utils');
 
 const starshipitAddressesGet = async (
   credsPath,
@@ -11,23 +11,13 @@ const starshipitAddressesGet = async (
   } = {},
 ) => {
 
-  const response = await starshipitClient.fetch({
-    url: '/addressbook/filtered',
+  const response = await starshipitGet(credsPath, '/addressbook/filtered', {
     params: {
       ...(page ? { page } : {}),
       ...(perPage ? { page_size: perPage } : {}),
       ...(sort ? { sort } : {}),
       ...(sortDirection ? { sort_direction: sortDirection } : {}),
     },
-    factoryArgs: [{ credsPath }],
-    // interpreter: (response) => {
-    //   return {
-    //     ...response,
-    //     ...response.result ? {
-    //       result: response.result.arg_value,
-    //     } : {},
-    //   };
-    // },
   });
 
   logDeep(response);
