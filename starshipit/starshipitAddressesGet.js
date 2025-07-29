@@ -59,4 +59,4 @@ module.exports = {
   starshipitAddressesGetApi,
 };
 
-// curl localhost:8000/starshipitAddressesGet -H "Content-Type: application/json" -d '{ "credsPath": "wf" }' 
+// curl localhost:8000/starshipitAddressesGet -H "Content-Type: application/json" -d '{ "credsPath": "wf", "options": { "page": 1 } }' 
