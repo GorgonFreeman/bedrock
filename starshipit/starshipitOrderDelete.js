@@ -1,10 +1,32 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
 const { starshipitClient } = require('../starshipit/starshipit.utils');
+const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 
 const starshipitOrderDelete = async (
   credsPath,
-  orderId,
+  {
+    orderId,
+    orderNumber,
+  },
 ) => {
+
+  if (!orderId) {
+    // If no order ID is provided, we can assume order number is provided due to mandateParam
+    const starshipitOrderResponse = await starshipitOrderGet(credsPath, { orderNumber });
+
+    if (!starshipitOrderResponse?.success) {
+      return starshipitOrderResponse;
+    }
+
+    orderId = starshipitOrderResponse?.result?.order_id;
+  }
+
+  if (!orderId) {
+    return {
+      success: false,
+      error: ['No order ID found'],
+    };
+  }
 
   const response = await starshipitClient.fetch({
     url: '/orders/delete',
@@ -22,12 +44,12 @@ const starshipitOrderDelete = async (
 const starshipitOrderDeleteApi = async (req, res) => {
   const { 
     credsPath,
-    orderId,
+    orderIdentifier,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'orderId', orderId),
+    mandateParam(res, 'orderIdentifier', orderIdentifier, p => objHasAny(p, ['orderId', 'orderNumber'])),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -35,7 +57,7 @@ const starshipitOrderDeleteApi = async (req, res) => {
 
   const result = await starshipitOrderDelete(
     credsPath,
-    orderId,
+    orderIdentifier,
   );
   respond(res, 200, result);
 };
@@ -45,4 +67,5 @@ module.exports = {
   starshipitOrderDeleteApi,
 };
 
-// curl localhost:8000/starshipitOrderDelete -H "Content-Type: application/json" -d '{ "credsPath": "wf", "orderId": "408418809" }' 
+// curl localhost:8000/starshipitOrderDelete -H "Content-Type: application/json" -d '{ "credsPath": "wf", "orderIdentifier": { "orderNumber": "..." } }' 
+// curl localhost:8000/starshipitOrderDelete -H "Content-Type: application/json" -d '{ "credsPath": "wf", "orderIdentifier": { "orderId": "408418809" } }' 
