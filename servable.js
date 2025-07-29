@@ -6,6 +6,7 @@ module.exports = {
   starshipitOrderDelete: require('./starshipit/starshipitOrderDelete').starshipitOrderDeleteApi,
   starshipitOrderGet: require('./starshipit/starshipitOrderGet').starshipitOrderGetApi,
   starshipitOrderUpdate: require('./starshipit/starshipitOrderUpdate').starshipitOrderUpdateApi,
+  starshipitTrackingGet: require('./starshipit/starshipitTrackingGet').starshipitTrackingGetApi,
   shopifyCustomerGet: require('./shopify/shopifyCustomerGet').shopifyCustomerGetApi,
   shopifyGetSingle: require('./shopify/shopifyGetSingle').shopifyGetSingleApi,
   shopifyOrderGet: require('./shopify/shopifyOrderGet').shopifyOrderGetApi,
