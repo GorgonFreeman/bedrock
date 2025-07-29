@@ -1,4 +1,4 @@
-// https://api-docs.starshipit.com/#4f93a04a-c4db-40bf-86d5-f4f8fd3fb265
+// https://api-docs.starshipit.com/#f577d747-7227-432f-bbc2-d9e2db08578f
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { starshipitClient } = require('../starshipit/starshipit.utils');
