@@ -3,23 +3,31 @@ const { starshipitClient } = require('../starshipit/starshipit.utils');
 
 const starshipitAddressesGet = async (
   credsPath,
-  arg,
+  {
+    page,
+    perPage,
+    sort,
+    sortDirection,
+  } = {},
 ) => {
 
   const response = await starshipitClient.fetch({
-    url: '/things',
+    url: '/addressbook/filtered',
     params: {
-      arg_value: arg,
+      ...(page ? { page } : {}),
+      ...(perPage ? { page_size: perPage } : {}),
+      ...(sort ? { sort } : {}),
+      ...(sortDirection ? { sort_direction: sortDirection } : {}),
     },
     factoryArgs: [{ credsPath }],
-    interpreter: (response) => {
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.arg_value,
-        } : {},
-      };
-    },
+    // interpreter: (response) => {
+    //   return {
+    //     ...response,
+    //     ...response.result ? {
+    //       result: response.result.arg_value,
+    //     } : {},
+    //   };
+    // },
   });
 
   logDeep(response);
@@ -29,12 +37,11 @@ const starshipitAddressesGet = async (
 const starshipitAddressesGetApi = async (req, res) => {
   const { 
     credsPath,
-    arg,
+    options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -42,7 +49,7 @@ const starshipitAddressesGetApi = async (req, res) => {
 
   const result = await starshipitAddressesGet(
     credsPath,
-    arg,
+    options,
   );
   respond(res, 200, result);
 };
@@ -52,4 +59,4 @@ module.exports = {
   starshipitAddressesGetApi,
 };
 
-// curl localhost:8000/starshipitAddressesGet -H "Content-Type: application/json" -d '{ "credsPath": "wf", "arg": "408418809" }' 
+// curl localhost:8000/starshipitAddressesGet -H "Content-Type: application/json" -d '{ "credsPath": "wf" }' 
