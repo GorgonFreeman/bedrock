@@ -67,6 +67,7 @@ module.exports = {
   pipe17ReceiptsGet: require('./pipe17/pipe17ReceiptsGet').pipe17ReceiptsGetApi,
   pipe17ReturnGet: require('./pipe17/pipe17ReturnGet').pipe17ReturnGetApi,
   pipe17ReturnsGet: require('./pipe17/pipe17ReturnsGet').pipe17ReturnsGetApi,
+  peoplevoxAuthGet: require('./peoplevox/peoplevoxAuthGet').peoplevoxAuthGetApi,
   etsyMeGet: require('./etsy/etsyMeGet').etsyMeGetApi,
   etsyPing: require('./etsy/etsyPing').etsyPingApi,
 };
