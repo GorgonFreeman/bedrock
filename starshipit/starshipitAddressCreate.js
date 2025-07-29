@@ -16,12 +16,16 @@ const starshipitAddressCreate = async (
     },
     factoryArgs: [{ credsPath }],
     interpreter: (response) => {
+
+      const { result } = response;
+      const { id, address } = result || {};
+
       return {
         ...response,
-        ...response.result ? {
+        ...result ? {
           result: {
-            ...response.result?.id,
-            ...response.result?.address,
+            id, 
+            ...address,
           },
         } : {},
       };
