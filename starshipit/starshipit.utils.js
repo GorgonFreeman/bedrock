@@ -43,8 +43,8 @@ const starshipitClient = new CustomAxiosClient({
 });
 
 const starshipitGetterPaginator = async (customAxiosPayload, response, nodeName) => {
-  logDeep('paginator: decide when done and make next payload', customAxiosPayload, response);
-  await askQuestion('?');
+  // logDeep('paginator: decide when done and make next payload', customAxiosPayload, response);
+  // await askQuestion('?');
 
   const { success, result } = response;
   if (!success) { // Return if failed
@@ -52,22 +52,28 @@ const starshipitGetterPaginator = async (customAxiosPayload, response, nodeName)
   }
 
   // 1. Extract necessary pagination info
-  // const { 
-  //   current_page: currentPage, 
-  //   last_page: lastPage,
-  // } = result;
+  const {
+    page: currentPage,
+    page_size: pageSize,
+  } = customAxiosPayload?.params;
+
+  // TODO: Pass cumulative results count back into paginators for checking if done - pageSize is optional
+
+  const { 
+    total_count: totalCount,
+  } = result;
 
   // 2. Supplement payload with next pagination info
-  // const paginatedPayload = {
-  //   ...customAxiosPayload,
-  //   params: {
-  //     ...customAxiosPayload?.params,
-  //     page: currentPage + 1,
-  //   },
-  // };
+  const paginatedPayload = {
+    ...customAxiosPayload,
+    params: {
+      ...customAxiosPayload?.params,
+      page: currentPage + 1,
+    },
+  };
   
   // 3. Logic to determine done
-  // const done = currentPage === lastPage;
+  const done = currentPage * pageSize >= totalCount;
   
   return [done, paginatedPayload];
 };
