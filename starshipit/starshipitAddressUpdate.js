@@ -1,4 +1,5 @@
 // https://api-docs.starshipit.com/#4ff9ae6f-fadb-4c50-9087-467c2e336f93
+// TODO: Consider if updating the address removes other data. Seems like it does.
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { starshipitClient } = require('../starshipit/starshipit.utils');
