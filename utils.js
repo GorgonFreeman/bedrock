@@ -468,7 +468,7 @@ class CustomAxiosClient {
       ...(headers ?? {}),
     };
 
-    body = this.bodyTransformer ? this.bodyTransformer(body) : body;
+    body = this.bodyTransformer ? await this.bodyTransformer(body) : body;
 
     console.log('fetch: after factory', {
       url,

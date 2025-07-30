@@ -1,7 +1,7 @@
 const xml2js = require('xml2js');
 const { credsByPath, CustomAxiosClient } = require('../utils');
 
-const peoplevoxBodyTransformer = ({ action, object }) => {
+const peoplevoxBodyTransformer = async ({ action, object }) => {
 
   if (action !== 'Authenticate') {
     // Needs auth
