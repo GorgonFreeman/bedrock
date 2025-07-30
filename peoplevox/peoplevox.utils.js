@@ -73,13 +73,23 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
   transformedResult = furthestNode(response.result, `${ action }Response`, `${ action }Result`, 'Detail');
   try {
     transformedResult = await csvtojson().fromString(transformedResult);
+
     if (expectOne) {
+      if (transformedResult?.length > 1) {
+        return {
+          success: false,
+          error: [{ 
+            message: 'Multiple results found',
+            data: transformedResult,
+          }],
+        };
+      }
+
       transformedResult = transformedResult?.[0]
         ? transformedResult?.[0]
-        : transformedResult?.length > 1
-          ? { error: 'Multiple results found' }
-          : null;
+        : null;
     }
+
   } catch (error) {
     console.log('error', error);
   }
