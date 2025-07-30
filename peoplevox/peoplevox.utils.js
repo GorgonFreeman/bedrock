@@ -115,33 +115,57 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
     return response;
   }
 
-  transformedResult = furthestNode(response.result, `${ action }Response`, `${ action }Result`, 'Detail');
+  const excavatedResponse = response.result
+    ?.['soap:Envelope']
+    ?.['soap:Body']
+    ?.[`${ action }Response`]
+    ?.[`${ action }Result`]
+  ;
+
+  let {
+    ResponseId: responseId,
+    Detail: detail,
+  } = excavatedResponse || {};
+
+  if (!responseId) {
+    return {
+      ...response,
+      ...response?.result ? {
+        result: furthestNode(response.result, 'soap:Envelope', 'soap:Body', `${ action }Response`, `${ action }Result`),
+      } : {},
+    };
+  }
+
   try {
-    transformedResult = await csvtojson().fromString(transformedResult);
+    detail = await csvtojson().fromString(detail);
+  } catch (error) {
+    console.log('error parsing Detail', error, Detail);
+  }
 
-    if (expectOne) {
-      if (transformedResult?.length > 1) {
-        return {
-          success: false,
-          error: [{ 
-            message: 'Multiple results found',
-            data: transformedResult,
-          }],
-        };
-      }
-
-      transformedResult = transformedResult?.[0]
-        ? transformedResult?.[0]
-        : null;
+  if (expectOne) {
+    if (detail?.length > 1) {
+      return {
+        success: false,
+        error: [{ 
+          message: 'Multiple results found',
+          data: detail,
+        }],
+      };
     }
 
-  } catch (error) {
-    console.log('error', error);
+    detail = detail?.[0]
+      ? detail?.[0]
+      : null;
   }
-  
+
+  const successful = responseId === '0';
   return {
-    ...response,
-    result: transformedResult,
+    success: successful,
+    ...successful ? {
+      result: detail ? detail : excavatedResponse,
+    } : {
+      error: [excavatedResponse],
+    },
   };
 };
 
