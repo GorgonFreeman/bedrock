@@ -3,22 +3,35 @@ const csvtojson = require('csvtojson');
 const { credsByPath, CustomAxiosClient, furthestNode } = require('../utils');
 const { peoplevoxAuthGet } = require('../peoplevox/peoplevoxAuthGet');
 
+const getSessionId = async ({ credsPath } = {}) => {
+  const authResponse = await peoplevoxAuthGet({ credsPath });
+
+  if (!authResponse?.success) {
+    return authResponse;
+  }
+
+  const [clientId, sessionId] = authResponse?.result?.split(',');
+
+  return { 
+    success: true,
+    result: sessionId,
+  };
+};
+
 const peoplevoxBodyTransformer = async ({ action, object }, { credsPath } = {}) => {
   
-  let clientId;
-  let sessionId;
+  const { CLIENT_ID } = credsByPath(['peoplevox', credsPath]);
 
+  let sessionId;
   if (action !== 'Authenticate') {
     // Needs auth
-    const authResponse = await peoplevoxAuthGet({
-      credsPath,
-    });
+    const sessionIdResponse = await getSessionId({ credsPath });
 
-    if (!authResponse?.success) {
-      return authResponse;
+    if (!sessionIdResponse?.success || !sessionIdResponse?.result) {
+      return sessionIdResponse;
     }
-    
-    [clientId, sessionId] = authResponse?.result?.split(',');
+
+    sessionId = sessionIdResponse?.result;
   }
   
   // TODO: Consider if multiple objects can be sent in one request
@@ -27,14 +40,14 @@ const peoplevoxBodyTransformer = async ({ action, object }, { credsPath } = {}) 
       '$': {
         'xmlns:soap': 'http://schemas.xmlsoap.org/soap/envelope/',
       },
-      ...(clientId && sessionId) ? {
+      ...(sessionId) ? {
         'soap:Header': {
           'UserSessionCredentials': {
             '$': {
               'xmlns': 'http://www.peoplevox.net/',
             },
             'UserId': 0,
-            'clientId': clientId,
+            'clientId': CLIENT_ID,
             'SessionId': sessionId,
           }
         }
