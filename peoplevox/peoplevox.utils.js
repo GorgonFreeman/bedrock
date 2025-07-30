@@ -60,7 +60,7 @@ const peoplevoxBodyTransformer = async ({ action, object }, { credsPath } = {}) 
   return builder.buildObject(envelopeObject);
 };
 
-const peoplevoxStandardInterpreter = (action) => async (response) => {
+const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (response) => {
   // console.log('action', action);
   // console.log('response', response);
 
@@ -73,6 +73,13 @@ const peoplevoxStandardInterpreter = (action) => async (response) => {
   transformedResult = furthestNode(response.result, `${ action }Response`, `${ action }Result`, 'Detail');
   try {
     transformedResult = await csvtojson().fromString(transformedResult);
+    if (expectOne) {
+      transformedResult = transformedResult?.[0]
+        ? transformedResult?.[0]
+        : transformedResult?.length > 1
+          ? { error: 'Multiple results found' }
+          : null;
+    }
   } catch (error) {
     console.log('error', error);
   }
