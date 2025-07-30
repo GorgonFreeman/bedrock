@@ -17,7 +17,7 @@ const peoplevoxBodyTransformer = async ({ action, object }, { credsPath } = {}) 
       return authResponse;
     }
     
-    [clientId, sessionId] = authResponse?.result;
+    [clientId, sessionId] = authResponse?.result?.split(',');
   }
   
   // TODO: Consider if multiple objects can be sent in one request
