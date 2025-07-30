@@ -44,14 +44,11 @@ const peoplevoxAuthGet = async (
   const parsedResponse = {
     ...response,
     ...response.result ? {
-      result: await new xml2js.Parser().parseStringPromise(
-        response.result, 
-        {
-          explicitArray: false,
-          mergeAttrs: true,
-          ignoreAttrs: true,
-        },
-      ),
+      result: await new xml2js.Parser({
+        explicitArray: false,
+        mergeAttrs: true,
+        ignoreAttrs: true,
+      }).parseStringPromise(response.result),
     } : {},
   };
 

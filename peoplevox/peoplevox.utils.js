@@ -70,14 +70,11 @@ const peoplevoxClient = new CustomAxiosClient({
     let parsedResult = null;
     
     if (response.result) {
-      parsedResult = await new xml2js.Parser().parseStringPromise(
-        response.result, 
-        {
-          explicitArray: false,
-          mergeAttrs: true,
-          ignoreAttrs: true,
-        },
-      );
+      parsedResult = await new xml2js.Parser({
+        explicitArray: false,
+        mergeAttrs: true,
+        ignoreAttrs: true,
+      }).parseStringPromise(response.result);
     }
     
     const parsedResponse = {
