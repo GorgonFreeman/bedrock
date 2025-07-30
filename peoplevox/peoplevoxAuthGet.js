@@ -16,6 +16,7 @@ const peoplevoxAuthGet = async (
   
   const headers = {
     'Content-Type': 'text/xml; charset=utf-8',
+    'SOAPAction': 'http://www.peoplevox.net/Authenticate',
   };
 
   const envelope = `
