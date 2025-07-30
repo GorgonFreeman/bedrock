@@ -3,7 +3,18 @@ const csvtojson = require('csvtojson');
 const { credsByPath, CustomAxiosClient, furthestNode } = require('../utils');
 const { peoplevoxAuthGet } = require('../peoplevox/peoplevoxAuthGet');
 
+const SESSION_IDS = new Map();
+
 const getSessionId = async ({ credsPath } = {}) => {
+
+  if (SESSION_IDS.has(credsPath)) {
+    console.log('from map');
+    return {
+      success: true,
+      result: SESSION_IDS.get(credsPath),
+    };
+  }
+
   const authResponse = await peoplevoxAuthGet({ credsPath });
 
   if (!authResponse?.success) {
@@ -11,7 +22,9 @@ const getSessionId = async ({ credsPath } = {}) => {
   }
 
   const [clientId, sessionId] = authResponse?.result?.split(',');
-
+  SESSION_IDS.set(credsPath, sessionId);
+  
+  console.log('from API');
   return { 
     success: true,
     result: sessionId,
