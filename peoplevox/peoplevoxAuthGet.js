@@ -1,5 +1,5 @@
 const xml2js = require('xml2js');
-const { respond, mandateParam, credsByPath, customAxios, logDeep } = require('../utils');
+const { respond, mandateParam, credsByPath, customAxios, logDeep, furthestNode } = require('../utils');
 
 const peoplevoxAuthGet = async (
   {
@@ -43,7 +43,7 @@ const peoplevoxAuthGet = async (
 
   const parsedResponse = {
     ...response,
-    ...response.result ? {
+    ...response?.result ? {
       result: await new xml2js.Parser({
         explicitArray: false,
         mergeAttrs: true,
@@ -52,8 +52,30 @@ const peoplevoxAuthGet = async (
     } : {},
   };
 
-  logDeep(parsedResponse);
-  return parsedResponse;
+  const excavatedResponse = parsedResponse.result?.['soap:Envelope']?.['soap:Body']?.AuthenticateResponse?.AuthenticateResult;
+  const {
+    ResponseId: responseId,
+    Detail: detail,
+  } = excavatedResponse || {};
+
+  if (!responseId) {
+    return {
+      ...parsedResponse,
+      ...parsedResponse?.result ? {
+        result: furthestNode(parsedResponse.result, 'soap:Envelope', 'soap:Body', 'AuthenticateResponse', 'AuthenticateResult'),
+      } : {},
+    };
+  }
+
+  const successful = responseId === '0';
+  return {
+    success: successful,
+    ...successful ? {
+      result: furthestNode(excavatedResponse, 'Detail'),
+    } : {
+      error: [excavatedResponse],
+    },
+  };
 };
 
 const peoplevoxAuthGetApi = async (req, res) => {
