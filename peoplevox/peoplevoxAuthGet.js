@@ -71,7 +71,7 @@ const peoplevoxAuthGet = async (
   return {
     success: successful,
     ...successful ? {
-      result: furthestNode(excavatedResponse, 'Detail'),
+      result: detail ? detail.split(',')?.[1] : excavatedResponse,
     } : {
       error: [excavatedResponse],
     },
