@@ -60,15 +60,26 @@ const peoplevoxBodyTransformer = async ({ action, object }, { credsPath } = {}) 
   return builder.buildObject(envelopeObject);
 };
 
-const peoplevoxStandardInterpreter = (action) => (response) => {
+const peoplevoxStandardInterpreter = (action) => async (response) => {
   // console.log('action', action);
   // console.log('response', response);
+
+  let transformedResult;
+
+  if (!response?.result) {
+    return response;
+  }
+
+  transformedResult = furthestNode(response.result, `${ action }Response`, `${ action }Result`, 'Detail');
+  try {
+    transformedResult = await csvtojson().fromString(transformedResult);
+  } catch (error) {
+    console.log('error', error);
+  }
   
   return {
     ...response,
-    ...response?.result ? {
-      result: furthestNode(response.result, `${ action }Response`, `${ action }Result`, 'Detail'),
-    } : {},
+    result: transformedResult,
   };
 };
 
