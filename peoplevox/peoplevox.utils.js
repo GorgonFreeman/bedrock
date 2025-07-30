@@ -1,6 +1,6 @@
 const xml2js = require('xml2js');
 const csvtojson = require('csvtojson');
-const { credsByPath, CustomAxiosClient, furthestNode } = require('../utils');
+const { credsByPath, CustomAxiosClient, furthestNode, logDeep } = require('../utils');
 const { peoplevoxAuthGet } = require('../peoplevox/peoplevoxAuthGet');
 const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 
@@ -105,8 +105,9 @@ const peoplevoxBodyTransformer = async ({ action, object }, { credsPath } = {}) 
 };
 
 const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (response) => {
+  console.log('peoplevoxStandardInterpreter');
   // console.log('action', action);
-  // console.log('response', response);
+  logDeep('response', response);
 
   let transformedResult;
 
