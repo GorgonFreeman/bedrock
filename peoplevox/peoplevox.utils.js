@@ -1,5 +1,6 @@
 const xml2js = require('xml2js');
-const { credsByPath, CustomAxiosClient } = require('../utils');
+const csvtojson = require('csvtojson');
+const { credsByPath, CustomAxiosClient, furthestNode } = require('../utils');
 const { peoplevoxAuthGet } = require('../peoplevox/peoplevoxAuthGet');
 
 const peoplevoxBodyTransformer = async ({ action, object }, { credsPath } = {}) => {
@@ -59,6 +60,18 @@ const peoplevoxBodyTransformer = async ({ action, object }, { credsPath } = {}) 
   return builder.buildObject(envelopeObject);
 };
 
+const peoplevoxStandardInterpreter = (action) => (response) => {
+  // console.log('action', action);
+  // console.log('response', response);
+  
+  return {
+    ...response,
+    ...response?.result ? {
+      result: furthestNode(response.result, `${ action }Response`, `${ action }Result`, 'Detail'),
+    } : {},
+  };
+};
+
 const peoplevoxRequestSetup = ({ credsPath } = {}) => {
 
   const creds = credsByPath(['peoplevox', credsPath]);
@@ -86,6 +99,8 @@ const peoplevoxClient = new CustomAxiosClient({
         mergeAttrs: true,
         ignoreAttrs: true,
       }).parseStringPromise(response.result);
+
+      parsedResult = furthestNode(parsedResult, 'soap:Envelope', 'soap:Body');
     }
     
     const parsedResponse = {
@@ -100,4 +115,5 @@ const peoplevoxClient = new CustomAxiosClient({
 
 module.exports = {
   peoplevoxClient,
+  peoplevoxStandardInterpreter,
 };

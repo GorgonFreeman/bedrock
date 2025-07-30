@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { peoplevoxClient } = require('../peoplevox/peoplevox.utils');
+const { peoplevoxClient, peoplevoxStandardInterpreter } = require('../peoplevox/peoplevox.utils');
 
 const peoplevoxOrderGet = async (
   salesOrderNumber,
@@ -24,6 +24,7 @@ const peoplevoxOrderGet = async (
     },
     factoryArgs: [{ credsPath }],
     bodyTransformerArgs: [{ credsPath }],
+    interpreter: peoplevoxStandardInterpreter('GetData'),
   });
   logDeep(response);
   return response;
