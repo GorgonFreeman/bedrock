@@ -116,8 +116,6 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
   }
 
   const excavatedResponse = response.result
-    ?.['soap:Envelope']
-    ?.['soap:Body']
     ?.[`${ action }Response`]
     ?.[`${ action }Result`]
   ;
@@ -131,7 +129,7 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
     return {
       ...response,
       ...response?.result ? {
-        result: furthestNode(response.result, 'soap:Envelope', 'soap:Body', `${ action }Response`, `${ action }Result`),
+        result: furthestNode(response.result, `${ action }Response`, `${ action }Result`),
       } : {},
     };
   }
