@@ -2,6 +2,24 @@ const xml2js = require('xml2js');
 const { credsByPath, CustomAxiosClient } = require('../utils');
 
 const peoplevoxBodyTransformer = ({ action, object }) => {
+
+  if (action !== 'Authenticate') {
+    // Needs auth
+    const authResponse = await peoplevoxAuthGet({
+      credsPath,
+    });
+
+    if (!authResponse?.success) {
+      return authResponse;
+    }
+
+    const {
+      result: token,
+    } = authResponse;
+    
+    // TODO: Add auth to body
+    
+  }
   
   // TODO: Consider if multiple objects can be sent in one request
   const envelopeObject = {
