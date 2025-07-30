@@ -1,7 +1,5 @@
-const xml2json = require('xml2json');
-
-const { respond, mandateParam, credsByPath, customAxios, logDeep } = require('../utils');
-const { peoplevoxRequestSetup } = require('../peoplevox/peoplevox.utils');
+const { respond, mandateParam, credsByPath, logDeep } = require('../utils');
+const { peoplevoxClient } = require('../peoplevox/peoplevox.utils');
 
 const peoplevoxAuthGet = async (
   {
@@ -9,21 +7,11 @@ const peoplevoxAuthGet = async (
   } = {},
 ) => {
 
-  const {
-    baseUrl,
-  } = peoplevoxRequestSetup({ credsPath });
-  const url = baseUrl;
-
   const { 
     CLIENT_ID, 
     USERNAME,
     PASSWORD,
   } = credsByPath(['peoplevox', credsPath]);
-  
-  const headers = {
-    'Content-Type': 'text/xml; charset=utf-8',
-    'SOAPAction': 'http://www.peoplevox.net/Authenticate',
-  };
 
   const envelope = `
     <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -37,24 +25,16 @@ const peoplevoxAuthGet = async (
     </soap:Envelope>
   `.trim();
 
-  const response = await customAxios(
-    url, 
-    {
-      headers,
-      method: 'post',
-      body: envelope,
+  const response = await peoplevoxClient.fetch({
+    headers: {
+      'SOAPAction': 'http://www.peoplevox.net/Authenticate',
     },
-  );
-
-  const parsedResponse = {
-    ...response,
-    ...response.result ? {
-      result: xml2json.toJson(response.result, { object: true }),
-    } : {},
-  };
-
-  logDeep(parsedResponse);
-  return parsedResponse;
+    method: 'post',
+    body: envelope,
+    factoryArgs: [{ credsPath }],
+  });
+  logDeep(response);
+  return response;
 };
 
 const peoplevoxAuthGetApi = async (req, res) => {
