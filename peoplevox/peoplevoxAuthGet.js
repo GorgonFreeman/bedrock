@@ -71,7 +71,7 @@ const peoplevoxAuthGet = async (
   return {
     success: successful,
     ...successful ? {
-      result: detail ? detail.split(',')?.[1] : excavatedResponse,
+      result: detail ? detail : excavatedResponse,
     } : {
       error: [excavatedResponse],
     },
