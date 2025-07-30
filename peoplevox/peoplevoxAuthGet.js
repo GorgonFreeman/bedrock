@@ -1,6 +1,7 @@
 const xml2json = require('xml2json');
 
 const { respond, mandateParam, credsByPath, customAxios, logDeep } = require('../utils');
+const { peoplevoxRequestSetup } = require('../peoplevox/peoplevox.utils');
 
 const peoplevoxAuthGet = async (
   {
@@ -8,13 +9,16 @@ const peoplevoxAuthGet = async (
   } = {},
 ) => {
 
+  const {
+    baseUrl,
+  } = peoplevoxRequestSetup({ credsPath });
+  const url = baseUrl;
+
   const { 
     CLIENT_ID, 
     USERNAME,
     PASSWORD,
   } = credsByPath(['peoplevox', credsPath]);
-
-  const url = `https://ap.peoplevox.net/${ CLIENT_ID }/Resources/IntegrationServicev4.asmx`;
   
   const headers = {
     'Content-Type': 'text/xml; charset=utf-8',
