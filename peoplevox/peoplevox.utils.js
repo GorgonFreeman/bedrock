@@ -2,16 +2,33 @@ const xml2js = require('xml2js');
 const csvtojson = require('csvtojson');
 const { credsByPath, CustomAxiosClient, furthestNode } = require('../utils');
 const { peoplevoxAuthGet } = require('../peoplevox/peoplevoxAuthGet');
+const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 
 const SESSION_IDS = new Map();
 
 const getSessionId = async ({ credsPath } = {}) => {
 
-  if (SESSION_IDS.has(credsPath)) {
+  const { CLIENT_ID } = credsByPath(['peoplevox', credsPath]);
+  
+  // 1. Check if we have a session ID in memory
+  if (SESSION_IDS.has(CLIENT_ID)) {
     console.log('from map');
     return {
       success: true,
-      result: SESSION_IDS.get(credsPath),
+      result: SESSION_IDS.get(CLIENT_ID),
+    };
+  }
+
+  // Check if we have a session ID in Upstash
+  const upstashSessionIdResponse = await upstashGet(`pvx_sesh_${ CLIENT_ID }`);
+
+  if (upstashSessionIdResponse?.success && upstashSessionIdResponse?.result) {
+    const [clientId, sessionId] = upstashSessionIdResponse.result.split(',');
+    SESSION_IDS.set(CLIENT_ID, sessionId);
+    console.log('from Upstash');
+    return {
+      success: true,
+      result: sessionId,
     };
   }
 
@@ -21,8 +38,9 @@ const getSessionId = async ({ credsPath } = {}) => {
     return authResponse;
   }
 
-  const [clientId, sessionId] = authResponse?.result?.split(',');
-  SESSION_IDS.set(credsPath, sessionId);
+  const sessionId = authResponse?.result;
+  SESSION_IDS.set(CLIENT_ID, sessionId);
+  await upstashSet(`pvx_sesh_${ CLIENT_ID }`, sessionId);
   
   console.log('from API');
   return { 
