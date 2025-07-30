@@ -1,5 +1,5 @@
-const { respond, mandateParam, credsByPath, logDeep } = require('../utils');
-const { peoplevoxJsonToXml, peoplevoxClient } = require('../peoplevox/peoplevox.utils');
+const xml2js = require('xml2js');
+const { respond, mandateParam, credsByPath, customAxios, logDeep } = require('../utils');
 
 const peoplevoxAuthGet = async (
   {
@@ -13,23 +13,50 @@ const peoplevoxAuthGet = async (
     PASSWORD,
   } = credsByPath(['peoplevox', credsPath]);
 
-  const response = await peoplevoxClient.fetch({
-    headers: {
-      'SOAPAction': 'http://www.peoplevox.net/Authenticate',
+  const url = `https://ap.peoplevox.net/${ CLIENT_ID }/Resources/IntegrationServicev4.asmx`;
+  
+  const headers = {
+    'Content-Type': 'text/xml; charset=utf-8',
+    'SOAPAction': 'http://www.peoplevox.net/Authenticate',
+  };
+
+  const envelope = `
+    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+      <soap:Body>
+        <Authenticate xmlns="http://www.peoplevox.net/">
+          <clientId>${ CLIENT_ID }</clientId>
+          <username>${ USERNAME }</username>
+          <password>${ btoa(PASSWORD) }</password>
+        </Authenticate>
+      </soap:Body>
+    </soap:Envelope>
+  `.trim();
+
+  const response = await customAxios(
+    url, 
+    {
+      headers,
+      method: 'post',
+      body: envelope,
     },
-    method: 'post',
-    body: {
-      action: 'Authenticate',
-      object: {
-        clientId: CLIENT_ID,
-        username: USERNAME,
-        password: btoa(PASSWORD),
-      },
-    },
-    factoryArgs: [{ credsPath }],
-  });
-  logDeep(response);
-  return response;
+  );
+
+  const parsedResponse = {
+    ...response,
+    ...response.result ? {
+      result: await new xml2js.Parser().parseStringPromise(
+        response.result, 
+        {
+          explicitArray: false,
+          mergeAttrs: true,
+          ignoreAttrs: true,
+        },
+      ),
+    } : {},
+  };
+
+  logDeep(parsedResponse);
+  return parsedResponse;
 };
 
 const peoplevoxAuthGetApi = async (req, res) => {
