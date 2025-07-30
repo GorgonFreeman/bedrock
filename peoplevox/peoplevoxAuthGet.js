@@ -13,20 +13,19 @@ const peoplevoxAuthGet = async (
     PASSWORD,
   } = credsByPath(['peoplevox', credsPath]);
 
-  const envelope = peoplevoxJsonToXml('Authenticate', {
-    clientId: CLIENT_ID,
-    username: USERNAME,
-    password: btoa(PASSWORD),
-  });
-  
-  console.log(envelope);
-
   const response = await peoplevoxClient.fetch({
     headers: {
       'SOAPAction': 'http://www.peoplevox.net/Authenticate',
     },
     method: 'post',
-    body: envelope,
+    body: {
+      action: 'Authenticate',
+      object: {
+        clientId: CLIENT_ID,
+        username: USERNAME,
+        password: btoa(PASSWORD),
+      },
+    },
     factoryArgs: [{ credsPath }],
   });
   logDeep(response);

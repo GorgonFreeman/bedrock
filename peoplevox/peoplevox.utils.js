@@ -1,7 +1,7 @@
 const xml2js = require('xml2js');
 const { credsByPath, CustomAxiosClient } = require('../utils');
 
-const peoplevoxJsonToXml = (action, object) => {
+const peoplevoxJsonToXml = ({ action, object }) => {
   
   // TODO: Consider if multiple objects can be sent in one request
   const envelopeObject = {
@@ -46,9 +46,7 @@ const peoplevoxClient = new CustomAxiosClient({
   baseHeaders: {
     'Content-Type': 'text/xml; charset=utf-8',
   },
-  // bodyTransformer: (body) => {
-
-  // },
+  bodyTransformer: peoplevoxJsonToXml,
   factory: peoplevoxRequestSetup,
   baseInterpreter: async (response) => {
     let parsedResult = null;

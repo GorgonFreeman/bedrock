@@ -401,13 +401,17 @@ const funcApi = (func, { argNames, validatorsByArg } = {}) => {
 };
 
 class CustomAxiosClient {
-  constructor({ baseInterpreter, baseUrl, baseHeaders, factory } = {}) {
+  constructor({ baseInterpreter, baseUrl, baseHeaders, factory, bodyTransformer } = {}) {
     this.baseInterpreter = baseInterpreter;
     this.baseUrl = baseUrl;
     this.baseHeaders = baseHeaders;
 
     // Factory is a function that takes credentials and returns auth like headers and base url
     this.factory = factory;
+
+    // Body transformer is a function that takes the body as provided and modifies it
+    // e.g. for SOAP requests
+    this.bodyTransformer = bodyTransformer;
   }
 
   async fetch({
@@ -463,6 +467,8 @@ class CustomAxiosClient {
       ...(baseHeaders ?? {}),
       ...(headers ?? {}),
     };
+
+    body = this.bodyTransformer ? this.bodyTransformer(body) : body;
 
     console.log('fetch: after factory', {
       url,
