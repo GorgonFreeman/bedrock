@@ -1,34 +1,34 @@
 const { respond, mandateParam } = require('../utils');
 
 const peoplevoxOrderGet = async (
-  arg,
+  salesOrderNumber,
   {
-    option,
+    credsPath,
   } = {},
 ) => {
 
   return { 
-    arg, 
-    option,
+    salesOrderNumber, 
+    credsPath,
   };
   
 };
 
 const peoplevoxOrderGetApi = async (req, res) => {
   const { 
-    arg,
+    salesOrderNumber,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'salesOrderNumber', salesOrderNumber),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await peoplevoxOrderGet(
-    arg,
+    salesOrderNumber,
     options,
   );
   respond(res, 200, result);
@@ -39,4 +39,4 @@ module.exports = {
   peoplevoxOrderGetApi,
 };
 
-// curl localhost:8000/peoplevoxOrderGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/peoplevoxOrderGet -H "Content-Type: application/json" -d '{ "salesOrderNumber": "5977690603592" }'
