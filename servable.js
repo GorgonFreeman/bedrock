@@ -19,6 +19,7 @@ module.exports = {
   shopifyPageGet: require('./shopify/shopifyPageGet').shopifyPageGetApi,
   shopifyPageUpdate: require('./shopify/shopifyPageUpdate').shopifyPageUpdateApi,
   shopifyPagesGet: require('./shopify/shopifyPagesGet').shopifyPagesGetApi,
+  shopifyPagesGetShogun: require('./shopify/shopifyPagesGetShogun').shopifyPagesGetShogunApi,
   shopifyProductCreate: require('./shopify/shopifyProductCreate').shopifyProductCreateApi,
   shopifyProductDelete: require('./shopify/shopifyProductDelete').shopifyProductDeleteApi,
   shopifyProductGet: require('./shopify/shopifyProductGet').shopifyProductGetApi,
