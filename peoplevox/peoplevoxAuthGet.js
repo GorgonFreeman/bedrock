@@ -1,4 +1,4 @@
-const { respond, mandateParam, credsByPath, customAxios } = require('../utils');
+const { respond, mandateParam, credsByPath, customAxios, logDeep } = require('../utils');
 
 const peoplevoxAuthGet = async (
   {
@@ -8,6 +8,8 @@ const peoplevoxAuthGet = async (
 
   const { 
     CLIENT_ID, 
+    USERNAME,
+    PASSWORD,
   } = credsByPath(['peoplevox', credsPath]);
 
   const url = `https://ap.peoplevox.net/${ CLIENT_ID }/Resources/IntegrationServicev4.asmx`;
@@ -16,10 +18,32 @@ const peoplevoxAuthGet = async (
     'Content-Type': 'text/xml; charset=utf-8',
   };
 
-  return { 
-    credsPath,
-  };
-  
+  const envelope = `
+    <?xml version="1.0" encoding="utf-8"?>                              
+    <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+      xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+      <soap:Body>
+        <Authenticate xmlns="https://www.peoplevox.net/">
+          <clientId>${ CLIENT_ID }</clientId>
+          <username>${ USERNAME }</username>
+          <password>${ btoa(PASSWORD) }</password>
+        </Authenticate>
+      </soap:Body>
+    </soap:Envelope>
+  `;
+
+  const response = await customAxios(
+    url, 
+    {
+      headers,
+      method: 'post',
+      body: envelope,
+    },
+  );
+
+  logDeep(response);
+  return response;
 };
 
 const peoplevoxAuthGetApi = async (req, res) => {
@@ -45,4 +69,4 @@ module.exports = {
   peoplevoxAuthGetApi,
 };
 
-// curl localhost:8000/peoplevoxAuthGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/peoplevoxAuthGet
