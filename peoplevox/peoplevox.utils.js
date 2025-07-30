@@ -1,7 +1,11 @@
 const xml2js = require('xml2js');
 const { credsByPath, CustomAxiosClient } = require('../utils');
+const { peoplevoxAuthGet } = require('../peoplevox/peoplevoxAuthGet');
 
-const peoplevoxBodyTransformer = async ({ action, object }) => {
+const peoplevoxBodyTransformer = async ({ action, object }, { credsPath } = {}) => {
+  
+  let clientId;
+  let sessionId;
 
   if (action !== 'Authenticate') {
     // Needs auth
@@ -12,13 +16,8 @@ const peoplevoxBodyTransformer = async ({ action, object }) => {
     if (!authResponse?.success) {
       return authResponse;
     }
-
-    const {
-      result: token,
-    } = authResponse;
     
-    // TODO: Add auth to body
-    
+    [clientId, sessionId] = authResponse?.result;
   }
   
   // TODO: Consider if multiple objects can be sent in one request
@@ -27,6 +26,18 @@ const peoplevoxBodyTransformer = async ({ action, object }) => {
       '$': {
         'xmlns:soap': 'http://schemas.xmlsoap.org/soap/envelope/',
       },
+      ...(clientId && sessionId) ? {
+        'soap:Header': {
+          'UserSessionCredentials': {
+            '$': {
+              'xmlns': 'http://www.peoplevox.net/',
+            },
+            'UserId': 0,
+            'clientId': clientId,
+            'SessionId': sessionId,
+          }
+        }
+      } : {},
       'soap:Body': {
         [action]: {
           '$': {

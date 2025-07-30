@@ -8,26 +8,22 @@ const peoplevoxOrderGet = async (
   } = {},
 ) => {
 
-  const envelope = `
-    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-      <soap:Body>
-        <GetData xmlns="http://www.peoplevox.net/">
-          <getRequest>
-            <TemplateName>SalesOrder</TemplateName>
-            <SearchClause>SalesOrderNumber.Equals(\"${ salesOrderNumber }\")</SearchClause>
-          </getRequest>
-        </GetData>
-      </soap:Body>
-    </soap:Envelope>
-  `.trim();
-
   const response = await peoplevoxClient.fetch({
     headers: {
       'SOAPAction': 'http://www.peoplevox.net/GetData',
     },
     method: 'post',
-    body: envelope,
+    body: {
+      action: 'GetData',
+      object: {
+        getRequest: {
+          TemplateName: 'SalesOrder',
+          SearchClause: `SalesOrderNumber.Equals("${ salesOrderNumber }")`,
+        },
+      },
+    },
     factoryArgs: [{ credsPath }],
+    bodyTransformerArgs: [{ credsPath }],
   });
   logDeep(response);
   return response;
