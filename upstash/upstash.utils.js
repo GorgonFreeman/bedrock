@@ -17,7 +17,7 @@ const upstashRedis = ({ credsPath } = {}) => {
   }
 
   const redis = new Redis({
-    baseUrl: BASE_URL,
+    url: BASE_URL,
     token: TOKEN,
   });
 
