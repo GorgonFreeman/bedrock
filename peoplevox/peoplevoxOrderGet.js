@@ -1,4 +1,5 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, logDeep } = require('../utils');
+const { peoplevoxClient } = require('../peoplevox/peoplevox.utils');
 
 const peoplevoxOrderGet = async (
   salesOrderNumber,
@@ -7,10 +8,29 @@ const peoplevoxOrderGet = async (
   } = {},
 ) => {
 
-  return { 
-    salesOrderNumber, 
-    credsPath,
-  };
+  const envelope = `
+    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+      <soap:Body>
+        <GetData xmlns="http://www.peoplevox.net/">
+          <getRequest>
+            <TemplateName>SalesOrder</TemplateName>
+            <SearchClause>SalesOrderNumber.Equals(\"${ salesOrderNumber }\")</SearchClause>
+          </getRequest>
+        </GetData>
+      </soap:Body>
+    </soap:Envelope>
+  `.trim();
+
+  const response = await peoplevoxClient.fetch({
+    headers: {
+      'SOAPAction': 'http://www.peoplevox.net/GetData',
+    },
+    method: 'post',
+    body: envelope,
+    factoryArgs: [{ credsPath }],
+  });
+  logDeep(response);
+  return response;
   
 };
 
