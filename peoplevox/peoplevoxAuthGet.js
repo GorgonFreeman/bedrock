@@ -1,5 +1,5 @@
 const { respond, mandateParam, credsByPath, logDeep } = require('../utils');
-const { peoplevoxClient } = require('../peoplevox/peoplevox.utils');
+const { peoplevoxJsonToXml, peoplevoxClient } = require('../peoplevox/peoplevox.utils');
 
 const peoplevoxAuthGet = async (
   {
@@ -13,17 +13,13 @@ const peoplevoxAuthGet = async (
     PASSWORD,
   } = credsByPath(['peoplevox', credsPath]);
 
-  const envelope = `
-    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-      <soap:Body>
-        <Authenticate xmlns="http://www.peoplevox.net/">
-          <clientId>${ CLIENT_ID }</clientId>
-          <username>${ USERNAME }</username>
-          <password>${ btoa(PASSWORD) }</password>
-        </Authenticate>
-      </soap:Body>
-    </soap:Envelope>
-  `.trim();
+  const envelope = peoplevoxJsonToXml('Authenticate', {
+    clientId: CLIENT_ID,
+    username: USERNAME,
+    password: btoa(PASSWORD),
+  });
+  
+  console.log(envelope);
 
   const response = await peoplevoxClient.fetch({
     headers: {
