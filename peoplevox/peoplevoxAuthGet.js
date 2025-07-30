@@ -1,3 +1,5 @@
+const xml2json = require('xml2json');
+
 const { respond, mandateParam, credsByPath, customAxios, logDeep } = require('../utils');
 
 const peoplevoxAuthGet = async (
@@ -40,8 +42,15 @@ const peoplevoxAuthGet = async (
     },
   );
 
-  logDeep(response);
-  return response;
+  const parsedResponse = {
+    ...response,
+    ...response.result ? {
+      result: xml2json.toJson(response.result, { object: true }),
+    } : {},
+  };
+
+  logDeep(parsedResponse);
+  return parsedResponse;
 };
 
 const peoplevoxAuthGetApi = async (req, res) => {
