@@ -31,7 +31,7 @@ const peoplevoxAuthGet = async (
         </Authenticate>
       </soap:Body>
     </soap:Envelope>
-  `;
+  `.trim();
 
   const response = await customAxios(
     url, 
