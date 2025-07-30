@@ -425,8 +425,8 @@ class CustomAxiosClient {
     
     verbose,
     interpreter,
-    factoryArgs, // Arguments for deriving auth
-    bodyTransformerArgs, // To pass to bodyTransformer after the body
+    factoryArgs = [], // Arguments for deriving auth
+    bodyTransformerArgs = [], // To pass to bodyTransformer after the body
   } = {}) {
 
     console.log('fetch: before factory', {
