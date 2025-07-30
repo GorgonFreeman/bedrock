@@ -25,7 +25,7 @@ const peoplevoxAuthGet = async (
       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
       xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       <soap:Body>
-        <Authenticate xmlns="https://www.peoplevox.net/">
+        <Authenticate xmlns="http://www.peoplevox.net/">
           <clientId>${ CLIENT_ID }</clientId>
           <username>${ USERNAME }</username>
           <password>${ btoa(PASSWORD) }</password>
