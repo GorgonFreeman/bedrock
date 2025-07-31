@@ -139,19 +139,38 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
     };
   }
 
-  try {
-    detail = await csvtojson().fromString(detail);
-  } catch (error) {
-    console.log('error parsing Detail', error, Detail);
-  }
-
   const successful = responseId === '0';
   let shouldRetry = false;
+
+  if (successful) {
+    try {
+      detail = await csvtojson().fromString(detail);
+    } catch (error) {
+      console.log('error parsing Detail', error, Detail);
+    }
+
+    // Transform output - only if successful and returning an array
+    if (expectOne) {
+      if (detail?.length > 1) {
+        return {
+          success: false,
+          error: [{ 
+            message: 'Multiple results found',
+            data: detail,
+          }],
+        };
+      }
+
+      detail = detail?.[0]
+        ? detail?.[0]
+        : null;
+    }
+  }
   
-  // Auth has expired, fetch a fresh one
   console.log('detail', detail);
   await askQuestion('?');
-  if (!successful && detail === `System : Security - Invalid Session`) {
+  if (!successful && detail === 'System : Security - Invalid Session') {
+    // Auth has expired, fetch a fresh one
     const { credsPath } = context;
     const sessionIdResponse = await getSessionId({ credsPath, forceRefresh: true });
     if (!sessionIdResponse?.success || !sessionIdResponse?.result) {
@@ -162,23 +181,6 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
     }
 
     shouldRetry = true;
-  }
-
-  // Transform output - only if successful and returning an array
-  if (successful && expectOne && Array.isArray(detail)) {
-    if (detail?.length > 1) {
-      return {
-        success: false,
-        error: [{ 
-          message: 'Multiple results found',
-          data: detail,
-        }],
-      };
-    }
-
-    detail = detail?.[0]
-      ? detail?.[0]
-      : null;
   }
 
   const interpretedResponse = {
