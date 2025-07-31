@@ -6,6 +6,18 @@ const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 
 const SESSION_IDS = new Map();
 
+const xml2jsParser = new xml2js.Parser({
+  explicitArray: false,
+  mergeAttrs: true,
+  ignoreAttrs: true,
+});
+const xml2jsBuilder = new xml2js.Builder({
+  headless: true,
+  renderOpts: {
+    pretty: true,
+  },
+});
+
 const getSessionId = async ({ credsPath, forceRefresh } = {}) => {
 
   const { CLIENT_ID } = credsByPath(['peoplevox', credsPath]);
@@ -97,14 +109,7 @@ const peoplevoxBodyTransformer = async ({ action, object }, { credsPath } = {}) 
     }
   };
 
-  const builder = new xml2js.Builder({
-    headless: true,
-    renderOpts: {
-      pretty: true,
-    },
-  });
-
-  return builder.buildObject(envelopeObject);
+  return xml2jsBuilder.buildObject(envelopeObject);
 };
 
 const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (response, context) => {
@@ -222,11 +227,7 @@ const peoplevoxClient = new CustomAxiosClient({
     let parsedResult = null;
     
     if (response.result) {
-      parsedResult = await new xml2js.Parser({
-        explicitArray: false,
-        mergeAttrs: true,
-        ignoreAttrs: true,
-      }).parseStringPromise(response.result);
+      parsedResult = await xml2jsParser.parseStringPromise(response.result);
 
       parsedResult = furthestNode(parsedResult, 'soap:Envelope', 'soap:Body');
     }
