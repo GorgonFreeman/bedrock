@@ -118,106 +118,47 @@ const peoplevoxBodyTransformer = async ({ action, object }, { credsPath } = {}) 
   return xml2jsBuilder.buildObject(envelopeObject);
 };
 
-const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (response, context) => {
+const peoplevoxStandardInterpreter = ({ expectOne } = {}) => async (response, context) => {
   console.log('peoplevoxStandardInterpreter');
-  console.log('action', action);
   logDeep('response', response);
   logDeep('context', context);
   await askQuestion('Continue?');
 
-  if (!response?.result) {
+  const { success, result } = response;
+
+  if (!success || !result) {
     return response;
   }
 
-  const excavatedResponse = response.result
-    ?.[`${ action }Response`]
-    ?.[`${ action }Result`]
-  ;
-  // console.log('excavatedResponse', excavatedResponse);
-
-  let {
-    ResponseId: responseId,
-    Detail: detail,
-  } = excavatedResponse || {};
-
-  if (!responseId) {
-    return {
-      ...response,
-      ...response?.result ? {
-        result: furthestNode(response.result, `${ action }Response`, `${ action }Result`),
-      } : {},
-    };
-  }
-
-  const successful = responseId === '0';
-  let shouldRetry = false;
-  let changedCustomAxiosPayload = null;
-
-  if (successful) {
-    try {
-      detail = await csvtojson().fromString(detail);
-    } catch (error) {
-      console.warn('error parsing Detail', error, Detail);
-    }
-
-    // Transform output - only if successful and returning an array
-    if (expectOne) {
-      if (detail?.length > 1) {
-        return {
-          success: false,
-          error: [{ 
-            message: 'Multiple results found',
-            data: detail,
-          }],
-        };
-      }
-
-      detail = detail?.[0]
-        ? detail?.[0]
-        : null;
-    }
-  }
+  console.log('result', result);
+  await askQuestion('Continue?');
   
-  // console.log('detail', detail);
-  if (!successful && detail === 'System : Security - Invalid Session') {
-    // Auth has expired, fetch a fresh one
-    // TODO: Fix issue where auth is refreshed, but the new auth is not used in the next request
-    const { credsPath, customAxiosPayload } = context;
-
-    const { body } = customAxiosPayload;
-    const bodyJson = await xml2jsParserRaw.parseStringPromise(body);
-
-    const sessionIdResponse = await getSessionId({ credsPath, forceRefresh: true });
-    if (!sessionIdResponse?.success || !sessionIdResponse?.result) {
+  let parsedResult;
+  if (expectOne) {
+    if (result?.length > 1) {
       return {
         success: false,
-        error: [excavatedResponse, sessionIdResponse],
+        error: [{ 
+          message: 'Multiple results found',
+          data: result,
+        }],
       };
     }
-    
-    const sessionId = sessionIdResponse.result;
-    bodyJson['soap:Envelope']['soap:Header']['UserSessionCredentials']['SessionId'] = sessionId;
-    const changedBodyXml = xml2jsBuilder.buildObject(bodyJson);
 
-    changedCustomAxiosPayload = {
-      ...customAxiosPayload,
-      body: changedBodyXml,
-    };
-    shouldRetry = true;
+    parsedResult = result?.[0]
+      ? result?.[0]
+      : null;
   }
 
-  const interpretedResponse = {
-    ...(shouldRetry ? { shouldRetry } : {}),
-    ...(changedCustomAxiosPayload ? { changedCustomAxiosPayload } : {}),
-    success: successful,
-    ...successful ? {
-      result: detail ? detail : excavatedResponse,
-    } : {
-      error: [excavatedResponse],
-    },
-  };
-  logDeep('interpretedResponse', interpretedResponse);
-  return interpretedResponse;  
+  console.log('parsedResult', parsedResult);
+  await askQuestion('Continue?');
+
+  return {
+    ...response,
+    ...(parsedResult ? {
+      result: parsedResult,
+    } : {}),
+  }; 
 };
 
 const peoplevoxRequestSetup = ({ credsPath } = {}) => {

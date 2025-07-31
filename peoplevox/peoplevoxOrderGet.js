@@ -28,7 +28,7 @@ const peoplevoxOrderGet = async (
       credsPath,
       action,
      },
-    interpreter: peoplevoxStandardInterpreter('GetData', { expectOne: true }),
+    interpreter: peoplevoxStandardInterpreter({ expectOne: true }),
   });
   logDeep(response);
   return response;
