@@ -79,7 +79,8 @@ const peoplevoxBodyTransformer = async ({ action, object }, { credsPath } = {}) 
     const sessionIdResponse = await getSessionId({ credsPath });
 
     if (!sessionIdResponse?.success || !sessionIdResponse?.result) {
-      return sessionIdResponse;
+      console.error('Failed to get session ID', sessionIdResponse);
+      throw new Error('Failed to get session ID');
     }
 
     sessionId = sessionIdResponse?.result;
