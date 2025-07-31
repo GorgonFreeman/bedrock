@@ -70,6 +70,7 @@ module.exports = {
   peoplevoxAuthGet: require('./peoplevox/peoplevoxAuthGet').peoplevoxAuthGetApi,
   peoplevoxOrderGet: require('./peoplevox/peoplevoxOrderGet').peoplevoxOrderGetApi,
   peoplevoxOrdersGet: require('./peoplevox/peoplevoxOrdersGet').peoplevoxOrdersGetApi,
+  peoplevoxReportGet: require('./peoplevox/peoplevoxReportGet').peoplevoxReportGetApi,
   etsyMeGet: require('./etsy/etsyMeGet').etsyMeGetApi,
   etsyPing: require('./etsy/etsyPing').etsyPingApi,
 };
