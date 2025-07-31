@@ -231,29 +231,30 @@ const peoplevoxRequestSetup = ({ credsPath } = {}) => {
   };
 };
 
+const peoplevoxBaseInterpreter = async (response) => {
+  let parsedResult = null;
+    
+  if (response?.result) {
+    parsedResult = await xml2jsParser.parseStringPromise(response.result);
+    parsedResult = furthestNode(parsedResult, 'soap:Envelope', 'soap:Body');
+  }
+  
+  const parsedResponse = {
+    ...response,
+    ...parsedResult ? {
+      result: parsedResult,
+    } : {},
+  };
+  return parsedResponse;
+};
+
 const peoplevoxClient = new CustomAxiosClient({
   baseHeaders: {
     'Content-Type': 'text/xml; charset=utf-8',
   },
   bodyTransformer: peoplevoxBodyTransformer,
   factory: peoplevoxRequestSetup,
-  baseInterpreter: async (response) => {
-    let parsedResult = null;
-    
-    if (response.result) {
-      parsedResult = await xml2jsParser.parseStringPromise(response.result);
-
-      parsedResult = furthestNode(parsedResult, 'soap:Envelope', 'soap:Body');
-    }
-    
-    const parsedResponse = {
-      ...response,
-      ...parsedResult ? {
-        result: parsedResult,
-      } : {},
-    };
-    return parsedResponse;
-  },
+  baseInterpreter: peoplevoxBaseInterpreter,
 });
 
 module.exports = {
