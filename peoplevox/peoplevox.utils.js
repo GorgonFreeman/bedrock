@@ -171,6 +171,7 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
   await askQuestion('?');
   if (!successful && detail === 'System : Security - Invalid Session') {
     // Auth has expired, fetch a fresh one
+    // TODO: Fix issue where auth is refreshed, but the new auth is not used in the next request
     const { credsPath } = context;
     const sessionIdResponse = await getSessionId({ credsPath, forceRefresh: true });
     if (!sessionIdResponse?.success || !sessionIdResponse?.result) {
