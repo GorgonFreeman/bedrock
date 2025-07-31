@@ -41,7 +41,7 @@ const getSessionId = async ({ credsPath, forceRefresh } = {}) => {
     const upstashSessionIdResponse = await upstashGet(`pvx_sesh_${ CLIENT_ID }`);
 
     if (upstashSessionIdResponse?.success && upstashSessionIdResponse?.result) {
-      const sessionId = upstashSessionIdResponse;
+      const sessionId = upstashSessionIdResponse.result;
       SESSION_IDS.set(CLIENT_ID, sessionId);
       console.log('from Upstash');
       return {
