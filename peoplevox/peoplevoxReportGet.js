@@ -2,13 +2,13 @@ const { respond, mandateParam, logDeep } = require('../utils');
 const { peoplevoxClient, peoplevoxStandardInterpreter } = require('../peoplevox/peoplevox.utils');
 
 const peoplevoxReportGet = async (
-  salesOrderNumber,
+  reportName,
   {
     credsPath,
   } = {},
 ) => {
 
-  const action = 'GetData';
+  const action = 'GetReportData';
 
   const response = await peoplevoxClient.fetch({
     headers: {
@@ -16,16 +16,20 @@ const peoplevoxReportGet = async (
     },
     method: 'post',
     body: {
-      getRequest: {
-        TemplateName: 'Sales orders',
-        SearchClause: `SalesOrderNumber.Equals("${ salesOrderNumber }")`,
+      getReportRequest: {
+        TemplateName: reportName,
+        // ...searchClause ? { SearchClause: searchClause } : {},
+        // ...itemsPerPage ? { ItemsPerPage: itemsPerPage } : {},
+        // ...filter ? { FilterClause: filter } : {},
+        // ...orderBy ? { OrderBy: orderBy } : {},
+        // ...columns ? { Columns: columns } : {},
       },
     },
     context: { 
       credsPath,
       action,
      },
-    interpreter: peoplevoxStandardInterpreter({ expectOne: true }),
+    interpreter: peoplevoxStandardInterpreter(),
   });
   logDeep(response);
   return response;
@@ -34,19 +38,19 @@ const peoplevoxReportGet = async (
 
 const peoplevoxReportGetApi = async (req, res) => {
   const { 
-    salesOrderNumber,
+    reportName,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'salesOrderNumber', salesOrderNumber),
+    mandateParam(res, 'reportName', reportName),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await peoplevoxReportGet(
-    salesOrderNumber,
+    reportName,
     options,
   );
   respond(res, 200, result);
@@ -57,4 +61,4 @@ module.exports = {
   peoplevoxReportGetApi,
 };
 
-// curl localhost:8000/peoplevoxReportGet -H "Content-Type: application/json" -d '{ "salesOrderNumber": "5977690603592" }'
+// curl localhost:8000/peoplevoxReportGet -H "Content-Type: application/json" -d '{ "reportName": "Item inventory summary" }'
