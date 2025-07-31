@@ -8,13 +8,15 @@ const peoplevoxOrderGet = async (
   } = {},
 ) => {
 
+  const action = 'GetData';
+
   const response = await peoplevoxClient.fetch({
     headers: {
-      'SOAPAction': 'http://www.peoplevox.net/GetData',
+      'SOAPAction': `http://www.peoplevox.net/${ action }`,
     },
     method: 'post',
     body: {
-      action: 'GetData',
+      action,
       object: {
         getRequest: {
           TemplateName: 'Sales orders',
@@ -22,7 +24,10 @@ const peoplevoxOrderGet = async (
         },
       },
     },
-    context: { credsPath },
+    context: { 
+      credsPath,
+      action,
+     },
     interpreter: peoplevoxStandardInterpreter('GetData', { expectOne: true }),
   });
   logDeep(response);
