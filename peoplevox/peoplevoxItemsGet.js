@@ -2,7 +2,7 @@ const { respond, mandateParam, logDeep } = require('../utils');
 const { peoplevoxClient, peoplevoxStandardInterpreter } = require('../peoplevox/peoplevox.utils');
 
 const peoplevoxItemsGet = async (
-  salesOrderNumber,
+  searchClause,
   {
     credsPath,
   } = {},
@@ -17,15 +17,15 @@ const peoplevoxItemsGet = async (
     method: 'post',
     body: {
       getRequest: {
-        TemplateName: 'Sales orders',
-        SearchClause: `SalesOrderNumber.Equals("${ salesOrderNumber }")`,
+        TemplateName: 'Item types',
+        SearchClause: searchClause,
       },
     },
     context: { 
       credsPath,
       action,
      },
-    interpreter: peoplevoxStandardInterpreter({ expectOne: true }),
+    interpreter: peoplevoxStandardInterpreter(),
   });
   logDeep(response);
   return response;
@@ -34,19 +34,19 @@ const peoplevoxItemsGet = async (
 
 const peoplevoxItemsGetApi = async (req, res) => {
   const { 
-    salesOrderNumber,
+    searchClause,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'salesOrderNumber', salesOrderNumber),
+    mandateParam(res, 'searchClause', searchClause),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await peoplevoxItemsGet(
-    salesOrderNumber,
+    searchClause,
     options,
   );
   respond(res, 200, result);
@@ -57,4 +57,4 @@ module.exports = {
   peoplevoxItemsGetApi,
 };
 
-// curl localhost:8000/peoplevoxItemsGet -H "Content-Type: application/json" -d '{ "salesOrderNumber": "5977690603592" }'
+// curl localhost:8000/peoplevoxItemsGet -H "Content-Type: application/json" -d '{ "searchClause": "ItemCode.StartsWith(\"EXDAL355-1-\")" }'
