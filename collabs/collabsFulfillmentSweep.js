@@ -1,34 +1,37 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, logDeep } = require('../utils');
+
+const { REGIONS_WF } = require('../shopify/shopify.constants');
+const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
+const { peoplevoxOrdersGet } = require('../peoplevox/peoplevoxOrdersGet');
+const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 
 const collabsFulfillmentSweep = async (
-  arg,
   {
-    option,
+    shopifyRegions = REGIONS_WF,
   } = {},
 ) => {
 
-  return { 
-    arg, 
-    option,
-  };
-  
+  const shopifyOrderResponses = await Promise.all(
+    shopifyRegions.map(region => shopifyOrdersGet(region)),
+  );
+
+  logDeep(shopifyOrderResponses);
+  return shopifyOrderResponses;
 };
 
 const collabsFulfillmentSweepApi = async (req, res) => {
   const { 
-    arg,
     options,
   } = req.body;
 
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
+  // const paramsValid = await Promise.all([
+  //   mandateParam(res, 'arg', arg),
+  // ]);
+  // if (paramsValid.some(valid => valid === false)) {
+  //   return;
+  // }
 
   const result = await collabsFulfillmentSweep(
-    arg,
     options,
   );
   respond(res, 200, result);
@@ -39,4 +42,4 @@ module.exports = {
   collabsFulfillmentSweepApi,
 };
 
-// curl localhost:8000/collabsFulfillmentSweep -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/collabsFulfillmentSweep
