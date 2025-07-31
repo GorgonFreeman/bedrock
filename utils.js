@@ -426,7 +426,6 @@ class CustomAxiosClient {
     verbose,
     interpreter,
     factoryArgs = [], // Arguments for deriving auth
-    bodyTransformerArgs = [], // To pass to bodyTransformer after the body
     context = {}, // TODO: Replace factoryArgs and bodyTransformerArgs with this. Info for any helper functions to pick from.
   } = {}) {
 
@@ -471,7 +470,7 @@ class CustomAxiosClient {
     };
     
     if (this.bodyTransformer) {
-      body = await this.bodyTransformer(body, ...(context ? [context] : bodyTransformerArgs));
+      body = await this.bodyTransformer(body, context);
     }
 
     console.log('fetch: after factory', {

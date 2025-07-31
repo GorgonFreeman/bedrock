@@ -16,12 +16,9 @@ const peoplevoxOrderGet = async (
     },
     method: 'post',
     body: {
-      action,
-      object: {
-        getRequest: {
-          TemplateName: 'Sales orders',
-          SearchClause: `SalesOrderNumber.Equals("${ salesOrderNumber }")`,
-        },
+      getRequest: {
+        TemplateName: 'Sales orders',
+        SearchClause: `SalesOrderNumber.Equals("${ salesOrderNumber }")`,
       },
     },
     context: { 

@@ -69,7 +69,15 @@ const getSessionId = async ({ credsPath, forceRefresh } = {}) => {
   };
 };
 
-const peoplevoxBodyTransformer = async ({ action, object }, { credsPath } = {}) => {
+const peoplevoxBodyTransformer = async (body, context = {}) => {
+
+  const { 
+    action,
+    credsPath,
+  } = context;
+  if (!action) {
+    throw new Error('Action is required');
+  }
   
   const { CLIENT_ID } = credsByPath(['peoplevox', credsPath]);
 
@@ -109,7 +117,7 @@ const peoplevoxBodyTransformer = async ({ action, object }, { credsPath } = {}) 
           '$': {
             'xmlns': 'http://www.peoplevox.net/',
           },
-          ...object,
+          ...body,
         }
       }
     }
