@@ -6,32 +6,35 @@ const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 
 const SESSION_IDS = new Map();
 
-const getSessionId = async ({ credsPath } = {}) => {
+const getSessionId = async ({ credsPath, forceRefresh } = {}) => {
 
   const { CLIENT_ID } = credsByPath(['peoplevox', credsPath]);
   
-  // 1. Check if we have a session ID in memory
-  if (SESSION_IDS.has(CLIENT_ID)) {
-    console.log('from map');
-    return {
-      success: true,
-      result: SESSION_IDS.get(CLIENT_ID),
-    };
+  if (!forceRefresh) {
+    // 1. Check if we have a session ID in memory
+    if (SESSION_IDS.has(CLIENT_ID)) {
+      console.log('from map');
+      return {
+        success: true,
+        result: SESSION_IDS.get(CLIENT_ID),
+      };
+    }
+
+    // 2. Check if we have a session ID in Upstash
+    const upstashSessionIdResponse = await upstashGet(`pvx_sesh_${ CLIENT_ID }`);
+
+    if (upstashSessionIdResponse?.success && upstashSessionIdResponse?.result) {
+      const [clientId, sessionId] = upstashSessionIdResponse.result.split(',');
+      SESSION_IDS.set(CLIENT_ID, sessionId);
+      console.log('from Upstash');
+      return {
+        success: true,
+        result: sessionId,
+      };
+    }
   }
-
-  // Check if we have a session ID in Upstash
-  const upstashSessionIdResponse = await upstashGet(`pvx_sesh_${ CLIENT_ID }`);
-
-  if (upstashSessionIdResponse?.success && upstashSessionIdResponse?.result) {
-    const [clientId, sessionId] = upstashSessionIdResponse.result.split(',');
-    SESSION_IDS.set(CLIENT_ID, sessionId);
-    console.log('from Upstash');
-    return {
-      success: true,
-      result: sessionId,
-    };
-  }
-
+  
+  // 3. Get a session ID from the API
   const authResponse = await peoplevoxAuthGet({ credsPath });
 
   if (!authResponse?.success) {
@@ -155,6 +158,18 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
   }
 
   const successful = responseId === '0';
+  
+  // Auth has expired, fetch a fresh one
+  if (!successful && detail === `System : Security - Invalid Session`) {
+    const sessionIdResponse = await getSessionId({ credsPath, forceRefresh: true });
+    if (!sessionIdResponse?.success || !sessionIdResponse?.result) {
+      return {
+        success: false,
+        error: [excavatedResponse, sessionIdResponse],
+      };
+    }
+  }
+
   return {
     success: successful,
     ...successful ? {
