@@ -30,7 +30,7 @@ const getSessionId = async ({ credsPath, forceRefresh } = {}) => {
   if (!forceRefresh) {
     // 1. Check if we have a session ID in memory
     if (SESSION_IDS.has(CLIENT_ID)) {
-      console.log('from map');
+      console.log('Using session ID from map');
       return {
         success: true,
         result: SESSION_IDS.get(CLIENT_ID),
@@ -43,7 +43,7 @@ const getSessionId = async ({ credsPath, forceRefresh } = {}) => {
     if (upstashSessionIdResponse?.success && upstashSessionIdResponse?.result) {
       const sessionId = upstashSessionIdResponse.result;
       SESSION_IDS.set(CLIENT_ID, sessionId);
-      console.log('from Upstash');
+      console.log('Using session ID from Upstash');
       return {
         success: true,
         result: sessionId,
@@ -62,7 +62,7 @@ const getSessionId = async ({ credsPath, forceRefresh } = {}) => {
   SESSION_IDS.set(CLIENT_ID, sessionId);
   await upstashSet(`pvx_sesh_${ CLIENT_ID }`, sessionId);
   
-  console.log('from API');
+  console.log('Using session ID from API');
   return { 
     success: true,
     result: sessionId,
@@ -119,10 +119,10 @@ const peoplevoxBodyTransformer = async ({ action, object }, { credsPath } = {}) 
 };
 
 const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (response, context) => {
-  console.log('peoplevoxStandardInterpreter');
+  // console.log('peoplevoxStandardInterpreter');
   // console.log('action', action);
-  logDeep('response', response);
-  logDeep('context', context);
+  // logDeep('response', response);
+  // logDeep('context', context);
 
   if (!response?.result) {
     return response;
@@ -132,7 +132,7 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
     ?.[`${ action }Response`]
     ?.[`${ action }Result`]
   ;
-  console.log('excavatedResponse', excavatedResponse);
+  // console.log('excavatedResponse', excavatedResponse);
 
   let {
     ResponseId: responseId,
@@ -156,7 +156,7 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
     try {
       detail = await csvtojson().fromString(detail);
     } catch (error) {
-      console.log('error parsing Detail', error, Detail);
+      console.warn('error parsing Detail', error, Detail);
     }
 
     // Transform output - only if successful and returning an array
@@ -177,7 +177,7 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
     }
   }
   
-  console.log('detail', detail);
+  // console.log('detail', detail);
   if (!successful && detail === 'System : Security - Invalid Session') {
     // Auth has expired, fetch a fresh one
     // TODO: Fix issue where auth is refreshed, but the new auth is not used in the next request
@@ -206,8 +206,8 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
   }
 
   const interpretedResponse = {
-    shouldRetry,
-    changedCustomAxiosPayload,
+    ...(shouldRetry ? { shouldRetry } : {}),
+    ...(changedCustomAxiosPayload ? { changedCustomAxiosPayload } : {}),
     success: successful,
     ...successful ? {
       result: detail ? detail : excavatedResponse,
