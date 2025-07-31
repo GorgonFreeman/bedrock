@@ -112,7 +112,6 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
   // console.log('action', action);
   logDeep('response', response);
   logDeep('context', context);
-  await askQuestion('?');
 
   if (!response?.result) {
     return response;
@@ -123,7 +122,6 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
     ?.[`${ action }Result`]
   ;
   console.log('excavatedResponse', excavatedResponse);
-  await askQuestion('?');
 
   let {
     ResponseId: responseId,
@@ -168,7 +166,6 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
   }
   
   console.log('detail', detail);
-  await askQuestion('?');
   if (!successful && detail === 'System : Security - Invalid Session') {
     // Auth has expired, fetch a fresh one
     // TODO: Fix issue where auth is refreshed, but the new auth is not used in the next request
