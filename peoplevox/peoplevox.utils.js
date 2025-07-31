@@ -183,14 +183,8 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
     // TODO: Fix issue where auth is refreshed, but the new auth is not used in the next request
     const { credsPath, customAxiosPayload } = context;
 
-    console.log('customAxiosPayload', customAxiosPayload);
-    await askQuestion('?');
-
     const { body } = customAxiosPayload;
     const bodyJson = await xml2jsParserRaw.parseStringPromise(body);
-
-    logDeep('bodyJson', bodyJson);
-    await askQuestion('?');
 
     const sessionIdResponse = await getSessionId({ credsPath, forceRefresh: true });
     if (!sessionIdResponse?.success || !sessionIdResponse?.result) {
@@ -201,17 +195,12 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
     }
     
     const sessionId = sessionIdResponse.result;
-    console.log('sessionId', sessionId);
-    await askQuestion('?');
     bodyJson['soap:Envelope']['soap:Header']['UserSessionCredentials']['SessionId'] = sessionId;
-
-    const bodyXml = xml2jsBuilder.buildObject(bodyJson);
-    console.log('bodyXml', bodyXml);
-    await askQuestion('?');
+    const changedBodyXml = xml2jsBuilder.buildObject(bodyJson);
 
     changedCustomAxiosPayload = {
       ...customAxiosPayload,
-      body: bodyXml,
+      body: changedBodyXml,
     };
     shouldRetry = true;
   }
