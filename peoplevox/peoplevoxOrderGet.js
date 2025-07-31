@@ -22,8 +22,7 @@ const peoplevoxOrderGet = async (
         },
       },
     },
-    factoryArgs: [{ credsPath }],
-    bodyTransformerArgs: [{ credsPath }],
+    context: { credsPath },
     interpreter: peoplevoxStandardInterpreter('GetData', { expectOne: true }),
   });
   logDeep(response);

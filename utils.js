@@ -427,6 +427,7 @@ class CustomAxiosClient {
     interpreter,
     factoryArgs = [], // Arguments for deriving auth
     bodyTransformerArgs = [], // To pass to bodyTransformer after the body
+    context, // TODO: Replace factoryArgs and bodyTransformerArgs with this. Info for any helper functions to pick from.
   } = {}) {
 
     console.log('fetch: before factory', {
@@ -441,7 +442,7 @@ class CustomAxiosClient {
     let baseHeaders = this.baseHeaders;
     
     if (this.factory) {
-      const factoryOutput = this.factory(...factoryArgs);
+      const factoryOutput = this.factory(...(context ? [context] : factoryArgs));
 
       if (factoryOutput.baseUrl) {
         baseUrl = factoryOutput.baseUrl;
@@ -470,7 +471,7 @@ class CustomAxiosClient {
     };
     
     if (this.bodyTransformer) {
-      body = await this.bodyTransformer(body, ...bodyTransformerArgs);
+      body = await this.bodyTransformer(body, ...(context ? [context] : bodyTransformerArgs));
     }
 
     console.log('fetch: after factory', {
@@ -512,10 +513,10 @@ class CustomAxiosClient {
           return response;
         }
 
-        response = this.baseInterpreter ? await this.baseInterpreter(response) : response;
+        response = this.baseInterpreter ? await this.baseInterpreter(response, context) : response;
         debug && logDeep('response after baseInterpreter', response);
         debug && await askQuestion('Continue?');
-        response = interpreter ? await interpreter(response) : response;
+        response = interpreter ? await interpreter(response, context) : response;
         debug && logDeep('response after interpreter', response);
         debug && await askQuestion('Continue?');
 

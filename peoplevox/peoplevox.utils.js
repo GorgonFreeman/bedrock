@@ -1,6 +1,6 @@
 const xml2js = require('xml2js');
 const csvtojson = require('csvtojson');
-const { credsByPath, CustomAxiosClient, furthestNode, logDeep } = require('../utils');
+const { credsByPath, CustomAxiosClient, furthestNode, logDeep, askQuestion } = require('../utils');
 const { peoplevoxAuthGet } = require('../peoplevox/peoplevoxAuthGet');
 const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 
@@ -107,10 +107,12 @@ const peoplevoxBodyTransformer = async ({ action, object }, { credsPath } = {}) 
   return builder.buildObject(envelopeObject);
 };
 
-const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (response) => {
+const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (response, context) => {
   console.log('peoplevoxStandardInterpreter');
   // console.log('action', action);
   logDeep('response', response);
+  logDeep('context', context);
+  await askQuestion('?');
 
   if (!response?.result) {
     return response;
@@ -161,6 +163,7 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
   
   // Auth has expired, fetch a fresh one
   if (!successful && detail === `System : Security - Invalid Session`) {
+    const { credsPath } = context;
     const sessionIdResponse = await getSessionId({ credsPath, forceRefresh: true });
     if (!sessionIdResponse?.success || !sessionIdResponse?.result) {
       return {
