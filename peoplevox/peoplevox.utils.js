@@ -179,7 +179,13 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
 
     console.log('customAxiosPayload', customAxiosPayload);
     await askQuestion('?');
-    
+
+    const { body } = customAxiosPayload;
+    const bodyJson = await xml2jsParser.parseStringPromise(body);
+
+    console.log('bodyJson', bodyJson);
+    await askQuestion('?');
+
     const sessionIdResponse = await getSessionId({ credsPath, forceRefresh: true });
     if (!sessionIdResponse?.success || !sessionIdResponse?.result) {
       return {
