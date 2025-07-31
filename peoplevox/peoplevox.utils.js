@@ -127,10 +127,10 @@ const peoplevoxBodyTransformer = async (body, context = {}) => {
 };
 
 const peoplevoxStandardInterpreter = ({ expectOne } = {}) => async (response, context) => {
-  console.log('peoplevoxStandardInterpreter');
-  logDeep('response', response);
-  logDeep('context', context);
-  await askQuestion('Continue?');
+  // console.log('peoplevoxStandardInterpreter');
+  // logDeep('response', response);
+  // logDeep('context', context);
+  // await askQuestion('Continue?');
 
   const { success, result } = response;
 
@@ -138,8 +138,8 @@ const peoplevoxStandardInterpreter = ({ expectOne } = {}) => async (response, co
     return response;
   }
 
-  console.log('result', result);
-  await askQuestion('Continue?');
+  // console.log('result', result);
+  // await askQuestion('Continue?');
   
   let parsedResult;
   if (expectOne) {
@@ -158,8 +158,8 @@ const peoplevoxStandardInterpreter = ({ expectOne } = {}) => async (response, co
       : null;
   }
 
-  console.log('parsedResult', parsedResult);
-  await askQuestion('Continue?');
+  // console.log('parsedResult', parsedResult);
+  // await askQuestion('Continue?');
 
   return {
     ...response,
