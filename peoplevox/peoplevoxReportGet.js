@@ -5,6 +5,12 @@ const peoplevoxReportGet = async (
   reportName,
   {
     credsPath,
+
+    searchClause,
+    perPage,
+    filter,
+    orderBy,
+    columns,
   } = {},
 ) => {
 
@@ -18,11 +24,11 @@ const peoplevoxReportGet = async (
     body: {
       getReportRequest: {
         TemplateName: reportName,
-        // ...searchClause ? { SearchClause: searchClause } : {},
-        // ...itemsPerPage ? { ItemsPerPage: itemsPerPage } : {},
-        // ...filter ? { FilterClause: filter } : {},
-        // ...orderBy ? { OrderBy: orderBy } : {},
-        // ...columns ? { Columns: columns } : {},
+        ...searchClause ? { SearchClause: searchClause } : {},
+        ...perPage ? { ItemsPerPage: perPage } : {},
+        ...filter ? { FilterClause: filter } : {},
+        ...orderBy ? { OrderBy: orderBy } : {},
+        ...columns ? { Columns: columns.join(',') } : {},
       },
     },
     context: { 
@@ -62,3 +68,4 @@ module.exports = {
 };
 
 // curl localhost:8000/peoplevoxReportGet -H "Content-Type: application/json" -d '{ "reportName": "Item inventory summary" }'
+// curl localhost:8000/peoplevoxReportGet -H "Content-Type: application/json" -d '{ "reportName": "Item inventory summary", "options": { "searchClause": "([Site reference].Equals(\"BaddestSite\"))", "columns": ["Item code", "Available"] } }'
