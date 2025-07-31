@@ -14,6 +14,7 @@ module.exports = {
   shopifyCustomerGet: require('./shopify/shopifyCustomerGet').shopifyCustomerGetApi,
   shopifyGetSingle: require('./shopify/shopifyGetSingle').shopifyGetSingleApi,
   shopifyOrderGet: require('./shopify/shopifyOrderGet').shopifyOrderGetApi,
+  shopifyOrdersGet: require('./shopify/shopifyOrdersGet').shopifyOrdersGetApi,
   shopifyPageCreate: require('./shopify/shopifyPageCreate').shopifyPageCreateApi,
   shopifyPageDelete: require('./shopify/shopifyPageDelete').shopifyPageDeleteApi,
   shopifyPageGet: require('./shopify/shopifyPageGet').shopifyPageGetApi,
