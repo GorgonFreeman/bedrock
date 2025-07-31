@@ -119,10 +119,11 @@ const peoplevoxBodyTransformer = async ({ action, object }, { credsPath } = {}) 
 };
 
 const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (response, context) => {
-  // console.log('peoplevoxStandardInterpreter');
-  // console.log('action', action);
-  // logDeep('response', response);
-  // logDeep('context', context);
+  console.log('peoplevoxStandardInterpreter');
+  console.log('action', action);
+  logDeep('response', response);
+  logDeep('context', context);
+  await askQuestion('Continue?');
 
   if (!response?.result) {
     return response;
@@ -231,21 +232,105 @@ const peoplevoxRequestSetup = ({ credsPath } = {}) => {
   };
 };
 
-const peoplevoxBaseInterpreter = async (response) => {
+const peoplevoxBaseInterpreter = async (response, context) => {
   let parsedResult = null;
+  const { 
+    credsPath,
+    customAxiosPayload,
+    action,
+  } = context;
+
+  if (!response?.result) {
+    return response;
+  }
     
-  if (response?.result) {
-    parsedResult = await xml2jsParser.parseStringPromise(response.result);
-    parsedResult = furthestNode(parsedResult, 'soap:Envelope', 'soap:Body');
+  parsedResult = await xml2jsParser.parseStringPromise(response.result);
+  const excavatedResult = furthestNode(parsedResult, 'soap:Envelope', 'soap:Body', `${ action }Response`, `${ action }Result`);
+
+  let {
+    ResponseId: responseId,
+    Detail: detail,
+  } = excavatedResult;
+
+  if (!responseId) {
+    return {
+      ...response,
+      ...{
+        result: excavatedResult,
+      },
+    };
+  }
+
+  const successful = responseId === '0';
+  let shouldRetry = false;
+  let changedCustomAxiosPayload = null;
+  
+  // TODO: Consider expectArray as an option
+  if (successful) {
+    try {
+      detail = await csvtojson().fromString(detail);
+    } catch (error) {
+      console.warn('error parsing Detail', error, Detail);
+    }
+
+    // Transform output - only if successful and returning an array
+    // if (expectOne) {
+    //   if (detail?.length > 1) {
+    //     return {
+    //       success: false,
+    //       error: [{ 
+    //         message: 'Multiple results found',
+    //         data: detail,
+    //       }],
+    //     };
+    //   }
+
+    //   detail = detail?.[0]
+    //     ? detail?.[0]
+    //     : null;
+    // }
   }
   
-  const parsedResponse = {
+  // console.log('detail', detail);
+
+  if (!successful && detail === 'System : Security - Invalid Session') {
+    // Auth has expired, fetch a fresh one and edit body to include it
+    const { body } = customAxiosPayload;
+    const bodyJson = await xml2jsParserRaw.parseStringPromise(body);
+
+    const sessionIdResponse = await getSessionId({ credsPath, forceRefresh: true });
+    if (!sessionIdResponse?.success || !sessionIdResponse?.result) {
+      console.error('Failed to get session ID', sessionIdResponse, excavatedResult);
+      throw new Error('Failed to get session ID');
+    }
+    
+    const sessionId = sessionIdResponse.result;
+    bodyJson['soap:Envelope']['soap:Header']['UserSessionCredentials']['SessionId'] = sessionId;
+    const changedBodyXml = xml2jsBuilder.buildObject(bodyJson);
+
+    changedCustomAxiosPayload = {
+      ...customAxiosPayload,
+      body: changedBodyXml,
+    };
+    shouldRetry = true;
+  }
+
+  const interpretedResponse = {
+
     ...response,
-    ...parsedResult ? {
-      result: parsedResult,
-    } : {},
+
+    ...(shouldRetry ? { shouldRetry } : {}),
+    ...(changedCustomAxiosPayload ? { changedCustomAxiosPayload } : {}),
+
+    success: successful,
+    ...successful ? {
+      result: detail ? detail : excavatedResult,
+    } : {
+      error: [excavatedResult],
+    },
   };
-  return parsedResponse;
+  logDeep('interpretedResponse', interpretedResponse);
+  return interpretedResponse;
 };
 
 const peoplevoxClient = new CustomAxiosClient({
