@@ -11,6 +11,11 @@ const xml2jsParser = new xml2js.Parser({
   mergeAttrs: true,
   ignoreAttrs: true,
 });
+
+const xml2jsParserRaw = new xml2js.Parser({
+  explicitArray: false,
+});
+
 const xml2jsBuilder = new xml2js.Builder({
   headless: true,
   renderOpts: {
@@ -36,7 +41,7 @@ const getSessionId = async ({ credsPath, forceRefresh } = {}) => {
     const upstashSessionIdResponse = await upstashGet(`pvx_sesh_${ CLIENT_ID }`);
 
     if (upstashSessionIdResponse?.success && upstashSessionIdResponse?.result) {
-      const [clientId, sessionId] = upstashSessionIdResponse.result.split(',');
+      const sessionId = upstashSessionIdResponse;
       SESSION_IDS.set(CLIENT_ID, sessionId);
       console.log('from Upstash');
       return {
@@ -53,7 +58,7 @@ const getSessionId = async ({ credsPath, forceRefresh } = {}) => {
     return authResponse;
   }
 
-  const sessionId = authResponse?.result;
+  const [clientId, sessionId] = authResponse?.result?.split(',');
   SESSION_IDS.set(CLIENT_ID, sessionId);
   await upstashSet(`pvx_sesh_${ CLIENT_ID }`, sessionId);
   
@@ -181,9 +186,9 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
     await askQuestion('?');
 
     const { body } = customAxiosPayload;
-    const bodyJson = await xml2jsParser.parseStringPromise(body);
+    const bodyJson = await xml2jsParserRaw.parseStringPromise(body);
 
-    console.log('bodyJson', bodyJson);
+    logDeep('bodyJson', bodyJson);
     await askQuestion('?');
 
     const sessionIdResponse = await getSessionId({ credsPath, forceRefresh: true });
@@ -193,7 +198,20 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
         error: [excavatedResponse, sessionIdResponse],
       };
     }
+    
+    const sessionId = sessionIdResponse.result;
+    console.log('sessionId', sessionId);
+    await askQuestion('?');
+    bodyJson['soap:Envelope']['soap:Header']['UserSessionCredentials']['SessionId'] = sessionId;
 
+    const bodyXml = xml2jsBuilder.buildObject(bodyJson);
+    console.log('bodyXml', bodyXml);
+    await askQuestion('?');
+
+    changedCustomAxiosPayload = {
+      ...customAxiosPayload,
+      body: bodyXml,
+    };
     shouldRetry = true;
   }
 
