@@ -109,8 +109,6 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
   // console.log('action', action);
   logDeep('response', response);
 
-  let transformedResult;
-
   if (!response?.result) {
     return response;
   }
