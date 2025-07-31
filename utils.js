@@ -427,7 +427,7 @@ class CustomAxiosClient {
     interpreter,
     factoryArgs = [], // Arguments for deriving auth
     bodyTransformerArgs = [], // To pass to bodyTransformer after the body
-    context, // TODO: Replace factoryArgs and bodyTransformerArgs with this. Info for any helper functions to pick from.
+    context = {}, // TODO: Replace factoryArgs and bodyTransformerArgs with this. Info for any helper functions to pick from.
   } = {}) {
 
     console.log('fetch: before factory', {
@@ -488,16 +488,19 @@ class CustomAxiosClient {
     let retryAttempt = 0;
     let maxRetries = 5;
 
+    let customAxiosPayload = {
+      method,
+      headers,
+      params,
+      body,
+      verbose,
+    };
+    context.customAxiosPayload = customAxiosPayload;
+
     while (!done) {
       try {
         
-        response = await customAxios(url, {
-          method,
-          headers,
-          params,
-          body,
-          verbose,
-        });
+        response = await customAxios(url, context.customAxiosPayload);
 
         debug && logDeep('response', response);
         debug && await askQuestion('Continue?');
@@ -525,6 +528,7 @@ class CustomAxiosClient {
           // result,
           // error,
           shouldRetry,
+          changedCustomAxiosPayload,
           ...interpretedResponse
         } = response;
         
@@ -532,6 +536,10 @@ class CustomAxiosClient {
           if (retryAttempt >= maxRetries) {
             console.warn(`Ran out of retries`);
             return interpretedResponse;
+          }
+
+          if (changedCustomAxiosPayload) {
+            context.customAxiosPayload = changedCustomAxiosPayload;
           }
 
           retryAttempt++;

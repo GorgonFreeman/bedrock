@@ -139,6 +139,7 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
 
   const successful = responseId === '0';
   let shouldRetry = false;
+  let changedCustomAxiosPayload = null;
 
   if (successful) {
     try {
@@ -169,7 +170,11 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
   if (!successful && detail === 'System : Security - Invalid Session') {
     // Auth has expired, fetch a fresh one
     // TODO: Fix issue where auth is refreshed, but the new auth is not used in the next request
-    const { credsPath } = context;
+    const { credsPath, customAxiosPayload } = context;
+
+    console.log('customAxiosPayload', customAxiosPayload);
+    await askQuestion('?');
+    
     const sessionIdResponse = await getSessionId({ credsPath, forceRefresh: true });
     if (!sessionIdResponse?.success || !sessionIdResponse?.result) {
       return {
@@ -183,6 +188,7 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
 
   const interpretedResponse = {
     shouldRetry,
+    changedCustomAxiosPayload,
     success: successful,
     ...successful ? {
       result: detail ? detail : excavatedResponse,
