@@ -122,6 +122,8 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
     ?.[`${ action }Response`]
     ?.[`${ action }Result`]
   ;
+  console.log('excavatedResponse', excavatedResponse);
+  await askQuestion('?');
 
   let {
     ResponseId: responseId,
@@ -143,7 +145,27 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
     console.log('error parsing Detail', error, Detail);
   }
 
-  if (expectOne) {
+  const successful = responseId === '0';
+  let shouldRetry = false;
+  
+  // Auth has expired, fetch a fresh one
+  console.log('detail', detail);
+  await askQuestion('?');
+  if (!successful && detail === `System : Security - Invalid Session`) {
+    const { credsPath } = context;
+    const sessionIdResponse = await getSessionId({ credsPath, forceRefresh: true });
+    if (!sessionIdResponse?.success || !sessionIdResponse?.result) {
+      return {
+        success: false,
+        error: [excavatedResponse, sessionIdResponse],
+      };
+    }
+
+    shouldRetry = true;
+  }
+
+  // Transform output - only if successful and returning an array
+  if (successful && expectOne && Array.isArray(detail)) {
     if (detail?.length > 1) {
       return {
         success: false,
@@ -159,21 +181,8 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
       : null;
   }
 
-  const successful = responseId === '0';
-  
-  // Auth has expired, fetch a fresh one
-  if (!successful && detail === `System : Security - Invalid Session`) {
-    const { credsPath } = context;
-    const sessionIdResponse = await getSessionId({ credsPath, forceRefresh: true });
-    if (!sessionIdResponse?.success || !sessionIdResponse?.result) {
-      return {
-        success: false,
-        error: [excavatedResponse, sessionIdResponse],
-      };
-    }
-  }
-
-  return {
+  const interpretedResponse = {
+    shouldRetry,
     success: successful,
     ...successful ? {
       result: detail ? detail : excavatedResponse,
@@ -181,6 +190,8 @@ const peoplevoxStandardInterpreter = (action, { expectOne } = {}) => async (resp
       error: [excavatedResponse],
     },
   };
+  logDeep('interpretedResponse', interpretedResponse);
+  return interpretedResponse;  
 };
 
 const peoplevoxRequestSetup = ({ credsPath } = {}) => {
