@@ -1,52 +1,40 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { peoplevoxClient, peoplevoxStandardInterpreter } = require('../peoplevox/peoplevox.utils');
+const { peoplevoxOrdersGet } = require('../peoplevox/peoplevoxOrdersGet');
 
 const peoplevoxOrdersGetById = async (
-  salesOrderNumber,
+  salesOrderNumbers,
   {
     credsPath,
   } = {},
 ) => {
 
-  const action = 'GetData';
+  const searchClause = salesOrderNumbers.map(salesOrderNumber => `SalesOrderNumber.Equals("${ salesOrderNumber }")`).join(' OR ');
 
-  const response = await peoplevoxClient.fetch({
-    headers: {
-      'SOAPAction': `http://www.peoplevox.net/${ action }`,
-    },
-    method: 'post',
-    body: {
-      getRequest: {
-        TemplateName: 'Sales orders',
-        SearchClause: `SalesOrderNumber.Equals("${ salesOrderNumber }")`,
-      },
-    },
-    context: { 
+  const response = await peoplevoxOrdersGet(
+    searchClause,
+    {
       credsPath,
-      action,
-     },
-    interpreter: peoplevoxStandardInterpreter({ expectOne: true }),
-  });
+    },
+  );
   logDeep(response);
   return response;
-  
 };
 
 const peoplevoxOrdersGetByIdApi = async (req, res) => {
   const { 
-    salesOrderNumber,
+    salesOrderNumbers,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'salesOrderNumber', salesOrderNumber),
+    mandateParam(res, 'salesOrderNumbers', salesOrderNumbers, Array.isArray),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await peoplevoxOrdersGetById(
-    salesOrderNumber,
+    salesOrderNumbers,
     options,
   );
   respond(res, 200, result);
@@ -57,4 +45,4 @@ module.exports = {
   peoplevoxOrdersGetByIdApi,
 };
 
-// curl localhost:8000/peoplevoxOrdersGetById -H "Content-Type: application/json" -d '{ "salesOrderNumber": "5977690603592" }'
+// curl localhost:8000/peoplevoxOrdersGetById -H "Content-Type: application/json" -d '{ "salesOrderNumbers": ["7040728957000"] }'
