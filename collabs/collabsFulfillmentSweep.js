@@ -7,7 +7,7 @@ const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
 const { peoplevoxOrdersGetById } = require('../peoplevox/peoplevoxOrdersGetById');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 const { peoplevoxDateFormatter } = require('../peoplevox/peoplevox.utils');
-const { peoplevoxDespatchGet } = require('../peoplevox/peoplevoxDespatchGet');
+const { peoplevoxDespatchesGetBySalesOrderNumber } = require('../peoplevox/peoplevoxDespatchesGetBySalesOrderNumber');
 
 const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 
@@ -33,6 +33,7 @@ const collabsFulfillmentSweep = async (
         'fulfillment_status:unfulfilled',
         'status:Open',
       ],
+      // limit: 50,
     },
   );
 
@@ -82,9 +83,8 @@ const collabsFulfillmentSweep = async (
 
     const piles = {
       found: [],
-      notRecentDispatch: [],
-      notPeoplevox: [],
-      // notStarshipit: [],
+      notFound1: [],
+      notFound2: [],
       notFound: [],
     };
 
@@ -106,7 +106,7 @@ const collabsFulfillmentSweep = async (
           return;
         }
 
-        piles.notRecentDispatch.push(order);
+        piles.notFound1.push(order);
         return;
       },
       (pile) => pile.length === 0, // pileExhaustedCheck
@@ -123,22 +123,32 @@ const collabsFulfillmentSweep = async (
       piles.notRecentDispatch, // pile
       // action
       async (pile) => {
-        const order = pile.shift();
-        const { orderId } = order;
-        const peoplevoxDispatch = await peoplevoxDespatchGet({ salesOrderNumber: orderId });
-        console.log(peoplevoxDispatch);
+        const orders = pile.splice(0, 100);
+        const orderIds = orders.map(o => o.orderId);
+        const peoplevoxDispatchesResponse = await peoplevoxDespatchesGetBySalesOrderNumber(orderIds);
+        // console.log(peoplevoxDispatches);
         // await askQuestion('?');
 
-        if (peoplevoxDispatch) {
-          piles.found.push({
-            ...order,
-            tracking: peoplevoxDispatch,
-          });
+        if (!peoplevoxDispatchesResponse?.success) {
+          piles.notPeoplevox.push(...orders);
           return;
         }
 
-        piles.notPeoplevox.push(order);
-        return;
+        const peoplevoxDispatches = peoplevoxDispatchesResponse.result;
+        for (const order of orders) {
+          const peoplevoxDispatch = peoplevoxDispatches.find(dispatch => dispatch['Salesorder number'] === order.orderId);
+
+          if (peoplevoxDispatch) {
+            piles.found.push({
+              ...order,
+              tracking: peoplevoxDispatch,
+            });
+            continue;
+          }
+
+          piles.notFound2.push(order);
+          continue;
+        }
       },
       (pile) => pile.length === 0, // pileExhaustedCheck
       // options
@@ -168,7 +178,7 @@ const collabsFulfillmentSweep = async (
           return;
         }
 
-        piles.notStarshipit.push(order);
+        piles.notFound2.push(order);
         return;
       },
       (pile) => pile.length === 0, // pileExhaustedCheck
