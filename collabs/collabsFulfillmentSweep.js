@@ -1,5 +1,6 @@
 const { respond, mandateParam, logDeep, gidToId, askQuestion } = require('../utils');
 const { REGIONS_PVX } = require('../constants');
+const { shopifyRegionToStarshipitAccount } = require('../mappings');
 
 const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
 const { peoplevoxOrdersGetById } = require('../peoplevox/peoplevoxOrdersGetById');
@@ -16,6 +17,12 @@ const collabsFulfillmentSweep = async (
     shopifyRegions.map(region => shopifyOrdersGet(
       region,
       {
+        attrs: `
+          id
+          shippingLine {
+            title
+          }
+        `,
         queries: [
           'created_at:>2024-01-01',
           'fulfillment_status:unfulfilled',
