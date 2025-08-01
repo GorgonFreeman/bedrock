@@ -16,8 +16,8 @@ const peoplevoxDespatchesGetBySalesOrderNumber = async (
     const searchClause = chunk.map(salesOrderNumber => `([Salesorder number].Equals(\"${ salesOrderNumber }\"))`).join(' OR ');
     const response = await peoplevoxReportGet(
       'Despatch summary',
-      searchClause,
       {
+        searchClause,
         credsPath,
       },
     );
