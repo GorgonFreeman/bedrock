@@ -1,4 +1,4 @@
-const { respond, mandateParam, logDeep, gidToId, askQuestion, dateTimeFromNow, weeks } = require('../utils');
+const { respond, mandateParam, logDeep, gidToId, askQuestion, dateTimeFromNow, weeks, Processor } = require('../utils');
 const { REGIONS_PVX } = require('../constants');
 const { shopifyRegionToStarshipitAccount } = require('../mappings');
 
@@ -57,6 +57,8 @@ const collabsFulfillmentSweep = async (
   logDeep(shopifyOrderResponses);
   await askQuestion('?');
 
+  const recentDispatches = pvxRecentDispatchesResponse.result;
+
   // 2. For each region, deplete array of unfulfilled orders by retrieving tracking info from other platforms specific to that region
   for (const [i, region] of shopifyRegions.entries()) {
     const shopifyOrderReponse = shopifyOrderResponses[i];
@@ -67,7 +69,54 @@ const collabsFulfillmentSweep = async (
     }
 
     const shopifyOrders = result;
-    console.log(region, shopifyOrders);
+    const inputPile = shopifyOrders.map(o => {
+      const { id: orderGid } = o;
+      const orderId = gidToId(orderGid);
+      return {
+        ...o,
+        orderId,
+      };
+    });
+    console.log(region, inputPile);
+
+    const piles = {
+      found: [],
+      notRecentDispatch: [],
+      // notPeoplevox: [],
+      // notStarshipit: [],
+      notFound: [],
+    };
+
+    const recentDispatchProcessor = new Processor(
+      inputPile, // pile
+      // action
+      async (pile) => {
+        const order = pile.shift();
+        const { orderId } = order;
+        const recentDispatch = recentDispatches.find(dispatch => dispatch['Salesorder number'] === orderId);
+        console.log(recentDispatch);
+        await askQuestion('?');
+
+        if (recentDispatch) {
+          piles.found.push(recentDispatch);
+          return true;
+        }
+
+        piles.notRecentDispatch.push(order);
+        return false;
+      },
+      (pile) => pile.length === 0, // pileExhaustedCheck
+      // options
+      {
+        logFlavourText: '1:',
+        // onDone: () => {
+        //   otherProcessor.canFinish = true;
+        // },
+      },
+    );
+
+    await recentDispatchProcessor.run({ verbose: true });
+    console.log(piles);
   }
 
   logDeep(shopifyOrderResponses);
