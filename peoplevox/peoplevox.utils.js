@@ -292,7 +292,19 @@ const peoplevoxClient = new CustomAxiosClient({
   baseInterpreter: peoplevoxBaseInterpreter,
 });
 
+const peoplevoxGetSingle = async (
+  templateName, 
+  id,
+  idName, 
+  { 
+    credsPath, 
+  },
+) => {
+  return true;
+};
+
 module.exports = {
   peoplevoxClient,
   peoplevoxStandardInterpreter,
+  peoplevoxGetSingle,
 };
