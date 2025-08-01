@@ -13,6 +13,7 @@ module.exports = {
   starshipitTrackingGet: require('./starshipit/starshipitTrackingGet').starshipitTrackingGetApi,
   shopifyCustomerGet: require('./shopify/shopifyCustomerGet').shopifyCustomerGetApi,
   shopifyGetSingle: require('./shopify/shopifyGetSingle').shopifyGetSingleApi,
+  shopifyOrderFulfill: require('./shopify/shopifyOrderFulfill').shopifyOrderFulfillApi,
   shopifyOrderGet: require('./shopify/shopifyOrderGet').shopifyOrderGetApi,
   shopifyOrdersGet: require('./shopify/shopifyOrdersGet').shopifyOrdersGetApi,
   shopifyPageCreate: require('./shopify/shopifyPageCreate').shopifyPageCreateApi,
