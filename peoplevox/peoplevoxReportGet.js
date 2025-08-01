@@ -16,6 +16,14 @@ const peoplevoxReportGet = async (
   } = {},
 ) => {
 
+  console.log('peoplevoxReportGet', {
+    reportName,
+    searchClause,
+    perPage,
+    filter,
+    orderBy,
+    columns,
+  });
   const action = 'GetReportData';
 
   const response = await peoplevoxClient.fetch({
