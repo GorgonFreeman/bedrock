@@ -265,11 +265,14 @@ const mandateParam = async (
   return false;
 };
 
-const arrayStandardResponse = (responses) => {
+const arrayStandardResponse = (responses, { flatten = false } = {}) => {
+  const results = responses.map(r => r?.result).filter(r => r !== undefined);
+  const errors = responses.map(r => r?.error).filter(e => e !== undefined);
+  
   return {
     success: responses.every(r => r?.success),
-    results: responses.map(r => r?.result),
-    errors: responses.map(r => r?.error),
+    ...results.length > 0 && { results: flatten ? results.flat() : results },
+    ...errors.length > 0 && { errors: flatten ? errors.flat() : errors },
   };
 };
 
