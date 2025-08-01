@@ -7,9 +7,10 @@ const shopifyOrderFulfill = async (
   orderId,
   {
     apiVersion,
-    notifyCustomer,
-    originAddress,
-    trackingInfo,
+
+    notifyCustomer, // true or false
+    originAddress, // { countryCode, ... }
+    trackingInfo, // { number, company, url }
   } = {},
 ) => {
 
