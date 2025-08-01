@@ -10,7 +10,8 @@ const collabsFulfillmentSweep = async (
     shopifyRegions = REGIONS_PVX,
   } = {},
 ) => {
-
+  
+  // 1. Fetch unfulfilled orders for each region
   const shopifyOrderResponses = await Promise.all(
     shopifyRegions.map(region => shopifyOrdersGet(
       region,
@@ -24,6 +25,7 @@ const collabsFulfillmentSweep = async (
     )),
   );
 
+  // 2. For each region, deplete array of unfulfilled orders by retrieving tracking info from other platforms specific to that region
   for (const [i, region] of shopifyRegions.entries()) {
     const shopifyOrderReponse = shopifyOrderResponses[i];
 
