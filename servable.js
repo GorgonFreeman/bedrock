@@ -70,6 +70,7 @@ module.exports = {
   pipe17ReturnsGet: require('./pipe17/pipe17ReturnsGet').pipe17ReturnsGetApi,
   peoplevoxAuthGet: require('./peoplevox/peoplevoxAuthGet').peoplevoxAuthGetApi,
   peoplevoxDespatchGet: require('./peoplevox/peoplevoxDespatchGet').peoplevoxDespatchGetApi,
+  peoplevoxDespatchesGetBySalesOrderNumber: require('./peoplevox/peoplevoxDespatchesGetBySalesOrderNumber').peoplevoxDespatchesGetBySalesOrderNumberApi,
   peoplevoxItemsGet: require('./peoplevox/peoplevoxItemsGet').peoplevoxItemsGetApi,
   peoplevoxOrderGet: require('./peoplevox/peoplevoxOrderGet').peoplevoxOrderGetApi,
   peoplevoxOrdersGet: require('./peoplevox/peoplevoxOrdersGet').peoplevoxOrdersGetApi,
