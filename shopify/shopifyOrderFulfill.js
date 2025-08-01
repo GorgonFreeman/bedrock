@@ -12,38 +12,11 @@ const shopifyOrderFulfill = async (
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
+  // 1. Identify single open fulfillment order
 
-  const variables = {
-    id: `gid://shopify/Product/${ orderId }`,
-  };
+  // 2. Fulfill it
 
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
-      apiVersion,
-    },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
-
-  logDeep(response);
-  return response;
+  return;
 };
 
 const shopifyOrderFulfillApi = async (req, res) => {
