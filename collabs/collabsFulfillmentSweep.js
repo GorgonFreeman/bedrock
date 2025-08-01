@@ -7,6 +7,7 @@ const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
 const { peoplevoxOrdersGetById } = require('../peoplevox/peoplevoxOrdersGetById');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 const { peoplevoxDateFormatter } = require('../peoplevox/peoplevox.utils');
+const { peoplevoxDespatchGet } = require('../peoplevox/peoplevoxDespatchGet');
 
 const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 
@@ -82,7 +83,7 @@ const collabsFulfillmentSweep = async (
     const piles = {
       found: [],
       notRecentDispatch: [],
-      // notPeoplevox: [],
+      notPeoplevox: [],
       // notStarshipit: [],
       notFound: [],
     };
@@ -98,12 +99,15 @@ const collabsFulfillmentSweep = async (
         // await askQuestion('?');
 
         if (recentDispatch) {
-          piles.found.push(recentDispatch);
-          return true;
+          piles.found.push({
+            ...order,
+            tracking: recentDispatch,
+          });
+          return;
         }
 
         piles.notRecentDispatch.push(order);
-        return false;
+        return;
       },
       (pile) => pile.length === 0, // pileExhaustedCheck
       // options
@@ -115,7 +119,43 @@ const collabsFulfillmentSweep = async (
       },
     );
 
-    await recentDispatchProcessor.run({ verbose: true });
+    const peoplevoxProcessor = new Processor(
+      piles.notRecentDispatch, // pile
+      // action
+      async (pile) => {
+        const order = pile.shift();
+        const { orderId } = order;
+        const peoplevoxDispatch = await peoplevoxDespatchGet({ salesOrderNumber: orderId });
+        console.log(peoplevoxDispatch);
+        // await askQuestion('?');
+
+        if (peoplevoxDispatch) {
+          piles.found.push({
+            ...order,
+            tracking: peoplevoxDispatch,
+          });
+          return;
+        }
+
+        piles.notPeoplevox.push(order);
+        return;
+      },
+      (pile) => pile.length === 0, // pileExhaustedCheck
+      // options
+      {
+        canFinish: false,
+        logFlavourText: '2:',
+      },
+    );
+    recentDispatchProcessor.onDone = () => {
+      peoplevoxProcessor.canFinish = true;
+    };
+
+    await Promise.all([
+      recentDispatchProcessor.run({ verbose: true }),
+      peoplevoxProcessor.run({ verbose: true }),
+    ]);
+
     console.log(piles);
   }
 
