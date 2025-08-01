@@ -441,7 +441,7 @@ class CustomAxiosClient {
     let baseHeaders = this.baseHeaders;
     
     if (this.factory) {
-      const factoryOutput = this.factory(...(context ? [context] : factoryArgs));
+      const factoryOutput = await this.factory(context);
 
       if (factoryOutput.baseUrl) {
         baseUrl = factoryOutput.baseUrl;

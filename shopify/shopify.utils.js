@@ -237,7 +237,10 @@ const shopifyGetter = async (
 
     client: shopifyClient,
     clientArgs: {
-      factoryArgs: [credsPath, { apiVersion }],
+      context: {
+        credsPath, 
+        apiVersion,
+      },
     },
 
     ...getterOptions,
