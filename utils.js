@@ -266,21 +266,19 @@ const mandateParam = async (
 };
 
 const arrayStandardResponse = (responses, { flatten = false } = {}) => {
-  const results = responses.map(r => r?.result).filter(r => r !== undefined);
-  const errors = responses.map(r => r?.error).filter(e => e !== undefined);
-  
-  let resultsCount;
-  const resultsCounts = responses.map(r => r?.resultsCount).filter(l => !strictlyFalsey(l));
-  const hasResultsCount = resultsCounts.length > 0;
-  if (hasResultsCount) {
-    resultsCount = resultsCounts.reduce((a, b) => a + b, 0);
+  let results = responses.map(r => r?.result).filter(r => r !== undefined);
+  let errors = responses.map(r => r?.error).filter(e => e !== undefined);
+
+  if (flatten) {
+    results = results.flat();
+    errors = errors.flat();
   }
-  
+
   return {
     success: responses.every(r => r?.success),
-    ...results.length > 0 && { results: flatten ? results.flat() : results },
-    ...errors.length > 0 && { errors: flatten ? errors.flat() : errors },
-    ...hasResultsCount && { resultsCount },
+    ...!strictlyFalsey(results?.length) && { results: flatten ? results.flat() : results },
+    ...!strictlyFalsey(results?.length) && { resultsCount: results.length },
+    ...!strictlyFalsey(errors?.length) && { errors: flatten ? errors.flat() : errors }, 
   };
 };
 
