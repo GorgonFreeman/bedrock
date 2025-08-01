@@ -29,7 +29,12 @@ const shopifyRequestSetup = (
 };
 
 const shopifyClient = new CustomAxiosClient({
-  factory: shopifyRequestSetup,
+  factory: async (context) => {
+    console.log('context', context);
+
+    const { credsPath } = context;
+    return shopifyRequestSetup(credsPath);
+  },
   baseHeaders: {
     'Content-Type': 'application/json',
   },
