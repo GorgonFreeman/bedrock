@@ -98,7 +98,7 @@ const collabsFulfillmentSweep = async (
         const { orderId } = order;
         const recentDispatch = recentDispatches.find(dispatch => dispatch['Salesorder number'] === orderId);
 
-        if (recentDispatch) {
+        if (recentDispatch && recentDispatch?.['Tracking number']) {
 
           console.log(1, recentDispatch);
           await askQuestion('?');
@@ -142,7 +142,7 @@ const collabsFulfillmentSweep = async (
         for (const order of orders) {
           const peoplevoxDispatch = peoplevoxDispatches.find(dispatch => dispatch['Salesorder number'] === order.orderId);
 
-          if (peoplevoxDispatch) {
+          if (peoplevoxDispatch && peoplevoxDispatch['Tracking number']) {
 
             console.log(2, peoplevoxDispatch);
             await askQuestion('?');
