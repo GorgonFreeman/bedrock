@@ -1,52 +1,49 @@
-const { respond, mandateParam, logDeep } = require('../utils');
-const { peoplevoxClient, peoplevoxStandardInterpreter } = require('../peoplevox/peoplevox.utils');
+const { respond, mandateParam, logDeep, arrayToChunks, arrayStandardResponse } = require('../utils');
+const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
 const peoplevoxDespatchesGetBySalesOrderNumber = async (
-  salesOrderNumber,
+  salesOrderNumbers,
   {
     credsPath,
   } = {},
 ) => {
 
-  const action = 'GetData';
-
-  const response = await peoplevoxClient.fetch({
-    headers: {
-      'SOAPAction': `http://www.peoplevox.net/${ action }`,
-    },
-    method: 'post',
-    body: {
-      getRequest: {
-        TemplateName: 'Sales orders',
-        SearchClause: `SalesOrderNumber.Equals("${ salesOrderNumber }")`,
-      },
-    },
-    context: { 
-      credsPath,
-      action,
-     },
-    interpreter: peoplevoxStandardInterpreter({ expectOne: true }),
-  });
-  logDeep(response);
-  return response;
+  const maxChunkSize = 100;
+  const orderIdChunks = arrayToChunks(salesOrderNumbers, maxChunkSize);
   
+  const responses = [];
+  for (const chunk of orderIdChunks) {
+    const searchClause = chunk.map(salesOrderNumber => `([Salesorder number].Equals(\"${ salesOrderNumber }\"))`).join(' OR ');
+    const response = await peoplevoxReportGet(
+      'Despatch summary',
+      searchClause,
+      {
+        credsPath,
+      },
+    );
+    responses.push(response);
+  }
+
+  const response = arrayStandardResponse(responses, { flatten: true });
+  logDeep(response);
+  return response;  
 };
 
 const peoplevoxDespatchesGetBySalesOrderNumberApi = async (req, res) => {
   const { 
-    salesOrderNumber,
+    salesOrderNumbers,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'salesOrderNumber', salesOrderNumber),
+    mandateParam(res, 'salesOrderNumbers', salesOrderNumbers),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await peoplevoxDespatchesGetBySalesOrderNumber(
-    salesOrderNumber,
+    salesOrderNumbers,
     options,
   );
   respond(res, 200, result);
@@ -57,4 +54,4 @@ module.exports = {
   peoplevoxDespatchesGetBySalesOrderNumberApi,
 };
 
-// curl localhost:8000/peoplevoxDespatchesGetBySalesOrderNumber -H "Content-Type: application/json" -d '{ "salesOrderNumber": "5977690603592" }'
+// curl localhost:8000/peoplevoxDespatchesGetBySalesOrderNumber -H "Content-Type: application/json" -d '{ "salesOrderNumbers": ["5977690603592"] }'
