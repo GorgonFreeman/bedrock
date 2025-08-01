@@ -100,12 +100,23 @@ const collabsFulfillmentSweep = async (
 
         if (recentDispatch && recentDispatch?.['Tracking number']) {
 
-          console.log(1, recentDispatch);
-          await askQuestion('?');
+          // console.log(1, recentDispatch);
+          // await askQuestion('?');
+
+          const fulfillPayload = {
+            originAddress: {
+              // Peoplevox, therefore AU
+              countryCode: 'AU',
+            },
+            trackingInfo: {
+              number: recentDispatch['Tracking number'],
+            },
+          };
 
           piles.found.push({
             ...order,
-            tracking: recentDispatch,
+            // tracking: recentDispatch,
+            fulfillPayload,
           });
           return;
         }
@@ -144,12 +155,23 @@ const collabsFulfillmentSweep = async (
 
           if (peoplevoxDispatch && peoplevoxDispatch['Tracking number']) {
 
-            console.log(2, peoplevoxDispatch);
-            await askQuestion('?');
+            // console.log(2, peoplevoxDispatch);
+            // await askQuestion('?');
+
+            const fulfillPayload = {
+              originAddress: {
+                // Peoplevox, therefore AU
+                countryCode: 'AU',
+              },
+              trackingInfo: {
+                number: peoplevoxDispatch['Tracking number'],
+              },
+            };
 
             piles.found.push({
               ...order,
-              tracking: peoplevoxDispatch,
+              // tracking: peoplevoxDispatch,
+              fulfillPayload,
             });
             continue;
           }
