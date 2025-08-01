@@ -204,7 +204,11 @@ const collabsFulfillmentSweep = async (
         }
 
         const starshipitOrder = starshipitOrderResponse.result;
-        const { status } = starshipitOrder || {};
+        const { 
+          status,
+          tracking_number: trackingNumber,
+          tracking_url: trackingUrl,
+        } = starshipitOrder || {};
         
         // TODO: Consider using 'manifested'
         if (
@@ -213,12 +217,24 @@ const collabsFulfillmentSweep = async (
           && !['Unshipped', 'Printed', 'Saved'].includes(status)
         ) {
 
-          console.log(3, starshipitOrder);
-          await askQuestion('?');
+          // console.log(3, starshipitOrder);
+          // await askQuestion('?');
+
+          const fulfillPayload = {
+            originAddress: {
+              // Starshipit, therefore AU
+              countryCode: 'AU',
+            },
+            trackingInfo: {
+              number: trackingNumber,
+              url: trackingUrl,
+            },
+          };
 
           piles.found.push({
             ...order,
-            tracking: starshipitOrder,
+            // tracking: starshipitOrder,
+            fulfillPayload,
           });
           return;
         }
