@@ -97,10 +97,12 @@ const collabsFulfillmentSweep = async (
         const order = pile.shift();
         const { orderId } = order;
         const recentDispatch = recentDispatches.find(dispatch => dispatch['Salesorder number'] === orderId);
-        console.log(1, recentDispatch);
-        // await askQuestion('?');
 
         if (recentDispatch) {
+
+          console.log(1, recentDispatch);
+          await askQuestion('?');
+
           piles.found.push({
             ...order,
             tracking: recentDispatch,
@@ -139,10 +141,12 @@ const collabsFulfillmentSweep = async (
         const peoplevoxDispatches = peoplevoxDispatchesResponse.result;
         for (const order of orders) {
           const peoplevoxDispatch = peoplevoxDispatches.find(dispatch => dispatch['Salesorder number'] === order.orderId);
-          console.log(2, peoplevoxDispatch);
-          // await askQuestion('?');
 
           if (peoplevoxDispatch) {
+
+            console.log(2, peoplevoxDispatch);
+            await askQuestion('?');
+
             piles.found.push({
               ...order,
               tracking: peoplevoxDispatch,
@@ -178,10 +182,12 @@ const collabsFulfillmentSweep = async (
         }
 
         const starshipitOrder = starshipitOrderResponse.result;
-        console.log(3, starshipitOrder);
-        // await askQuestion('?');
 
         if (starshipitOrder) {
+
+          console.log(3, starshipitOrder);
+          await askQuestion('?');
+
           piles.found.push({
             ...order,
             tracking: starshipitOrder,
