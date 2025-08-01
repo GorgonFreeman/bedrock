@@ -12,7 +12,16 @@ const collabsFulfillmentSweep = async (
 ) => {
 
   const shopifyOrderResponses = await Promise.all(
-    shopifyRegions.map(region => shopifyOrdersGet(region)),
+    shopifyRegions.map(region => shopifyOrdersGet(
+      region,
+      {
+        queries: [
+          'created_at:>2024-01-01',
+          'fulfillment_status:unfulfilled',
+          'status:Open',
+        ],
+      },
+    )),
   );
 
   logDeep(shopifyOrderResponses);
