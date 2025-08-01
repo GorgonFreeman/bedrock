@@ -198,7 +198,7 @@ const collabsFulfillmentSweep = async (
     await Promise.all([
       recentDispatchProcessor.run({ verbose: true }),
       peoplevoxProcessor.run({ verbose: true }),
-      starshipitProcessor.run({ verbose: true }),
+      // starshipitProcessor.run({ verbose: true }),
     ]);
 
     console.log(piles);
