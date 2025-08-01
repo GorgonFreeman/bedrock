@@ -38,6 +38,33 @@ const shopifyOrderFulfill = async (
     },
   );
   logDeep(fulfillmentsResponse);
+
+  if (!fulfillmentsResponse?.success) {
+    return fulfillmentsResponse;
+  }
+
+  const fulfillmentOrders = fulfillmentsResponse.result.fulfillmentOrders;
+
+  if (fulfillmentOrders.length > 1) {
+    return {
+      success: false,
+      error: [{
+        message: 'Multiple fulfillment orders found',
+        data: fulfillmentOrders,
+      }],
+    };
+  }
+
+  const fulfillmentOrder = fulfillmentOrders?.[0];
+
+  if (!fulfillmentOrder) {
+    return {
+      success: false,
+      error: ['No fulfillment order found'],
+    };
+  }
+ 
+  console.log(fulfillmentOrder);
   await askQuestion('Continue?');
 
   // 2. Fulfill it
