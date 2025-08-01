@@ -179,10 +179,10 @@ const collabsFulfillmentSweep = async (
       },
     );
 
-    recentDispatchProcessor.onDone = () => {
+    recentDispatchProcessor.on('done', () => {
       peoplevoxProcessor.canFinish = true;
       starshipitProcessor.canFinish = true;
-    };
+    });
 
     await Promise.all([
       recentDispatchProcessor.run({ verbose: true }),
