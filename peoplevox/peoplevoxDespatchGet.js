@@ -36,43 +36,12 @@ const peoplevoxDespatchGet = async (
   if (!reportResponse?.success || !reportResponse?.result?.length) {
     return reportResponse;
   }
-  
-  const trackingNumbers = Array.from(new Set(reportResponse.result.map(r => r['Tracking number'])));
-  console.log(trackingNumbers);
 
-  if (trackingNumbers?.length > 1) {
-    return { 
-      success: false,
-      error: [{
-        message: 'Multiple tracking numbers found for this sales order',
-        data: trackingNumbers,
-      }],
-    };
-  }
-
-  const trackingNumber = trackingNumbers?.[0];
-
-  if (!trackingNumber) {
-    return { 
-      success: false,
-      error: [{
-        message: 'No tracking number found for this sales order',
-        data: salesOrderNumber,
-      }],
-    };
-  }
-  await askQuestion('?');
-
-
-  // response = await peoplevoxGetSingle(
-  //   'Despatches', 
-  //   { searchClause: `salesOrderNumber.Equals("${ salesOrderNumber }")` }, 
-  //   { credsPath },
-  // );
-  // logDeep(response);
-  // return response;
-
-  return;
+  return {
+    success: true,
+    // TODO: Reconsider this
+    result: reportResponse.result?.[0],
+  };
 };
 
 const peoplevoxDespatchGetApi = async (req, res) => {
@@ -100,5 +69,5 @@ module.exports = {
   peoplevoxDespatchGetApi,
 };
 
-// curl localhost:8000/peoplevoxDespatchGet -H "Content-Type: application/json" -d '{ "despatchIdentifier": { "despatchNumber": "DES9423117" } }'
+// curl localhost:8000/peoplevoxDespatchGet -H "Content-Type: application/json" -d '{ "despatchIdentifier": { "despatchNumber": "DES1937757" } }'
 // curl localhost:8000/peoplevoxDespatchGet -H "Content-Type: application/json" -d '{ "despatchIdentifier": { "salesOrderNumber": "  PRFB-1634 " } }'
