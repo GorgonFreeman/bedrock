@@ -32,7 +32,35 @@ const peoplevoxDespatchGet = async (
       perPage: 50,
     },
   );
-  console.log(surveyObjects(reportResponse.result));
+
+  if (!reportResponse?.success || !reportResponse?.result?.length) {
+    return reportResponse;
+  }
+  
+  const trackingNumbers = Array.from(new Set(reportResponse.result.map(r => r['Tracking number'])));
+  console.log(trackingNumbers);
+
+  if (trackingNumbers?.length > 1) {
+    return { 
+      success: false,
+      error: [{
+        message: 'Multiple tracking numbers found for this sales order',
+        data: trackingNumbers,
+      }],
+    };
+  }
+
+  const trackingNumber = trackingNumbers?.[0];
+
+  if (!trackingNumber) {
+    return { 
+      success: false,
+      error: [{
+        message: 'No tracking number found for this sales order',
+        data: salesOrderNumber,
+      }],
+    };
+  }
   await askQuestion('?');
 
 
