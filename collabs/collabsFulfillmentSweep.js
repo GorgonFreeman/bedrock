@@ -88,6 +88,7 @@ const collabsFulfillmentSweep = async (
       notFound2: [],
       notFound3: [],
       notFound: [],
+      notShipped: [], // dead end
     };
 
     const recentDispatchProcessor = new Processor(
@@ -213,9 +214,13 @@ const collabsFulfillmentSweep = async (
         // TODO: Consider using 'manifested'
         if (
           starshipitOrder 
-          && status 
-          && !['Unshipped', 'Printed', 'Saved'].includes(status)
+          && status
         ) {
+
+          if (['Unshipped', 'Printed', 'Saved'].includes(status)) {
+            piles.notShipped.push(order);
+            return;
+          }
 
           // console.log(3, starshipitOrder);
           // await askQuestion('?');
