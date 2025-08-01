@@ -1,5 +1,6 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, askQuestion } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
+const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 
 const shopifyOrderFulfill = async (
   credsPath,
@@ -13,6 +14,31 @@ const shopifyOrderFulfill = async (
 ) => {
 
   // 1. Identify single open fulfillment order
+  const fulfillmentOrderAttrs = `
+    fulfillmentOrders (
+      displayable: true, 
+      query: "request_status:UNSUBMITTED OR request_status:ACCEPTED", 
+      first: 2,
+    ) {
+      edges {
+        node {
+          id
+          requestStatus
+        }
+      }
+    }
+  `;
+
+  const fulfillmentsResponse = await shopifyOrderGet(
+    credsPath, 
+    orderId, 
+    {
+      apiVersion,
+      attrs: fulfillmentOrderAttrs,
+    },
+  );
+  logDeep(fulfillmentsResponse);
+  await askQuestion('Continue?');
 
   // 2. Fulfill it
 
