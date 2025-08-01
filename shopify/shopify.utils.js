@@ -30,8 +30,6 @@ const shopifyRequestSetup = (
 
 const shopifyClient = new CustomAxiosClient({
   factory: async (context) => {
-    console.log('context', context);
-
     const { credsPath } = context;
     return shopifyRequestSetup(credsPath);
   },

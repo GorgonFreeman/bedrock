@@ -39,9 +39,8 @@ const peoplevoxReportGet = async (
      },
     interpreter: peoplevoxStandardInterpreter(),
   });
-  logDeep(response);
+  // logDeep(response);
   return response;
-  
 };
 
 const peoplevoxReportGetApi = async (req, res) => {

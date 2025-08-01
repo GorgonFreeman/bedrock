@@ -279,7 +279,7 @@ const peoplevoxBaseInterpreter = async (response, context) => {
       error: [excavatedResult],
     },
   };
-  logDeep('interpretedResponse', interpretedResponse);
+  // logDeep('interpretedResponse', interpretedResponse);
   return interpretedResponse;
 };
 
@@ -325,7 +325,7 @@ const peoplevoxGetSingle = async (
     interpreter: peoplevoxStandardInterpreter({ expectOne: true }),
   });
 
-  logDeep(response);
+  // logDeep(response);
   return response;
 };
 

@@ -53,10 +53,10 @@ const collabsFulfillmentSweep = async (
     ...shopifyRegions.map(region => getShopifyOrdersPerRegion(region)),
   ]);
 
-  logDeep(pvxRecentDispatchesResponse);
+  // logDeep(pvxRecentDispatchesResponse);
   // await askQuestion('?');
 
-  logDeep(shopifyOrderResponses);
+  // logDeep(shopifyOrderResponses);
   // await askQuestion('?');
 
   const recentDispatches = pvxRecentDispatchesResponse.result;
@@ -79,7 +79,8 @@ const collabsFulfillmentSweep = async (
         orderId,
       };
     });
-    console.log(region, inputPile);
+
+    console.log(region, inputPile.length);
 
     const piles = {
       found: [],
@@ -95,7 +96,7 @@ const collabsFulfillmentSweep = async (
         const order = pile.shift();
         const { orderId } = order;
         const recentDispatch = recentDispatches.find(dispatch => dispatch['Salesorder number'] === orderId);
-        console.log(recentDispatch);
+        // console.log(recentDispatch);
         // await askQuestion('?');
 
         if (recentDispatch) {
@@ -167,7 +168,7 @@ const collabsFulfillmentSweep = async (
         const shippingMethod = shippingLine?.title;
         const starshipitAccount = shopifyRegionToStarshipitAccount(region, shippingMethod);
         const starshipitOrder = await starshipitOrderGet(starshipitAccount, { orderNumber: orderId });
-        console.log(starshipitOrder);
+        // console.log(starshipitOrder);
         // await askQuestion('?');
 
         if (starshipitOrder) {
@@ -203,7 +204,7 @@ const collabsFulfillmentSweep = async (
     console.log(piles);
   }
 
-  logDeep(shopifyOrderResponses);
+  // logDeep(shopifyOrderResponses);
   return shopifyOrderResponses;
 };
 

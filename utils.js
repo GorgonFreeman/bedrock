@@ -489,7 +489,7 @@ class CustomAxiosClient {
     context = {}, // TODO: Replace factoryArgs and bodyTransformerArgs with this. Info for any helper functions to pick from.
   } = {}) {
 
-    console.log('fetch: before factory', {
+    debug && console.log('fetch: before factory', {
       url,
       method,
       headers,
@@ -533,7 +533,7 @@ class CustomAxiosClient {
       body = await this.bodyTransformer(body, context);
     }
 
-    console.log('fetch: after factory', {
+    debug && console.log('fetch: after factory', {
       url,
       method,
       headers,
