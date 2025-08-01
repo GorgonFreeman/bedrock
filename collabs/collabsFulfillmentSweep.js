@@ -232,3 +232,4 @@ module.exports = {
 };
 
 // curl localhost:8000/collabsFulfillmentSweep
+// curl localhost:8000/collabsFulfillmentSweep -H "Content-Type: application/json" -d '{ "options": { "shopifyRegions": ["au"] } }'
