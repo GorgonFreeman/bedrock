@@ -837,6 +837,34 @@ const surveyObjects = (objArr) => {
   return result;
 };
 
+const seconds = number => number * 1000;
+const minutes = number => number * 1000 * 60;
+const hours = number => number * 1000 * 60 * 60;
+const days = number => number * 1000 * 60 * 60 * 24;
+const weeks = number => number * 1000 * 60 * 60 * 24 * 7;
+const monthsish = number => number * 1000 * 60 * 60 * 24 * 30;
+const yearsish = number => number * 1000 * 60 * 60 * 24 * 365;
+
+const dateTimeFromNow = ({ plus, minus, startDate, dateOnly } = {}) => {
+  let adjustedDate = startDate ? new Date(startDate) : new Date();
+
+  if (plus) {
+    adjustedDate = new Date(adjustedDate.getTime() + plus);
+  }
+
+  if (minus) {
+    adjustedDate = new Date(adjustedDate.getTime() - minus);
+  }
+
+  const adjustedDateIso = adjustedDate.toISOString();
+
+  if (dateOnly) {
+    return adjustedDateIso.slice(0, 10);
+  }
+
+  return adjustedDateIso;
+};
+
 module.exports = {
 
   // Really core
@@ -848,6 +876,16 @@ module.exports = {
   mandateParam,
   customAxios,
   funcApi,
+
+  // Time
+  seconds,
+  minutes,
+  hours,
+  days,
+  weeks,
+  monthsish,
+  yearsish,
+  dateTimeFromNow,
   
   // Misc
   arrayFromIntRange,
