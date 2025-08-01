@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { peoplevoxClient, peoplevoxStandardInterpreter } = require('../peoplevox/peoplevox.utils');
+const { peoplevoxGetSingle } = require('../peoplevox/peoplevox.utils');
 
 const peoplevoxOrderGet = async (
   salesOrderNumber,
@@ -8,28 +8,13 @@ const peoplevoxOrderGet = async (
   } = {},
 ) => {
 
-  const action = 'GetData';
-
-  const response = await peoplevoxClient.fetch({
-    headers: {
-      'SOAPAction': `http://www.peoplevox.net/${ action }`,
-    },
-    method: 'post',
-    body: {
-      getRequest: {
-        TemplateName: 'Sales orders',
-        SearchClause: `SalesOrderNumber.Equals("${ salesOrderNumber }")`,
-      },
-    },
-    context: { 
-      credsPath,
-      action,
-     },
-    interpreter: peoplevoxStandardInterpreter({ expectOne: true }),
-  });
+  const response = await peoplevoxGetSingle(
+    'Sales orders', 
+    { idName: 'salesOrderNumber', id: salesOrderNumber }, 
+    { credsPath },
+  );
   logDeep(response);
   return response;
-  
 };
 
 const peoplevoxOrderGetApi = async (req, res) => {
