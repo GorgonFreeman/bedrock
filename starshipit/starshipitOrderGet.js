@@ -15,7 +15,9 @@ const starshipitOrderGet = async (
       ...orderId ? { order_id: orderId } : {},
       ...orderNumber ? { order_number: orderNumber } : {},
     },
-    factoryArgs: [{ credsPath }],
+    context: {
+      credsPath,
+    },
     interpreter: (response) => {
       return {
         ...response,

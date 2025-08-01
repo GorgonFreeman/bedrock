@@ -10,7 +10,9 @@ const FUNC = async (
 
   const response = await pipe17Client.fetch({
     url: `/receipts/${ receiptId }`,
-    factoryArgs: [credsPath],
+    context: {
+      credsPath,
+    },
     interpreter: (response) => {
       return {
         ...response,

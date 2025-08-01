@@ -39,7 +39,10 @@ const shopifyProductGet = async (
     const response = await shopifyClient.fetch({
       method: 'post',
       body: { query, variables },
-      factoryArgs: [credsPath, { apiVersion }],
+      context: {
+        credsPath,
+        apiVersion,
+      },
     });
 
     logDeep(response);

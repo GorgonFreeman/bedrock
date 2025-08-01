@@ -111,7 +111,9 @@ const starshipitGetter = async (
 
       client: starshipitClient,
       clientArgs: {
-        factoryArgs: [{ credsPath }],
+        context: {
+          credsPath,
+        },
       },
 
       ...getterOptions

@@ -8,7 +8,9 @@ const etsyPing = async (
 ) => {
   const response = await etsyClient.fetch({ 
     url: '/application/openapi-ping',
-    factoryArgs: [credsPath],
+    context: {
+      credsPath,
+    },
   });
   logDeep(response);
   return response;

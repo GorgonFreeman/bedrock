@@ -33,7 +33,9 @@ const pipe17ArrivalUpdate = async (
     url: `/arrivals/${ arrivalId }`,
     method: 'put',
     body: updatePayload,
-    factoryArgs: [credsPath],
+    context: {
+      credsPath,
+    },
     // interpreter: (response) => {
     //   return {
     //     ...response,

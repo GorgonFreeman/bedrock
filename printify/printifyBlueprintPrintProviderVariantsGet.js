@@ -18,7 +18,9 @@ const printifyBlueprintPrintProviderVariantsGet = async (
     url: `/catalog/blueprints/${ blueprintId }/print_providers/${ printProviderId }/variants.json`, 
     params,
     verbose: true,
-    factoryArgs: [credsPath],
+    context: {
+      credsPath,
+    },
   });
 
   logDeep(response);

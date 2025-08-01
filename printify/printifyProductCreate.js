@@ -40,7 +40,9 @@ const printifyProductCreate = async (
     method: 'post',
     body: productCreatePayload,
     verbose: true,
-    factoryArgs: [credsPath],
+    context: {
+      credsPath,
+    },
   });  
 
   logDeep(response);

@@ -25,7 +25,9 @@ const printifyOrderSubmit = async (
     url: `/shops/${ shopId }/orders/${ orderId }/send_to_production.json`, 
     method: 'post',
     verbose: true,
-    factoryArgs: [credsPath],
+    context: {
+      credsPath,
+    },
   });
 
   logDeep(response);

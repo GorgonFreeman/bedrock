@@ -36,7 +36,9 @@ const starshipitOrderDelete = async (
     params: {
       order_id: orderId,
     },
-    factoryArgs: [{ credsPath }],
+    context: {
+      credsPath,
+    },
   });
 
   logDeep(response);

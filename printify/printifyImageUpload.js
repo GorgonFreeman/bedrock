@@ -19,7 +19,9 @@ const printifyImageUpload = async (
     method: 'post',
     body: data,
     verbose: true,
-    factoryArgs: [credsPath],
+    context: {
+      credsPath,
+    },
   });
 
   logDeep(response);

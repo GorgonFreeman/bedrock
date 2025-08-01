@@ -8,7 +8,9 @@ const etsyMeGet = async (
 ) => {
   const response = await etsyClient.fetch({ 
     url: '/application/users/me',
-    factoryArgs: [credsPath],
+    context: {
+      credsPath,
+    },
   });
   logDeep(response);
   return response;

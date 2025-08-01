@@ -17,7 +17,9 @@ const starshipitTrackingGet = async (
       ...(trackingNumber ? { tracking_number: trackingNumber } : {}),
       ...(orderNumber ? { order_number: orderNumber } : {}),
     },
-    factoryArgs: [{ credsPath }],
+    context: {
+      credsPath,
+    },
     interpreter: (response) => {
       return {
         ...response,

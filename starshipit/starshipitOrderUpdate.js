@@ -40,7 +40,9 @@ const starshipitOrderUpdate = async (
         ...updatePayload,
       },
     },
-    factoryArgs: [{ credsPath }],
+    context: {
+      credsPath,
+    },
   });
 
   logDeep(response);

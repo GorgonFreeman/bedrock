@@ -25,7 +25,9 @@ const printifyWebhookDelete = async (
     url: `/shops/${ shopId }/webhooks/${ webhookId }.json`, 
     method: 'delete',
     verbose: true,
-    factoryArgs: [credsPath],
+    context: {
+      credsPath,
+    },
   });
 
   logDeep(response);

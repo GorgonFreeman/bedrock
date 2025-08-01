@@ -14,7 +14,9 @@ const starshipitAddressCreate = async (
     body: {
       address: addressPayload,
     },
-    factoryArgs: [{ credsPath }],
+    context: {
+      credsPath,
+    },
     interpreter: (response) => {
 
       const { result } = response;

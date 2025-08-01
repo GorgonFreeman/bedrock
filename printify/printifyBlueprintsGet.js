@@ -10,7 +10,9 @@ const printifyBlueprintsGet = async (
   const response = await printifyClient.fetch({
     url: '/catalog/blueprints.json', 
     verbose: true,
-    factoryArgs: [credsPath],
+    context: {
+      credsPath,
+    },
   });
 
   logDeep(response);

@@ -11,7 +11,9 @@ const FUNC = async (
     params: {
       arg_value: arg,
     },
-    factoryArgs: [{ credsPath }],
+    context: {
+      credsPath,
+    },
     interpreter: (response) => {
       return {
         ...response,

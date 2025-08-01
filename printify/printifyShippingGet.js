@@ -12,7 +12,9 @@ const printifyShippingGet = async (
   const response = await printifyClient.fetch({
     url: `/catalog/blueprints/${ blueprintId }/print_providers/${ printProviderId }/shipping.json`, 
     verbose: true,
-    factoryArgs: [credsPath],
+    context: {
+      credsPath,
+    },
   });
 
   logDeep(response);

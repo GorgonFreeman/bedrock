@@ -14,7 +14,9 @@ const starshipitAddressDelete = async (
     body: {
       address_ids: [addressId],
     },
-    factoryArgs: [{ credsPath }],
+    context: {
+      credsPath,
+    },
   });
 
   logDeep(response);

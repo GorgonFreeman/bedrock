@@ -17,7 +17,9 @@ const starshipitAddressUpdate = async (
       id: addressId,
       address: updatePayload,
     },
-    factoryArgs: [{ credsPath }],
+    context: {
+      credsPath,
+    },
     interpreter: (response) => {
       return {
         ...response,

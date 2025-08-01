@@ -27,7 +27,10 @@ const FUNC = async (
   const response = await shopifyClient.fetch({
     method: 'post',
     body: { query, variables },
-    factoryArgs: [credsPath, { apiVersion }],
+    context: {
+      credsPath,
+      apiVersion,
+    },
     interpreter: async (response) => {
       // console.log(response);
       return {

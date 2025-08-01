@@ -14,7 +14,9 @@ const pipe17GetSingle = async (
 
   const response = await pipe17Client.fetch({
     url: `/${ resources }/${ id }`,
-    factoryArgs: [credsPath],
+    context: {
+      credsPath,
+    },
     interpreter: (response) => {
       return {
         ...response,

@@ -32,7 +32,9 @@ const printifyWebhookCreate = async (
     method: 'post',
     body: webhookData,
     verbose: true,
-    factoryArgs: [credsPath],
+    context: {
+      credsPath,
+    },
   });
 
   logDeep(response);

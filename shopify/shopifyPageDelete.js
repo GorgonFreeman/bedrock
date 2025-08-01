@@ -32,7 +32,10 @@ const shopifyPageDelete = async (
   const response = await shopifyClient.fetch({
     method: 'post',
     body: { query: mutation, variables },
-    factoryArgs: [credsPath, { apiVersion }],
+    context: {
+      credsPath,
+      apiVersion,
+    },
     interpreter: async (response) => {
       return {
         ...response,

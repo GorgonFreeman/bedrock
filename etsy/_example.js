@@ -9,7 +9,9 @@ const FUNC = async (
 ) => {
   const response = await etsyClient.fetch({ 
     url: `/application/things/${ arg }`,
-    factoryArgs: [credsPath],
+    context: {
+      credsPath,
+    },
   });
   logDeep(response);
   return response;
