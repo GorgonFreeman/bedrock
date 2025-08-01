@@ -1,58 +1,38 @@
-const { respond, mandateParam, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/orders
 
-const defaultAttrs = `id`;
+const { respond, mandateParam, logDeep } = require('../utils');
+const { shopifyGet } = require('../shopify/shopify.utils');
+
+const defaultAttrs = `id name`;
 
 const shopifyOrdersGet = async (
   credsPath,
-  arg,
   {
-    apiVersion,
-    option,
-  } = {},
+    attrs = defaultAttrs,
+    ...options
+  },
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    factoryArgs: [credsPath, { apiVersion }],
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
+  const response = await shopifyGet(
+    credsPath, 
+    'order', 
+    {
+      attrs,
+      ...options,
     },
-  });
+  );
 
-  logDeep(response);
   return response;
 };
 
 const shopifyOrdersGetApi = async (req, res) => {
   const { 
     credsPath,
-    arg,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -60,7 +40,6 @@ const shopifyOrdersGetApi = async (req, res) => {
 
   const result = await shopifyOrdersGet(
     credsPath,
-    arg,
     options,
   );
   respond(res, 200, result);
@@ -71,4 +50,4 @@ module.exports = {
   shopifyOrdersGetApi,
 };
 
-// curl localhost:8000/shopifyOrdersGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyOrdersGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 2 } }'
