@@ -207,7 +207,11 @@ const collabsFulfillmentSweep = async (
         const { status } = starshipitOrder || {};
         
         // TODO: Consider using 'manifested'
-        if (starshipitOrder && status && !['Unshipped', 'Printed', 'Saved'].includes(status)) {
+        if (
+          starshipitOrder 
+          && status 
+          && !['Unshipped', 'Printed', 'Saved'].includes(status)
+        ) {
 
           console.log(3, starshipitOrder);
           await askQuestion('?');
