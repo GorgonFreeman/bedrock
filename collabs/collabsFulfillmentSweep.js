@@ -52,10 +52,10 @@ const collabsFulfillmentSweep = async (
   ]);
 
   logDeep(pvxRecentDispatchesResponse);
-  await askQuestion('?');
+  // await askQuestion('?');
 
   logDeep(shopifyOrderResponses);
-  await askQuestion('?');
+  // await askQuestion('?');
 
   const recentDispatches = pvxRecentDispatchesResponse.result;
 
@@ -95,7 +95,7 @@ const collabsFulfillmentSweep = async (
         const { orderId } = order;
         const recentDispatch = recentDispatches.find(dispatch => dispatch['Salesorder number'] === orderId);
         console.log(recentDispatch);
-        await askQuestion('?');
+        // await askQuestion('?');
 
         if (recentDispatch) {
           piles.found.push(recentDispatch);
