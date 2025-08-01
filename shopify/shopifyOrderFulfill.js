@@ -1,14 +1,14 @@
 const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
-
 const shopifyOrderFulfill = async (
   credsPath,
-  arg,
+  orderId,
   {
     apiVersion,
-    option,
+    notifyCustomer,
+    originAddress,
+    trackingInfo,
   } = {},
 ) => {
 
@@ -21,7 +21,7 @@ const shopifyOrderFulfill = async (
   `;
 
   const variables = {
-    id: `gid://shopify/Product/${ arg }`,
+    id: `gid://shopify/Product/${ orderId }`,
   };
 
   const response = await shopifyClient.fetch({
@@ -49,13 +49,13 @@ const shopifyOrderFulfill = async (
 const shopifyOrderFulfillApi = async (req, res) => {
   const { 
     credsPath,
-    arg,
+    orderId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'orderId', orderId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -63,7 +63,7 @@ const shopifyOrderFulfillApi = async (req, res) => {
 
   const result = await shopifyOrderFulfill(
     credsPath,
-    arg,
+    orderId,
     options,
   );
   respond(res, 200, result);
@@ -74,4 +74,20 @@ module.exports = {
   shopifyOrderFulfillApi,
 };
 
-// curl localhost:8000/shopifyOrderFulfill -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+/*
+  curl localhost:8000/shopifyOrderFulfill \
+    -H "Content-Type: application/json" \
+    -d '{ 
+      "credsPath": "au", 
+      "orderId": "6993917280328", 
+      "options": { 
+        "notifyCustomer": false, 
+        "originAddress": { 
+          "countryCode": "AU" 
+        }, 
+        "trackingInfo": { 
+          "number": "33VVY5069794010075115021965" 
+        } 
+      } 
+    }'
+*/
