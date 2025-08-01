@@ -23,7 +23,7 @@ const collabsFulfillmentSweep = async (
     peoplevoxReportGet('Despatch summary', { 
       columns: ['Salesorder number', 'Carrier', 'Tracking number', 'Despatch date'], 
       perPage: 4,
-      // searchClause: `([Despatch date] &gt;= 2025,01,01,00,00,00) AND ([Despatch date] &lt;= 2025,02,01,00,00,00)`, 
+      searchClause: `([Despatch date] >= DateTime(2025,07,01,00,00,00)) AND ([Despatch date] <= DateTime(2025,08,01,00,00,00))`, 
     }),
     ...shopifyRegions.map(region => shopifyOrdersGet(
       region,
