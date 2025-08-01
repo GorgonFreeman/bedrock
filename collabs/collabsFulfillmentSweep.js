@@ -97,7 +97,7 @@ const collabsFulfillmentSweep = async (
         const order = pile.shift();
         const { orderId } = order;
         const recentDispatch = recentDispatches.find(dispatch => dispatch['Salesorder number'] === orderId);
-        // console.log(recentDispatch);
+        console.log(1, recentDispatch);
         // await askQuestion('?');
 
         if (recentDispatch) {
@@ -132,13 +132,15 @@ const collabsFulfillmentSweep = async (
         // await askQuestion('?');
 
         if (!peoplevoxDispatchesResponse?.success) {
-          piles.notPeoplevox.push(...orders);
+          piles.notFound2.push(...orders);
           return;
         }
 
         const peoplevoxDispatches = peoplevoxDispatchesResponse.result;
         for (const order of orders) {
           const peoplevoxDispatch = peoplevoxDispatches.find(dispatch => dispatch['Salesorder number'] === order.orderId);
+          console.log(2, peoplevoxDispatch);
+          // await askQuestion('?');
 
           if (peoplevoxDispatch) {
             piles.found.push({
@@ -168,8 +170,15 @@ const collabsFulfillmentSweep = async (
         const { orderId, shippingLine } = order;
         const shippingMethod = shippingLine?.title;
         const starshipitAccount = shopifyRegionToStarshipitAccount(region, shippingMethod);
-        const starshipitOrder = await starshipitOrderGet(starshipitAccount, { orderNumber: orderId });
-        // console.log(starshipitOrder);
+        const starshipitOrderResponse = await starshipitOrderGet(starshipitAccount, { orderNumber: orderId });
+
+        if (!starshipitOrderResponse?.success || !starshipitOrderResponse?.result) {
+          piles.notFound3.push(order);
+          return;
+        }
+
+        const starshipitOrder = starshipitOrderResponse.result;
+        console.log(3, starshipitOrder);
         // await askQuestion('?');
 
         if (starshipitOrder) {
