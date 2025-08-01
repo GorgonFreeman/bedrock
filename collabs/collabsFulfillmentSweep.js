@@ -86,6 +86,7 @@ const collabsFulfillmentSweep = async (
       found: [],
       notFound1: [],
       notFound2: [],
+      notFound3: [],
       notFound: [],
     };
 
@@ -160,7 +161,7 @@ const collabsFulfillmentSweep = async (
     );
 
     const starshipitProcessor = new Processor(
-      piles.notFound1, // pile
+      piles.notFound2, // pile
       // action
       async (pile) => {
         const order = pile.shift();
@@ -179,7 +180,7 @@ const collabsFulfillmentSweep = async (
           return;
         }
 
-        piles.notFound2.push(order);
+        piles.notFound3.push(order);
         return;
       },
       (pile) => pile.length === 0, // pileExhaustedCheck
@@ -192,6 +193,9 @@ const collabsFulfillmentSweep = async (
 
     recentDispatchProcessor.on('done', () => {
       peoplevoxProcessor.canFinish = true;
+    });
+
+    peoplevoxProcessor.on('done', () => {
       starshipitProcessor.canFinish = true;
     });
 
