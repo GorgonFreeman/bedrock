@@ -329,8 +329,13 @@ const peoplevoxGetSingle = async (
   return response;
 };
 
+const peoplevoxDateFormatter = (dateIso) => {
+  return `DateTime(${ dateIso.slice(0, 10).split('-').join(',') },00,00,00)`;
+};
+
 module.exports = {
   peoplevoxClient,
   peoplevoxStandardInterpreter,
   peoplevoxGetSingle,
+  peoplevoxDateFormatter,
 };
