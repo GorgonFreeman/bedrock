@@ -806,6 +806,8 @@ class Getter extends EventEmitter {
   }
 }
 
+const gidToId = (gid) => gid?.split('/')?.pop();
+
 module.exports = {
 
   // Really core
@@ -834,6 +836,7 @@ module.exports = {
   objHasAll,
   objSatisfies,
   arrayToChunks,
+  gidToId,
   
   // Classes
   CustomAxiosClient,

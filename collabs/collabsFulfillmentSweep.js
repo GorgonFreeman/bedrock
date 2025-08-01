@@ -1,13 +1,13 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, gidToId, askQuestion } = require('../utils');
+const { REGIONS_PVX } = require('../constants');
 
-const { REGIONS_WF } = require('../shopify/shopify.constants');
 const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
-const { peoplevoxOrdersGet } = require('../peoplevox/peoplevoxOrdersGet');
+const { peoplevoxOrdersGetById } = require('../peoplevox/peoplevoxOrdersGetById');
 const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 
 const collabsFulfillmentSweep = async (
   {
-    shopifyRegions = REGIONS_WF,
+    shopifyRegions = REGIONS_PVX,
   } = {},
 ) => {
 
@@ -23,6 +23,24 @@ const collabsFulfillmentSweep = async (
       },
     )),
   );
+
+  for (const [i, region] of shopifyRegions.entries()) {
+    const shopifyOrderReponse = shopifyOrderResponses[i];
+
+    const { success, result } = shopifyOrderReponse;
+    if (!success) {
+      return shopifyOrderReponse;
+    }
+
+    const shopifyOrders = result;
+    const shopifyOrderIds = shopifyOrders.map(o => gidToId(o.id));
+
+    if (REGIONS_PVX.includes(region)) {
+      const peoplevoxOrdersResponse = await peoplevoxOrdersGetById(shopifyOrderIds);
+      logDeep(peoplevoxOrdersResponse);
+      await askQuestion('?');
+    }
+  }
 
   logDeep(shopifyOrderResponses);
   return shopifyOrderResponses;
