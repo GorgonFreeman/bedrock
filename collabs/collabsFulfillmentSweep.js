@@ -3,7 +3,9 @@ const { REGIONS_PVX } = require('../constants');
 const { shopifyRegionToStarshipitAccount } = require('../mappings');
 
 const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
+
 const { peoplevoxOrdersGetById } = require('../peoplevox/peoplevoxOrdersGetById');
+const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 
 const collabsFulfillmentSweep = async (
@@ -13,8 +15,16 @@ const collabsFulfillmentSweep = async (
 ) => {
   
   // 1. Fetch unfulfilled orders for each region
-  const shopifyOrderResponses = await Promise.all(
-    shopifyRegions.map(region => shopifyOrdersGet(
+  // 1a. Also prefetch any other useful data, e.g. pvx recent dispatches
+  const [
+    pvxRecentDispatchesResponse,
+    ...shopifyOrderResponses
+  ] = await Promise.all([
+    peoplevoxReportGet('Despatch summary', { 
+      columns: ['Salesorder number', 'Carrier', 'Tracking number', 'Despatch date'], 
+      searchClause: `([Despatch date] &gt;= 2024,01,01) AND ([Despatch date] &lt;= 2024,02,01)`, 
+    }),
+    ...shopifyRegions.map(region => shopifyOrdersGet(
       region,
       {
         attrs: `
@@ -30,7 +40,10 @@ const collabsFulfillmentSweep = async (
         ],
       },
     )),
-  );
+  ]);
+
+  logDeep(pvxRecentDispatchesResponse);
+  await askQuestion('?');
 
   // 2. For each region, deplete array of unfulfilled orders by retrieving tracking info from other platforms specific to that region
   for (const [i, region] of shopifyRegions.entries()) {
