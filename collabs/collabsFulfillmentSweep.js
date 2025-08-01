@@ -35,13 +35,7 @@ const collabsFulfillmentSweep = async (
     }
 
     const shopifyOrders = result;
-    const shopifyOrderIds = shopifyOrders.map(o => gidToId(o.id));
-
-    if (REGIONS_PVX.includes(region)) {
-      const peoplevoxOrdersResponse = await peoplevoxOrdersGetById(shopifyOrderIds);
-      logDeep(peoplevoxOrdersResponse);
-      await askQuestion('?');
-    }
+    console.log(region, shopifyOrders);
   }
 
   logDeep(shopifyOrderResponses);
