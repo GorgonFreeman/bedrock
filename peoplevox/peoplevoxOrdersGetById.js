@@ -1,4 +1,4 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, arrayToChunks, arrayStandardResponse } = require('../utils');
 const { peoplevoxOrdersGet } = require('../peoplevox/peoplevoxOrdersGet');
 
 const peoplevoxOrdersGetById = async (
@@ -7,15 +7,23 @@ const peoplevoxOrdersGetById = async (
     credsPath,
   } = {},
 ) => {
+  
+  const maxChunkSize = 100;
+  const orderIdChunks = arrayToChunks(salesOrderNumbers, maxChunkSize);
+  
+  const responses = [];
+  for (const chunk of orderIdChunks) {
+    const searchClause = chunk.map(salesOrderNumber => `SalesOrderNumber.Equals("${ salesOrderNumber }")`).join(' OR ');
+    const response = await peoplevoxOrdersGet(
+      searchClause,
+      {
+        credsPath,
+      },
+    );
+    responses.push(response);
+  }
 
-  const searchClause = salesOrderNumbers.map(salesOrderNumber => `SalesOrderNumber.Equals("${ salesOrderNumber }")`).join(' OR ');
-
-  const response = await peoplevoxOrdersGet(
-    searchClause,
-    {
-      credsPath,
-    },
-  );
+  const response = arrayStandardResponse(responses, { flatten: true });
   logDeep(response);
   return response;
 };

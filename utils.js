@@ -403,6 +403,58 @@ const funcApi = (func, { argNames, validatorsByArg } = {}) => {
   };
 };
 
+const simpleSort = (arr, prop, { reverse } = {}) => {
+  return [...arr].sort((a, b) =>
+    reverse ? b[prop] - a[prop] : a[prop] - b[prop]
+  );
+};
+
+const arrayToChunks = (array, chunkSize, { chunkBy } = {}) => {
+  if (isNaN(chunkSize) || !(chunkSize > 0)) {
+    throw new Error(`arrayToChunks: chunkSize of ${ chunkSize } is invalid`);
+  }
+
+  // Simple chunking without grouping
+  if (!chunkBy) {
+    const chunks = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+      chunks.push(array.slice(i, i + chunkSize));
+    }
+    return chunks;
+  }
+
+  // Group-aware chunking: ensure items with same chunkBy value stay together
+  const sortedArray = simpleSort(array, chunkBy);
+  const chunks = [];
+  let currentChunk = [];
+  let currentGroupValue = null;
+
+  for (const item of sortedArray) {
+    const itemGroupValue = item[chunkBy];
+
+    // Start new chunk if:
+    // 1. Current chunk is at capacity and next item is from different group
+    // 2. Current chunk is empty (first item)
+    const shouldStartNewChunk =
+      currentChunk.length >= chunkSize && itemGroupValue !== currentGroupValue;
+
+    if (shouldStartNewChunk && currentChunk.length > 0) {
+      chunks.push(currentChunk);
+      currentChunk = [];
+    }
+
+    currentChunk.push(item);
+    currentGroupValue = itemGroupValue;
+  }
+
+  // Add the last chunk if it has items
+  if (currentChunk.length > 0) {
+    chunks.push(currentChunk);
+  }
+
+  return chunks;
+};
+
 class CustomAxiosClient {
   constructor({ baseInterpreter, baseUrl, baseHeaders, factory, bodyTransformer } = {}) {
     this.baseInterpreter = baseInterpreter;
@@ -775,6 +827,7 @@ module.exports = {
   objHasAny,
   objHasAll,
   objSatisfies,
+  arrayToChunks,
   
   // Classes
   CustomAxiosClient,
