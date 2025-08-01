@@ -36,7 +36,7 @@ const peoplevoxReportGet = async (
     context: { 
       credsPath,
       action,
-     },
+    },
     interpreter: peoplevoxStandardInterpreter(),
   });
   // logDeep(response);
