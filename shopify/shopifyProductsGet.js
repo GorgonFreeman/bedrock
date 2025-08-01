@@ -10,7 +10,7 @@ const shopifyProductsGet = async (
   {
     attrs = defaultAttrs,
     ...options
-  },
+  } = {},
 ) => {
 
   const response = await shopifyGet(
