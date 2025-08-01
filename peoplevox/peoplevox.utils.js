@@ -294,13 +294,39 @@ const peoplevoxClient = new CustomAxiosClient({
 
 const peoplevoxGetSingle = async (
   templateName, 
-  id,
-  idName, 
+  {
+    searchClause,
+    id,
+    idName,
+  },
   { 
     credsPath, 
-  },
+  } = {},
 ) => {
-  return true;
+
+  const action = 'GetData';
+  searchClause = searchClause || `${ idName }.Equals("${ id }")`;
+
+  const response = await peoplevoxClient.fetch({
+    headers: {
+      'SOAPAction': `http://www.peoplevox.net/${ action }`,
+    },
+    method: 'post',
+    body: {
+      getRequest: {
+        TemplateName: templateName,
+        SearchClause: searchClause,
+      },
+    },
+    context: { 
+      credsPath,
+      action,
+     },
+    interpreter: peoplevoxStandardInterpreter({ expectOne: true }),
+  });
+
+  logDeep(response);
+  return response;
 };
 
 module.exports = {

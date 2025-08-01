@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
-const { peoplevoxClient, peoplevoxStandardInterpreter } = require('../peoplevox/peoplevox.utils');
+const { peoplevoxClient, peoplevoxGetSingle } = require('../peoplevox/peoplevox.utils');
 
 const peoplevoxDespatchGet = async (
   {
@@ -11,32 +11,23 @@ const peoplevoxDespatchGet = async (
   } = {},
 ) => {
 
-  let searchClause;
+  let response;
+
   if (despatchNumber) {
-    searchClause = `despatchNumber.Equals("${ despatchNumber }")`;
-  } else if (salesOrderNumber) {
-    searchClause = `salesOrderNumber.Equals("${ salesOrderNumber }")`;
+    response = await peoplevoxGetSingle(
+      'Despatches', 
+      { id: despatchNumber, idName: 'despatchNumber' }, 
+      { credsPath },
+    );
+    logDeep(response);
+    return response;
   }
 
-  const action = 'GetData';
-
-  const response = await peoplevoxClient.fetch({
-    headers: {
-      'SOAPAction': `http://www.peoplevox.net/${ action }`,
-    },
-    method: 'post',
-    body: {
-      getRequest: {
-        TemplateName: 'Despatches',
-        SearchClause: `despatchNumber.Equals("${ despatchNumber }")`,
-      },
-    },
-    context: { 
-      credsPath,
-      action,
-     },
-    interpreter: peoplevoxStandardInterpreter({ expectOne: true }),
-  });
+  response = await peoplevoxGetSingle(
+    'Despatches', 
+    { searchClause: `salesOrderNumber.Equals("${ salesOrderNumber }")` }, 
+    { credsPath },
+  );
   logDeep(response);
   return response;
 };
