@@ -425,7 +425,6 @@ class CustomAxiosClient {
     
     verbose,
     interpreter,
-    factoryArgs = [], // Arguments for deriving auth
     context = {}, // TODO: Replace factoryArgs and bodyTransformerArgs with this. Info for any helper functions to pick from.
   } = {}) {
 
