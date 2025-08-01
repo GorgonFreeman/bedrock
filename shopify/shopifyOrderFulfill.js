@@ -67,9 +67,55 @@ const shopifyOrderFulfill = async (
   console.log(fulfillmentOrder);
   await askQuestion('Continue?');
 
-  // 2. Fulfill it
+  const { id: fulfillmentOrderGid } = fulfillmentOrder;
 
-  return;
+  // 2. Fulfill it
+  const mutationName = 'fulfillmentCreateV2';
+
+  const mutation = `
+    mutation ${ mutationName }($fulfillment: FulfillmentV2Input!) {
+      ${ mutationName }(fulfillment: $fulfillment) {
+        fulfillment {
+          id
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    fulfillment: {
+      lineItemsByFulfillmentOrder: [{
+        fulfillmentOrderId: fulfillmentOrderGid,
+      }],
+      ...notifyCustomer && { notifyCustomer },
+      ...originAddress && { originAddress },
+      ...trackingInfo && { trackingInfo },
+    },
+  };
+
+  const response = await shopifyClient.fetch({
+    method: 'post',
+    body: { query: mutation, variables },
+    context: {
+      credsPath,
+      apiVersion,
+    },
+    interpreter: async (response) => {
+      return {
+        ...response,
+        ...response.result ? {
+          result: response.result[mutationName],
+        } : {},
+      };
+    },
+  });
+
+  logDeep(response);
+  return response;
 };
 
 const shopifyOrderFulfillApi = async (req, res) => {
