@@ -219,7 +219,7 @@ const peoplevoxBaseInterpreter = async (response, context) => {
     try {
       detail = await csvtojson().fromString(detail);
     } catch (error) {
-      console.warn('error parsing Detail', error, Detail);
+      console.warn('error parsing Detail', error, detail);
     }
 
     // Transform output - only if successful and returning an array
