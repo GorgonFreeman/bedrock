@@ -147,13 +147,47 @@ const collabsFulfillmentSweep = async (
         logFlavourText: '2:',
       },
     );
+
+    const starshipitProcessor = new Processor(
+      piles.notRecentDispatch, // pile
+      // action
+      async (pile) => {
+        const order = pile.shift();
+        const { orderId, shippingLine } = order;
+        const shippingMethod = shippingLine?.title;
+        const starshipitAccount = shopifyRegionToStarshipitAccount(region, shippingMethod);
+        const starshipitOrder = await starshipitOrderGet(starshipitAccount, { orderNumber: orderId });
+        console.log(starshipitOrder);
+        // await askQuestion('?');
+
+        if (starshipitOrder) {
+          piles.found.push({
+            ...order,
+            tracking: starshipitOrder,
+          });
+          return;
+        }
+
+        piles.notStarshipit.push(order);
+        return;
+      },
+      (pile) => pile.length === 0, // pileExhaustedCheck
+      // options
+      {
+        canFinish: false,
+        logFlavourText: '3:',
+      },
+    );
+
     recentDispatchProcessor.onDone = () => {
       peoplevoxProcessor.canFinish = true;
+      starshipitProcessor.canFinish = true;
     };
 
     await Promise.all([
       recentDispatchProcessor.run({ verbose: true }),
       peoplevoxProcessor.run({ verbose: true }),
+      starshipitProcessor.run({ verbose: true }),
     ]);
 
     console.log(piles);
