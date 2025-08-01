@@ -808,6 +808,35 @@ class Getter extends EventEmitter {
 
 const gidToId = (gid) => gid?.split('/')?.pop();
 
+const surveyObjects = (objArr) => {
+  if (!Array.isArray(objArr) || objArr.length === 0) {
+    throw new Error('surveyObjects requires an array of objects');
+  }
+
+  const survey = {};
+
+  for (const obj of objArr) {
+    if (!obj || typeof obj !== 'object') {
+      continue;
+    }
+
+    for (const [key, value] of Object.entries(obj)) {
+      if (!survey[key]) {
+        survey[key] = new Set();
+      }
+      survey[key].add(value);
+    }
+  }
+
+  // Convert Sets to arrays for easier consumption
+  const result = {};
+  for (const [key, valueSet] of Object.entries(survey)) {
+    result[key] = Array.from(valueSet);
+  }
+
+  return result;
+};
+
 module.exports = {
 
   // Really core
@@ -837,6 +866,7 @@ module.exports = {
   objSatisfies,
   arrayToChunks,
   gidToId,
+  surveyObjects,
   
   // Classes
   CustomAxiosClient,

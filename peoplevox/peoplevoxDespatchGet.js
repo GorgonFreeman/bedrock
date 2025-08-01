@@ -1,4 +1,4 @@
-const { respond, mandateParam, logDeep, objHasAny, askQuestion } = require('../utils');
+const { respond, mandateParam, logDeep, objHasAny, askQuestion, surveyObjects } = require('../utils');
 const { peoplevoxGetSingle } = require('../peoplevox/peoplevox.utils');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
@@ -32,7 +32,7 @@ const peoplevoxDespatchGet = async (
       perPage: 50,
     },
   );
-  logDeep('reportResponse', reportResponse);
+  console.log(surveyObjects(reportResponse.result));
   await askQuestion('?');
 
 
