@@ -65,8 +65,8 @@ const shopifyOrderFulfill = async (
     };
   }
  
-  console.log(fulfillmentOrder);
-  await askQuestion('Continue?');
+  // console.log(fulfillmentOrder);
+  // await askQuestion('Continue?');
 
   const { id: fulfillmentOrderGid } = fulfillmentOrder;
 
@@ -115,7 +115,7 @@ const shopifyOrderFulfill = async (
     },
   });
 
-  logDeep(response);
+  // logDeep(response);
   return response;
 };
 

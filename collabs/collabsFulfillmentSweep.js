@@ -274,8 +274,8 @@ const collabsFulfillmentSweep = async (
             ...fulfillPayload,
           },
         );
-        logDeep(fulfillResponse);
-        await askQuestion('?');
+        // logDeep(fulfillResponse);
+        // await askQuestion('?');
 
         if (!fulfillResponse?.success) {
           piles.error.push(order);
