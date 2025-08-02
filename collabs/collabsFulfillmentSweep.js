@@ -314,7 +314,7 @@ const collabsFulfillmentSweep = async (
       recentDispatchProcessor.run({ verbose: true }),
       peoplevoxProcessor.run({ verbose: true }),
       starshipitProcessor.run({ verbose: true }),
-      fulfillingProcessor.run({ verbose: true }),
+      fulfillingProcessor.run({ verbose: true, interval: 200 }),
     ]);
 
     console.log(piles);
