@@ -318,7 +318,7 @@ const collabsFulfillmentSweep = async (
       fulfillingProcessor.run({ verbose: true, interval: 200 }),
     ]);
 
-    console.log(piles);
+    logDeep(region, piles);
   }
 
   // logDeep(shopifyOrderResponses);
