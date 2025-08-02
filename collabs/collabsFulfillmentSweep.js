@@ -278,11 +278,17 @@ const collabsFulfillmentSweep = async (
         // await askQuestion('?');
 
         if (!fulfillResponse?.success) {
-          piles.error.push(order);
+          piles.error.push({
+            ...order,
+            fulfillResponse,
+          });
           return;
         }
 
-        piles.fulfilled.push(order);
+        piles.fulfilled.push({
+          ...order,
+          fulfillResponse,
+        });
       },
       (pile) => pile.length === 0, // pileExhaustedCheck
       // options
