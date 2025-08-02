@@ -35,6 +35,7 @@ const collabsFulfillmentSweep = async (
         'created_at:>2024-01-01',
         'fulfillment_status:unfulfilled',
         'status:Open',
+        'delivery_method:shipping',
       ],
       // limit: 50,
     },
