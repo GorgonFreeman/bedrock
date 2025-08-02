@@ -3,6 +3,7 @@ const { REGIONS_PVX } = require('../constants');
 const { shopifyRegionToStarshipitAccount } = require('../mappings');
 
 const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
+const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
 
 const { peoplevoxOrdersGetById } = require('../peoplevox/peoplevoxOrdersGetById');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
@@ -14,6 +15,8 @@ const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 const collabsFulfillmentSweep = async (
   {
     shopifyRegions = REGIONS_PVX,
+    // TODO: Consider setting based on timeframe
+    notifyCustomers = false,
     peoplevoxReportWindowWeeksAgo = 1,
   } = {},
 ) => {
@@ -89,6 +92,8 @@ const collabsFulfillmentSweep = async (
       notFound3: [],
       notFound: [],
       notShipped: [], // dead end
+      error: [],
+      fulfilled: [],
     };
 
     const recentDispatchProcessor = new Processor(
@@ -255,6 +260,38 @@ const collabsFulfillmentSweep = async (
       },
     );
 
+    const fulfillingProcessor = new Processor(
+      piles.found,
+      async (pile) => {
+        const order = pile.shift();
+        const { orderId, fulfillPayload } = order;
+
+        const fulfillResponse = await shopifyOrderFulfill(
+          region, 
+          orderId, 
+          {
+            notifyCustomer: notifyCustomers,
+            ...fulfillPayload,
+          },
+        );
+        logDeep(fulfillResponse);
+        await askQuestion('?');
+
+        if (!fulfillResponse?.success) {
+          piles.error.push(order);
+          return;
+        }
+
+        piles.fulfilled.push(order);
+      },
+      (pile) => pile.length === 0, // pileExhaustedCheck
+      // options
+      {
+        canFinish: false,
+        logFlavourText: '4:',
+      },
+    );
+
     recentDispatchProcessor.on('done', () => {
       peoplevoxProcessor.canFinish = true;
     });
@@ -263,10 +300,15 @@ const collabsFulfillmentSweep = async (
       starshipitProcessor.canFinish = true;
     });
 
+    starshipitProcessor.on('done', () => {
+      fulfillingProcessor.canFinish = true;
+    });
+
     await Promise.all([
       recentDispatchProcessor.run({ verbose: true }),
       peoplevoxProcessor.run({ verbose: true }),
       starshipitProcessor.run({ verbose: true }),
+      fulfillingProcessor.run({ verbose: true }),
     ]);
 
     console.log(piles);
@@ -300,4 +342,4 @@ module.exports = {
 };
 
 // curl localhost:8000/collabsFulfillmentSweep
-// curl localhost:8000/collabsFulfillmentSweep -H "Content-Type: application/json" -d '{ "options": { "shopifyRegions": ["au"] } }'
+// curl localhost:8000/collabsFulfillmentSweep -H "Content-Type: application/json" -d '{ "options": { "shopifyRegions": ["au"], "notifyCustomers": false } }'
