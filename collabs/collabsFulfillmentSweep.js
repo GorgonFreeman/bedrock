@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep, gidToId, askQuestion, dateTimeFromNow, weeks, Processor } = require('../utils');
-const { REGIONS_PVX } = require('../constants');
+const { REGIONS_PVX, REGIONS_STARSHIPIT } = require('../constants');
 const { shopifyRegionToStarshipitAccount } = require('../mappings');
 
 const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
@@ -174,6 +174,8 @@ const collabsFulfillmentSweep = async (
     successPile, 
     failurePile,
     disqualifyPile,
+
+    region,
   ) => new Processor(
     inPile, // pile
     // action
@@ -310,33 +312,62 @@ const collabsFulfillmentSweep = async (
 
     const piles = {
       found: [],
-      notFound1: [],
-      notFound2: [],
-      notFound3: [],
       notFound: [],
       notShipped: [], // dead end
       error: [],
       fulfilled: [],
     };
 
-    const recentDispatchProcessor = recentDispatchProcessorFactory(
-      inputPile,
-      piles.found,
-      piles.notFound1,
-    );
+    const processingPiles = [inputPile];
+    const processorsSequentially = [];
+    let processingPileIndex = 0;
+    
+    // Since these processors might not be initiailised, 
+    // we need to check that they exist before using them in the final run.
+    let recentDispatchProcessor;
+    let peoplevoxProcessor;
+    let starshipitProcessor;
 
-    const peoplevoxProcessor = peoplevoxProcessorFactory(
-      piles.notFound1,
-      piles.found,
-      piles.notFound2,
-    );
+    const advancePiles = () => {
+      const currentPile = processingPiles[processingPileIndex];
+      processingPileIndex++;
+      processingPiles.push([]);
+      const nextPile = processingPiles[processingPileIndex];
 
-    const starshipitProcessor = starshipitProcessorFactory(
-      piles.notFound2,
-      piles.found,
-      piles.notFound3,
-      piles.notShipped,
-    );
+      return [currentPile, nextPile];
+    };
+
+    if (REGIONS_PVX.includes(region)) {
+      const [currentPile, nextPile] = advancePiles();
+      recentDispatchProcessor = recentDispatchProcessorFactory(
+        currentPile,
+        piles.found,
+        nextPile,
+      );
+      processorsSequentially.push(recentDispatchProcessor);
+    }
+
+    if (REGIONS_PVX.includes(region)) {
+      const [currentPile, nextPile] = advancePiles();
+      peoplevoxProcessor = peoplevoxProcessorFactory(
+        currentPile,
+        piles.found,
+        nextPile,
+      );
+      processorsSequentially.push(peoplevoxProcessor);
+    }
+
+    if (REGIONS_STARSHIPIT.includes(region)) {
+      const [currentPile, nextPile] = advancePiles();
+      starshipitProcessor = starshipitProcessorFactory(
+        currentPile,
+        piles.found,
+        nextPile,
+        piles.notShipped,
+        region,
+      );
+      processorsSequentially.push(starshipitProcessor);
+    }
 
     const fulfillingProcessor = fulfillingProcessorFactory(
       piles.found,
@@ -344,26 +375,29 @@ const collabsFulfillmentSweep = async (
       piles.error,
       region,
     );
+    processorsSequentially.push(fulfillingProcessor);
 
-    recentDispatchProcessor.on('done', () => {
-      peoplevoxProcessor.canFinish = true;
-    });
+    for (const [i, processor] of processorsSequentially.entries()) {
+      const nextProcessorIndex = i + 1;
 
-    peoplevoxProcessor.on('done', () => {
-      starshipitProcessor.canFinish = true;
-    });
+      if (nextProcessorIndex >= processorsSequentially.length) {
+        continue;
+      }
 
-    starshipitProcessor.on('done', () => {
-      fulfillingProcessor.canFinish = true;
-    });
+      const nextProcessor = processorsSequentially[i + 1];
+      processor.on('done', () => {
+        nextProcessor.canFinish = true;
+      });
+    }
 
     await Promise.all([
-      recentDispatchProcessor.run({ verbose: true }),
-      peoplevoxProcessor.run({ verbose: true }),
-      starshipitProcessor.run({ verbose: true }),
+      ...processorsSequentially.map(processor => processor.run({ verbose: true })),
       // TODO: Processor where if we fail to get tracking info anywhere, we check the order in Peoplevox for whether it's dispatched + released.
       fulfillingProcessor.run({ verbose: true, interval: 200 }),
     ]);
+
+    const unresolvedPile = processingPiles[processingPileIndex];
+    piles.notFound.push(...unresolvedPile);
 
     logDeep(region, piles);
     pilesByRegion[region] = piles;
