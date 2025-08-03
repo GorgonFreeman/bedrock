@@ -7,6 +7,10 @@ shopify:
   store:
     STORE_URL: shopify-store
     SHOPIFY_API_KEY: shpat_____________
+    DISCOUNT_CLASS_TAGS:
+      - discountable
+      - sale
+      - no-returns
 
 pipe17:
   BASE_URL: https://api-v3.pipe17.com/api/v3
