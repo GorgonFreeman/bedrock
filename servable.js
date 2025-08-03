@@ -12,6 +12,7 @@ module.exports = {
   starshipitOrderUpdate: require('./starshipit/starshipitOrderUpdate').starshipitOrderUpdateApi,
   starshipitTrackingGet: require('./starshipit/starshipitTrackingGet').starshipitTrackingGetApi,
   shopifyCustomerGet: require('./shopify/shopifyCustomerGet').shopifyCustomerGetApi,
+  shopifyDiscountClassTagsReport: require('./shopify/shopifyDiscountClassTagsReport').shopifyDiscountClassTagsReportApi,
   shopifyGetSingle: require('./shopify/shopifyGetSingle').shopifyGetSingleApi,
   shopifyOrderFulfill: require('./shopify/shopifyOrderFulfill').shopifyOrderFulfillApi,
   shopifyOrderGet: require('./shopify/shopifyOrderGet').shopifyOrderGetApi,
