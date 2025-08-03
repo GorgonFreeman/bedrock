@@ -67,6 +67,8 @@ const collabsFulfillmentSweep = async (
 
   const pilesByRegion = {};
 
+  // TODO: Implement dynamic pipeline using REGIONS_ constants to decide where to get info from, and using an array of piles to form the pipeline.
+
   // 2. For each region, deplete array of unfulfilled orders by retrieving tracking info from other platforms specific to that region
   for (const [i, region] of shopifyRegions.entries()) {
     const shopifyOrderReponse = shopifyOrderResponses[i];
