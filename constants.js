@@ -14,4 +14,17 @@ module.exports = {
     'au',
     'baddest',
   ],
+  REGIONS_STARSHIPIT: [
+    'au',
+    'baddest',
+  ],
+  REGIONS_PIPE17: [
+    'us',
+  ],
+  REGIONS_LOGIWA: [
+    'us',
+  ],
+  REGIONS_BLUEYONDER: [
+    'uk',
+  ],
 };
