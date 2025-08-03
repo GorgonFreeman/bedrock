@@ -1,69 +1,67 @@
-const { respond, mandateParam, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
-
-const defaultAttrs = `id`;
+const { respond, mandateParam, logDeep, credsByPath } = require('../utils');
+const { shopifyProductsGet } = require('../shopify/shopifyProductsGet');
+const { REGIONS_WF } = require('../constants');
 
 const shopifyDiscountClassTagsReport = async (
-  credsPath,
-  arg,
   {
+    credsPaths = REGIONS_WF,
     apiVersion,
-    option,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
+  const result = await Promise.all(credsPaths.map(async (credsPath) => {
+    console.log(credsPath);
+    const { DISCOUNT_CLASS_TAGS } = credsByPath(['shopify', credsPath]);
+    console.log('creds', credsByPath(['shopify', credsPath]));
+
+    if (!DISCOUNT_CLASS_TAGS) {
+      throw new Error(`${ credsPath }: No discount class tags set`);
     }
-  `;
 
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
+    return await Promise.all(DISCOUNT_CLASS_TAGS.map(async (discountClassTag) => {
+      const productsResponse = await shopifyProductsGet(
+        credsPath,
+        {
+          apiVersion,
+          queries: [
+            `tag:${ discountClassTag }`,
+            `published_status:published`,
+          ],
+        },
+      );
+      
+      if (!productsResponse.success) {
+        console.error(productsResponse);
+        throw new Error(`${ credsPath }: Failed to get ${ discountClassTag } products`);
+      }
 
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
-      apiVersion,
-    },
-    interpreter: async (response) => {
-      // console.log(response);
       return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
+        class: discountClassTag,
+        count: productsResponse.result.length,
       };
-    },
-  });
+    }));
+  }));
 
-  logDeep(response);
-  return response;
+  logDeep(result);
+  return {
+    success: true,
+    result,
+  };
 };
 
 const shopifyDiscountClassTagsReportApi = async (req, res) => {
   const { 
-    credsPath,
-    arg,
     options,
   } = req.body;
 
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
+  // const paramsValid = await Promise.all([
+  //   mandateParam(res, 'credsPaths', credsPaths),
+  // ]);
+  // if (paramsValid.some(valid => valid === false)) {
+  //   return;
+  // }
 
   const result = await shopifyDiscountClassTagsReport(
-    credsPath,
-    arg,
     options,
   );
   respond(res, 200, result);
@@ -74,4 +72,4 @@ module.exports = {
   shopifyDiscountClassTagsReportApi,
 };
 
-// curl localhost:8000/shopifyDiscountClassTagsReport -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyDiscountClassTagsReport
