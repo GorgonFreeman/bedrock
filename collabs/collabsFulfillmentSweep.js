@@ -65,6 +65,8 @@ const collabsFulfillmentSweep = async (
 
   const recentDispatches = pvxRecentDispatchesResponse.result;
 
+  const pilesByRegion = {};
+
   // 2. For each region, deplete array of unfulfilled orders by retrieving tracking info from other platforms specific to that region
   for (const [i, region] of shopifyRegions.entries()) {
     const shopifyOrderReponse = shopifyOrderResponses[i];
@@ -319,10 +321,13 @@ const collabsFulfillmentSweep = async (
     ]);
 
     logDeep(region, piles);
+    pilesByRegion[region] = piles;
   }
 
-  // logDeep(shopifyOrderResponses);
-  return shopifyOrderResponses;
+  return {
+    success: true,
+    result: pilesByRegion,
+  };
 };
 
 const collabsFulfillmentSweepApi = async (req, res) => {
