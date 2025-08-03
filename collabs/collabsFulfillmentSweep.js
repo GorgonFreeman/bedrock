@@ -317,6 +317,7 @@ const collabsFulfillmentSweep = async (
       recentDispatchProcessor.run({ verbose: true }),
       peoplevoxProcessor.run({ verbose: true }),
       starshipitProcessor.run({ verbose: true }),
+      // TODO: Processor where if we fail to get tracking info anywhere, we check the order in Peoplevox for whether it's dispatched + released.
       fulfillingProcessor.run({ verbose: true, interval: 200 }),
     ]);
 
