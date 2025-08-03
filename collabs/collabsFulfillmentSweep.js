@@ -65,6 +65,224 @@ const collabsFulfillmentSweep = async (
 
   const recentDispatches = pvxRecentDispatchesResponse.result;
 
+  const recentDispatchProcessorFactory = (
+    inPile, 
+    successPile, 
+    failurePile,
+  ) => new Processor(
+    inPile, // pile
+    // action
+    async (pile) => {
+      const order = pile.shift();
+      const { orderId } = order;
+      const recentDispatch = recentDispatches.find(dispatch => dispatch['Salesorder number'] === orderId);
+
+      if (recentDispatch && recentDispatch?.['Tracking number']) {
+
+        // console.log(1, recentDispatch);
+        // await askQuestion('?');
+
+        const fulfillPayload = {
+          originAddress: {
+            // Peoplevox, therefore AU
+            countryCode: 'AU',
+          },
+          trackingInfo: {
+            number: recentDispatch['Tracking number'],
+          },
+        };
+
+        successPile.push({
+          ...order,
+          // tracking: recentDispatch,
+          fulfillPayload,
+        });
+        return;
+      }
+
+      failurePile.push(order);
+    },
+    (pile) => pile.length === 0, // pileExhaustedCheck
+    // options
+    {
+      logFlavourText: '1:',
+      // onDone: () => {
+      //   otherProcessor.canFinish = true;
+      // },
+    },
+  );
+
+  const peoplevoxProcessorFactory = (
+    inPile, 
+    successPile, 
+    failurePile,
+  ) => new Processor(
+    inPile, // pile
+    // action
+    async (pile) => {
+      const orders = pile.splice(0, 100);
+      const orderIds = orders.map(o => o.orderId);
+      const peoplevoxDispatchesResponse = await peoplevoxDespatchesGetBySalesOrderNumber(orderIds);
+      // console.log(peoplevoxDispatches);
+      // await askQuestion('?');
+
+      if (!peoplevoxDispatchesResponse?.success) {
+        failurePile.push(...orders);
+        return;
+      }
+
+      const peoplevoxDispatches = peoplevoxDispatchesResponse.result;
+      for (const order of orders) {
+        const peoplevoxDispatch = peoplevoxDispatches.find(dispatch => dispatch['Salesorder number'] === order.orderId);
+
+        if (peoplevoxDispatch && peoplevoxDispatch['Tracking number']) {
+
+          // console.log(2, peoplevoxDispatch);
+          // await askQuestion('?');
+
+          const fulfillPayload = {
+            originAddress: {
+              // Peoplevox, therefore AU
+              countryCode: 'AU',
+            },
+            trackingInfo: {
+              number: peoplevoxDispatch['Tracking number'],
+            },
+          };
+
+          successPile.push({
+            ...order,
+            // tracking: peoplevoxDispatch,
+            fulfillPayload,
+          });
+          continue;
+        }
+
+        failurePile.push(order);
+      }
+    },
+    (pile) => pile.length === 0, // pileExhaustedCheck
+    // options
+    {
+      canFinish: false,
+      logFlavourText: '2:',
+    },
+  );
+
+  const starshipitProcessorFactory = (
+    inPile, 
+    successPile, 
+    failurePile,
+    disqualifyPile,
+  ) => new Processor(
+    inPile, // pile
+    // action
+    async (pile) => {
+      const order = pile.shift();
+      const { orderId, shippingLine } = order;
+      const shippingMethod = shippingLine?.title;
+      const starshipitAccount = shopifyRegionToStarshipitAccount(region, shippingMethod);
+      const starshipitOrderResponse = await starshipitOrderGet(starshipitAccount, { orderNumber: orderId });
+
+      if (!starshipitOrderResponse?.success || !starshipitOrderResponse?.result) {
+        failurePile.push(order);
+        return;
+      }
+
+      const starshipitOrder = starshipitOrderResponse.result;
+      const { 
+        status,
+        tracking_number: trackingNumber,
+        tracking_url: trackingUrl,
+      } = starshipitOrder || {};
+      
+      // TODO: Consider using 'manifested'
+      if (
+        starshipitOrder 
+        && status
+      ) {
+
+        if (['Unshipped', 'Printed', 'Saved'].includes(status)) {
+          disqualifyPile.push(order);
+          return;
+        }
+
+        // console.log(3, starshipitOrder);
+        // await askQuestion('?');
+
+        const fulfillPayload = {
+          originAddress: {
+            // Starshipit, therefore AU
+            countryCode: 'AU',
+          },
+          trackingInfo: {
+            number: trackingNumber,
+            url: trackingUrl,
+          },
+        };
+
+        successPile.push({
+          ...order,
+          // tracking: starshipitOrder,
+          fulfillPayload,
+        });
+        return;
+      }
+
+      failurePile.push(order);
+    },
+    (pile) => pile.length === 0, // pileExhaustedCheck
+    // options
+    {
+      canFinish: false,
+      logFlavourText: '3:',
+    },
+  );
+
+  const fulfillingProcessorFactory = (
+    inPile, 
+    successPile, 
+    failurePile,
+    region,
+  ) => new Processor(
+    inPile, // pile
+    // action
+    async (pile) => {
+      const order = pile.shift();
+      const { orderId, fulfillPayload } = order;
+
+      const fulfillResponse = await shopifyOrderFulfill(
+        region, 
+        orderId, 
+        {
+          notifyCustomer: notifyCustomers,
+          ...fulfillPayload,
+        },
+      );
+      // logDeep(fulfillResponse);
+      // await askQuestion('?');
+
+      if (!fulfillResponse?.success) {
+        failurePile.push({
+          ...order,
+          fulfillResponse,
+        });
+        return;
+      }
+
+      successPile.push({
+        ...order,
+        fulfillResponse,
+      });
+    },
+    (pile) => pile.length === 0, // pileExhaustedCheck
+    // options
+    {
+      canFinish: false,
+      logFlavourText: '4:',
+    },
+  );
+
   const pilesByRegion = {};
 
   // TODO: Implement dynamic pipeline using REGIONS_ constants to decide where to get info from, and using an array of piles to form the pipeline.
@@ -101,206 +319,30 @@ const collabsFulfillmentSweep = async (
       fulfilled: [],
     };
 
-    const recentDispatchProcessor = new Processor(
-      inputPile, // pile
-      // action
-      async (pile) => {
-        const order = pile.shift();
-        const { orderId } = order;
-        const recentDispatch = recentDispatches.find(dispatch => dispatch['Salesorder number'] === orderId);
-
-        if (recentDispatch && recentDispatch?.['Tracking number']) {
-
-          // console.log(1, recentDispatch);
-          // await askQuestion('?');
-
-          const fulfillPayload = {
-            originAddress: {
-              // Peoplevox, therefore AU
-              countryCode: 'AU',
-            },
-            trackingInfo: {
-              number: recentDispatch['Tracking number'],
-            },
-          };
-
-          piles.found.push({
-            ...order,
-            // tracking: recentDispatch,
-            fulfillPayload,
-          });
-          return;
-        }
-
-        piles.notFound1.push(order);
-        return;
-      },
-      (pile) => pile.length === 0, // pileExhaustedCheck
-      // options
-      {
-        logFlavourText: '1:',
-        // onDone: () => {
-        //   otherProcessor.canFinish = true;
-        // },
-      },
-    );
-
-    const peoplevoxProcessor = new Processor(
-      piles.notFound1, // pile
-      // action
-      async (pile) => {
-        const orders = pile.splice(0, 100);
-        const orderIds = orders.map(o => o.orderId);
-        const peoplevoxDispatchesResponse = await peoplevoxDespatchesGetBySalesOrderNumber(orderIds);
-        // console.log(peoplevoxDispatches);
-        // await askQuestion('?');
-
-        if (!peoplevoxDispatchesResponse?.success) {
-          piles.notFound2.push(...orders);
-          return;
-        }
-
-        const peoplevoxDispatches = peoplevoxDispatchesResponse.result;
-        for (const order of orders) {
-          const peoplevoxDispatch = peoplevoxDispatches.find(dispatch => dispatch['Salesorder number'] === order.orderId);
-
-          if (peoplevoxDispatch && peoplevoxDispatch['Tracking number']) {
-
-            // console.log(2, peoplevoxDispatch);
-            // await askQuestion('?');
-
-            const fulfillPayload = {
-              originAddress: {
-                // Peoplevox, therefore AU
-                countryCode: 'AU',
-              },
-              trackingInfo: {
-                number: peoplevoxDispatch['Tracking number'],
-              },
-            };
-
-            piles.found.push({
-              ...order,
-              // tracking: peoplevoxDispatch,
-              fulfillPayload,
-            });
-            continue;
-          }
-
-          piles.notFound2.push(order);
-          continue;
-        }
-      },
-      (pile) => pile.length === 0, // pileExhaustedCheck
-      // options
-      {
-        canFinish: false,
-        logFlavourText: '2:',
-      },
-    );
-
-    const starshipitProcessor = new Processor(
-      piles.notFound2, // pile
-      // action
-      async (pile) => {
-        const order = pile.shift();
-        const { orderId, shippingLine } = order;
-        const shippingMethod = shippingLine?.title;
-        const starshipitAccount = shopifyRegionToStarshipitAccount(region, shippingMethod);
-        const starshipitOrderResponse = await starshipitOrderGet(starshipitAccount, { orderNumber: orderId });
-
-        if (!starshipitOrderResponse?.success || !starshipitOrderResponse?.result) {
-          piles.notFound3.push(order);
-          return;
-        }
-
-        const starshipitOrder = starshipitOrderResponse.result;
-        const { 
-          status,
-          tracking_number: trackingNumber,
-          tracking_url: trackingUrl,
-        } = starshipitOrder || {};
-        
-        // TODO: Consider using 'manifested'
-        if (
-          starshipitOrder 
-          && status
-        ) {
-
-          if (['Unshipped', 'Printed', 'Saved'].includes(status)) {
-            piles.notShipped.push(order);
-            return;
-          }
-
-          // console.log(3, starshipitOrder);
-          // await askQuestion('?');
-
-          const fulfillPayload = {
-            originAddress: {
-              // Starshipit, therefore AU
-              countryCode: 'AU',
-            },
-            trackingInfo: {
-              number: trackingNumber,
-              url: trackingUrl,
-            },
-          };
-
-          piles.found.push({
-            ...order,
-            // tracking: starshipitOrder,
-            fulfillPayload,
-          });
-          return;
-        }
-
-        piles.notFound3.push(order);
-        return;
-      },
-      (pile) => pile.length === 0, // pileExhaustedCheck
-      // options
-      {
-        canFinish: false,
-        logFlavourText: '3:',
-      },
-    );
-
-    const fulfillingProcessor = new Processor(
+    const recentDispatchProcessor = recentDispatchProcessorFactory(
+      inputPile,
       piles.found,
-      async (pile) => {
-        const order = pile.shift();
-        const { orderId, fulfillPayload } = order;
+      piles.notFound1,
+    );
 
-        const fulfillResponse = await shopifyOrderFulfill(
-          region, 
-          orderId, 
-          {
-            notifyCustomer: notifyCustomers,
-            ...fulfillPayload,
-          },
-        );
-        // logDeep(fulfillResponse);
-        // await askQuestion('?');
+    const peoplevoxProcessor = peoplevoxProcessorFactory(
+      piles.notFound1,
+      piles.found,
+      piles.notFound2,
+    );
 
-        if (!fulfillResponse?.success) {
-          piles.error.push({
-            ...order,
-            fulfillResponse,
-          });
-          return;
-        }
+    const starshipitProcessor = starshipitProcessorFactory(
+      piles.notFound2,
+      piles.found,
+      piles.notFound3,
+      piles.notShipped,
+    );
 
-        piles.fulfilled.push({
-          ...order,
-          fulfillResponse,
-        });
-      },
-      (pile) => pile.length === 0, // pileExhaustedCheck
-      // options
-      {
-        canFinish: false,
-        logFlavourText: '4:',
-      },
+    const fulfillingProcessor = fulfillingProcessorFactory(
+      piles.found,
+      piles.fulfilled,
+      piles.error,
+      region,
     );
 
     recentDispatchProcessor.on('done', () => {
