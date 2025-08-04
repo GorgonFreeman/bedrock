@@ -1,24 +1,35 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, askQuestion } = require('../utils');
 const { starshipitClient } = require('../starshipit/starshipit.utils');
 
 const starshipitOrdersListShipped = async (
   credsPath,
-  arg,
+  {
+    sinceLastUpdated,
+    idsOnly,
+    perPage,
+    limit,
+  } = {},
 ) => {
 
   const response = await starshipitClient.fetch({
-    url: '/things',
+    url: '/orders/shipped',
     params: {
-      arg_value: arg,
+      ...(sinceLastUpdated ? { since_last_updated: sinceLastUpdated } : {}),
+      ...(idsOnly ? { ids_only: idsOnly } : {}),
+      ...(perPage ? { limit: perPage } : {}),
     },
+    ...(limit ? { limit } : {}),
     context: {
       credsPath,
     },
-    interpreter: (response) => {
+    interpreter: async (response) => {
+      console.log(response);
+      await askQuestion('?');
+
       return {
         ...response,
         ...response.result ? {
-          result: response.result.arg_value,
+          result: response.result?.orders || response.result?.order_ids,
         } : {},
       };
     },
@@ -31,12 +42,11 @@ const starshipitOrdersListShipped = async (
 const starshipitOrdersListShippedApi = async (req, res) => {
   const { 
     credsPath,
-    arg,
+    options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -44,7 +54,7 @@ const starshipitOrdersListShippedApi = async (req, res) => {
 
   const result = await starshipitOrdersListShipped(
     credsPath,
-    arg,
+    options,
   );
   respond(res, 200, result);
 };
@@ -54,4 +64,4 @@ module.exports = {
   starshipitOrdersListShippedApi,
 };
 
-// curl localhost:8000/starshipitOrdersListShipped -H "Content-Type: application/json" -d '{ "credsPath": "wf", "arg": "408418809" }' 
+// curl localhost:8000/starshipitOrdersListShipped -H "Content-Type: application/json" -d '{ "credsPath": "wf" }' 
