@@ -804,12 +804,13 @@ class Getter extends EventEmitter {
       const additionalPaginationData = {
         url,
       };
-
+      
+      let paginatedMisc;
       [done, paginatedPayload, paginatedMisc] = await paginator(paginatedPayload, response, additionalPaginationData);
 
       const {
         url: paginatedUrl,
-      } = paginatedMisc;
+      } = paginatedMisc || {};
 
       if (paginatedUrl) {
         url = paginatedUrl;
