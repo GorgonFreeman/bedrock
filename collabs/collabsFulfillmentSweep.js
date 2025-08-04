@@ -221,6 +221,10 @@ const collabsFulfillmentSweep = async (
       const order = pile.shift();
       const { orderId, fulfillPayload } = order;
 
+      if (!fulfillPayload) {
+        throw new Error('Nothing should be coming through here without a fulfillPayload');
+      }
+
       const fulfillResponse = await shopifyOrderFulfill(
         region, 
         orderId, 
