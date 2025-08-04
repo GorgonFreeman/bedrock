@@ -3,6 +3,7 @@ const {
   REGIONS_ALL, 
   REGIONS_PVX, 
   REGIONS_STARSHIPIT,
+  REGIONS_LOGIWA,
   STARSHIPIT_ACCOUNT_HANDLES,
 } = require('../constants');
 const { shopifyRegionToStarshipitAccount } = require('../mappings');
@@ -17,6 +18,8 @@ const { peoplevoxDespatchesGetBySalesOrderNumber } = require('../peoplevox/peopl
 
 const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 const { starshipitOrdersListShipped } = require('../starshipit/starshipitOrdersListShipped');
+
+const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
 
 // TODO: Implement more mass ways of getting orders out of Starshipit
 
@@ -338,6 +341,53 @@ const collabsFulfillmentSweep = async (
     arrayExhaustedCheck, // pileExhaustedCheck
     processorOptions,
   );
+  
+  // piles used: in, continue, resolved, disqualified
+  const logiwaProcessorMaker = (piles, processorOptions = {}) => new Processor(
+    piles.in,
+    async (pile) => {
+      const order = pile.shift();
+      const { orderId } = order;
+
+      const logiwaOrderResponse = await logiwaOrderGet(orderId);
+
+      if (!logiwaOrderResponse?.success || !logiwaOrderResponse?.result) {
+        piles.continue.push(order);
+        return;
+      }
+
+      const logiwaOrder = logiwaOrderResponse.result;
+      const { 
+        currentTrackingNumber,
+        products,
+      } = logiwaOrder;
+
+      const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
+
+      if (!currentTrackingNumber || !allShipped) {
+        console.log(`Logiwa processing, not fully shipped`, logiwaOrder);
+        piles.disqualified.push(order);
+        return;
+      }
+
+      const fulfillPayload = {
+        originAddress: {
+          // Logiwa, therefore US
+          countryCode: 'US',
+        },
+        trackingInfo: {
+          number: currentTrackingNumber,
+        },
+      };
+
+      piles.resolved.push({
+        ...order,
+        fulfillPayload,
+      });
+    },
+    arrayExhaustedCheck, // pileExhaustedCheck
+    processorOptions,
+  );
 
   const pilesByRegion = {};
 
@@ -412,6 +462,17 @@ const collabsFulfillmentSweep = async (
         },
         makerArgs: [region],
         makerOptions: { logFlavourText: `${ region }:starshipit:` },
+      });
+    }
+
+    if (REGIONS_LOGIWA.includes(region)) {
+      pipeline.add({
+        maker: logiwaProcessorMaker,
+        piles: { 
+          resolved: piles.readyToFulfill,
+          disqualified: piles.notShipped,
+        },
+        makerOptions: { logFlavourText: `${ region }:logiwa:` },
       });
     }
 
