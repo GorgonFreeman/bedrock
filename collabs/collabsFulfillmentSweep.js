@@ -65,13 +65,11 @@ const collabsFulfillmentSweep = async (
 
   const recentDispatches = pvxRecentDispatchesResponse.result;
 
-  const recentDispatchProcessorFactory = (
-    inPile, 
-    successPile, 
-    failurePile,
-  ) => new Processor(
-    inPile, // pile
-    // action
+  const arrayExhaustedCheck = (arr) => arr.length === 0;
+
+  // piles used: in, continue, resolved
+  const recentDispatchProcessorMaker = (piles, processorOptions = {}) => new Processor(
+    piles.in,
     async (pile) => {
       const order = pile.shift();
       const { orderId } = order;
@@ -92,7 +90,7 @@ const collabsFulfillmentSweep = async (
           },
         };
 
-        successPile.push({
+        piles.resolved.push({
           ...order,
           // tracking: recentDispatch,
           fulfillPayload,
@@ -100,25 +98,15 @@ const collabsFulfillmentSweep = async (
         return;
       }
 
-      failurePile.push(order);
+      piles.continue.push(order);
     },
-    (pile) => pile.length === 0, // pileExhaustedCheck
-    // options
-    {
-      logFlavourText: '1:',
-      // onDone: () => {
-      //   otherProcessor.canFinish = true;
-      // },
-    },
+    arrayExhaustedCheck, // pileExhaustedCheck
+    processorOptions,
   );
 
-  const peoplevoxProcessorFactory = (
-    inPile, 
-    successPile, 
-    failurePile,
-  ) => new Processor(
-    inPile, // pile
-    // action
+  // piles used: in, continue, resolved
+  const peoplevoxProcessorMaker = (piles, processorOptions = {}) => new Processor(
+    piles.in,
     async (pile) => {
       const orders = pile.splice(0, 100);
       const orderIds = orders.map(o => o.orderId);
@@ -127,7 +115,7 @@ const collabsFulfillmentSweep = async (
       // await askQuestion('?');
 
       if (!peoplevoxDispatchesResponse?.success) {
-        failurePile.push(...orders);
+        piles.continue.push(...orders);
         return;
       }
 
@@ -150,7 +138,7 @@ const collabsFulfillmentSweep = async (
             },
           };
 
-          successPile.push({
+          piles.resolved.push({
             ...order,
             // tracking: peoplevoxDispatch,
             fulfillPayload,
@@ -158,27 +146,16 @@ const collabsFulfillmentSweep = async (
           continue;
         }
 
-        failurePile.push(order);
+        piles.continue.push(order);
       }
     },
-    (pile) => pile.length === 0, // pileExhaustedCheck
-    // options
-    {
-      canFinish: false,
-      logFlavourText: '2:',
-    },
+    arrayExhaustedCheck, // pileExhaustedCheck
+    processorOptions,
   );
 
-  const starshipitProcessorFactory = (
-    inPile, 
-    successPile, 
-    failurePile,
-    disqualifyPile,
-
-    region,
-  ) => new Processor(
-    inPile, // pile
-    // action
+  // piles used: in, continue, resolved, disqualified
+  const starshipitProcessorMaker = (piles, region, processorOptions = {}) => new Processor(
+    piles.in,
     async (pile) => {
       const order = pile.shift();
       const { orderId, shippingLine } = order;
@@ -187,7 +164,7 @@ const collabsFulfillmentSweep = async (
       const starshipitOrderResponse = await starshipitOrderGet(starshipitAccount, { orderNumber: orderId });
 
       if (!starshipitOrderResponse?.success || !starshipitOrderResponse?.result) {
-        failurePile.push(order);
+        piles.continue.push(order);
         return;
       }
 
@@ -205,7 +182,7 @@ const collabsFulfillmentSweep = async (
       ) {
 
         if (['Unshipped', 'Printed', 'Saved'].includes(status)) {
-          disqualifyPile.push(order);
+          piles.disqualified.push(order);
           return;
         }
 
@@ -223,7 +200,7 @@ const collabsFulfillmentSweep = async (
           },
         };
 
-        successPile.push({
+        piles.resolved.push({
           ...order,
           // tracking: starshipitOrder,
           fulfillPayload,
@@ -231,24 +208,15 @@ const collabsFulfillmentSweep = async (
         return;
       }
 
-      failurePile.push(order);
+      piles.continue.push(order);
     },
-    (pile) => pile.length === 0, // pileExhaustedCheck
-    // options
-    {
-      canFinish: false,
-      logFlavourText: '3:',
-    },
+    arrayExhaustedCheck, // pileExhaustedCheck
+    processorOptions,
   );
-
-  const fulfillingProcessorFactory = (
-    inPile, 
-    successPile, 
-    failurePile,
-    region,
-  ) => new Processor(
-    inPile, // pile
-    // action
+  
+  // piles used: in, resolved, error
+  const fulfillingProcessorMaker = (piles, region, processorOptions = {}) => new Processor(
+    piles.in,
     async (pile) => {
       const order = pile.shift();
       const { orderId, fulfillPayload } = order;
@@ -265,24 +233,20 @@ const collabsFulfillmentSweep = async (
       // await askQuestion('?');
 
       if (!fulfillResponse?.success) {
-        failurePile.push({
+        piles.error.push({
           ...order,
           fulfillResponse,
         });
         return;
       }
 
-      successPile.push({
+      piles.resolved.push({
         ...order,
         fulfillResponse,
       });
     },
-    (pile) => pile.length === 0, // pileExhaustedCheck
-    // options
-    {
-      canFinish: false,
-      logFlavourText: '4:',
-    },
+    arrayExhaustedCheck, // pileExhaustedCheck
+    processorOptions,
   );
 
   const pilesByRegion = {};
@@ -311,93 +275,104 @@ const collabsFulfillmentSweep = async (
     console.log(region, inputPile.length);
 
     const piles = {
-      found: [],
-      notFound: [],
-      notShipped: [], // dead end
-      error: [],
+      readyToFulfill: [],
       fulfilled: [],
+      notShipped: [],
+      error: [],
     };
 
-    const processingPiles = [inputPile];
-    const processorsSequentially = [];
-    let processingPileIndex = 0;
-    
-    // Since these processors might not be initiailised, 
-    // we need to check that they exist before using them in the final run.
-    let recentDispatchProcessor;
-    let peoplevoxProcessor;
-    let starshipitProcessor;
+    const pipeline = [];
+
+    let pileIn = inputPile;
+    let pileOut = [];
+
+    let canFinish = true;
+    let processorIndex = 1;
 
     const advancePiles = () => {
-      const currentPile = processingPiles[processingPileIndex];
-      processingPileIndex++;
-      processingPiles.push([]);
-      const nextPile = processingPiles[processingPileIndex];
-
-      return [currentPile, nextPile];
+      pileIn = pileOut;
+      pileOut = [];
     };
 
     if (REGIONS_PVX.includes(region)) {
-      const [currentPile, nextPile] = advancePiles();
-      recentDispatchProcessor = recentDispatchProcessorFactory(
-        currentPile,
-        piles.found,
-        nextPile,
-      );
-      processorsSequentially.push(recentDispatchProcessor);
+      const processorPiles = {
+        in: pileIn,
+        continue: pileOut,
+        resolved: piles.readyToFulfill,
+      };
+      console.log(processorPiles);
+
+      pipeline.push(recentDispatchProcessorMaker(processorPiles, {
+        canFinish,
+        logFlavourText: `${ region }:${ processorIndex }:`,
+      }));
+      canFinish = false;
+      processorIndex++;
+      advancePiles();
     }
 
     if (REGIONS_PVX.includes(region)) {
-      const [currentPile, nextPile] = advancePiles();
-      peoplevoxProcessor = peoplevoxProcessorFactory(
-        currentPile,
-        piles.found,
-        nextPile,
-      );
-      processorsSequentially.push(peoplevoxProcessor);
+      const processorPiles = {
+        in: pileIn,
+        continue: pileOut,
+        resolved: piles.readyToFulfill,
+      };
+      console.log(processorPiles);
+
+      pipeline.push(peoplevoxProcessorMaker(processorPiles, {
+        canFinish,
+        logFlavourText: `${ region }:${ processorIndex }:`,
+      }));
+      canFinish = false;
+      processorIndex++;
+      advancePiles();
     }
 
-    if (REGIONS_STARSHIPIT.includes(region)) {
-      const [currentPile, nextPile] = advancePiles();
-      starshipitProcessor = starshipitProcessorFactory(
-        currentPile,
-        piles.found,
-        nextPile,
-        piles.notShipped,
-        region,
-      );
-      processorsSequentially.push(starshipitProcessor);
+    if (REGIONS_STARSHIPIT.includes(region)) {  
+      const processorPiles = {
+        in: pileIn,
+        continue: pileOut,
+        resolved: piles.readyToFulfill,
+        disqualified: piles.notShipped,
+      };
+      console.log(processorPiles);
+
+      pipeline.push(starshipitProcessorMaker(processorPiles, region, {
+        canFinish,
+        logFlavourText: `${ region }:${ processorIndex }:`,
+      }));
+      canFinish = false;
+      processorIndex++;
+      advancePiles();
     }
 
-    const fulfillingProcessor = fulfillingProcessorFactory(
-      piles.found,
-      piles.fulfilled,
-      piles.error,
-      region,
-    );
-    processorsSequentially.push(fulfillingProcessor);
+    const processorPiles = {
+      in: piles.readyToFulfill,
+      resolved: piles.fulfilled,
+      error: piles.error,
+    };
+    console.log(processorPiles);
 
-    for (const [i, processor] of processorsSequentially.entries()) {
-      const nextProcessorIndex = i + 1;
+    pipeline.push(fulfillingProcessorMaker(processorPiles, region, {
+      canFinish,
+      logFlavourText: `${ region }:${ processorIndex }:`,
+    }));
+    canFinish = false;
+    processorIndex++;
+    // advancePiles();
 
-      if (nextProcessorIndex >= processorsSequentially.length) {
-        continue;
+    for (const [i, processor] of pipeline.entries()) {
+      const nextProcessor = pipeline[i + 1];
+      if (nextProcessor) {
+        processor.on('done', () => {
+          nextProcessor.canFinish = true;
+        });
       }
-
-      const nextProcessor = processorsSequentially[i + 1];
-      processor.on('done', () => {
-        nextProcessor.canFinish = true;
-      });
     }
 
-    await Promise.all([
-      ...processorsSequentially.map(processor => processor.run({ verbose: true })),
-      // TODO: Processor where if we fail to get tracking info anywhere, we check the order in Peoplevox for whether it's dispatched + released.
-      fulfillingProcessor.run({ verbose: true, interval: 200 }),
-    ]);
-
-    const unresolvedPile = processingPiles[processingPileIndex];
-    piles.notFound.push(...unresolvedPile);
+    await Promise.all(pipeline.map(processor => processor.run({
+      verbose: true,
+    })));
 
     logDeep(region, piles);
     pilesByRegion[region] = piles;
