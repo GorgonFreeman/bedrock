@@ -12,10 +12,12 @@ const { peoplevoxDespatchesGetBySalesOrderNumber } = require('../peoplevox/peopl
 
 const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 
+// TODO: Implement more mass ways of getting orders out of Starshipit
+
 const collabsFulfillmentSweep = async (
   {
     shopifyRegions = REGIONS_ALL,
-    // TODO: Consider setting based on timeframe
+    // TODO: Consider setting based on timeframe or status
     notifyCustomers = false,
     peoplevoxReportWindowWeeksAgo = 1,
   } = {},
