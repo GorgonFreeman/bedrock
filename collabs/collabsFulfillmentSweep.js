@@ -378,7 +378,7 @@ const collabsFulfillmentSweep = async (
           resolved: piles.readyToFulfill,
         },
         makerArgs: [region],
-        makerOptions: { logFlavourText: `${ region }:0:` },
+        makerOptions: { logFlavourText: `${ region }:starprefetch:` },
       });
     }
 
@@ -390,7 +390,7 @@ const collabsFulfillmentSweep = async (
           // During a ProcessorPipeline, in: and continue: are dynamic
           resolved: piles.readyToFulfill,
         },
-        makerOptions: { logFlavourText: `${ region }:1:` },
+        makerOptions: { logFlavourText: `${ region }:pvxprefetch:` },
       });
 
       pipeline.add({
@@ -398,7 +398,7 @@ const collabsFulfillmentSweep = async (
         piles: { 
           resolved: piles.readyToFulfill,
         },
-        makerOptions: { logFlavourText: `${ region }:2:` },
+        makerOptions: { logFlavourText: `${ region }:pvx:` },
       });
     }
 
@@ -411,7 +411,7 @@ const collabsFulfillmentSweep = async (
           disqualified: piles.notShipped,
         },
         makerArgs: [region],
-        makerOptions: { logFlavourText: `${ region }:3:` },
+        makerOptions: { logFlavourText: `${ region }:starshipit:` },
       });
     }
 
@@ -430,7 +430,7 @@ const collabsFulfillmentSweep = async (
         error: piles.error,
       },
       makerArgs: [region],
-      makerOptions: { logFlavourText: `${ region }:4:` },
+      makerOptions: { logFlavourText: `${ region }:fulfill:` },
     });
     
     const leftovers = await pipeline.run(inputPile);
