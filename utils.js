@@ -987,6 +987,72 @@ class Processor extends EventEmitter {
   }
 }
 
+class ProcessorPipeline {
+
+  /* processorBlueprint:
+    {
+      maker: function,
+      piles,
+      makerArgs,
+      makerOptions,
+    }
+  */
+
+  constructor(processorBlueprints) {
+    this.processorBlueprints = processorBlueprints;
+  }
+
+  add(processorBlueprint) {
+    this.processorBlueprints.push(processorBlueprint);
+  }
+
+  async run(inputPile) {
+
+    const pipeline = [];
+
+    let pileIn = inputPile;
+    let pileOut = [];
+
+    for (const [i, processorBlueprint] of this.processorBlueprints.entries()) {
+      
+      const firstStep = i === 0;
+      const lastStep = i === this.processorBlueprints.length - 1;
+
+      const { maker, piles, makerArgs, makerOptions } = processorBlueprint;
+      const processor = maker(
+        {
+          in: pileIn,
+          continue: pileOut,
+          ...piles,
+        }, 
+        ...makerArgs, 
+        {
+          canFinish: firstStep ? true : false,
+          logFlavourText: `${ pipeline.length + 1 }:`,
+          ...makerOptions,
+        },
+      );
+      pipeline.push(processor);
+
+      // Advance piles
+      pileIn = pileOut;
+      pileOut = [];
+
+    }
+
+    for (const [i, processor] of pipeline.entries()) {
+      const nextProcessor = pipeline[i + 1];
+      if (nextProcessor) {
+        processor.on('done', () => nextProcessor.canFinish = true);
+      }
+    }
+
+    await Promise.all(pipeline.map(processor => processor.run()));
+
+    return;
+  }
+};
+
 module.exports = {
 
   // Really core
@@ -1034,4 +1100,5 @@ module.exports = {
   OperationQueue,
   Getter,
   Processor,
+  ProcessorPipeline,
 };
