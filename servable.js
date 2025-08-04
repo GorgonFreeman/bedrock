@@ -63,6 +63,7 @@ module.exports = {
   pipe17InventoryItemsGet: require('./pipe17/pipe17InventoryItemsGet').pipe17InventoryItemsGetApi,
   pipe17LocationGet: require('./pipe17/pipe17LocationGet').pipe17LocationGetApi,
   pipe17LocationsGet: require('./pipe17/pipe17LocationsGet').pipe17LocationsGetApi,
+  pipe17OrderGet: require('./pipe17/pipe17OrderGet').pipe17OrderGetApi,
   pipe17ProductGet: require('./pipe17/pipe17ProductGet').pipe17ProductGetApi,
   pipe17ProductsGet: require('./pipe17/pipe17ProductsGet').pipe17ProductsGetApi,
   pipe17PurchaseGet: require('./pipe17/pipe17PurchaseGet').pipe17PurchaseGetApi,
