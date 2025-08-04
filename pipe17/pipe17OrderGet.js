@@ -1,47 +1,39 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { pipe17Client } = require('../pipe17/pipe17.utils');
+const { pipe17GetSingle } = require('../pipe17/pipe17GetSingle');
 
 const pipe17OrderGet = async (
-  receiptId,
+  orderId,
   {
     credsPath,
   } = {},
 ) => {
 
-  const response = await pipe17Client.fetch({
-    url: `/receipts/${ receiptId }`,
-    context: {
+  const response = await pipe17GetSingle(
+    'order',
+    orderId,
+    {
       credsPath,
     },
-    interpreter: (response) => {
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.receipt,
-        } : {},
-      };
-    },
-  });
-  
+  );  
   logDeep(response);
   return response;
 };
 
 const pipe17OrderGetApi = async (req, res) => {
   const { 
-    receiptId,
+    orderId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'receiptId', receiptId),
+    mandateParam(res, 'orderId', orderId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await pipe17OrderGet(
-    receiptId,
+    orderId,
     options,
   );
   respond(res, 200, result);
@@ -52,4 +44,4 @@ module.exports = {
   pipe17OrderGetApi,
 };
 
-// curl localhost:8000/pipe17OrderGet -H "Content-Type: application/json" -d '{ "receiptId": "b9d03991a844e340" }'
+// curl localhost:8000/pipe17OrderGet -H "Content-Type: application/json" -d '{ "orderId": "5964638257212" }'
