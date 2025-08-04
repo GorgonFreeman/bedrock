@@ -1,4 +1,4 @@
-const { respond, mandateParam, logDeep, gidToId, askQuestion, dateTimeFromNow, weeks, Processor } = require('../utils');
+const { respond, mandateParam, logDeep, gidToId, askQuestion, dateTimeFromNow, weeks, Processor, ProcessorPipeline } = require('../utils');
 const { REGIONS_PVX, REGIONS_STARSHIPIT } = require('../constants');
 const { shopifyRegionToStarshipitAccount } = require('../mappings');
 
@@ -281,98 +281,53 @@ const collabsFulfillmentSweep = async (
       error: [],
     };
 
-    const pipeline = [];
+    const pipeline = new ProcessorPipeline();
 
-    let pileIn = inputPile;
-    let pileOut = [];
-
-    let canFinish = true;
-    let processorIndex = 1;
-
-    const advancePiles = () => {
-      pileIn = pileOut;
-      pileOut = [];
-    };
-
+    // Add PVX processors if region supports it
     if (REGIONS_PVX.includes(region)) {
-      const processorPiles = {
-        in: pileIn,
-        continue: pileOut,
-        resolved: piles.readyToFulfill,
-      };
-      console.log(processorPiles);
+      pipeline.add({
+        maker: recentDispatchProcessorMaker,
+        piles: { 
+          // During a ProcessorPipeline, in: and continue: are dynamic
+          resolved: piles.readyToFulfill,
+        },
+        makerOptions: { logFlavourText: `${ region }:1:` },
+      });
 
-      pipeline.push(recentDispatchProcessorMaker(processorPiles, {
-        canFinish,
-        logFlavourText: `${ region }:${ processorIndex }:`,
-      }));
-      canFinish = false;
-      processorIndex++;
-      advancePiles();
+      pipeline.add({
+        maker: peoplevoxProcessorMaker,
+        piles: { 
+          resolved: piles.readyToFulfill,
+        },
+        makerOptions: { logFlavourText: `${ region }:2:` },
+      });
     }
 
-    if (REGIONS_PVX.includes(region)) {
-      const processorPiles = {
-        in: pileIn,
-        continue: pileOut,
-        resolved: piles.readyToFulfill,
-      };
-      console.log(processorPiles);
-
-      pipeline.push(peoplevoxProcessorMaker(processorPiles, {
-        canFinish,
-        logFlavourText: `${ region }:${ processorIndex }:`,
-      }));
-      canFinish = false;
-      processorIndex++;
-      advancePiles();
+    // Add Starshipit processor if region supports it
+    if (REGIONS_STARSHIPIT.includes(region)) {
+      pipeline.add({
+        maker: starshipitProcessorMaker,
+        piles: { 
+          resolved: piles.readyToFulfill,
+          disqualified: piles.notShipped,
+        },
+        makerArgs: [region],
+        makerOptions: { logFlavourText: `${ region }:3:` },
+      });
     }
 
-    if (REGIONS_STARSHIPIT.includes(region)) {  
-      const processorPiles = {
-        in: pileIn,
-        continue: pileOut,
-        resolved: piles.readyToFulfill,
-        disqualified: piles.notShipped,
-      };
-      console.log(processorPiles);
+    // Add fulfillment processor
+    pipeline.add({
+      maker: fulfillingProcessorMaker,
+      piles: { 
+        resolved: piles.fulfilled,
+        error: piles.error,
+      },
+      makerArgs: [region],
+      makerOptions: { logFlavourText: `${ region }:4:` },
+    });
 
-      pipeline.push(starshipitProcessorMaker(processorPiles, region, {
-        canFinish,
-        logFlavourText: `${ region }:${ processorIndex }:`,
-      }));
-      canFinish = false;
-      processorIndex++;
-      advancePiles();
-    }
-
-    const processorPiles = {
-      in: piles.readyToFulfill,
-      resolved: piles.fulfilled,
-      error: piles.error,
-    };
-    console.log(processorPiles);
-
-    pipeline.push(fulfillingProcessorMaker(processorPiles, region, {
-      canFinish,
-      logFlavourText: `${ region }:${ processorIndex }:`,
-    }));
-    canFinish = false;
-    processorIndex++;
-    // advancePiles();
-
-    for (const [i, processor] of pipeline.entries()) {
-      const nextProcessor = pipeline[i + 1];
-      if (nextProcessor) {
-        processor.on('done', () => {
-          nextProcessor.canFinish = true;
-        });
-      }
-    }
-
-    await Promise.all(pipeline.map(processor => processor.run({
-      verbose: true,
-    })));
+    await pipeline.run(inputPile);
 
     logDeep(region, piles);
     pilesByRegion[region] = piles;
