@@ -1,6 +1,5 @@
 const { respond, mandateParam, logDeep } = require('../utils');
 const { logiwaClient } = require('../logiwa/logiwa.utils');
-const { logiwaAuthGet } = require('../logiwa/logiwaAuthGet');
 
 const logiwaOrderGet = async (
   orderId,
