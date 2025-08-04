@@ -23,9 +23,6 @@ const starshipitOrdersListShipped = async (
       credsPath,
     },
     interpreter: async (response) => {
-      console.log(response);
-      await askQuestion('?');
-
       return {
         ...response,
         ...response.result ? {
