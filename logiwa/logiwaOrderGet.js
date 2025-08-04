@@ -1,34 +1,37 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, logDeep } = require('../utils');
+const { logiwaClient } = require('../logiwa/logiwa.utils');
 
 const logiwaOrderGet = async (
-  arg,
+  orderId,
   {
-    option,
+    credsPath,
+    apiVersion = 'v3.1',
   } = {},
 ) => {
 
-  return { 
-    arg, 
-    option,
-  };
-  
+  const response = await logiwaClient.fetch({
+    method: 'get',
+    url: `/ShipmentOrder/${ orderId }`,
+  });
+  logDeep(response);
+  return response;
 };
 
 const logiwaOrderGetApi = async (req, res) => {
   const { 
-    arg,
+    orderId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'orderId', orderId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await logiwaOrderGet(
-    arg,
+    orderId,
     options,
   );
   respond(res, 200, result);
@@ -39,4 +42,4 @@ module.exports = {
   logiwaOrderGetApi,
 };
 
-// curl localhost:8000/logiwaOrderGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/logiwaOrderGet -H "Content-Type: application/json" -d '{ "orderId": "81ebb08f-fcf6-4d42-a31b-bfbe77a2abc1" }'
