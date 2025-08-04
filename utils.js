@@ -1018,7 +1018,7 @@ class ProcessorPipeline {
       const firstStep = i === 0;
       const lastStep = i === this.processorBlueprints.length - 1;
 
-      const { maker, piles, makerArgs, makerOptions } = processorBlueprint;
+      const { maker, piles = {}, makerArgs = [], makerOptions } = processorBlueprint;
       const processor = maker(
         {
           in: pileIn,
