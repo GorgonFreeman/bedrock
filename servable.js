@@ -82,6 +82,7 @@ module.exports = {
   peoplevoxReportGet: require('./peoplevox/peoplevoxReportGet').peoplevoxReportGetApi,
   logiwaAuthGet: require('./logiwa/logiwaAuthGet').logiwaAuthGetApi,
   logiwaOrderGet: require('./logiwa/logiwaOrderGet').logiwaOrderGetApi,
+  logiwaOrdersList: require('./logiwa/logiwaOrdersList').logiwaOrdersListApi,
   logiwaProductGet: require('./logiwa/logiwaProductGet').logiwaProductGetApi,
   etsyMeGet: require('./etsy/etsyMeGet').etsyMeGetApi,
   etsyPing: require('./etsy/etsyPing').etsyPingApi,
