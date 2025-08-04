@@ -1,5 +1,10 @@
 const { respond, mandateParam, logDeep, gidToId, askQuestion, dateTimeFromNow, weeks, Processor, ProcessorPipeline } = require('../utils');
-const { REGIONS_ALL, REGIONS_PVX, REGIONS_STARSHIPIT } = require('../constants');
+const { 
+  REGIONS_ALL, 
+  REGIONS_PVX, 
+  REGIONS_STARSHIPIT,
+  STARSHIPIT_ACCOUNT_HANDLES,
+} = require('../constants');
 const { shopifyRegionToStarshipitAccount } = require('../mappings');
 
 const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
@@ -11,6 +16,7 @@ const { peoplevoxDateFormatter } = require('../peoplevox/peoplevox.utils');
 const { peoplevoxDespatchesGetBySalesOrderNumber } = require('../peoplevox/peoplevoxDespatchesGetBySalesOrderNumber');
 
 const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
+const { starshipitOrdersListShipped } = require('../starshipit/starshipitOrdersListShipped');
 
 // TODO: Implement more mass ways of getting orders out of Starshipit
 
@@ -51,16 +57,45 @@ const collabsFulfillmentSweep = async (
     searchClause: `([Despatch date] >= ${ pvxReportWindowStart })`, 
   });
 
+  // 1b. Prefetch Starshipit shipped orders
+  const starshipitRelevant = shopifyRegions.some(region => REGIONS_STARSHIPIT.includes(region));
+
+  const getStarshipitShippedOrders = async () => {
+    const starshipitShippedOrdersByAccount = {};
+
+    await Promise.all(STARSHIPIT_ACCOUNT_HANDLES.map(async acc => {
+      const starshipitShippedOrdersResponse = await starshipitOrdersListShipped(
+        acc,
+        {
+          idsOnly: true,
+        },
+      );
+
+      if (!starshipitShippedOrdersResponse?.success || !starshipitShippedOrdersResponse?.result) {
+        return;
+      }
+
+      starshipitShippedOrdersByAccount[acc] = starshipitShippedOrdersResponse.result;
+    }));
+
+    return starshipitShippedOrdersByAccount;
+  };
+
   const [
     pvxRecentDispatchesResponse,
+    starshipitShippedOrdersByAccount,
     ...shopifyOrderResponses
   ] = await Promise.all([
     getPeoplevoxRecentDispatches(),
+    ...(starshipitRelevant ? [getStarshipitShippedOrders()] : []),
     ...shopifyRegions.map(region => getShopifyOrdersPerRegion(region)),
   ]);
 
   // logDeep(pvxRecentDispatchesResponse);
   // await askQuestion('?');
+
+  logDeep('starshipitShippedOrdersByAccount', starshipitShippedOrdersByAccount);
+  await askQuestion('?');
 
   // logDeep(shopifyOrderResponses);
   // await askQuestion('?');

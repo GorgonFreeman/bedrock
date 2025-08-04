@@ -27,4 +27,10 @@ module.exports = {
   REGIONS_BLUEYONDER: [
     'uk',
   ],
+  STARSHIPIT_ACCOUNT_HANDLES: [
+    'wf',
+    'melb',
+    'bris',
+    'baddest',
+  ],
 };
