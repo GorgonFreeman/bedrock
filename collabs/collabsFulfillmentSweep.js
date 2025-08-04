@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep, gidToId, askQuestion, dateTimeFromNow, weeks, Processor, ProcessorPipeline } = require('../utils');
-const { REGIONS_PVX, REGIONS_STARSHIPIT } = require('../constants');
+const { REGIONS_ALL, REGIONS_PVX, REGIONS_STARSHIPIT } = require('../constants');
 const { shopifyRegionToStarshipitAccount } = require('../mappings');
 
 const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
@@ -14,7 +14,7 @@ const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 
 const collabsFulfillmentSweep = async (
   {
-    shopifyRegions = REGIONS_PVX,
+    shopifyRegions = REGIONS_ALL,
     // TODO: Consider setting based on timeframe
     notifyCustomers = false,
     peoplevoxReportWindowWeeksAgo = 1,
