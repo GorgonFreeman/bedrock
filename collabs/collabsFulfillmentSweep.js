@@ -125,8 +125,8 @@ const collabsFulfillmentSweep = async (
           return;
         }
   
-        console.log(0, shippedOrder);
-        await askQuestion('?');
+        // console.log(0, shippedOrder);
+        // await askQuestion('?');
 
         const fulfillPayload = {
           originAddress: {
