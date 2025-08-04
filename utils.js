@@ -880,12 +880,14 @@ class Processor extends EventEmitter {
       logFlavourText,
       onDone,
       maxInFlightRequests = 10,
+      runOptions = {},
     } = options;
     
     this.canFinish = canFinish;
     this.pileSizeCheck = pileSizeCheck;
     this.logFlavourText = logFlavourText;
     this.maxInFlightRequests = maxInFlightRequests;
+    this.runOptions = runOptions;
     
     if (onDone) { 
       this.on('done', onDone);
@@ -915,7 +917,7 @@ class Processor extends EventEmitter {
   async run({
     interval = false,
     verbose = true,
-  } = {}) {
+  } = this.runOptions) {
     
     let finished = false;
     let results = [];
