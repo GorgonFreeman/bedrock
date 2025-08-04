@@ -59,8 +59,16 @@ const logiwaGetter = async (
         await askQuestion('paginator?');
       },
       digester: async (response) => {
-        logDeep(response);
-        await askQuestion('digester?');
+        // logDeep(response);
+        // await askQuestion('digester?');
+
+        const { success, result } = response;
+        if (!success) { // Return if failed
+          return null; 
+        }
+
+        const items = result?.data;
+        return items;
       },
       client: logiwaClient,
       clientArgs: {
