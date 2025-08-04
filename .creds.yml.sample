@@ -43,5 +43,6 @@ peoplevox:
   PASSWORD: ___________________________
 
 logiwa:
+  BASE_URL: https://myapi.logiwa.com
   LOGIN_EMAIL: ________________________
   LOGIN_PASSWORD: _____________________
