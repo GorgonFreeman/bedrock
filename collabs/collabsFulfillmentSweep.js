@@ -94,8 +94,8 @@ const collabsFulfillmentSweep = async (
   // logDeep(pvxRecentDispatchesResponse);
   // await askQuestion('?');
 
-  logDeep('starshipitShippedOrdersByAccount', starshipitShippedOrdersByAccount);
-  await askQuestion('?');
+  // logDeep('starshipitShippedOrdersByAccount', starshipitShippedOrdersByAccount);
+  // await askQuestion('?');
 
   // logDeep(shopifyOrderResponses);
   // await askQuestion('?');
