@@ -998,7 +998,7 @@ class ProcessorPipeline {
     }
   */
 
-  constructor(processorBlueprints) {
+  constructor(processorBlueprints = []) {
     this.processorBlueprints = processorBlueprints;
   }
 
