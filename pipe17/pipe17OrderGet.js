@@ -52,5 +52,8 @@ module.exports = {
   pipe17OrderGetApi,
 };
 
-// curl localhost:8000/pipe17OrderGet -H "Content-Type: application/json" -d '{ "orderIdentifier": { "orderId": "c3270d7b472c2713" } }'
-// curl localhost:8000/pipe17OrderGet -H "Content-Type: application/json" -d '{ "orderIdentifier": { "extOrderId": "5964638257212" } }'
+// curl localhost:8000/pipe17OrderGet -H "Content-Type: application/json" -d '{ "orderIdentifier": { "orderId": "dc120f1015760357" } }'
+// curl localhost:8000/pipe17OrderGet -H "Content-Type: application/json" -d '{ "orderIdentifier": { "extOrderApiId": "5964638257212" } }'
+
+// Not sure why this doesn't work:
+// curl localhost:8000/pipe17OrderGet -H "Content-Type: application/json" -d '{ "orderIdentifier": { "extOrderId": "#USA4392978" } }'
