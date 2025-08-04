@@ -1,16 +1,24 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
 const { pipe17GetSingle } = require('../pipe17/pipe17GetSingle');
 
 const pipe17OrderGet = async (
-  orderId,
+  {
+    orderId,
+    extOrderId,
+    extOrderApiId,
+  },
   {
     credsPath,
   } = {},
 ) => {
 
+  const orderIdentifier = orderId 
+  || (extOrderId ? `ext:${ extOrderId }` : null) 
+  || (extOrderApiId ? `api:${ extOrderApiId }` : null);
+
   const response = await pipe17GetSingle(
     'order',
-    orderId,
+    orderIdentifier,
     {
       credsPath,
     },
@@ -21,19 +29,19 @@ const pipe17OrderGet = async (
 
 const pipe17OrderGetApi = async (req, res) => {
   const { 
-    orderId,
+    orderIdentifier,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'orderId', orderId),
+    mandateParam(res, 'orderIdentifier', orderIdentifier, objHasAny(orderIdentifier, ['orderId', 'extOrderId', 'extOrderApiId'])),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await pipe17OrderGet(
-    orderId,
+    orderIdentifier,
     options,
   );
   respond(res, 200, result);
@@ -44,4 +52,4 @@ module.exports = {
   pipe17OrderGetApi,
 };
 
-// curl localhost:8000/pipe17OrderGet -H "Content-Type: application/json" -d '{ "orderId": "5964638257212" }'
+// curl localhost:8000/pipe17OrderGet -H "Content-Type: application/json" -d '{ "orderIdentifier": { "extOrderId": "5964638257212" } }'
