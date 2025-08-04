@@ -24,6 +24,14 @@ const logiwaAuthGet = async (
     method: 'post',
     url: '/Authorize/token', 
     body,
+    interpreter: (response) => {
+      return {
+        ...response,
+        ...(response?.result?.token ? {
+          result: response?.result?.token,
+        } : {}),
+      };
+    },
   });
   logDeep(response);
   return response;

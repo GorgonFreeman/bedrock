@@ -1,5 +1,6 @@
 const { respond, mandateParam, logDeep } = require('../utils');
 const { logiwaClient } = require('../logiwa/logiwa.utils');
+const { logiwaAuthGet } = require('../logiwa/logiwaAuthGet');
 
 const logiwaOrderGet = async (
   orderId,
@@ -9,9 +10,21 @@ const logiwaOrderGet = async (
   } = {},
 ) => {
 
+  const authResponse = await logiwaAuthGet({ credsPath, apiVersion });
+  if (!authResponse?.success) {
+    return authResponse;
+  }
+
+  const authToken = authResponse?.result;
+
+  const headers = {
+    Authorization: `Bearer ${ authToken }`,
+  };
+
   const response = await logiwaClient.fetch({
     method: 'get',
     url: `/ShipmentOrder/${ orderId }`,
+    headers,
   });
   logDeep(response);
   return response;
