@@ -1006,6 +1006,10 @@ class ProcessorPipeline {
     this.processorBlueprints.push(processorBlueprint);
   }
 
+  length() {
+    return this.processorBlueprints.length;
+  }
+
   async run(inputPile) {
 
     const pipeline = [];

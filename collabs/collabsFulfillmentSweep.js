@@ -320,6 +320,12 @@ const collabsFulfillmentSweep = async (
       });
     }
 
+    if (!pipeline.length()) {
+      console.warn('No processors added for region', region);
+      pilesByRegion[region] = piles;
+      continue;
+    }
+
     // Add fulfillment processor
     pipeline.add({
       maker: fulfillingProcessorMaker,
