@@ -1033,11 +1033,12 @@ class ProcessorPipeline {
         },
       );
       pipeline.push(processor);
-
-      // Advance piles
-      pileIn = pileOut;
-      pileOut = [];
-
+      
+      if (!lastStep) {
+        // Advance piles
+        pileIn = pileOut;
+        pileOut = [];
+      }
     }
 
     for (const [i, processor] of pipeline.entries()) {
@@ -1049,7 +1050,12 @@ class ProcessorPipeline {
 
     await Promise.all(pipeline.map(processor => processor.run()));
 
-    return;
+    // Return the final piles or results
+    console.log('pipeline run dynamic piles', pileIn, pileOut);
+    return {
+      pileIn,
+      pileOut,
+    };
   }
 };
 
