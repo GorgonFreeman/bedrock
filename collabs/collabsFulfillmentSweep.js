@@ -66,9 +66,6 @@ const collabsFulfillmentSweep = async (
     await Promise.all(STARSHIPIT_ACCOUNT_HANDLES.map(async acc => {
       const starshipitShippedOrdersResponse = await starshipitOrdersListShipped(
         acc,
-        {
-          idsOnly: true,
-        },
       );
 
       if (!starshipitShippedOrdersResponse?.success || !starshipitShippedOrdersResponse?.result) {
@@ -103,6 +100,38 @@ const collabsFulfillmentSweep = async (
   const recentDispatches = pvxRecentDispatchesResponse.result;
 
   const arrayExhaustedCheck = (arr) => arr.length === 0;
+
+  const starshipitShippedProcessorMaker = (piles, region, processorOptions = {}) => new Processor(
+    piles.in,
+    async (pile) => {
+      const order = pile.shift();
+      const { orderId, shippingLine } = order;
+      const shippingMethod = shippingLine?.title;
+      const starshipitAccount = shopifyRegionToStarshipitAccount(region, shippingMethod);
+      const accountShippedOrders = starshipitShippedOrdersByAccount[starshipitAccount];
+      const shippedOrder = accountShippedOrders.find(order => order.order_id === orderId);
+
+      if (shippedOrder) {
+        console.log('shippedOrder', shippedOrder);
+        await askQuestion('what the helly?');
+
+        piles.resolved.push({
+          ...order,
+          // tracking: shippedOrder,
+          fulfillPayload: {
+            originAddress: {
+              countryCode: 'AU',
+            },
+          },
+        });
+        return;
+      }
+
+      piles.continue.push(order);
+    },
+    arrayExhaustedCheck, // pileExhaustedCheck
+    processorOptions,
+  );
 
   // piles used: in, continue, resolved
   const recentDispatchProcessorMaker = (piles, processorOptions = {}) => new Processor(
@@ -321,6 +350,17 @@ const collabsFulfillmentSweep = async (
     };
 
     const pipeline = new ProcessorPipeline();
+
+    if (REGIONS_STARSHIPIT.includes(region)) {
+      pipeline.add({
+        maker: starshipitShippedProcessorMaker,
+        piles: { 
+          resolved: piles.readyToFulfill,
+        },
+        makerArgs: [region],
+        makerOptions: { logFlavourText: `${ region }:0:` },
+      });
+    }
 
     // Add PVX processors if region supports it
     if (REGIONS_PVX.includes(region)) {
