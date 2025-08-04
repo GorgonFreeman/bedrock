@@ -80,6 +80,7 @@ module.exports = {
   peoplevoxOrdersGet: require('./peoplevox/peoplevoxOrdersGet').peoplevoxOrdersGetApi,
   peoplevoxOrdersGetById: require('./peoplevox/peoplevoxOrdersGetById').peoplevoxOrdersGetByIdApi,
   peoplevoxReportGet: require('./peoplevox/peoplevoxReportGet').peoplevoxReportGetApi,
+  logiwaAuthGet: require('./logiwa/logiwaAuthGet').logiwaAuthGetApi,
   etsyMeGet: require('./etsy/etsyMeGet').etsyMeGetApi,
   etsyPing: require('./etsy/etsyPing').etsyPingApi,
   collabsFulfillmentSweep: require('./collabs/collabsFulfillmentSweep').collabsFulfillmentSweepApi,
