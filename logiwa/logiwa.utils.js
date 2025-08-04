@@ -54,9 +54,30 @@ const logiwaGetter = async (
       payload: {
         params,
       },
-      paginator: async (customAxiosPayload, response) => {
-        logDeep(response);
+      paginator: async (customAxiosPayload, response, { url }) => {
+        logDeep(customAxiosPayload, response, url);
         await askQuestion('paginator?');
+
+        const { success, result } = response;
+        if (!success) { // Return if failed
+          return [true, null]; 
+        }
+
+        // 1. Extract necessary pagination info
+        const { totalCount } = result;
+        const page = url.match(/\/i\/(\d+)/)?.[1];
+        const perPage = url.match(/\/s\/(\d+)/)?.[1];
+
+        // 2. Supplement payload with next pagination info
+        const nextUrl = url.replace(`/i/${ page }`, `/i/${ page + 1 }`);
+        
+        // 3. Logic to determine done
+        const done = page * perPage >= totalCount;
+        
+        return [done, customAxiosPayload, {
+          url: nextUrl,
+        }];
+
       },
       digester: async (response) => {
         // logDeep(response);

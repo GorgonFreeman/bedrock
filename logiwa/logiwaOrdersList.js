@@ -11,7 +11,7 @@ const logiwaOrdersList = async (
 ) => {
 
   const response = await logiwaGet(
-    `/ShipmentOrder/list/i/1/s/20`,
+    `/ShipmentOrder/list/i/1/s/100`,
     {
       credsPath,
       apiVersion,
