@@ -39,6 +39,46 @@ const logiwaClient = new CustomAxiosClient({
   factory: logiwaFactory,
 });
 
+const logiwaGetter = async (
+  url,
+  {
+    credsPath,
+    apiVersion,
+    params,
+    ...getterOptions
+  } = {},
+) => {
+  return new Getter(
+    {
+      url,
+      payload: {
+        params,
+      },
+      paginator: async (customAxiosPayload, response) => {
+        logDeep(response);
+        await askQuestion('paginator?');
+      },
+      digester: async (response) => {
+        logDeep(response);
+        await askQuestion('digester?');
+      },
+      client: logiwaClient,
+      clientArgs: {
+        context: {
+          credsPath,
+          apiVersion,
+        },
+      },
+
+      ...getterOptions
+    },
+  );
+};
+
+const logiwaGet = getterAsGetFunction(logiwaGetter);
+
 module.exports = {
   logiwaClient,
+  logiwaGetter,
+  logiwaGet,
 };
