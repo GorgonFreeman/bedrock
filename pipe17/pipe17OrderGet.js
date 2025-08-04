@@ -52,4 +52,5 @@ module.exports = {
   pipe17OrderGetApi,
 };
 
+// curl localhost:8000/pipe17OrderGet -H "Content-Type: application/json" -d '{ "orderIdentifier": { "orderId": "c3270d7b472c2713" } }'
 // curl localhost:8000/pipe17OrderGet -H "Content-Type: application/json" -d '{ "orderIdentifier": { "extOrderId": "5964638257212" } }'
