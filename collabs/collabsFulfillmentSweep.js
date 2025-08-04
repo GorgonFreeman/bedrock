@@ -53,12 +53,22 @@ const collabsFulfillmentSweep = async (
   );
 
   // 1a. Also prefetch any other useful data, e.g. pvx recent dispatches
+  const peoplevoxRelevant = shopifyRegions.some(region => REGIONS_PVX.includes(region));
+
   let pvxReportWindowStart = dateTimeFromNow({ minus: weeks(peoplevoxReportWindowWeeksAgo), dateOnly: true });
   pvxReportWindowStart = peoplevoxDateFormatter(pvxReportWindowStart);
-  const getPeoplevoxRecentDispatches = () => peoplevoxReportGet('Despatch summary', { 
-    columns: ['Salesorder number', 'Carrier', 'Tracking number', 'Despatch date'], 
-    searchClause: `([Despatch date] >= ${ pvxReportWindowStart })`, 
-  });
+  const getPeoplevoxRecentDispatches = async () => {
+    const peoplevoxRecentDispatchesResponse = await peoplevoxReportGet('Despatch summary', { 
+      columns: ['Salesorder number', 'Carrier', 'Tracking number', 'Despatch date'], 
+      searchClause: `([Despatch date] >= ${ pvxReportWindowStart })`, 
+    });
+
+    if (!peoplevoxRecentDispatchesResponse?.success || !peoplevoxRecentDispatchesResponse?.result) {
+      return;
+    }
+
+    return peoplevoxRecentDispatchesResponse.result;
+  };
 
   // 1b. Prefetch Starshipit shipped orders
   const starshipitRelevant = shopifyRegions.some(region => REGIONS_STARSHIPIT.includes(region));
@@ -82,25 +92,23 @@ const collabsFulfillmentSweep = async (
   };
 
   const [
-    pvxRecentDispatchesResponse,
+    pvxRecentDispatches,
     starshipitShippedOrdersByAccount,
     ...shopifyOrderResponses
   ] = await Promise.all([
-    getPeoplevoxRecentDispatches(),
+    ...(peoplevoxRelevant ? [getPeoplevoxRecentDispatches()] : [false]),
     ...(starshipitRelevant ? [getStarshipitShippedOrders()] : [false]),
     ...shopifyRegions.map(region => getShopifyOrdersPerRegion(region)),
   ]);
 
-  // logDeep(pvxRecentDispatchesResponse);
-  // await askQuestion('?');
+  logDeep('pvxRecentDispatches', pvxRecentDispatches);
+  await askQuestion('?');
 
   // logDeep('starshipitShippedOrdersByAccount', starshipitShippedOrdersByAccount);
   // await askQuestion('?');
 
   // logDeep(shopifyOrderResponses);
   // await askQuestion('?');
-
-  const recentDispatches = pvxRecentDispatchesResponse.result;
 
   const arrayExhaustedCheck = (arr) => arr.length === 0;
 
@@ -162,7 +170,7 @@ const collabsFulfillmentSweep = async (
     async (pile) => {
       const order = pile.shift();
       const { orderId } = order;
-      const recentDispatch = recentDispatches.find(dispatch => dispatch['Salesorder number'] === orderId);
+      const recentDispatch = pvxRecentDispatches.find(dispatch => dispatch['Salesorder number'] === orderId);
 
       if (recentDispatch && recentDispatch?.['Tracking number']) {
 
