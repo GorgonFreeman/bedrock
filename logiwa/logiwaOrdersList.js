@@ -1,3 +1,5 @@
+// https://mydeveloper.logiwa.com/#tag/ShipmentOrder/paths/~1v3.1~1ShipmentOrder~1list~1i~1%7Bindex%7D~1s~1%7Bsize%7D/get
+
 const { respond, mandateParam } = require('../utils');
 
 const logiwaOrdersList = async (
