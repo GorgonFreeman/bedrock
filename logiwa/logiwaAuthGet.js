@@ -1,5 +1,4 @@
-const { respond, mandateParam, credsByPath, logDeep } = require('../utils');
-const { logiwaClient } = require('../logiwa/logiwa.utils');
+const { respond, mandateParam, credsByPath, logDeep, CustomAxiosClient } = require('../utils');
 
 const logiwaAuthGet = async (
   {
@@ -10,7 +9,8 @@ const logiwaAuthGet = async (
 
   const creds = credsByPath(['logiwa', credsPath]);
 
-  const { 
+  const {
+    BASE_URL,
     LOGIN_EMAIL,
     LOGIN_PASSWORD,
   } = creds;
@@ -20,7 +20,11 @@ const logiwaAuthGet = async (
     password: LOGIN_PASSWORD,
   };
 
-  const response = await logiwaClient.fetch({
+  const client = new CustomAxiosClient({
+    baseUrl: `${ BASE_URL }/${ apiVersion }`,
+  });
+
+  const response = await client.fetch({
     method: 'post',
     url: '/Authorize/token', 
     body,
@@ -31,8 +35,9 @@ const logiwaAuthGet = async (
           result: response?.result?.token,
         } : {}),
       };
-    },
+    }
   });
+
   logDeep(response);
   return response;
   
