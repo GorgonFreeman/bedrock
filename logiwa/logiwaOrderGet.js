@@ -10,21 +10,9 @@ const logiwaOrderGet = async (
   } = {},
 ) => {
 
-  const authResponse = await logiwaAuthGet({ credsPath, apiVersion });
-  if (!authResponse?.success) {
-    return authResponse;
-  }
-
-  const authToken = authResponse?.result;
-
-  const headers = {
-    Authorization: `Bearer ${ authToken }`,
-  };
-
   const response = await logiwaClient.fetch({
     method: 'get',
     url: `/ShipmentOrder/${ orderId }`,
-    headers,
   });
   logDeep(response);
   return response;
@@ -55,4 +43,4 @@ module.exports = {
   logiwaOrderGetApi,
 };
 
-// curl localhost:8000/logiwaOrderGet -H "Content-Type: application/json" -d '{ "orderId": "81ebb08f-fcf6-4d42-a31b-bfbe77a2abc1" }'
+// curl localhost:8000/logiwaOrderGet -H "Content-Type: application/json" -d '{ "orderId": "9ce5f6f0-c461-4d1c-93df-261a2188d652" }'
