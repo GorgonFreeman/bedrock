@@ -112,21 +112,41 @@ const collabsFulfillmentSweep = async (
       const shippedOrder = accountShippedOrders.find(order => order.order_id === orderId);
 
       if (shippedOrder) {
-        console.log('shippedOrder', shippedOrder);
-        await askQuestion('what the helly?');
+
+        const { 
+          // tracking_short_status: trackingShortStatus,
+          tracking_number: trackingNumber,
+          tracking_url: trackingUrl,
+        } = shippedOrder || {};
+        
+        // TODO: Consider using 'manifest_sent'
+        if (!trackingNumber) {
+          piles.disqualified.push(order);
+          return;
+        }
+  
+        console.log(0, shippedOrder);
+        await askQuestion('?');
+
+        const fulfillPayload = {
+          originAddress: {
+            // Starshipit, therefore AU
+            countryCode: 'AU',
+          },
+          trackingInfo: {
+            number: trackingNumber,
+            url: trackingUrl,
+          },
+        };
 
         piles.resolved.push({
           ...order,
           // tracking: shippedOrder,
-          fulfillPayload: {
-            originAddress: {
-              countryCode: 'AU',
-            },
-          },
+          fulfillPayload,
         });
         return;
       }
-
+  
       piles.continue.push(order);
     },
     arrayExhaustedCheck, // pileExhaustedCheck
