@@ -324,6 +324,7 @@ const collabsFulfillmentSweep = async (
     pipeline.add({
       maker: fulfillingProcessorMaker,
       piles: { 
+        in: piles.readyToFulfill, // override the dynamic pile and explicitly use the pile that resolved orders have been going into
         resolved: piles.fulfilled,
         error: piles.error,
       },
