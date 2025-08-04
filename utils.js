@@ -757,14 +757,15 @@ class Getter extends EventEmitter {
     let resultsCount = 0;
     let done = false;
     let paginatedPayload = this.payload;
+    let url = this.url;
     
     while (!done) {
       
       const response = this.client ? await this.client.fetch({
-        url: this.url,
+        url,
         ...paginatedPayload,
         ...(this.clientArgs ?? {}),
-      }) : await customAxios(this.url, paginatedPayload);
+      }) : await customAxios(url, paginatedPayload);
       
       let items = digester 
       ? await digester(response) 
@@ -799,7 +800,21 @@ class Getter extends EventEmitter {
         break;
       }
       
-      [done, paginatedPayload] = await paginator(paginatedPayload, response);
+      /* Pagination logic */
+      const additionalPaginationData = {
+        url,
+      };
+
+      [done, paginatedPayload, paginatedMisc] = await paginator(paginatedPayload, response, additionalPaginationData);
+
+      const {
+        url: paginatedUrl,
+      } = paginatedMisc;
+
+      if (paginatedUrl) {
+        url = paginatedUrl;
+      }
+      /* /Pagination logic */
     }
 
     this.emit('done');
