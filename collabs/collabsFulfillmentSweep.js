@@ -337,8 +337,9 @@ const collabsFulfillmentSweep = async (
       makerArgs: [region],
       makerOptions: { logFlavourText: `${ region }:4:` },
     });
-
-    await pipeline.run(inputPile);
+    
+    const leftovers = await pipeline.run(inputPile);
+    piles.unresolved = leftovers;
 
     logDeep(region, piles);
     pilesByRegion[region] = piles;
