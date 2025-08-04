@@ -84,7 +84,7 @@ const collabsFulfillmentSweep = async (
     ...shopifyOrderResponses
   ] = await Promise.all([
     getPeoplevoxRecentDispatches(),
-    ...(starshipitRelevant ? [getStarshipitShippedOrders()] : []),
+    ...(starshipitRelevant ? [getStarshipitShippedOrders()] : [false]),
     ...shopifyRegions.map(region => getShopifyOrdersPerRegion(region)),
   ]);
 
