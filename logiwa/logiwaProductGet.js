@@ -1,34 +1,37 @@
 const { respond, mandateParam } = require('../utils');
+const { logiwaClient } = require('../logiwa/logiwa.utils');
 
 const logiwaProductGet = async (
-  arg,
+  productId,
   {
-    option,
+    credsPath,
+    apiVersion = 'v3.1',
   } = {},
 ) => {
 
-  return { 
-    arg, 
-    option,
-  };
-  
+  const response = await logiwaClient.fetch({
+    method: 'get',
+    url: `/Product/detail/${ productId }`,
+  });
+  logDeep(response);
+  return response;
 };
 
 const logiwaProductGetApi = async (req, res) => {
   const { 
-    arg,
+    productId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'productId', productId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await logiwaProductGet(
-    arg,
+    productId,
     options,
   );
   respond(res, 200, result);
