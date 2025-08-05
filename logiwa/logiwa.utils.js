@@ -1,6 +1,8 @@
 const { credsByPath, CustomAxiosClient, Getter, logDeep, askQuestion, getterAsGetFunction } = require('../utils');
 const { logiwaAuthGet } = require('../logiwa/logiwaAuthGet');
 
+const AUTH_TOKENS = new Map();
+
 const logiwaRequestSetup = ({ credsPath, apiVersion = 'v3.1' } = {}) => {
 
   const creds = credsByPath(['logiwa', credsPath]);
@@ -15,14 +17,22 @@ const logiwaRequestSetup = ({ credsPath, apiVersion = 'v3.1' } = {}) => {
 };
 
 const logiwaFactory = async({ credsPath, apiVersion } = {}) => {
-  // TODO: Consider storing auth token in memory/Upstash
   const { baseUrl } = logiwaRequestSetup({ credsPath, apiVersion });
 
-  const authResponse = await logiwaAuthGet({ credsPath, apiVersion });
-  if (!authResponse?.success) {
-    throw new Error(authResponse);
+  let authToken;
+
+  if (AUTH_TOKENS.has(credsPath)) {
+    authToken = AUTH_TOKENS.get(credsPath);
   }
-  const authToken = authResponse?.result;
+
+  if (!authToken) {
+    const authResponse = await logiwaAuthGet({ credsPath, apiVersion });
+    if (!authResponse?.success) {
+      throw new Error(authResponse);
+    }
+    authToken = authResponse?.result;
+    AUTH_TOKENS.set(credsPath, authToken);
+  }
 
   const headers = {
     Authorization: `Bearer ${ authToken }`,
