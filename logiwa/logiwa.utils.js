@@ -55,8 +55,8 @@ const logiwaGetter = async (
         params,
       },
       paginator: async (customAxiosPayload, response, { url }) => {
-        logDeep(customAxiosPayload, response, url);
-        await askQuestion('paginator?');
+        // logDeep(customAxiosPayload, response, url);
+        // await askQuestion('paginator?');
 
         const { success, result } = response;
         if (!success) { // Return if failed
