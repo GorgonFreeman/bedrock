@@ -374,6 +374,9 @@ const collabsFulfillmentSweep = async (
 
       const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
 
+      console.log(logiwaOrder);
+      await askQuestion('?');
+
       if (!currentTrackingNumber || !allShipped) {
         console.log(`Logiwa processing, not fully shipped`, logiwaOrder);
         piles.disqualified.push(order);
