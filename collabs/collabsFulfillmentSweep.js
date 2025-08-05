@@ -360,14 +360,13 @@ const collabsFulfillmentSweep = async (
 
       const logiwaOrderResponse = await logiwaOrderGet({ orderCode });
 
-
       if (!logiwaOrderResponse?.success || !logiwaOrderResponse?.result) {
         piles.continue.push(order);
         return;
       }
 
       const logiwaOrder = logiwaOrderResponse.result;
-      const { 
+      const {
         currentTrackingNumber,
         trackingNumbers,
         products,
