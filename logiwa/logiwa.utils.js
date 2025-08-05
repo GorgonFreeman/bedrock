@@ -30,6 +30,20 @@ const logiwaFactory = async({ credsPath, apiVersion } = {}) => {
   }
 
   if (!authToken) {
+    const creds = credsByPath(['logiwa', credsPath]);
+    const { AUTH_TOKEN: storedAuthToken } = creds;
+
+    if (storedAuthToken) {
+      authToken = storedAuthToken;
+      AUTH_TOKENS.set(credsPath, authToken);
+      // Avoid unnecessary Upstash writes
+      // upstashSet(upstashKey, authToken);
+    }
+
+    console.log('Using auth token from creds');
+  }
+
+  if (!authToken) {
     const upstashAuthTokenResponse = await upstashGet(upstashKey);
     if (upstashAuthTokenResponse?.success && upstashAuthTokenResponse?.result) {
       authToken = upstashAuthTokenResponse.result;
