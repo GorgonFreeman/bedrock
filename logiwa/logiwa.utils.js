@@ -5,14 +5,15 @@ const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 const AUTH_TOKENS = new Map();
 
 const logiwaStatusToStatusId = (status) => {
-  switch (status) {
-    case 'Ready to Pack':
-      return 12;
-    case 'Shipped':
-      return 20;
-    case 'Cancelled':
-      return 30;
-  }
+  return {
+    'Open': 6,
+    'Shortage': 2,
+    'Picking Started': 9,
+    'Ready to Pack': 12,
+    'On Hold': 13,
+    'Shipped': 20,
+    'Cancelled': 30,
+  }[status];
 };
 
 const logiwaRequestSetup = ({ credsPath, apiVersion = 'v3.1' } = {}) => {
