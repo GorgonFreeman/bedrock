@@ -1,4 +1,4 @@
-const { credsByPath } = require('../utils');
+const { credsByPath, CustomAxiosClient, logDeep } = require('../utils');
 
 const bleckmannRequestSetup = ({ credsPath } = {}) => {
   const creds = credsByPath(['bleckmann', credsPath]);
@@ -17,6 +17,15 @@ const bleckmannRequestSetup = ({ credsPath } = {}) => {
   };
 };
 
+const commonCreds = bleckmannRequestSetup();
+const { baseUrl } = commonCreds;
+
+const bleckmannClient = new CustomAxiosClient({
+  baseUrl,
+  factory: bleckmannRequestSetup,
+});
+
 module.exports = {
   bleckmannRequestSetup,
+  bleckmannClient,
 };
