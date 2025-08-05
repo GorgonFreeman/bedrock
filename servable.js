@@ -87,4 +87,5 @@ module.exports = {
   etsyMeGet: require('./etsy/etsyMeGet').etsyMeGetApi,
   etsyPing: require('./etsy/etsyPing').etsyPingApi,
   collabsFulfillmentSweep: require('./collabs/collabsFulfillmentSweep').collabsFulfillmentSweepApi,
+  bleckmannSkuGet: require('./bleckmann/bleckmannSkuGet').bleckmannSkuGetApi,
 };
