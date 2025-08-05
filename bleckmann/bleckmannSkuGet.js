@@ -28,7 +28,7 @@ const bleckmannSkuGet = async (
 
   const client = new CustomAxiosClient({
     baseUrl,
-    headers,
+    baseHeaders: headers,
   });
 
   const response = await client.fetch({
