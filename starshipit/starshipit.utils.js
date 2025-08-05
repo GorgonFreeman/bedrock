@@ -42,7 +42,7 @@ const starshipitClient = new CustomAxiosClient({
   },
 });
 
-const starshipitGetterPaginator = async (customAxiosPayload, response, nodeName) => {
+const starshipitGetterPaginator = async (customAxiosPayload, response, additionalPaginationData, nodeName) => {
   // logDeep('paginator: decide when done and make next payload', customAxiosPayload, response);
   // await askQuestion('?');
 

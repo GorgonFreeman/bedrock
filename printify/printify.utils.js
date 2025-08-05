@@ -38,7 +38,7 @@ const printifyClient = new CustomAxiosClient({
   },
 });
 
-const printifyGetterPaginator = async (customAxiosPayload, response) => {
+const printifyGetterPaginator = async (customAxiosPayload, response, additionalPaginationData) => {
   // logDeep('paginator: decide when done and make next payload', customAxiosPayload, response);
   // await askQuestion('?');
 

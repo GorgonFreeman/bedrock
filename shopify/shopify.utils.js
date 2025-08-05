@@ -72,7 +72,7 @@ const shopifyClient = new CustomAxiosClient({
   },
 });
 
-const shopifyGetterPaginator = async (customAxiosPayload, response, nodeName) => {
+const shopifyGetterPaginator = async (customAxiosPayload, response, additionalPaginationData, nodeName) => {
   // console.log('shopifyGetterPaginator response', response);
   // await askQuestion('Continue?');
 
