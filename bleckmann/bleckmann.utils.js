@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, logDeep, Getter } = require('../utils');
+const { credsByPath, CustomAxiosClient, logDeep, Getter, getterAsGetFunction, askQuestion } = require('../utils');
 
 const bleckmannRequestSetup = ({ credsPath } = {}) => {
   const creds = credsByPath(['bleckmann', credsPath]);
@@ -83,7 +83,11 @@ const bleckmannGetter = async (
   );
 };
 
+const bleckmannGet = getterAsGetFunction(bleckmannGetter);
+
 module.exports = {
   bleckmannRequestSetup,
   bleckmannClient,
+  bleckmannGetter,
+  bleckmannGet,
 };

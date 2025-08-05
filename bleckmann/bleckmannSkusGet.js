@@ -1,5 +1,5 @@
-const { respond, mandateParam } = require('../utils');
-const { bleckmannGetter } = require('../bleckmann/bleckmann.utils');
+const { respond, mandateParam, logDeep } = require('../utils');
+const { bleckmannGet } = require('../bleckmann/bleckmann.utils');
 
 const bleckmannSkusGet = async (
   {
@@ -7,10 +7,14 @@ const bleckmannSkusGet = async (
   } = {},
 ) => {
 
-  return { 
-    credsPath,
-  };
-  
+  const response = await bleckmannGet(
+    '/skus',
+    {
+      credsPath,
+    },
+  );
+  logDeep(response);
+  return response;
 };
 
 const bleckmannSkusGetApi = async (req, res) => {
