@@ -1,3 +1,5 @@
+const { credsByPath } = require('../utils');
+
 const bleckmannRequestSetup = ({ credsPath } = {}) => {
   const creds = credsByPath(['bleckmann', credsPath]);
   const { 
