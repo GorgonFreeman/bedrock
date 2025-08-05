@@ -46,7 +46,7 @@ const collabsFulfillmentSweep = async (
         }
       `,
       queries: [
-        'created_at:>2024-01-01',
+        'created_at:>2025-07-01',
         'fulfillment_status:unshipped',
         'status:open',
         'delivery_method:shipping',
