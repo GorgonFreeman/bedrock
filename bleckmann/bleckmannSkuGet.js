@@ -1,4 +1,5 @@
 const { respond, mandateParam, credsByPath, CustomAxiosClient, logDeep } = require('../utils');
+const { bleckmannRequestSetup } = require('../bleckmann/bleckmann.utils');
 
 const bleckmannSkuGet = async (
   sku,
@@ -7,24 +8,7 @@ const bleckmannSkuGet = async (
   } = {},
 ) => {
 
-  const bleckmannRequestSetup = (credsPath) => {
-    const creds = credsByPath(['bleckmann', credsPath]);
-    const { 
-      BASE_URL,
-      PRIMARY_KEY,
-    } = creds;
-  
-    const headers = {
-      'x-api-key': PRIMARY_KEY,
-    };
-  
-    return {
-      baseUrl: BASE_URL,
-      headers,
-    };
-  };
-
-  const { baseUrl, headers } = bleckmannRequestSetup(credsPath);
+  const { baseUrl, headers } = bleckmannRequestSetup({ credsPath });
 
   const client = new CustomAxiosClient({
     baseUrl,
