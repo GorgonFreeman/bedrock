@@ -20,6 +20,7 @@ const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 const { starshipitOrdersListShipped } = require('../starshipit/starshipitOrdersListShipped');
 
 const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
+const { logiwaOrdersList } = require('../logiwa/logiwaOrdersList');
 
 // TODO: Implement more mass ways of getting orders out of Starshipit
 
@@ -28,7 +29,7 @@ const collabsFulfillmentSweep = async (
     shopifyRegions = REGIONS_ALL,
     // TODO: Consider setting based on timeframe or status
     notifyCustomers = false,
-    peoplevoxReportWindowWeeksAgo = 1,
+    prefetchWindowWeeksAgo = 1,
   } = {},
 ) => {
   
@@ -53,11 +54,13 @@ const collabsFulfillmentSweep = async (
     },
   );
 
+  const prefetchWindowStartDate = dateTimeFromNow({ minus: weeks(prefetchWindowWeeksAgo), dateOnly: true });
+  const now = dateTimeFromNow({ dateOnly: true });
+
   // 1a. Also prefetch any other useful data, e.g. pvx recent dispatches
   const peoplevoxRelevant = shopifyRegions.some(region => REGIONS_PVX.includes(region));
 
-  let pvxReportWindowStart = dateTimeFromNow({ minus: weeks(peoplevoxReportWindowWeeksAgo), dateOnly: true });
-  pvxReportWindowStart = peoplevoxDateFormatter(pvxReportWindowStart);
+  const pvxReportWindowStart = peoplevoxDateFormatter(prefetchWindowStartDate);
   const getPeoplevoxRecentDispatches = async () => {
     const peoplevoxRecentDispatchesResponse = await peoplevoxReportGet('Despatch summary', { 
       columns: ['Salesorder number', 'Carrier', 'Tracking number', 'Despatch date'], 
@@ -92,13 +95,30 @@ const collabsFulfillmentSweep = async (
     return starshipitShippedOrdersByAccount;
   };
 
+  // 1c. Prefetch Logiwa shipped orders
+  const logiwaRelevant = shopifyRegions.some(region => REGIONS_LOGIWA.includes(region));
+  const getLogiwaShippedOrders = async () => {
+    const logiwaShippedOrdersResponse = await logiwaOrdersList({
+      createdDateTime_bt: `${ prefetchWindowStartDate },${ now }`,
+      status_eq: 'Shipped',
+    });
+
+    if (!logiwaShippedOrdersResponse?.success || !logiwaShippedOrdersResponse?.result) {
+      return;
+    }
+
+    return logiwaShippedOrdersResponse.result;
+  };
+
   const [
     pvxRecentDispatches,
     starshipitShippedOrdersByAccount,
+    logiwaPrefetchedOrders,
     ...shopifyOrderResponses
   ] = await Promise.all([
     ...(peoplevoxRelevant ? [getPeoplevoxRecentDispatches()] : [false]),
     ...(starshipitRelevant ? [getStarshipitShippedOrders()] : [false]),
+    ...(logiwaRelevant ? [getLogiwaShippedOrders()] : [false]),
     ...shopifyRegions.map(region => getShopifyOrdersPerRegion(region)),
   ]);
 
@@ -112,6 +132,26 @@ const collabsFulfillmentSweep = async (
   // await askQuestion('?');
 
   const arrayExhaustedCheck = (arr) => arr.length === 0;
+
+  const logiwaPrefetchProcessorMaker = (piles, processorOptions = {}) => new Processor(
+    piles.in,
+    async (pile) => {
+      const order = pile.shift();
+      const { name: orderName } = order;
+      const logiwaOrder = logiwaPrefetchedOrders.find(order => order.code === orderName);
+
+      if (logiwaOrder) {
+        console.log(logiwaOrder);
+        await askQuestion('?');
+        // piles.resolved.push(order);
+        // return;
+      }
+
+      piles.continue.push(order);
+    },
+    arrayExhaustedCheck, // pileExhaustedCheck
+    processorOptions,
+  );
 
   const starshipitShippedProcessorMaker = (piles, region, processorOptions = {}) => new Processor(
     piles.in,
@@ -450,6 +490,18 @@ const collabsFulfillmentSweep = async (
     };
 
     const pipeline = new ProcessorPipeline();
+
+    if (logiwaRelevant) {
+      pipeline.add({
+        maker: logiwaPrefetchProcessorMaker,
+        piles: { 
+          resolved: piles.readyToFulfill,
+        },
+        makerOptions: { 
+          logFlavourText: `${ region }:logiwaprefetch:`,
+        },
+      });
+    }
 
     if (REGIONS_STARSHIPIT.includes(region)) {
       pipeline.add({
