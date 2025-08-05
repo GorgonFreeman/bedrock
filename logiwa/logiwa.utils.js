@@ -7,10 +7,10 @@ const AUTH_TOKENS = new Map();
 const logiwaStatusToStatusId = (status) => {
   return {
     'Open': 6,
+    'On Hold': 4,
     'Shortage': 2,
     'Picking Started': 9,
     'Ready to Pack': 12,
-    'On Hold': 13,
     'Shipped': 20,
     'Cancelled': 30,
   }[status];
