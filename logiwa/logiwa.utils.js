@@ -22,6 +22,7 @@ const logiwaFactory = async({ credsPath, apiVersion } = {}) => {
 
   // TODO: Handle auth token refresh
   let authToken;
+  const upstashKey = `logiwa_token_${ credsPath?.join('.') || 'default' }`;
 
   if (AUTH_TOKENS.has(credsPath)) {
     authToken = AUTH_TOKENS.get(credsPath);
@@ -29,7 +30,7 @@ const logiwaFactory = async({ credsPath, apiVersion } = {}) => {
   }
 
   if (!authToken) {
-    const upstashAuthTokenResponse = await upstashGet(`logiwa_token_${ credsPath.join('.') }`);
+    const upstashAuthTokenResponse = await upstashGet(upstashKey);
     if (upstashAuthTokenResponse?.success && upstashAuthTokenResponse?.result) {
       authToken = upstashAuthTokenResponse.result;
       AUTH_TOKENS.set(credsPath, authToken);
@@ -44,7 +45,7 @@ const logiwaFactory = async({ credsPath, apiVersion } = {}) => {
     }
     authToken = authResponse?.result;
     AUTH_TOKENS.set(credsPath, authToken);
-    upstashSet(`logiwa_token_${ credsPath.join('.') }`, authToken);
+    upstashSet(upstashKey, authToken);
     console.log('Using auth token from API');
   }
 
