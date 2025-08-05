@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, logDeep } = require('../utils');
+const { credsByPath, CustomAxiosClient, logDeep, Getter } = require('../utils');
 
 const bleckmannRequestSetup = ({ credsPath } = {}) => {
   const creds = credsByPath(['bleckmann', credsPath]);
@@ -24,6 +24,64 @@ const bleckmannClient = new CustomAxiosClient({
   baseUrl,
   factory: bleckmannRequestSetup,
 });
+
+const bleckmannGetter = async (
+  url,
+  {
+    credsPath,
+    params,
+    ...getterOptions
+  } = {},
+) => {
+  return new Getter(
+    {
+      url,
+      payload: {
+        params,
+      },
+      paginator: async (customAxiosPayload, response, { url }) => {
+        logDeep(customAxiosPayload, response, url);
+        await askQuestion('paginator?');
+
+        const { success, result } = response;
+        if (!success) { // Return if failed
+          return [true, null]; 
+        }
+
+        // 1. Extract necessary pagination info
+
+        // 2. Supplement payload with next pagination info
+        
+        // 3. Logic to determine done
+        
+        return [done, customAxiosPayload, {
+          url: nextUrl,
+        }];
+
+      },
+      digester: async (response) => {
+        logDeep(response);
+        await askQuestion('digester?');
+
+        const { success, result } = response;
+        if (!success) { // Return if failed
+          return null; 
+        }
+
+        const items = result?.data;
+        return items;
+      },
+      client: bleckmannClient,
+      clientArgs: {
+        context: {
+          credsPath,
+        },
+      },
+
+      ...getterOptions
+    },
+  );
+};
 
 module.exports = {
   bleckmannRequestSetup,
