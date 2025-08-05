@@ -1,34 +1,34 @@
 const { respond, mandateParam } = require('../utils');
 
 const bleckmannSkuGet = async (
-  arg,
+  sku,
   {
-    option,
+    credsPath,
   } = {},
 ) => {
 
   return { 
-    arg, 
-    option,
+    sku,
+    credsPath,
   };
   
 };
 
 const bleckmannSkuGetApi = async (req, res) => {
   const { 
-    arg,
+    sku,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'sku', sku),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await bleckmannSkuGet(
-    arg,
+    sku,
     options,
   );
   respond(res, 200, result);
@@ -39,4 +39,4 @@ module.exports = {
   bleckmannSkuGetApi,
 };
 
-// curl localhost:8000/bleckmannSkuGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/bleckmannSkuGet -H "Content-Type: application/json" -d '{ "sku": "EXD1224-3-3XS/XXS" }'
