@@ -749,6 +749,7 @@ class Getter extends EventEmitter {
     }
   }
 
+  // TODO: Interval mode for predictable pagination schemes
   async run({
     verbose = true,
   } = {}) {
