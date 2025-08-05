@@ -60,8 +60,8 @@ const bleckmannGetter = async (
 
       },
       digester: async (response) => {
-        logDeep(response);
-        await askQuestion('digester?');
+        // logDeep(response);
+        // await askQuestion('digester?');
 
         const { success, result } = response;
         if (!success) { // Return if failed
