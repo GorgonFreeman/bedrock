@@ -4,8 +4,8 @@ const { logiwaOrdersList } = require('../logiwa/logiwaOrdersList');
 
 const logiwaOrderGet = async (
   {
-    orderId,
-    orderCode,
+    orderId, // Logiwa order UUID
+    orderCode, // Shopify order name
   },
   {
     credsPath,
