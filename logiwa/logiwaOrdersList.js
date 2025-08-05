@@ -8,8 +8,22 @@ const logiwaOrdersList = async (
   {
     credsPath,
     apiVersion = 'v3.1',
+    
     page = 1,
     perPage = MAX_PER_PAGE,
+
+    sku,                   // eq
+    updatedDateTime,       // bt
+    code,                  // eq
+    warehouseIdentifier,   // eq, in
+    identifier,            // eq
+    clientIdentifier,      // eq, in
+    createdDateTime,       // bt
+    actualShipmentDate,    // bt
+    shipmentOrderDate,     // bt
+    status,                // in, eq
+    expectedShipmentDate,  // bt
+    shipmentOrderTypeName, // eq
   } = {},
 ) => {
 
