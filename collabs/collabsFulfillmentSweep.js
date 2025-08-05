@@ -379,10 +379,17 @@ const collabsFulfillmentSweep = async (
       }
 
       const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
+
+      const knownBadStatuses = ['Open', 'Cancelled', 'Shortage'];
+      const knownGoodStatuses = ['Shipped'];
       
-      if (!['Shipped'].includes(shipmentOrderStatusName)) {
-        console.log(logiwaOrder, logiwaOrder.code, shipmentOrderStatusName, trackingNumber, allShipped);
-        await askQuestion('?');
+      if (!knownGoodStatuses.includes(shipmentOrderStatusName)) {
+
+        if (!knownBadStatuses.includes(shipmentOrderStatusName)) {
+          console.log(logiwaOrder, logiwaOrder.code, shipmentOrderStatusName, trackingNumber, allShipped);
+          await askQuestion('?');
+        }
+
         piles.disqualified.push(order);
         return;
       }
