@@ -68,7 +68,7 @@ const logiwaOrderGetApi = async (req, res) => {
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'orderIdentifier', orderIdentifier, objHasAny(['orderId', 'orderCode'])),
+    mandateParam(res, 'orderIdentifier', orderIdentifier, p => objHasAny(p, ['orderId', 'orderCode'])),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
