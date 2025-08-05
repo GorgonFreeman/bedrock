@@ -6,6 +6,8 @@ const AUTH_TOKENS = new Map();
 
 const logiwaStatusToStatusId = (status) => {
   switch (status) {
+    case 'Ready to Pack':
+      return 12;
     case 'Shipped':
       return 20;
     case 'Cancelled':
