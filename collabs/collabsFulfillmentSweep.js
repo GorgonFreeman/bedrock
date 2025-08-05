@@ -370,7 +370,7 @@ const collabsFulfillmentSweep = async (
         currentTrackingNumber,
         trackingNumbers,
         products,
-        shipmentOrderStatusName,
+        shipmentOrderStatusName, // Shipped, Open, Cancelled, Shortage
       } = logiwaOrder;
 
       let trackingNumber = currentTrackingNumber;
