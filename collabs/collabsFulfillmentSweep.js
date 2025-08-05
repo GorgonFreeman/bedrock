@@ -369,15 +369,21 @@ const collabsFulfillmentSweep = async (
       const logiwaOrder = logiwaOrderResponse.result;
       const { 
         currentTrackingNumber,
+        trackingNumbers,
         products,
       } = logiwaOrder;
+
+      let trackingNumber = currentTrackingNumber;
+      if (!trackingNumber && trackingNumbers?.length === 1) {
+        trackingNumber = trackingNumbers[0];
+      }
 
       const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
 
       console.log(logiwaOrder);
       await askQuestion('?');
 
-      if (!currentTrackingNumber || !allShipped) {
+      if (!trackingNumber || !allShipped) {
         console.log(`Logiwa processing, not fully shipped`, logiwaOrder);
         piles.disqualified.push(order);
         return;
@@ -389,7 +395,7 @@ const collabsFulfillmentSweep = async (
           countryCode: 'US',
         },
         trackingInfo: {
-          number: currentTrackingNumber,
+          number: trackingNumber,
         },
       };
 
