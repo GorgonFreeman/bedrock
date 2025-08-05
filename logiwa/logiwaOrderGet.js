@@ -18,7 +18,7 @@ const logiwaOrderGet = async (
       method: 'get',
       url: `/ShipmentOrder/${ orderId }`,
     });
-    logDeep(response);
+    // logDeep(response);
     return response;
   }
 
@@ -53,11 +53,13 @@ const logiwaOrderGet = async (
       error: ['Order not found'],
     };
   }
-
-  return {
+  
+  const transformedResponse = {
     success: true,
     result: order,
-  };  
+  };
+  // logDeep(transformedResponse);
+  return transformedResponse;
   /* /orderCode */
 };
 
