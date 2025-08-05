@@ -20,6 +20,7 @@ const logiwaRequestSetup = ({ credsPath, apiVersion = 'v3.1' } = {}) => {
 const logiwaFactory = async({ credsPath, apiVersion } = {}) => {
   const { baseUrl } = logiwaRequestSetup({ credsPath, apiVersion });
 
+  // TODO: Handle auth token refresh
   let authToken;
 
   if (AUTH_TOKENS.has(credsPath)) {
