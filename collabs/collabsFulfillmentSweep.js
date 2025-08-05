@@ -411,7 +411,8 @@ const collabsFulfillmentSweep = async (
         currentTrackingNumber,
         trackingNumbers,
         products,
-        shipmentOrderStatusName, // Shipped, Open, Cancelled, Shortage
+        shipmentOrderStatusName,
+        shipmentOrderStatusId,
       } = logiwaOrder;
 
       let trackingNumber = currentTrackingNumber;
@@ -437,8 +438,9 @@ const collabsFulfillmentSweep = async (
       if (!knownGoodStatuses.includes(shipmentOrderStatusName)) {
 
         if (!knownBadStatuses.includes(shipmentOrderStatusName)) {
-          console.log(logiwaOrder, logiwaOrder.code, shipmentOrderStatusName, trackingNumber, allShipped);
-          await askQuestion('?');
+          console.log(shipmentOrderStatusId, shipmentOrderStatusName);
+          piles.continue.push(order);
+          return;
         }
 
         piles.disqualified.push(order);
