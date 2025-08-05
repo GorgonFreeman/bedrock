@@ -65,8 +65,9 @@ const logiwaGetter = async (
 
         // 1. Extract necessary pagination info
         const { totalCount } = result;
-        const page = url.match(/\/i\/(\d+)/)?.[1];
-        const perPage = url.match(/\/s\/(\d+)/)?.[1];
+        // i and s are both mandatory for the url to resolve, so we can assume they're present
+        const page = parseInt(url.match(/\/i\/(\d+)/)?.[1]);
+        const perPage = parseInt(url.match(/\/s\/(\d+)/)?.[1]);
 
         // 2. Supplement payload with next pagination info
         const nextUrl = url.replace(`/i/${ page }`, `/i/${ page + 1 }`);
