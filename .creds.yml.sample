@@ -47,3 +47,7 @@ logiwa:
   LOGIN_EMAIL: ________________________
   LOGIN_PASSWORD: _____________________
   AUTH_TOKEN: _________________________
+
+bleckmann:
+  PRIMARY_KEY: ________________________
+  SECONDARY_KEY: ______________________
