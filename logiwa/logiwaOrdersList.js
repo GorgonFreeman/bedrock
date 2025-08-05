@@ -7,11 +7,13 @@ const logiwaOrdersList = async (
   {
     credsPath,
     apiVersion = 'v3.1',
+    page = 1,
+    perPage = 200, // from API: Pagesize can't be greater than 200.
   } = {},
 ) => {
 
   const response = await logiwaGet(
-    `/ShipmentOrder/list/i/1/s/100`,
+    `/ShipmentOrder/list/i/${ page }/s/${ perPage }`,
     {
       credsPath,
       apiVersion,
