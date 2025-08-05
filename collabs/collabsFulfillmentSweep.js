@@ -380,7 +380,7 @@ const collabsFulfillmentSweep = async (
 
       const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
 
-      console.log(logiwaOrder);
+      console.log(logiwaOrder, logiwaOrder.code, trackingNumber, allShipped);
       await askQuestion('?');
 
       if (!trackingNumber || !allShipped) {
