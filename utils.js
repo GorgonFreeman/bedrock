@@ -561,8 +561,8 @@ class CustomAxiosClient {
         
         response = await customAxios(url, context.customAxiosPayload);
 
-        // logDeep('response', response);
-        // await askQuestion('Continue?');
+        debug && logDeep('response', response);
+        debug && await askQuestion('Continue?');
         
         // If customAxios gives a failure, it's nothing to do with user errors or data, it's because something has gone technically wrong. Return it as-is.
         if (!response?.success) {
