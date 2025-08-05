@@ -1,5 +1,6 @@
 const { credsByPath, CustomAxiosClient, Getter, logDeep, askQuestion, getterAsGetFunction } = require('../utils');
 const { logiwaAuthGet } = require('../logiwa/logiwaAuthGet');
+const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 
 const AUTH_TOKENS = new Map();
 
@@ -27,13 +28,23 @@ const logiwaFactory = async({ credsPath, apiVersion } = {}) => {
   }
 
   if (!authToken) {
+    const upstashAuthTokenResponse = await upstashGet(`logiwa_token_${ credsPath.join('.') }`);
+    if (upstashAuthTokenResponse?.success && upstashAuthTokenResponse?.result) {
+      authToken = upstashAuthTokenResponse.result;
+      AUTH_TOKENS.set(credsPath, authToken);
+      console.log('Using auth token from Upstash');
+    }
+  }
+
+  if (!authToken) {
     const authResponse = await logiwaAuthGet({ credsPath, apiVersion });
     if (!authResponse?.success) {
       throw new Error(authResponse);
     }
     authToken = authResponse?.result;
     AUTH_TOKENS.set(credsPath, authToken);
-    console.log('Setting auth token in map');
+    upstashSet(`logiwa_token_${ credsPath.join('.') }`, authToken);
+    console.log('Using auth token from API');
   }
 
   const headers = {
