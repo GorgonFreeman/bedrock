@@ -12,34 +12,55 @@ const logiwaOrdersList = async (
     page = 1,
     perPage = MAX_PER_PAGE,
 
-    sku,                   // eq
-    updatedDateTime,       // bt
-    code,                  // eq
-    warehouseIdentifier,   // eq, in
-    identifier,            // eq
-    clientIdentifier,      // eq, in
-    createdDateTime,       // bt
-    actualShipmentDate,    // bt
-    shipmentOrderDate,     // bt
-    status,                // in, eq
-    expectedShipmentDate,  // bt
-    shipmentOrderTypeName, // eq
+    sku_eq,
+    updatedDateTime_bt,
+    code_eq,
+    warehouseIdentifier_eq,
+    warehouseIdentifier_in,
+    identifier_eq,
+    clientIdentifier_eq,
+    clientIdentifier_in,
+    createdDateTime_bt,
+    actualShipmentDate_bt,
+    shipmentOrderDate_bt,
+    status_in,
+    status_eq,
+    expectedShipmentDate_bt,
+    shipmentOrderTypeName_eq,
   } = {},
 ) => {
+
+  const params = {
+    ...(sku_eq && { 'Sku.eq': sku_eq }),
+    ...(updatedDateTime_bt && { 'UpdatedDateTime.bt': updatedDateTime_bt }),
+    ...(code_eq && { 'Code.eq': code_eq }),
+    ...(warehouseIdentifier_eq && { 'WarehouseIdentifier.eq': warehouseIdentifier_eq }),
+    ...(warehouseIdentifier_in && { 'WarehouseIdentifier.in': warehouseIdentifier_in }),
+    ...(identifier_eq && { 'Identifier.eq': identifier_eq }),
+    ...(clientIdentifier_eq && { 'ClientIdentifier.eq': clientIdentifier_eq }),
+    ...(clientIdentifier_in && { 'ClientIdentifier.in': clientIdentifier_in }),
+    ...(createdDateTime_bt && { 'CreatedDateTime.bt': createdDateTime_bt }),
+    ...(actualShipmentDate_bt && { 'ActualShipmentDate.bt': actualShipmentDate_bt }),
+    ...(shipmentOrderDate_bt && { 'ShipmentOrderDate.bt': shipmentOrderDate_bt }),
+    ...(status_in && { 'Status.in': status_in }),
+    ...(status_eq && { 'Status.eq': status_eq }),
+    ...(expectedShipmentDate_bt && { 'ExpectedShipmentDate.bt': expectedShipmentDate_bt }),
+    ...(shipmentOrderTypeName_eq && { 'ShipmentOrderTypeName.eq': shipmentOrderTypeName_eq }),
+  };
 
   const response = await logiwaGet(
     `/ShipmentOrder/list/i/${ page }/s/${ perPage }`,
     {
       credsPath,
       apiVersion,
+      params,
     },
   );
   logDeep(response);
   return response;
 };
 
-const logiwaOrdersListApi = async (req, res) => {
-  const { 
+const logiwaOrdersListApi = async (req, res) => {  const { 
     options,
   } = req.body;
 
@@ -62,3 +83,5 @@ module.exports = {
 };
 
 // curl localhost:8000/logiwaOrdersList
+// curl localhost:8000/logiwaOrdersList -H "Content-Type: application/json" -d '{ "options": { "createdDateTime_bt": "2025-05-21T00:00:00Z,2025-05-22T00:00:00Z" } }'
+// curl localhost:8000/logiwaOrdersList -H "Content-Type: application/json" -d '{ "options": { "code_eq": "#USA4165771" } }'
