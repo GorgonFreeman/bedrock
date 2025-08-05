@@ -38,6 +38,7 @@ const collabsFulfillmentSweep = async (
     {
       attrs: `
         id
+        name
         shippingLine {
           title
         }
@@ -355,9 +356,10 @@ const collabsFulfillmentSweep = async (
     piles.in,
     async (pile) => {
       const order = pile.shift();
-      const { orderId } = order;
+      const { name: orderCode } = order;
 
-      const logiwaOrderResponse = await logiwaOrderGet(orderId);
+      const logiwaOrderResponse = await logiwaOrderGet({ orderCode });
+
 
       if (!logiwaOrderResponse?.success || !logiwaOrderResponse?.result) {
         piles.continue.push(order);
