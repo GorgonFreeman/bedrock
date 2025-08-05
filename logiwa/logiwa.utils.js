@@ -4,6 +4,15 @@ const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 
 const AUTH_TOKENS = new Map();
 
+const logiwaStatusToStatusId = (status) => {
+  switch (status) {
+    case 'Shipped':
+      return 20;
+    case 'Cancelled':
+      return 30;
+  }
+};
+
 const logiwaRequestSetup = ({ credsPath, apiVersion = 'v3.1' } = {}) => {
 
   const creds = credsByPath(['logiwa', credsPath]);
@@ -147,6 +156,7 @@ const logiwaGetter = async (
 const logiwaGet = getterAsGetFunction(logiwaGetter);
 
 module.exports = {
+  logiwaStatusToStatusId,
   logiwaClient,
   logiwaGetter,
   logiwaGet,

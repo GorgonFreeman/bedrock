@@ -21,6 +21,7 @@ const { starshipitOrdersListShipped } = require('../starshipit/starshipitOrdersL
 
 const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
 const { logiwaOrdersList } = require('../logiwa/logiwaOrdersList');
+const { logiwaStatusToStatusId } = require('../logiwa/logiwa.utils');
 
 // TODO: Implement more mass ways of getting orders out of Starshipit
 
@@ -100,7 +101,7 @@ const collabsFulfillmentSweep = async (
   const getLogiwaShippedOrders = async () => {
     const logiwaShippedOrdersResponse = await logiwaOrdersList({
       createdDateTime_bt: `${ new Date(prefetchWindowStartDate).toISOString() },${ new Date().toISOString() }`,
-      status_eq: 'Shipped',
+      status_eq: logiwaStatusToStatusId('Shipped'),
     });
 
     if (!logiwaShippedOrdersResponse?.success || !logiwaShippedOrdersResponse?.result) {
