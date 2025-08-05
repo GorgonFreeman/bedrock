@@ -502,7 +502,10 @@ const collabsFulfillmentSweep = async (
           resolved: piles.readyToFulfill,
           disqualified: piles.notShipped,
         },
-        makerOptions: { logFlavourText: `${ region }:logiwa:` },
+        makerOptions: { 
+          logFlavourText: `${ region }:logiwa:`,
+          runOptions: { interval: 200 },
+        },
       });
     }
 
@@ -521,7 +524,10 @@ const collabsFulfillmentSweep = async (
         error: piles.error,
       },
       makerArgs: [region],
-      makerOptions: { logFlavourText: `${ region }:fulfill:` },
+      makerOptions: { 
+        logFlavourText: `${ region }:fulfill:`,
+        runOptions: { interval: 200 },
+      },
     });
     
     const leftovers = await pipeline.run(inputPile);
