@@ -380,7 +380,7 @@ const collabsFulfillmentSweep = async (
 
       const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
 
-      const knownBadStatuses = ['Open', 'Cancelled', 'Shortage'];
+      const knownBadStatuses = ['Open', 'Cancelled', 'Shortage', 'Ready to Pack', 'Picking Started'];
       const knownGoodStatuses = ['Shipped'];
       
       if (!knownGoodStatuses.includes(shipmentOrderStatusName)) {
