@@ -102,8 +102,8 @@ const collabsFulfillmentSweep = async (
     ...shopifyRegions.map(region => getShopifyOrdersPerRegion(region)),
   ]);
 
-  logDeep('pvxRecentDispatches', pvxRecentDispatches);
-  await askQuestion('?');
+  // logDeep('pvxRecentDispatches', pvxRecentDispatches);
+  // await askQuestion('?');
 
   // logDeep('starshipitShippedOrdersByAccount', starshipitShippedOrdersByAccount);
   // await askQuestion('?');
