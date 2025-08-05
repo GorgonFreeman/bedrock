@@ -2,13 +2,14 @@
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { logiwaGet } = require('../logiwa/logiwa.utils');
+const { MAX_PER_PAGE } = require('../logiwa/logiwa.constants');
 
 const logiwaOrdersList = async (
   {
     credsPath,
     apiVersion = 'v3.1',
     page = 1,
-    perPage = 200, // from API: Pagesize can't be greater than 200.
+    perPage = MAX_PER_PAGE,
   } = {},
 ) => {
 
