@@ -99,7 +99,7 @@ const collabsFulfillmentSweep = async (
   const logiwaRelevant = shopifyRegions.some(region => REGIONS_LOGIWA.includes(region));
   const getLogiwaShippedOrders = async () => {
     const logiwaShippedOrdersResponse = await logiwaOrdersList({
-      createdDateTime_bt: `${ prefetchWindowStartDate },${ now }`,
+      createdDateTime_bt: `${ new Date(prefetchWindowStartDate).toISOString() },${ new Date().toISOString() }`,
       status_eq: 'Shipped',
     });
 
