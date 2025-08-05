@@ -9,7 +9,7 @@ const logiwaOrdersList = async (
     credsPath,
     apiVersion = 'v3.1',
     
-    page = 1,
+    page = 0,
     perPage = MAX_PER_PAGE,
 
     sku_eq,
