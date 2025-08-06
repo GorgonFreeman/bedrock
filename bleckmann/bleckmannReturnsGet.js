@@ -8,6 +8,7 @@ const bleckmannReturnsGet = async (
     credsPath,
     skip,
     perPage,
+    // TODO: Consider consolidating 'from' and 'to' params into a single 'window' param, since they're often mutually required
     createdFrom,
     createdTo,
     receivedFrom,
