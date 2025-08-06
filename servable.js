@@ -30,6 +30,7 @@ module.exports = {
   shopifyProductGet: require('./shopify/shopifyProductGet').shopifyProductGetApi,
   shopifyProductUpdate: require('./shopify/shopifyProductUpdate').shopifyProductUpdateApi,
   shopifyProductsGet: require('./shopify/shopifyProductsGet').shopifyProductsGetApi,
+  shopifyStoreCreditAccountCredit: require('./shopify/shopifyStoreCreditAccountCredit').shopifyStoreCreditAccountCreditApi,
   shopifyStoreCreditAccountDebit: require('./shopify/shopifyStoreCreditAccountDebit').shopifyStoreCreditAccountDebitApi,
   shopifyThemesGet: require('./shopify/shopifyThemesGet').shopifyThemesGetApi,
   printifyBlueprintGet: require('./printify/printifyBlueprintGet').printifyBlueprintGetApi,
