@@ -15,7 +15,7 @@ const bleckmannAsnsGet = async (
 ) => {
 
   const response = await bleckmannGet(
-    '/inventory/adjustments',
+    '/asns',
     {
       credsPath,
       params: {
