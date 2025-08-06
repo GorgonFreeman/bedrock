@@ -4,12 +4,12 @@ const { respond, mandateParam, logDeep } = require('../utils');
 const { bleckmannGet } = require('../bleckmann/bleckmann.utils');
 
 const bleckmannInventoryAdjustmentsGet = async (
+  createdFrom,
+  createdTo,
   {
     credsPath,
     skip,
     perPage,
-    createdFrom,
-    createdTo,
     ...getterOptions
   } = {},
 ) => {
@@ -19,9 +19,9 @@ const bleckmannInventoryAdjustmentsGet = async (
     {
       credsPath,
       params: {
+        createdFrom,
+        createdTo,
         ...(skip && { skip }),
-        ...(createdFrom && { createdFrom }),
-        ...(createdTo && { createdTo }),
       },
       ...(perPage && { perPage }),
       ...getterOptions,
@@ -33,17 +33,22 @@ const bleckmannInventoryAdjustmentsGet = async (
 
 const bleckmannInventoryAdjustmentsGetApi = async (req, res) => {
   const {
+    createdFrom,
+    createdTo,
     options,
   } = req.body;
 
-  // const paramsValid = await Promise.all([
-  //   mandateParam(res, 'arg', arg),
-  // ]);
-  // if (paramsValid.some(valid => valid === false)) {
-  //   return;
-  // }
+  const paramsValid = await Promise.all([
+    mandateParam(res, 'createdFrom', createdFrom),
+    mandateParam(res, 'createdTo', createdTo),
+  ]);
+  if (paramsValid.some(valid => valid === false)) {
+    return;
+  }
 
   const result = await bleckmannInventoryAdjustmentsGet(
+    createdFrom,
+    createdTo,
     options,
   );
   respond(res, 200, result);
@@ -54,4 +59,4 @@ module.exports = {
   bleckmannInventoryAdjustmentsGetApi,
 };
 
-// curl localhost:8000/bleckmannInventoryAdjustmentsGet
+// curl localhost:8000/bleckmannInventoryAdjustmentsGet -H "Content-Type: application/json" -d '{ "createdFrom": "2025-07-01T00:00:00+01:00", "createdTo": "2025-07-02T00:00:00+01:00" }'
