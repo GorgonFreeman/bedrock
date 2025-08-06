@@ -4,7 +4,7 @@ const { yotpoRequestSetup } = require('../yotpo/yotpo.utils');
 const yotpoVipTiersGet = async (
   credsPath,
   {
-    apiVersion = 'v2',
+    apiVersion,
   } = {},
 ) => {
 
