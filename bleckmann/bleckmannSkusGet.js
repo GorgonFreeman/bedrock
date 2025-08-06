@@ -18,8 +18,8 @@ const bleckmannSkusGet = async (
       credsPath,
       params: {
         ...(skip && { skip }),
-        ...(createdFrom && { createdFrom: encodeURIComponent(createdFrom) }),
-        ...(createdTo && { createdTo: encodeURIComponent(createdTo) }),
+        ...(createdFrom && { createdFrom }),
+        ...(createdTo && { createdTo }),
       },
       ...(perPage && { perPage }),
       ...getterOptions,
