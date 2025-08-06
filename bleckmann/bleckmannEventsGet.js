@@ -3,7 +3,7 @@
 const { respond, mandateParam, logDeep } = require('../utils');
 const { bleckmannGet } = require('../bleckmann/bleckmann.utils');
 
-const bleckmannInventoryAdjustmentsGet = async (
+const bleckmannEventsGet = async (
   createdFrom,
   createdTo,
   {
@@ -22,8 +22,7 @@ const bleckmannInventoryAdjustmentsGet = async (
         createdFrom,
         createdTo,
         ...(skip && { skip }),
-      },
-      ...(perPage && { perPage }),
+      },      ...(perPage && { perPage }),
       ...getterOptions,
     },
   );
@@ -31,7 +30,7 @@ const bleckmannInventoryAdjustmentsGet = async (
   return response;
 };
 
-const bleckmannInventoryAdjustmentsGetApi = async (req, res) => {
+const bleckmannEventsGetApi = async (req, res) => {
   const {
     createdFrom,
     createdTo,
@@ -46,7 +45,7 @@ const bleckmannInventoryAdjustmentsGetApi = async (req, res) => {
     return;
   }
 
-  const result = await bleckmannInventoryAdjustmentsGet(
+  const result = await bleckmannEventsGet(
     createdFrom,
     createdTo,
     options,
@@ -55,8 +54,8 @@ const bleckmannInventoryAdjustmentsGetApi = async (req, res) => {
 };
 
 module.exports = {
-  bleckmannInventoryAdjustmentsGet,
-  bleckmannInventoryAdjustmentsGetApi,
+  bleckmannEventsGet,
+  bleckmannEventsGetApi,
 };
 
-// curl localhost:8000/bleckmannInventoryAdjustmentsGet -H "Content-Type: application/json" -d '{ "createdFrom": "2025-07-01T00:00:00+01:00", "createdTo": "2025-07-02T00:00:00+01:00" }'
+// curl localhost:8000/bleckmannEventsGet -H "Content-Type: application/json" -d '{ "createdFrom": "2025-07-01T00:00:00+01:00", "createdTo": "2025-07-02T00:00:00+01:00" }'
