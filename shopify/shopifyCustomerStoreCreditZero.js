@@ -1,4 +1,4 @@
-const { respond, mandateParam, logDeep, gidToId, askQuestion, arrayStandardResponse } = require('../utils');
+const { respond, mandateParam, logDeep, gidToId, askQuestion, arrayStandardResponse, actionMultipleOrSingle } = require('../utils');
 const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
 const { shopifyStoreCreditAccountDebit } = require('../shopify/shopifyStoreCreditAccountDebit');
 
@@ -16,7 +16,7 @@ const storeCreditAttrs = `
   }
 `;
 
-const shopifyCustomerStoreCreditZero = async (
+const shopifyCustomerStoreCreditZeroSingle = async (
   credsPath,
   customerId,
   {
@@ -72,8 +72,27 @@ const shopifyCustomerStoreCreditZero = async (
   }
 
   const arrayResponse = arrayStandardResponse(results);
-  logDeep(arrayResponse);
+  // logDeep(arrayResponse);
   return arrayResponse;
+};
+
+const shopifyCustomerStoreCreditZero = async (
+  credsPath,
+  customerId,
+  {
+    apiVersion,
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    customerId, 
+    shopifyCustomerStoreCreditZeroSingle, 
+    (customerId) => ({
+      args: [credsPath, customerId],
+      options: { apiVersion },
+    }),
+  );
+  logDeep(response);
+  return response;
 };
 
 const shopifyCustomerStoreCreditZeroApi = async (req, res) => {
