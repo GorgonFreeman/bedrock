@@ -53,4 +53,5 @@ module.exports = {
 };
 
 // curl localhost:8000/bleckmannSkusGet
-// curl localhost:8000/bleckmannSkusGet -H "Content-Type: application/json" -d '{ "options": { "createdFrom": "2025-07-01T16:00:00+01:00" } }'
+// curl localhost:8000/bleckmannSkusGet -H "Content-Type: application/json" -d '{ "options": { "limit": 100 } }'
+// curl localhost:8000/bleckmannSkusGet -H "Content-Type: application/json" -d '{ "options": { "createdFrom": "2024-01-01T00:00:00+01:00", "createdTo": "2025-12-31T23:59:59+01:00" } }'
