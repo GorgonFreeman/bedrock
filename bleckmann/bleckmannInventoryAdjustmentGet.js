@@ -1,17 +1,18 @@
-// https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/SKU/getSkuForId
+// https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/INVENTORY/getAdjustmentForId
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { bleckmannClient } = require('../bleckmann/bleckmann.utils');
 
 const bleckmannInventoryAdjustmentGet = async (
-  sku,
+  adjustmentId,
   {
     credsPath,
   } = {},
 ) => {
 
   const response = await bleckmannClient.fetch({
-    url: `/skus/${ encodeURIComponent(sku) }`,
+    url: `/inventory/adjustments/${ adjustmentId }`,
+    // TODO: Consider implementing an interpreter to return result.data - unclear if one adjustmentId can return multiple results validly
   });
 
   logDeep(response);
@@ -20,19 +21,19 @@ const bleckmannInventoryAdjustmentGet = async (
 
 const bleckmannInventoryAdjustmentGetApi = async (req, res) => {
   const { 
-    sku,
+    adjustmentId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'sku', sku),
+    mandateParam(res, 'adjustmentId', adjustmentId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await bleckmannInventoryAdjustmentGet(
-    sku,
+    adjustmentId,
     options,
   );
   respond(res, 200, result);
@@ -43,4 +44,4 @@ module.exports = {
   bleckmannInventoryAdjustmentGetApi,
 };
 
-// curl localhost:8000/bleckmannInventoryAdjustmentGet -H "Content-Type: application/json" -d '{ "sku": "EXD1224-3-3XS/XXS" }'
+// curl localhost:8000/bleckmannInventoryAdjustmentGet -H "Content-Type: application/json" -d '{ "adjustmentId": "800821052.1" }'
