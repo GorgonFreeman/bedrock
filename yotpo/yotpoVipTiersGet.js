@@ -1,34 +1,53 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, credsByPath, CustomAxiosClient, logDeep } = require('../utils');
 
 const yotpoVipTiersGet = async (
-  arg,
+  credsPath,
   {
-    option,
+    apiVersion = 'v2',
   } = {},
 ) => {
 
-  return { 
-    arg, 
-    option,
-  };
-  
+  const creds = credsByPath(['yotpo', credsPath]);
+
+  const {
+    API_KEY,
+    GUID,
+    MERCHANT_ID,
+  } = creds;
+
+  const client = new CustomAxiosClient({
+    baseUrl: `https://loyalty.yotpo.com/api/${ apiVersion }`,
+    baseHeaders: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  const response = await client.fetch({
+    url: `/vip_tiers`,
+    headers: {
+      'x-api-key': API_KEY,
+      'x-guid': GUID,
+    },
+  });
+  logDeep(response);
+  return response;
 };
 
 const yotpoVipTiersGetApi = async (req, res) => {
   const { 
-    arg,
+    credsPath,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'credsPath', credsPath),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await yotpoVipTiersGet(
-    arg,
+    credsPath,
     options,
   );
   respond(res, 200, result);
@@ -39,4 +58,4 @@ module.exports = {
   yotpoVipTiersGetApi,
 };
 
-// curl localhost:8000/yotpoVipTiersGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/yotpoVipTiersGet -H "Content-Type: application/json" -d '{ "credsPath": "au" }'
