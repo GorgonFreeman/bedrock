@@ -1,17 +1,17 @@
-// https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/SKU/getSkuForId
+// https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/ASN/getAsnForId
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { bleckmannClient } = require('../bleckmann/bleckmann.utils');
 
 const bleckmannAsnGet = async (
-  sku,
+  asnId,
   {
     credsPath,
   } = {},
 ) => {
 
   const response = await bleckmannClient.fetch({
-    url: `/skus/${ encodeURIComponent(sku) }`,
+    url: `/asns/${ asnId }`,
   });
 
   logDeep(response);
@@ -20,19 +20,19 @@ const bleckmannAsnGet = async (
 
 const bleckmannAsnGetApi = async (req, res) => {
   const { 
-    sku,
+    asnId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'sku', sku),
+    mandateParam(res, 'asnId', asnId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await bleckmannAsnGet(
-    sku,
+    asnId,
     options,
   );
   respond(res, 200, result);
@@ -43,4 +43,4 @@ module.exports = {
   bleckmannAsnGetApi,
 };
 
-// curl localhost:8000/bleckmannAsnGet -H "Content-Type: application/json" -d '{ "sku": "EXD1224-3-3XS/XXS" }'
+// curl localhost:8000/bleckmannAsnGet -H "Content-Type: application/json" -d '{ "asnId": "UK-AG002594" }'
