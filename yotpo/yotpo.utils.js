@@ -1,4 +1,4 @@
-const { credsByPath } = require('../utils');
+const { credsByPath, CustomAxiosClient } = require('../utils');
 
 const yotpoRequestSetup = ({
   credsPath,
@@ -28,6 +28,17 @@ const yotpoRequestSetup = ({
   };
 };
 
+const commonCreds = yotpoRequestSetup();
+const { baseUrl } = commonCreds;
+
+const yotpoClient = new CustomAxiosClient({
+  baseUrl,
+  baseHeaders: {
+    'Content-Type': 'application/json',
+  },
+  factory: yotpoRequestSetup,
+});
+
 module.exports = {
-  yotpoRequestSetup,
+  yotpoClient,
 };
