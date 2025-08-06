@@ -265,7 +265,7 @@ const shopifyMutationDo = async (
 ) => {
 
   const mutation = `
-    mutation ${ mutationName }(${ Object.entries(mutationVariables).map(([name, { type }]) => `$${ name }: ${ type }!`).join(', ') }) {
+    mutation ${ mutationName }(${ Object.entries(mutationVariables).map(([name, { type }]) => `$${ name }: ${ type }`).join(', ') }) {
       ${ mutationName }(${ Object.keys(mutationVariables).map(name => `${ name }: $${ name }`).join(', ') }) {
         ${ returnSchema }
         userErrors {
