@@ -805,6 +805,7 @@ class Getter extends EventEmitter {
       const additionalPaginationData = {
         url,
         resultsCount,
+        lastPageResultsCount: items.length,
       };
       
       let paginatedMisc;

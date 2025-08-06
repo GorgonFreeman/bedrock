@@ -39,9 +39,9 @@ const bleckmannGetter = async (
       payload: {
         params,
       },
-      paginator: async (customAxiosPayload, response, { resultsCount }) => {
-        logDeep(customAxiosPayload, response, resultsCount);
-        await askQuestion('paginator?');
+      paginator: async (customAxiosPayload, response, { resultsCount, lastPageResultsCount }) => {
+        // logDeep(customAxiosPayload, response, resultsCount, lastPageResultsCount);
+        // await askQuestion('paginator?');
 
         const { success, result } = response;
         if (!success) { // Return if failed
@@ -60,7 +60,7 @@ const bleckmannGetter = async (
         };
         
         // 3. Logic to determine done
-        const done = await askQuestion('done?') === 'y';
+        const done = lastPageResultsCount === 0;
         
         return [done, customAxiosPayload];
 
