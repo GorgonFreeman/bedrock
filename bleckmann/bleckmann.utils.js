@@ -39,8 +39,8 @@ const bleckmannGetter = async (
       payload: {
         params,
       },
-      paginator: async (customAxiosPayload, response, { resultsCount, lastPageResultsCount }) => {
-        // logDeep(customAxiosPayload, response, resultsCount, lastPageResultsCount);
+      paginator: async (customAxiosPayload, response, { lastPageResultsCount }) => {
+        // logDeep(customAxiosPayload, response, lastPageResultsCount);
         // await askQuestion('paginator?');
 
         const { success, result } = response;
@@ -55,7 +55,7 @@ const bleckmannGetter = async (
           ...customAxiosPayload,
           params: {
             ...customAxiosPayload.params,
-            skip: resultsCount,
+            skip: (customAxiosPayload.params?.skip || 0) + lastPageResultsCount,
           },
         };
         
