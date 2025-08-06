@@ -78,7 +78,7 @@ const customAxios = async (url, {
         };
       }
 
-      verbose && console.warn(errResponseTruncated);
+      console.warn(errResponseTruncated);
       
       const retryStatuses = [408, 429, ...arrayFromIntRange(500, 599)];
       const retryCodes = ['ECONNRESET', 'ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT', 'ECONNABORTED'];
