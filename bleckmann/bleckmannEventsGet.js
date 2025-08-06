@@ -22,7 +22,8 @@ const bleckmannEventsGet = async (
         createdFrom,
         createdTo,
         ...(skip && { skip }),
-      },      ...(perPage && { perPage }),
+      },
+      ...(perPage && { perPage }),
       ...getterOptions,
     },
   );
