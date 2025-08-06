@@ -1,4 +1,5 @@
 module.exports = {
+  yotpoCustomerGet: require('./yotpo/yotpoCustomerGet').yotpoCustomerGetApi,
   yotpoVipTiersGet: require('./yotpo/yotpoVipTiersGet').yotpoVipTiersGetApi,
   upstashGet: require('./upstash/upstash.utils').upstashGetApi,
   upstashSet: require('./upstash/upstash.utils').upstashSetApi,
