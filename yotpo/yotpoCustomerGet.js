@@ -22,7 +22,7 @@ const yotpoCustomerGet = async (
   const params = {
     ...(customerId && { customer_id: customerId }),
     ...(customerEmail && { customer_email: customerEmail }),
-    ...(customerPhone && { customer_phone: customerPhone }),
+    ...(customerPhone && { phone_number: customerPhone }),
     ...(posAccountId && { pos_account_id: posAccountId }),
     ...(countryCodeIso && { country_code_iso: countryCodeIso }),
     ...(!strictlyFalsey(withReferralCode) && { with_referral_code: withReferralCode }),
