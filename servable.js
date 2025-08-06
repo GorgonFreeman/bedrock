@@ -33,6 +33,7 @@ module.exports = {
   shopifyProductsGet: require('./shopify/shopifyProductsGet').shopifyProductsGetApi,
   shopifyStoreCreditAccountCredit: require('./shopify/shopifyStoreCreditAccountCredit').shopifyStoreCreditAccountCreditApi,
   shopifyStoreCreditAccountDebit: require('./shopify/shopifyStoreCreditAccountDebit').shopifyStoreCreditAccountDebitApi,
+  shopifyTagsAdd: require('./shopify/shopifyTagsAdd').shopifyTagsAddApi,
   shopifyThemesGet: require('./shopify/shopifyThemesGet').shopifyThemesGetApi,
   printifyBlueprintGet: require('./printify/printifyBlueprintGet').printifyBlueprintGetApi,
   printifyBlueprintPrintProviderVariantsGet: require('./printify/printifyBlueprintPrintProviderVariantsGet').printifyBlueprintPrintProviderVariantsGetApi,
