@@ -1,4 +1,5 @@
 const { respond, mandateParam, credsByPath, CustomAxiosClient, logDeep } = require('../utils');
+const { yotpoRequestSetup } = require('../yotpo/yotpo.utils');
 
 const yotpoVipTiersGet = async (
   credsPath,
@@ -7,26 +8,19 @@ const yotpoVipTiersGet = async (
   } = {},
 ) => {
 
-  const creds = credsByPath(['yotpo', credsPath]);
-
-  const {
-    API_KEY,
-    GUID,
-    MERCHANT_ID,
-  } = creds;
-
   const client = new CustomAxiosClient({
     baseUrl: `https://loyalty.yotpo.com/api/${ apiVersion }`,
     baseHeaders: {
       'Content-Type': 'application/json',
     },
+    factory: yotpoRequestSetup,
   });
 
   const response = await client.fetch({
     url: `/vip_tiers`,
-    headers: {
-      'x-api-key': API_KEY,
-      'x-guid': GUID,
+    context: {
+      credsPath,
+      apiVersion,
     },
   });
   logDeep(response);

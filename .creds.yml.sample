@@ -54,6 +54,7 @@ bleckmann:
   SECONDARY_KEY: ______________________
 
 yotpo:
+  BASE_URL: https://loyalty.yotpo.com/api
   store:
     API_KEY: __________________________
     GUID: _____________________________
