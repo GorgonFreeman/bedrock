@@ -64,4 +64,4 @@ module.exports = {
   bleckmannReturnsGetApi,
 };
 
-// curl localhost:8000/bleckmannReturnsGet -H "Content-Type: application/json" -d '{ "options": { "limit": "20" } }'
+// curl localhost:8000/bleckmannReturnsGet -H "Content-Type: application/json" -d '{ "options": { "limit": 20, "perPage": 15 } }'
