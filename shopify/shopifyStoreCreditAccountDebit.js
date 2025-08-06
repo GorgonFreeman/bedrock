@@ -1,17 +1,24 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/storeCreditAccountDebit
 
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 
 const shopifyStoreCreditAccountDebit = async (
   credsPath,
-  accountGid,
+  {
+    customerId,
+    storeCreditAccountId,
+  },
   amount,
   currencyCode,
   {
     apiVersion,
   } = {},
 ) => {
+
+  const accountGid = customerId 
+    ? `gid://shopify/Customer/${ customerId }` 
+    : `gid://shopify/StoreCreditAccount/${ storeCreditAccountId }`;
 
   const mutationName = 'storeCreditAccountDebit';
   
@@ -73,7 +80,7 @@ const shopifyStoreCreditAccountDebit = async (
 const shopifyStoreCreditAccountDebitApi = async (req, res) => {
   const {
     credsPath,
-    accountGid,
+    accountId,
     amount,
     currencyCode,
     options,
@@ -81,7 +88,7 @@ const shopifyStoreCreditAccountDebitApi = async (req, res) => {
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'accountGid', accountGid),
+    mandateParam(res, 'accountId', accountId, p => objHasAny(p, ['customerId', 'storeCreditAccountId'])),
     mandateParam(res, 'amount', amount),
     mandateParam(res, 'currencyCode', currencyCode),
   ]);
@@ -91,7 +98,7 @@ const shopifyStoreCreditAccountDebitApi = async (req, res) => {
 
   const result = await shopifyStoreCreditAccountDebit(
     credsPath,
-    accountGid,
+    accountId,
     amount,
     currencyCode,
     options,
@@ -104,4 +111,4 @@ module.exports = {
   shopifyStoreCreditAccountDebitApi,
 };
 
-// curl http://localhost:8000/shopifyStoreCreditAccountDebit -H 'Content-Type: application/json' -d '{ "credsPath": "au", "accountGid": "gid://shopify/Customer/8489669984328", "amount": 100, "currencyCode": "AUD" }'
+// curl http://localhost:8000/shopifyStoreCreditAccountDebit -H 'Content-Type: application/json' -d '{ "credsPath": "au", "accountId": { "customerId": "8489669984328" }, "amount": 100, "currencyCode": "AUD" }'
