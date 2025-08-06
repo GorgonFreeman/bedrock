@@ -4,12 +4,15 @@ const { respond, mandateParam, logDeep } = require('../utils');
 const { bleckmannGet } = require('../bleckmann/bleckmann.utils');
 
 const bleckmannAsnsGet = async (
-  createdFrom,
-  createdTo,
   {
     credsPath,
     skip,
     perPage,
+    createdFrom,
+    createdTo,
+    receivedFrom,
+    receivedTo,
+    status,
     ...getterOptions
   } = {},
 ) => {
@@ -19,8 +22,11 @@ const bleckmannAsnsGet = async (
     {
       credsPath,
       params: {
-        createdFrom,
-        createdTo,
+        ...(createdFrom && { createdFrom }),
+        ...(createdTo && { createdTo }),
+        ...(receivedFrom && { receivedFrom }),
+        ...(receivedTo && { receivedTo }),
+        ...(status && { status }),
         ...(skip && { skip }),
       },
       ...(perPage && { perPage }),
@@ -33,22 +39,18 @@ const bleckmannAsnsGet = async (
 
 const bleckmannAsnsGetApi = async (req, res) => {
   const {
-    createdFrom,
-    createdTo,
     options,
   } = req.body;
 
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'createdFrom', createdFrom),
-    mandateParam(res, 'createdTo', createdTo),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
+  // const paramsValid = await Promise.all([
+  //   mandateParam(res, 'createdFrom', createdFrom),
+  //   mandateParam(res, 'createdTo', createdTo),
+  // ]);
+  // if (paramsValid.some(valid => valid === false)) {
+  //   return;
+  // }
 
   const result = await bleckmannAsnsGet(
-    createdFrom,
-    createdTo,
     options,
   );
   respond(res, 200, result);
