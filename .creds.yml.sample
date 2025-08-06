@@ -52,3 +52,9 @@ bleckmann:
   BASE_URL: https://apis.bleckmann.com/warehousing
   PRIMARY_KEY: ________________________
   SECONDARY_KEY: ______________________
+
+yotpo:
+  store:
+    API_KEY: __________________________
+    GUID: _____________________________
+    MERCHANT_ID: ______________________
