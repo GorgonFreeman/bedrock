@@ -47,6 +47,7 @@ const shopifyTagsRemove = async (
   } = {},
 ) => {
 
+  // TODO: Make multiple-or-single handling a utility
   if (Array.isArray(gid)) {
     const queue = new OperationQueue(gid.map(gidItem => new Operation(
       shopifyTagsRemoveSingle, 
