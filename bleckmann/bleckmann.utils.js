@@ -62,7 +62,7 @@ const bleckmannGetter = async (
         // 3. Logic to determine done
         const done = lastPageResultsCount === 0;
         
-        return [done, customAxiosPayload];
+        return [done, paginatedPayload];
 
       },
       digester: async (response) => {
