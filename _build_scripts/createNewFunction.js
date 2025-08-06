@@ -94,30 +94,37 @@ const createNewFunction = async () => {
       return a.displayName.localeCompare(b.displayName);
     });
 
-    console.log(`\nFound ${ exampleFiles.length } template(s) in ${ dir }:`);
-    const templateIndex = await askQuestion(`Which template would you like to use? (press enter for _example.js) \n${
-      exampleFiles.map((file, index) => {
-        return `[${ index + 1 }] ${ file.displayName }`;
-      }).join('\n')
-    }\n`);
-    
-    let selectedFile;
-    if (!templateIndex || templateIndex.trim() === '') {
-      // User pressed enter, use _example.js
-      selectedFile = exampleFiles.find(file => file.displayName === '_example.js');
-      if (!selectedFile) {
-        console.error('No _example.js template found.');
+    if (exampleFiles.length === 1) {
+      // Only one template available, use it automatically
+      selectedTemplate = exampleFiles[0].fullPath;
+      console.log(`\nUsing template: ${ exampleFiles[0].displayName }`);
+    } else {
+      // Multiple templates available, ask user to choose
+      console.log(`\nFound ${ exampleFiles.length } template(s) in ${ dir }:`);
+      const templateIndex = await askQuestion(`Which template would you like to use? (press enter for _example.js) \n${
+        exampleFiles.map((file, index) => {
+          return `[${ index + 1 }] ${ file.displayName }`;
+        }).join('\n')
+      }\n`);
+      
+      let selectedFile;
+      if (!templateIndex || templateIndex.trim() === '') {
+        // User pressed enter, use _example.js
+        selectedFile = exampleFiles.find(file => file.displayName === '_example.js');
+        if (!selectedFile) {
+          console.error('No _example.js template found.');
+          return;
+        }
+      } else {
+        selectedFile = exampleFiles[templateIndex - 1];
+      }
+      
+      if (selectedFile) {
+        selectedTemplate = selectedFile.fullPath;
+      } else {
+        console.error(`${ templateIndex } not a valid option.`);
         return;
       }
-    } else {
-      selectedFile = exampleFiles[templateIndex - 1];
-    }
-    
-    if (selectedFile) {
-      selectedTemplate = selectedFile.fullPath;
-    } else {
-      console.error(`${ templateIndex } not a valid option.`);
-      return;
     }
   }
 
