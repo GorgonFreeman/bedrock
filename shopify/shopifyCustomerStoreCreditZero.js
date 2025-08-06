@@ -1,61 +1,92 @@
-const { respond, mandateParam, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
+const { respond, mandateParam, logDeep, gidToId, askQuestion, arrayStandardResponse } = require('../utils');
+const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
+const { shopifyStoreCreditAccountDebit } = require('../shopify/shopifyStoreCreditAccountDebit');
+
+const storeCreditAttrs = `
+  storeCreditAccounts(first: 10) {
+    edges {
+      node {
+        id
+        balance {
+          amount
+          currencyCode
+        }
+      }
+    }
+  }
+`;
 
 const shopifyCustomerStoreCreditZero = async (
   credsPath,
-  arg,
+  customerId,
   {
     apiVersion,
-    option,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
+  // 1. Get all store credit accounts for customer
+  const customerResponse = await shopifyCustomerGet(
+    credsPath,
+    { customerId },
+    {
       apiVersion,
+      attrs: `id ${ storeCreditAttrs }`,
     },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
+  );
 
-  logDeep(response);
-  return response;
+  if (!customerResponse?.success || !customerResponse?.result) {
+    return customerResponse;
+  }
+
+  const customer = customerResponse.result;
+  const { storeCreditAccounts } = customer;
+  
+  console.log('storeCreditAccounts', Object.values(storeCreditAccounts));
+  await askQuestion('?');
+
+  const results = [];
+
+  // 2. Process each store credit account
+  // TODO: Why is this an object instead of an array?
+  for (const account of Object.values(storeCreditAccounts)) {
+    const { id: accountGid, balance } = account;
+    
+    console.log('account', account);
+    console.log('balance', balance?.amount);
+
+    // Skip if no balance or balance is 0
+    if (!balance?.amount || parseFloat(balance.amount) <= 0) {
+      continue;
+    }
+
+    // Remove all store credit from this account
+    const debitResponse = await shopifyStoreCreditAccountDebit(
+      credsPath,
+      { storeCreditAccountId: gidToId(accountGid) },
+      balance.amount,
+      balance.currencyCode,
+      { apiVersion },
+    );
+
+    results.push(debitResponse);
+  }
+
+  const arrayResponse = arrayStandardResponse(results);
+  logDeep(arrayResponse);
+  return arrayResponse;
 };
 
 const shopifyCustomerStoreCreditZeroApi = async (req, res) => {
-  const { 
+  const {
     credsPath,
-    arg,
+    customerId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'customerId', customerId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -63,7 +94,7 @@ const shopifyCustomerStoreCreditZeroApi = async (req, res) => {
 
   const result = await shopifyCustomerStoreCreditZero(
     credsPath,
-    arg,
+    customerId,
     options,
   );
   respond(res, 200, result);
@@ -74,4 +105,4 @@ module.exports = {
   shopifyCustomerStoreCreditZeroApi,
 };
 
-// curl localhost:8000/shopifyCustomerStoreCreditZero -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl http://localhost:8000/shopifyCustomerStoreCreditZero -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerId": "8489669984328" }' 
