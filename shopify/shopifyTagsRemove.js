@@ -95,3 +95,4 @@ module.exports = {
 };
 
 // curl http://localhost:8000/shopifyTagsRemove -H 'Content-Type: application/json' -d '{ "credsPath": "au", "gid": "gid://shopify/Product/6981195825224", "tags": ["watermelon", "banana"] }'
+// curl http://localhost:8000/shopifyTagsRemove -H 'Content-Type: application/json' -d '{ "credsPath": "au", "gid": ["gid://shopify/Customer/8489669984328", "gid://shopify/Customer/8469261484104"], "tags": ["watermelon", "banana"] }'
