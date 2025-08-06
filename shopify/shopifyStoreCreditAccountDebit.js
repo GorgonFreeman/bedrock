@@ -1,4 +1,4 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/storeCreditAccountDebit
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
