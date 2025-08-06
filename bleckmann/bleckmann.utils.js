@@ -1,4 +1,5 @@
 const { credsByPath, CustomAxiosClient, logDeep, Getter, getterAsGetFunction, askQuestion } = require('../utils');
+const { MAX_PER_PAGE } = require('../bleckmann/bleckmann.constants');
 
 const bleckmannRequestSetup = ({ credsPath } = {}) => {
   const creds = credsByPath(['bleckmann', credsPath]);
@@ -30,6 +31,7 @@ const bleckmannGetter = async (
   {
     credsPath,
     params,
+    perPage = MAX_PER_PAGE,
     ...getterOptions
   } = {},
 ) => {
@@ -37,7 +39,10 @@ const bleckmannGetter = async (
     {
       url,
       payload: {
-        params,
+        params: {
+          ...params,
+          limit: perPage,
+        },
       },
       paginator: async (customAxiosPayload, response, { lastPageResultsCount }) => {
         // logDeep(customAxiosPayload, response, lastPageResultsCount);
