@@ -1,26 +1,42 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/storeCreditAccountCredit
 
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
-
-const defaultAttrs = `id title handle`;
 
 const shopifyStoreCreditAccountCredit = async (
   credsPath,
-  input,
+  {
+    customerId,
+    storeCreditAccountId,
+  },
+  amount,
+  currencyCode,
   {
     apiVersion,
-    returnAttrs = defaultAttrs,
   } = {},
 ) => {
 
-  const mutationName = 'pageCreate';
+  const accountGid = customerId 
+    ? `gid://shopify/Customer/${ customerId }` 
+    : `gid://shopify/StoreCreditAccount/${ storeCreditAccountId }`;
+
+  const mutationName = 'storeCreditAccountCredit';
   
   const mutation = `
-    mutation ${ mutationName }($page: PageCreateInput!) {
-      ${ mutationName }(page: $page) {
-        page {
-          ${ returnAttrs }
+    mutation ${ mutationName }($id: ID!, $creditInput: StoreCreditAccountCreditInput!) {
+      ${ mutationName }(id: $id, creditInput: $creditInput) {
+        storeCreditAccountTransaction {
+          amount {
+            amount
+            currencyCode
+          }
+          account {
+            id
+            balance {
+              amount
+              currencyCode
+            }
+          }
         }
         userErrors {
           field
@@ -31,7 +47,13 @@ const shopifyStoreCreditAccountCredit = async (
   `;
 
   const variables = {
-    page: input,
+    id: accountGid,
+    creditInput: {
+      creditAmount: {
+        amount,
+        currencyCode,
+      },
+    },
   };
 
   const response = await shopifyClient.fetch({
@@ -58,13 +80,17 @@ const shopifyStoreCreditAccountCredit = async (
 const shopifyStoreCreditAccountCreditApi = async (req, res) => {
   const {
     credsPath,
-    input,
+    accountId,
+    amount,
+    currencyCode,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'input', input),
+    mandateParam(res, 'accountId', accountId, p => objHasAny(p, ['customerId', 'storeCreditAccountId'])),
+    mandateParam(res, 'amount', amount),
+    mandateParam(res, 'currencyCode', currencyCode),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -72,7 +98,9 @@ const shopifyStoreCreditAccountCreditApi = async (req, res) => {
 
   const result = await shopifyStoreCreditAccountCredit(
     credsPath,
-    input,
+    accountId,
+    amount,
+    currencyCode,
     options,
   );
   respond(res, 200, result);
@@ -83,4 +111,4 @@ module.exports = {
   shopifyStoreCreditAccountCreditApi,
 };
 
-// curl http://localhost:8000/shopifyStoreCreditAccountCredit -H 'Content-Type: application/json' -d '{ "credsPath": "au", "input": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyStoreCreditAccountCredit -H 'Content-Type: application/json' -d '{ "credsPath": "au", "accountId": { "customerId": "8489669984328" }, "amount": 100, "currencyCode": "AUD" }'
