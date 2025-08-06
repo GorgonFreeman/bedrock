@@ -8,6 +8,7 @@ const bleckmannSkusGet = async (
     perPage,
     createdFrom,
     createdTo,
+    ...getterOptions
   } = {},
 ) => {
 
@@ -21,22 +22,21 @@ const bleckmannSkusGet = async (
         ...(createdTo && { createdTo: encodeURIComponent(createdTo) }),
       },
       ...(perPage && { perPage }),
+      ...getterOptions,
     },
   );
   logDeep(response);
   return response;
 };
 
-const bleckmannSkusGetApi = async (req, res) => {
-  const {
+const bleckmannSkusGetApi = async (req, res) => {  const {
     options,
   } = req.body;
 
   // const paramsValid = await Promise.all([
   //   mandateParam(res, 'arg', arg),
   // ]);
-  // if (paramsValid.some(valid => valid === false)) {
-  //   return;
+  // if (paramsValid.some(valid => valid === false)) {  //   return;
   // }
 
   const result = await bleckmannSkusGet(
