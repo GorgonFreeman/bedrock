@@ -1,6 +1,6 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/tagsRemove
 
-const { respond, mandateParam, logDeep, OperationQueue, Operation, arrayStandardResponse } = require('../utils');
+const { respond, mandateParam, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id`;
@@ -33,7 +33,7 @@ const shopifyTagsRemoveSingle = async (
       apiVersion,
     },
   );
-  logDeep(response);
+  // logDeep(response);
   return response;
 };
 
@@ -46,22 +46,17 @@ const shopifyTagsRemove = async (
     returnAttrs,
   } = {},
 ) => {
-
-  // TODO: Make multiple-or-single handling a utility
-  if (Array.isArray(gid)) {
-    const queue = new OperationQueue(gid.map(gidItem => new Operation(
-      shopifyTagsRemoveSingle, 
-      {
-        args: [credsPath, gidItem, tags], 
-        options: { apiVersion, returnAttrs },
-      },
-    )));
-    let queueResponses = await queue.run();
-    queueResponse = arrayStandardResponse(queueResponses);
-    return queueResponse;
-  }
-
-  return shopifyTagsRemoveSingle(credsPath, gid, tags, { apiVersion, returnAttrs });
+  
+  const response = await actionMultipleOrSingle(
+    gid, 
+    shopifyTagsRemoveSingle, 
+    (gid) => ({
+      args: [credsPath, gid, tags],
+      options: { apiVersion, returnAttrs },
+    }),
+  );
+  logDeep(response);
+  return response;
 };
 
 const shopifyTagsRemoveApi = async (req, res) => {

@@ -1084,6 +1084,20 @@ class ProcessorPipeline {
   }
 };
 
+const actionMultipleOrSingle = async (input, func, buildOpArgs) => {
+  if (Array.isArray(input)) {
+    const queue = new OperationQueue(input.map(inputItem => new Operation(
+      func, 
+      buildOpArgs(inputItem),
+    )));
+    let queueResponses = await queue.run();
+    queueResponse = arrayStandardResponse(queueResponses);
+    return queueResponse;
+  }
+
+  return func(input, ...args, options);
+};
+
 module.exports = {
 
   // Really core
@@ -1124,6 +1138,7 @@ module.exports = {
   arrayToChunks,
   gidToId,
   surveyObjects,
+  actionMultipleOrSingle,
   
   // Classes
   CustomAxiosClient,
