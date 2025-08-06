@@ -1,4 +1,4 @@
-// https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/INVENTORY/getAdjustments
+// https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/EVENT/getEvents
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { bleckmannGet } = require('../bleckmann/bleckmann.utils');
