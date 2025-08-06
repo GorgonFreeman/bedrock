@@ -3,24 +3,33 @@
 const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
-
 const shopifyStoreCreditAccountDebit = async (
   credsPath,
-  input,
+  accountGid,
+  amount,
+  currencyCode,
   {
     apiVersion,
-    returnAttrs = defaultAttrs,
   } = {},
 ) => {
 
-  const mutationName = 'pageCreate';
+  const mutationName = 'storeCreditAccountDebit';
   
   const mutation = `
-    mutation ${ mutationName }($page: PageCreateInput!) {
-      ${ mutationName }(page: $page) {
-        page {
-          ${ returnAttrs }
+    mutation ${ mutationName }($id: ID!, $debitInput: StoreCreditAccountDebitInput!) {
+      ${ mutationName }(id: $id, debitInput: $debitInput) {
+        storeCreditAccountTransaction {
+          amount {
+            amount
+            currencyCode
+          }
+          account {
+            id
+            balance {
+              amount
+              currencyCode
+            }
+          }
         }
         userErrors {
           field
@@ -31,7 +40,13 @@ const shopifyStoreCreditAccountDebit = async (
   `;
 
   const variables = {
-    page: input,
+    id: accountGid,
+    debitInput: {
+      debitAmount: {
+        amount,
+        currencyCode,
+      },
+    },
   };
 
   const response = await shopifyClient.fetch({
@@ -58,13 +73,17 @@ const shopifyStoreCreditAccountDebit = async (
 const shopifyStoreCreditAccountDebitApi = async (req, res) => {
   const {
     credsPath,
-    input,
+    accountGid,
+    amount,
+    currencyCode,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'input', input),
+    mandateParam(res, 'accountGid', accountGid),
+    mandateParam(res, 'amount', amount),
+    mandateParam(res, 'currencyCode', currencyCode),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -72,7 +91,9 @@ const shopifyStoreCreditAccountDebitApi = async (req, res) => {
 
   const result = await shopifyStoreCreditAccountDebit(
     credsPath,
-    input,
+    accountGid,
+    amount,
+    currencyCode,
     options,
   );
   respond(res, 200, result);
@@ -83,4 +104,4 @@ module.exports = {
   shopifyStoreCreditAccountDebitApi,
 };
 
-// curl http://localhost:8000/shopifyStoreCreditAccountDebit -H 'Content-Type: application/json' -d '{ "credsPath": "au", "input": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyStoreCreditAccountDebit -H 'Content-Type: application/json' -d '{ "credsPath": "au", "accountGid": "gid://shopify/Customer/8489669984328", "amount": 100, "currencyCode": "AUD" }'
