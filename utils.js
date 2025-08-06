@@ -804,6 +804,7 @@ class Getter extends EventEmitter {
       /* Pagination logic */
       const additionalPaginationData = {
         url,
+        resultsCount,
       };
       
       let paginatedMisc;
