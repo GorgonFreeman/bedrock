@@ -254,8 +254,57 @@ const shopifyGetter = async (
 
 const shopifyGet = getterAsGetFunction(shopifyGetter);
 
+const shopifyMutationDo = async (
+  credsPath,
+  mutationName,
+  mutationVariables,
+  returnSchema,
+  { 
+    apiVersion,
+  } = {},
+) => {
+
+  const mutation = `
+    mutation ${ mutationName }(${ Object.entries(mutationVariables).map(([name, { type }]) => `$${ name }: ${ type }!`).join(', ') }) {
+      ${ mutationName }(${ Object.keys(mutationVariables).map(name => `${ name }: $${ name }`).join(', ') }) {
+        ${ returnSchema }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const variables = {};
+  for (const [name, { value }] of Object.entries(mutationVariables)) {
+    variables[name] = value;
+  }
+
+  const response = await shopifyClient.fetch({
+    method: 'post',
+    body: { query: mutation, variables },
+    context: {
+      credsPath,
+      apiVersion,
+    },
+    interpreter: async (response) => {
+      return {
+        ...response,
+        ...response.result ? {
+          result: response.result[mutationName],
+        } : {},
+      };
+    },
+  });
+
+  logDeep(response);
+  return response;
+};
+
 module.exports = {
   shopifyClient,
   shopifyGetter,
   shopifyGet,
+  shopifyMutationDo,
 };
