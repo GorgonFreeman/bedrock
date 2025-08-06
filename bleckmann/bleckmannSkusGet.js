@@ -4,6 +4,10 @@ const { bleckmannGet } = require('../bleckmann/bleckmann.utils');
 const bleckmannSkusGet = async (
   {
     credsPath,
+    skip,
+    perPage,
+    createdFrom,
+    createdTo,
   } = {},
 ) => {
 
@@ -11,6 +15,12 @@ const bleckmannSkusGet = async (
     '/skus',
     {
       credsPath,
+      params: {
+        ...(skip && { skip }),
+        ...(createdFrom && { createdFrom: encodeURIComponent(createdFrom) }),
+        ...(createdTo && { createdTo: encodeURIComponent(createdTo) }),
+      },
+      ...(perPage && { perPage }),
     },
   );
   logDeep(response);
@@ -41,3 +51,4 @@ module.exports = {
 };
 
 // curl localhost:8000/bleckmannSkusGet
+// curl localhost:8000/bleckmannSkusGet -H "Content-Type: application/json" -d '{ "options": { "createdFrom": "2025-07-01T16:00:00+01:00" } }'
