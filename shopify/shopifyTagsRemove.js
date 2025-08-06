@@ -1,13 +1,14 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/tagsRemove
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `id`;
 
 const shopifyTagsRemove = async (
   credsPath,
-  pageInput,
+  gid,
+  tags,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
@@ -16,14 +17,18 @@ const shopifyTagsRemove = async (
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'tagsRemove',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      id: {
+        type: 'ID!',
+        value: gid,
+      },
+      tags: {
+        type: '[String!]!',
+        value: tags,
       },
     },
-    `page { ${ returnAttrs } }`,
+    `node { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -35,13 +40,15 @@ const shopifyTagsRemove = async (
 const shopifyTagsRemoveApi = async (req, res) => {
   const {
     credsPath,
-    pageInput,
+    gid,
+    tags,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'pageInput', pageInput),
+    mandateParam(res, 'gid', gid),
+    mandateParam(res, 'tags', tags),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -49,7 +56,8 @@ const shopifyTagsRemoveApi = async (req, res) => {
 
   const result = await shopifyTagsRemove(
     credsPath,
-    pageInput,
+    gid,
+    tags,
     options,
   );
   respond(res, 200, result);
@@ -60,4 +68,4 @@ module.exports = {
   shopifyTagsRemoveApi,
 };
 
-// curl http://localhost:8000/shopifyTagsRemove -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyTagsRemove -H 'Content-Type: application/json' -d '{ "credsPath": "au", "gid": "gid://shopify/Product/6981195825224", "tags": ["watermelon", "banana"] }'
