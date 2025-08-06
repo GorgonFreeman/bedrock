@@ -15,7 +15,7 @@ const bleckmannReturnsGet = async (
 ) => {
 
   const response = await bleckmannGet(
-    '/events',
+    '/returns',
     {
       credsPath,
       params: {
@@ -55,4 +55,4 @@ module.exports = {
   bleckmannReturnsGetApi,
 };
 
-// curl localhost:8000/bleckmannReturnsGet -H "Content-Type: application/json" -d '{ "createdFrom": "2025-07-01T00:00:00+01:00", "createdTo": "2025-07-02T00:00:00+01:00" }'
+// curl localhost:8000/bleckmannReturnsGet -H "Content-Type: application/json" -d '{ "options": { "limit": "20" } }'
