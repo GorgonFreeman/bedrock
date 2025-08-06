@@ -1,6 +1,6 @@
 // https://loyaltyapi.yotpo.com/reference/fetch-customer-details
 
-const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
+const { respond, mandateParam, logDeep, objHasAny, strictlyFalsey } = require('../utils');
 const { yotpoClient } = require('../yotpo/yotpo.utils');
 
 const yotpoCustomerGet = async ( 
@@ -13,6 +13,9 @@ const yotpoCustomerGet = async (
   },
   {
     apiVersion,
+    countryCodeIso,
+    withReferralCode,
+    withHistory,
   } = {},
 ) => {
 
@@ -21,6 +24,9 @@ const yotpoCustomerGet = async (
     ...(customerEmail && { customer_email: customerEmail }),
     ...(customerPhone && { customer_phone: customerPhone }),
     ...(posAccountId && { pos_account_id: posAccountId }),
+    ...(countryCodeIso && { country_code_iso: countryCodeIso }),
+    ...(!strictlyFalsey(withReferralCode) && { with_referral_code: withReferralCode }),
+    ...(!strictlyFalsey(withHistory) && { with_history: withHistory }),
   };
 
   const response = await yotpoClient.fetch({
