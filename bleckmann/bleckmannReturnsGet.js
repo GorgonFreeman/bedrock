@@ -10,6 +10,10 @@ const bleckmannReturnsGet = async (
     perPage,
     createdFrom,
     createdTo,
+    receivedFrom,
+    receivedTo,
+    status,
+    referencePickticketId,
     ...getterOptions
   } = {},
 ) => {
@@ -21,6 +25,10 @@ const bleckmannReturnsGet = async (
       params: {
         ...(createdFrom && { createdFrom }),
         ...(createdTo && { createdTo }),
+        ...(receivedFrom && { receivedFrom }),
+        ...(receivedTo && { receivedTo }),
+        ...(status && { status }),
+        ...(referencePickticketId && { referencePickticketId }),
         ...(skip && { skip }),
       },
       ...(perPage && { perPage }),
