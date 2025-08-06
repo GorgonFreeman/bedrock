@@ -1,56 +1,33 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
 
 const { respond, mandateParam, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id title handle`;
 
 const FUNC = async (
   credsPath,
-  input,
+  pageInput,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
   } = {},
 ) => {
 
-  const mutationName = 'pageCreate';
-  
-  const mutation = `
-    mutation ${ mutationName }($page: PageCreateInput!) {
-      ${ mutationName }(page: $page) {
-        page {
-          ${ returnAttrs }
-        }
-        userErrors {
-          field
-          message
-        }
-      }
-    }
-  `;
-
-  const variables = {
-    page: input,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query: mutation, variables },
-    context: {
-      credsPath,
+  const response = await shopifyMutationDo(
+    credsPath,
+    'pageCreate',
+    {
+      page: {
+        type: 'PageCreateInput!',
+        value: pageInput,
+      },
+    },
+    `page { ${ returnAttrs } }`,
+    { 
       apiVersion,
     },
-    interpreter: async (response) => {
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result[mutationName],
-        } : {},
-      };
-    },
-  });
-
+  );
   logDeep(response);
   return response;
 };
@@ -58,13 +35,13 @@ const FUNC = async (
 const FUNCApi = async (req, res) => {
   const {
     credsPath,
-    input,
+    pageInput,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'input', input),
+    mandateParam(res, 'pageInput', pageInput),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -72,7 +49,7 @@ const FUNCApi = async (req, res) => {
 
   const result = await FUNC(
     credsPath,
-    input,
+    pageInput,
     options,
   );
   respond(res, 200, result);
@@ -83,4 +60,4 @@ module.exports = {
   FUNCApi,
 };
 
-// curl http://localhost:8000/FUNC -H 'Content-Type: application/json' -d '{ "credsPath": "au", "input": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/FUNC -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
