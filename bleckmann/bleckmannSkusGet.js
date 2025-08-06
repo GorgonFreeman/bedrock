@@ -29,14 +29,16 @@ const bleckmannSkusGet = async (
   return response;
 };
 
-const bleckmannSkusGetApi = async (req, res) => {  const {
+const bleckmannSkusGetApi = async (req, res) => {
+  const {
     options,
   } = req.body;
 
   // const paramsValid = await Promise.all([
   //   mandateParam(res, 'arg', arg),
   // ]);
-  // if (paramsValid.some(valid => valid === false)) {  //   return;
+  // if (paramsValid.some(valid => valid === false)) {
+  //   return;
   // }
 
   const result = await bleckmannSkusGet(
