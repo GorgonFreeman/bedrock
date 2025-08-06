@@ -7,6 +7,7 @@ const defaultAttrs = `id`;
 
 const shopifyTagsRemove = async (
   credsPath,
+  // TODO: Consider supporting multiple gids if an array is provided
   gid,
   tags,
   {
