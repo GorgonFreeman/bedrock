@@ -1,17 +1,17 @@
-// https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/SKU/getSkuForId
+// https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/RETURN/getReturnForId
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { bleckmannClient } = require('../bleckmann/bleckmann.utils');
 
 const bleckmannReturnGet = async (
-  sku,
+  returnId,
   {
     credsPath,
   } = {},
 ) => {
 
   const response = await bleckmannClient.fetch({
-    url: `/skus/${ encodeURIComponent(sku) }`,
+    url: `/returns/${ encodeURIComponent(returnId) }`,
   });
 
   logDeep(response);
@@ -20,19 +20,19 @@ const bleckmannReturnGet = async (
 
 const bleckmannReturnGetApi = async (req, res) => {
   const { 
-    sku,
+    returnId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'sku', sku),
+    mandateParam(res, 'returnId', returnId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await bleckmannReturnGet(
-    sku,
+    returnId,
     options,
   );
   respond(res, 200, result);
@@ -43,4 +43,4 @@ module.exports = {
   bleckmannReturnGetApi,
 };
 
-// curl localhost:8000/bleckmannReturnGet -H "Content-Type: application/json" -d '{ "sku": "EXD1224-3-3XS/XXS" }'
+// curl localhost:8000/bleckmannReturnGet -H "Content-Type: application/json" -d '{ "returnId": "979-D3-3862439" }'
