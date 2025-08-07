@@ -191,7 +191,6 @@ const etsyClient = new CustomAxiosClient({
 const etsyGetter = async (
   url,
   {
-    credsPath,
     params,
     perPage = MAX_PER_PAGE,
     context,
