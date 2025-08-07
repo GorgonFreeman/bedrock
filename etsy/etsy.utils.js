@@ -34,7 +34,7 @@ const etsyAccessTokenGet = async ({ credsPath } = {}) => {
   };
 };
 
-const etsyRequestSetup = ({ credsPath } = {}) => {
+const etsyRequestSetup = async ({ credsPath, withBearer = true } = {}) => {
 
   const { 
     API_KEY,
@@ -44,6 +44,22 @@ const etsyRequestSetup = ({ credsPath } = {}) => {
   const headers = {
     'x-api-key': API_KEY,
   };
+
+  if (!withBearer) {
+    return {
+      baseUrl: BASE_URL,
+      headers,
+    };
+  }
+
+  const accessTokenResponse = await etsyAccessTokenGet({ credsPath });
+
+  if (!accessTokenResponse?.success) {
+    throw new Error(`Couldn't get access token for ${ credsPath }`);
+  }
+
+  const { result: accessToken } = accessTokenResponse;
+  headers['Authorization'] = `Bearer ${ accessToken }`;
 
   return {
     baseUrl: BASE_URL,
