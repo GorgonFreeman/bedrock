@@ -50,7 +50,8 @@ const etsyAuthCodeRequest = async (
   };
 
   const { codeVerifier, codeChallenge } = generatePkce();
-  // console.log('codeVerifier, codeChallenge', codeVerifier, codeChallenge);
+  console.log('codeVerifier:', codeVerifier);
+  console.log('codeChallenge:', codeChallenge);
 
   const etsyScopes = [
     'address_r', 
