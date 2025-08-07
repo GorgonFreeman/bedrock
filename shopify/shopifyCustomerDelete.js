@@ -1,9 +1,9 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/customerDelete
 
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const shopifyCustomerDelete = async (
+const shopifyCustomerDeleteSingle = async (
   credsPath,
   customerId,
   {
@@ -26,6 +26,24 @@ const shopifyCustomerDelete = async (
     { 
       apiVersion,
     },
+  );
+  // logDeep(response);
+  return response;
+};
+
+const shopifyCustomerDelete = async (
+  credsPath,
+  customerId,
+  options,
+) => {
+
+  const response = await actionMultipleOrSingle(
+    customerId,
+    shopifyCustomerDeleteSingle,
+    (customerId) => ({ 
+      args: [credsPath, customerId], 
+      options, 
+    }),
   );
   logDeep(response);
   return response;
