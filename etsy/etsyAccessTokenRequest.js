@@ -15,7 +15,7 @@ const etsyAccessTokenRequest = async (
     AUTH_CODEVERIFIER,
   } = creds;
 
-  const params = {
+  const body = {
     grant_type: 'authorization_code',
     client_id: API_KEY,
     redirect_uri: OAUTH_REDIRECT_URL,
@@ -26,7 +26,7 @@ const etsyAccessTokenRequest = async (
   const response = await etsyClient.fetch({
     method: 'post',
     url: `/public/oauth/token`,
-    params,
+    body,
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
