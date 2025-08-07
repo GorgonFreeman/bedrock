@@ -21,6 +21,7 @@ const shopifyCustomerStoreCreditZeroSingle = async (
   customerId,
   {
     apiVersion,
+    interactive,
   } = {},
 ) => {
 
@@ -41,8 +42,10 @@ const shopifyCustomerStoreCreditZeroSingle = async (
   const customer = customerResponse.result;
   const { storeCreditAccounts } = customer;
   
-  console.log('storeCreditAccounts', Object.values(storeCreditAccounts));
-  await askQuestion('?');
+  if (interactive) {
+    console.log('storeCreditAccounts', Object.values(storeCreditAccounts));
+    await askQuestion('Continue?');
+  }
 
   const results = [];
 
