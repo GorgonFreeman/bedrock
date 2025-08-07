@@ -23,7 +23,7 @@ etsy:
   API_KEY: ____________________________
   BASE_URL: https://api.etsy.com/v3
   OAUTH_URL: https://www.etsy.com/oauth/connect
-  OAUTH_REDIRECTURI: https://__________
+  OAUTH_REDIRECT_URL: https://_________
   AUTH_CODE: __________________________
   AUTH_CODEVERIFIER: __________________
 
