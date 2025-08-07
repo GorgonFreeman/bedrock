@@ -2,7 +2,7 @@ require('dotenv').config();
 const { env } = process;
 const debug = env.DEBUG === 'true';
 
-const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey, logDeep, furthestNode } = require('../utils');
+const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey, logDeep, furthestNode, objHasAll } = require('../utils');
 
 const shopifyRequestSetup = (
   credsPath,
@@ -272,6 +272,12 @@ const shopifyMutationDo = async (
     ...clientOptions
   } = {},
 ) => {
+
+  // Check if mutationVariables is valid
+  if (Object.values(mutationVariables).some(variable => !objHasAll(variable, ['type', 'value']))) {
+    console.error(mutationVariables);
+    throw new Error('mutationVariables must include type and value');
+  }
 
   const mutation = `
     mutation ${ mutationName }(${ Object.entries(mutationVariables).map(([name, { type }]) => `$${ name }: ${ type }`).join(', ') }) {
