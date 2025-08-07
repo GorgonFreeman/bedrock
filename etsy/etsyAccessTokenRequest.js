@@ -6,8 +6,29 @@ const etsyAccessTokenRequest = async (
     credsPath,
   } = {},
 ) => {
-  const response = await etsyClient.fetch({ 
-    url: `/application/things/${ arg }`,
+  
+  const creds = credsByPath(['etsy', credsPath]);
+  const { 
+    API_KEY,
+    AUTH_CODE,
+    OAUTH_REDIRECT_URL,
+    AUTH_CODEVERIFIER,
+  } = creds;
+
+  const params = {
+    grant_type: 'authorization_code',
+    client_id: API_KEY,
+    redirect_uri: OAUTH_REDIRECT_URL,
+    code: AUTH_CODE,
+    code_verifier: AUTH_CODEVERIFIER,
+  };
+
+  const response = await etsyClient.fetch({
+    url: `/public/oauth/token`,
+    params,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
     context: {
       credsPath,
     },
