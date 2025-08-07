@@ -1,17 +1,19 @@
 const { respond, logDeep } = require('../utils');
-const { etsyClient } = require('../etsy/etsy.utils');
+const { etsyGet } = require('../etsy/etsy.utils');
 
 const etsyListingsGet = async (
   {
     credsPath,
   } = {},
 ) => {
-  const response = await etsyClient.fetch({ 
-    url: '/application/listings/active',
-    context: {
-      credsPath,
+  const response = await etsyGet(
+    '/application/listings/active',
+    { 
+      context: {
+        credsPath,
+      },
     },
-  });
+  );
   logDeep(response);
   return response;
 };
@@ -33,3 +35,4 @@ module.exports = {
 };
 
 // curl localhost:8000/etsyListingsGet 
+// curl localhost:8000/etsyListingsGet -H "Content-Type: application/json" -d '{ "options": { "limit": 600 } }'

@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient } = require('../utils');
+const { credsByPath, CustomAxiosClient, Getter, getterAsGetFunction, logDeep, askQuestion } = require('../utils');
 const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 
 const ACCESS_TOKENS = new Map();
@@ -79,6 +79,69 @@ const etsyClient = new CustomAxiosClient({
   },
 });
 
+const etsyGetter = async (
+  url,
+  {
+    credsPath,
+    ...getterOptions
+  } = {},
+) => {
+  return new Getter(
+    {
+      url,
+      paginator: async (customAxiosPayload, response) => {
+        logDeep(customAxiosPayload, response);
+        await askQuestion('paginator?');
+
+        // const { success, result } = response;
+        // if (!success) { // Return if failed
+        //   return [true, null]; 
+        // }
+
+        // // 1. Extract necessary pagination info
+
+        // // 2. Supplement payload with next pagination info
+        // const paginatedPayload = {
+        //   ...customAxiosPayload,
+        //   params: {
+        //     ...customAxiosPayload.params,
+        //     skip: (customAxiosPayload.params?.skip || 0) + lastPageResultsCount,
+        //   },
+        // };
+        
+        // // 3. Logic to determine done
+        // const done = lastPageResultsCount === 0;
+        
+        return [done, paginatedPayload];
+      },
+      digester: async (response) => {
+        logDeep(response);
+        await askQuestion('digester?');
+
+        const { success, result } = response;
+        if (!success) { // Return if failed
+          return null; 
+        }
+
+        const items = result?.data;
+        return items;
+      },
+      client: etsyClient,
+      clientArgs: {
+        context: {
+          credsPath,
+        },
+      },
+
+      ...getterOptions
+    },
+  );
+};
+
+const etsyGet = getterAsGetFunction(etsyGetter);
+
 module.exports = {
   etsyClient,
+  etsyGetter,
+  etsyGet,
 };
