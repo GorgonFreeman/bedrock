@@ -4,6 +4,8 @@ const { etsyGet } = require('../etsy/etsy.utils');
 const etsyListingsGet = async (
   {
     credsPath,
+    perPage,
+    ...getterOptions
   } = {},
 ) => {
   const response = await etsyGet(
@@ -12,6 +14,8 @@ const etsyListingsGet = async (
       context: {
         credsPath,
       },
+      ...(perPage && { perPage }),
+      ...getterOptions,
     },
   );
   logDeep(response);
