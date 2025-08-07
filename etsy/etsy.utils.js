@@ -38,26 +38,28 @@ const etsyRefreshTokenGet = async ({ credsPath }) => {
 
 const etsyAccessTokenGet = async ({ credsPath, forceRefresh } = {}) => {
 
-  // 1. Check if we have a access token in memory
-  if (ACCESS_TOKENS.has(credsPath)) {
-    console.log('Using access token from map');
-    return {
-      success: true,
-      result: ACCESS_TOKENS.get(credsPath),
-    };
-  }
+  if (!forceRefresh) {
+    // 1. Check if we have a access token in memory
+    if (ACCESS_TOKENS.has(credsPath)) {
+      console.log('Using access token from map');
+      return {
+        success: true,
+        result: ACCESS_TOKENS.get(credsPath),
+      };
+    }
 
-  // 2. Check if we have a access token in Upstash
-  const upstashAccessTokenResponse = await upstashGet(`etsy_access_token_${ credsPath || 'default' }`);
+    // 2. Check if we have a access token in Upstash
+    const upstashAccessTokenResponse = await upstashGet(`etsy_access_token_${ credsPath || 'default' }`);
 
-  if (upstashAccessTokenResponse?.success && upstashAccessTokenResponse?.result) {
-    const accessToken = upstashAccessTokenResponse.result;
-    ACCESS_TOKENS.set(credsPath, accessToken);
-    console.log('Using access token from Upstash');
-    return {
-      success: true,
-      result: accessToken,
-    };
+    if (upstashAccessTokenResponse?.success && upstashAccessTokenResponse?.result) {
+      const accessToken = upstashAccessTokenResponse.result;
+      ACCESS_TOKENS.set(credsPath, accessToken);
+      console.log('Using access token from Upstash');
+      return {
+        success: true,
+        result: accessToken,
+      };
+    } 
   }
 
   // 3. Try to get a new access token from the API
@@ -157,7 +159,7 @@ const etsyClient = new CustomAxiosClient({
     if (error?.find(err => err.error_description === 'access token is expired')) {
 
       const { credsPath, customAxiosPayload } = context;
-      const accessTokenResponse = await etsyAccessTokenGet({ credsPath });
+      const accessTokenResponse = await etsyAccessTokenGet({ credsPath, forceRefresh: true });
 
       const {
         success: accessTokenGetSuccess,
