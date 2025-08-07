@@ -1095,7 +1095,7 @@ const actionMultipleOrSingle = async (input, func, buildOpArgs) => {
     return queueResponse;
   }
 
-  return func(input, ...args, options);
+  return new Operation(func, buildOpArgs(input)).run();
 };
 
 module.exports = {
