@@ -1,37 +1,33 @@
-const { respond, mandateParam, logDeep } = require('../utils');
-const { etsyClient } = require('../etsy/etsy.utils');
+const { respond, logDeep } = require('../utils');
+const { etsyGet } = require('../etsy/etsy.utils');
 
 const etsyShopListingsGet = async (
-  shopId,
   {
     credsPath,
+    perPage,
+    ...getterOptions
   } = {},
 ) => {
-  const response = await etsyClient.fetch({ 
-    url: `/application/shops/${ shopId }/listings/active`,
-    context: {
-      credsPath,
+  const response = await etsyGet(
+    '/application/listings/active',
+    { 
+      context: {
+        credsPath,
+      },
+      ...(perPage && { perPage }),
+      ...getterOptions,
     },
-  });
+  );
   logDeep(response);
   return response;
 };
 
 const etsyShopListingsGetApi = async (req, res) => {
   const { 
-    shopId,
     options,
   } = req.body;
 
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'shopId', shopId),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
   const result = await etsyShopListingsGet(
-    shopId,
     options,
   );
   respond(res, 200, result);
@@ -42,4 +38,5 @@ module.exports = {
   etsyShopListingsGetApi,
 };
 
-// curl localhost:8000/etsyShopListingsGet -H "Content-Type: application/json" -d '{ "shopId": "123456" }' 
+// curl localhost:8000/etsyShopListingsGet 
+// curl localhost:8000/etsyShopListingsGet -H "Content-Type: application/json" -d '{ "options": { "limit": 600 } }'
