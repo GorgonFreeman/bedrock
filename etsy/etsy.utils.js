@@ -1,10 +1,42 @@
 const { credsByPath, CustomAxiosClient, Getter, getterAsGetFunction, logDeep, askQuestion } = require('../utils');
 const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 const { MAX_PER_PAGE } = require('../etsy/etsy.constants');
+const { etsyAccessTokenRefresh } = require('../etsy/etsyAccessTokenRefresh');
 
 const ACCESS_TOKENS = new Map();
+const REFRESH_TOKENS = new Map();
 
-const etsyAccessTokenGet = async ({ credsPath } = {}) => {
+const etsyRefreshTokenGet = async ({ credsPath }) => {
+  // 1. Check if we have a refresh token in memory
+  if (REFRESH_TOKENS.has(credsPath)) {
+    console.log('Using refresh token from map');
+    return {
+      success: true,
+      result: REFRESH_TOKENS.get(credsPath),
+    };
+  }
+
+  // 2. Check if we have a refresh token in Upstash
+  const upstashRefreshTokenResponse = await upstashGet(`etsy_refresh_token_${ credsPath || 'default' }`);
+
+  if (upstashRefreshTokenResponse?.success && upstashRefreshTokenResponse?.result) {
+    const refreshToken = upstashRefreshTokenResponse.result;
+    REFRESH_TOKENS.set(credsPath, refreshToken);
+    console.log('Using refresh token from Upstash');
+    return {
+      success: true,
+      result: refreshToken,
+    };
+  }
+
+  // 3. Give up :)
+  return {
+    success: false,
+    error: [`Can't get a refresh token from Upstash or memory, try etsyAuthCodeRequest?`],
+  };
+};
+
+const etsyAccessTokenGet = async ({ credsPath, forceRefresh } = {}) => {
 
   // 1. Check if we have a access token in memory
   if (ACCESS_TOKENS.has(credsPath)) {
@@ -28,10 +60,35 @@ const etsyAccessTokenGet = async ({ credsPath } = {}) => {
     };
   }
 
-  // 3. Give up :)
+  // 3. Try to get a new access token from the API
+  const refreshTokenResponse = await etsyRefreshTokenGet({ credsPath });
+
+  if (refreshTokenResponse?.success) {
+    const refreshToken = refreshTokenResponse.result;
+    const accessTokenRefreshResponse = await etsyAccessTokenRefresh({ credsPath });
+
+    if (accessTokenRefreshResponse?.success) {
+      const {
+        access_token: accessToken,
+        refresh_token: newRefreshToken,
+      } = accessTokenRefreshResponse.result;
+
+      ACCESS_TOKENS.set(credsPath, accessToken);
+      REFRESH_TOKENS.set(credsPath, newRefreshToken);
+      await upstashSet(`etsy_access_token_${ credsPath || 'default' }`, accessToken);
+      await upstashSet(`etsy_refresh_token_${ credsPath || 'default' }`, newRefreshToken);
+
+      return {
+        success: true,
+        result: accessToken,
+      };
+    }
+  }
+
+  // 4. Give up :)
   return {
     success: false,
-    error: [`Can't get an access token from Upstash or memory, maybe try etsyAccessTokenRequest?`],
+    error: [`Can't get an access token.`],
   };
 };
 

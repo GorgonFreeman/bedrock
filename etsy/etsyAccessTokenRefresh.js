@@ -5,22 +5,22 @@ const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 const etsyAccessTokenRefresh = async (
   {
     credsPath,
+    refreshToken,
   } = {},
 ) => {
 
   const creds = credsByPath(['etsy', credsPath]);
   const { API_KEY } = creds;
   
-  const refreshTokenKey = `etsy_refresh_token_${ credsPath || 'default' }`;
-  const refreshTokenResponse = await upstashGet(refreshTokenKey);
-  
-  const { 
-    success: refreshTokenGetSuccess, 
-    result: refreshToken,
-  } = refreshTokenResponse;
+  if (!refreshToken) {
+    const refreshTokenKey = `etsy_refresh_token_${ credsPath || 'default' }`;
+    const refreshTokenGetResponse = await upstashGet(refreshTokenKey);
 
-  if (!refreshTokenGetSuccess) {
-    return refreshTokenResponse;
+    if (!refreshTokenGetResponse?.success) {
+      return refreshTokenGetResponse;
+    }
+
+    refreshToken = refreshTokenGetResponse?.result;
   }
 
   if (!refreshToken) {
