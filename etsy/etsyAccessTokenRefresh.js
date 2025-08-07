@@ -1,5 +1,4 @@
-const { respond, mandateParam, logDeep, credsByPath } = require('../utils');
-const { etsyClient } = require('../etsy/etsy.utils');
+const { respond, mandateParam, logDeep, credsByPath, CustomAxiosClient } = require('../utils');
 const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 
 const etsyAccessTokenRefresh = async (
@@ -10,10 +9,14 @@ const etsyAccessTokenRefresh = async (
 ) => {
 
   const creds = credsByPath(['etsy', credsPath]);
-  const { API_KEY } = creds;
+  const { 
+    API_KEY,
+    BASE_URL,
+  } = creds;
+  
+  const refreshTokenKey = `etsy_refresh_token_${ credsPath || 'default' }`;
   
   if (!refreshToken) {
-    const refreshTokenKey = `etsy_refresh_token_${ credsPath || 'default' }`;
     const refreshTokenGetResponse = await upstashGet(refreshTokenKey);
 
     if (!refreshTokenGetResponse?.success) {
@@ -35,10 +38,17 @@ const etsyAccessTokenRefresh = async (
     client_id: API_KEY,
     refresh_token: refreshToken,
   };
+
+  const client = new CustomAxiosClient({
+    baseUrl: BASE_URL,
+    baseHeaders: {
+      'x-api-key': API_KEY,
+    },
+  });
   
-  const response = await etsyClient.fetch({
+  const response = await client.fetch({
+    url: '/public/oauth/token',
     method: 'post',
-    url: `/public/oauth/token`,
     body,
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
