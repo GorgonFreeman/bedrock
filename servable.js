@@ -102,7 +102,6 @@ module.exports = {
   etsyListingInventoryGet: require('./etsy/etsyListingInventoryGet').etsyListingInventoryGetApi,
   etsyListingOfferingGet: require('./etsy/etsyListingOfferingGet').etsyListingOfferingGetApi,
   etsyListingProductGet: require('./etsy/etsyListingProductGet').etsyListingProductGetApi,
-  etsyListingProductsGet: require('./etsy/etsyListingProductsGet').etsyListingProductsGetApi,
   etsyListingReviewsGet: require('./etsy/etsyListingReviewsGet').etsyListingReviewsGetApi,
   etsyListingVideosGet: require('./etsy/etsyListingVideosGet').etsyListingVideosGetApi,
   etsyListingsGet: require('./etsy/etsyListingsGet').etsyListingsGetApi,
