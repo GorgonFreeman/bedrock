@@ -115,15 +115,15 @@ const etsyGetter = async (
         return [done, paginatedPayload];
       },
       digester: async (response) => {
-        logDeep(response);
-        await askQuestion('digester?');
+        // logDeep(response);
+        // await askQuestion('digester?');
 
         const { success, result } = response;
         if (!success) { // Return if failed
           return null; 
         }
 
-        const items = result?.data;
+        const items = result?.results;
         return items;
       },
       client: etsyClient,
