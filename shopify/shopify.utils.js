@@ -36,7 +36,8 @@ const shopifyClient = new CustomAxiosClient({
   baseHeaders: {
     'Content-Type': 'application/json',
   },
-  baseInterpreter: async (response) => {
+  baseInterpreter: async (response, context) => {
+    const { resultsNode } = context;
     
     debug && logDeep('response', response);
     debug && await askQuestion('Continue?');
@@ -49,7 +50,7 @@ const shopifyClient = new CustomAxiosClient({
     const unnestedResponse = {
       ...strippedResponse,
       ...strippedResponse.result ? {
-        result: furthestNode(strippedResponse, 'result', 'data'),
+        result: furthestNode(strippedResponse, 'result', 'data', resultsNode),
       } : {},
     };
 
@@ -294,15 +295,16 @@ const shopifyMutationDo = async (
     context: {
       credsPath,
       apiVersion,
+      resultsNode: mutationName,
     },
-    interpreter: async (response) => {
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result[mutationName],
-        } : {},
-      };
-    },
+    // interpreter: async (response) => {
+    //   return {
+    //     ...response,
+    //     ...response.result ? {
+    //       result: response.result[mutationName],
+    //     } : {},
+    //   };
+    // },
   });
 
   logDeep(response);
