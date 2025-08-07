@@ -78,3 +78,4 @@ module.exports = {
 };
 
 // curl http://localhost:8000/shopifyCustomerDelete -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerId": 8489669984328 }'
+// curl http://localhost:8000/shopifyCustomerDelete -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerId": [8975557492808, 8975524003912] }'
