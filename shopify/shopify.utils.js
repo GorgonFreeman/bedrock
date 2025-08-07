@@ -64,14 +64,14 @@ const shopifyClient = new CustomAxiosClient({
     console.log('errors', errors);
     console.log('userErrors', userErrors);
 
-    if (errors || userErrors) {
+    if (errors?.length || userErrors?.length) {
       return {
         ...unnestedResponse,
         success: false,
         result: null,
         error: [
-          ...errors ? [errors] : [],
-          ...userErrors ? [userErrors] : [],
+          ...errors?.length ? [errors] : [],
+          ...userErrors?.length ? [userErrors] : [],
         ],
       };
     }
