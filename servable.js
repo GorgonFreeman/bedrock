@@ -96,6 +96,7 @@ module.exports = {
   etsyAccessTokenRefresh: require('./etsy/etsyAccessTokenRefresh').etsyAccessTokenRefreshApi,
   etsyAccessTokenRequest: require('./etsy/etsyAccessTokenRequest').etsyAccessTokenRequestApi,
   etsyAuthCodeRequest: require('./etsy/etsyAuthCodeRequest').etsyAuthCodeRequestApi,
+  etsyBuyerTaxonomyNodePropertiesGet: require('./etsy/etsyBuyerTaxonomyNodePropertiesGet').etsyBuyerTaxonomyNodePropertiesGetApi,
   etsyMeGet: require('./etsy/etsyMeGet').etsyMeGetApi,
   etsyPing: require('./etsy/etsyPing').etsyPingApi,
   collabsFulfillmentSweep: require('./collabs/collabsFulfillmentSweep').collabsFulfillmentSweepApi,
