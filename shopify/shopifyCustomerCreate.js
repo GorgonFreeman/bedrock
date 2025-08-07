@@ -3,11 +3,11 @@
 const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `id email firstName lastName phone`;
 
 const shopifyCustomerCreate = async (
   credsPath,
-  pageInput,
+  customerInput,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
@@ -16,14 +16,14 @@ const shopifyCustomerCreate = async (
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'customerCreate',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      input: {
+        type: 'CustomerInput!',
+        value: customerInput,
       },
     },
-    `page { ${ returnAttrs } }`,
+    `customer { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -35,13 +35,13 @@ const shopifyCustomerCreate = async (
 const shopifyCustomerCreateApi = async (req, res) => {
   const {
     credsPath,
-    pageInput,
+    customerInput,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'pageInput', pageInput),
+    mandateParam(res, 'customerInput', customerInput),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -49,7 +49,7 @@ const shopifyCustomerCreateApi = async (req, res) => {
 
   const result = await shopifyCustomerCreate(
     credsPath,
-    pageInput,
+    customerInput,
     options,
   );
   respond(res, 200, result);
@@ -60,4 +60,4 @@ module.exports = {
   shopifyCustomerCreateApi,
 };
 
-// curl http://localhost:8000/shopifyCustomerCreate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyCustomerCreate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerInput": { "email": "john+shopifyCustomerCreate@whitefoxboutique.com", "firstName": "Doctor", "lastName": "Manhattan" } }'
