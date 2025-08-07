@@ -3,7 +3,6 @@ const { exec } = require('child_process');
 const crypto = require('crypto');
 
 const { respond, mandateParam, logDeep, credsByPath } = require('../utils');
-const { etsyClient } = require('../etsy/etsy.utils');
 
 const etsyAuthCodeRequest = async (
   {
@@ -51,7 +50,43 @@ const etsyAuthCodeRequest = async (
   const { codeVerifier, codeChallenge } = generatePkce();
   // console.log('codeVerifier, codeChallenge', codeVerifier, codeChallenge);
 
-  return { codeVerifier, codeChallenge };
+  const etsyScopes = [
+    'address_r', 
+    'address_w', 
+    'billing_r', 
+    'cart_r', 
+    'cart_w', 
+    'email_r', 
+    'favorites_r', 
+    'favorites_w', 
+    'feedback_r', 
+    'listings_d', 
+    'listings_r', 
+    'listings_w', 
+    'profile_r', 
+    'profile_w', 
+    'recommend_r', 
+    'recommend_w', 
+    'shops_r', 
+    'shops_w', 
+    'transactions_r', 
+    'transactions_w',
+  ];
+
+  // https://developer.etsy.com/documentation/essentials/authentication
+  const params = {
+    response_type: 'code',
+    client_id: API_KEY,
+    // Add redirect URL in Etsy app page, e.g. https://www.etsy.com/au/developers/edit/__________/callbacks
+    redirect_uri: OAUTH_REDIRECT_URL,
+    scope: etsyScopes.join('%20'),
+    state,
+    code_challenge: codeChallenge,
+    code_challenge_method: 'S256',
+  };
+
+  const url = `${ OAUTH_URL }?${ Object.entries(params).map(([k,v]) => `${ k }=${ v }`).join('&') }`;
+  return exec(`open '${ url }'`);
 };
 
 const etsyAuthCodeRequestApi = async (req, res) => {
