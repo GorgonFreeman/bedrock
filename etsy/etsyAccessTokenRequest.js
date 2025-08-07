@@ -1,8 +1,7 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, credsByPath } = require('../utils');
 const { etsyClient } = require('../etsy/etsy.utils');
 
 const etsyAccessTokenRequest = async (
-  arg,
   {
     credsPath,
   } = {},
@@ -19,19 +18,17 @@ const etsyAccessTokenRequest = async (
 
 const etsyAccessTokenRequestApi = async (req, res) => {
   const { 
-    arg,
     options,
   } = req.body;
 
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
+  // const paramsValid = await Promise.all([
+  //   mandateParam(res, 'arg', arg),
+  // ]);
+  // if (paramsValid.some(valid => valid === false)) {
+  //   return;
+  // }
 
   const result = await etsyAccessTokenRequest(
-    arg,
     options,
   );
   respond(res, 200, result);
