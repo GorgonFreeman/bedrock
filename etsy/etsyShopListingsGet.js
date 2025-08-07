@@ -1,3 +1,5 @@
+// https://developers.etsy.com/documentation/reference/#operation/getListingsByShop
+
 const { respond, logDeep, credsByPath } = require('../utils');
 const { etsyGet } = require('../etsy/etsy.utils');
 
