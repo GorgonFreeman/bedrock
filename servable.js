@@ -105,4 +105,5 @@ module.exports = {
   bleckmannReturnsGet: require('./bleckmann/bleckmannReturnsGet').bleckmannReturnsGetApi,
   bleckmannSkuGet: require('./bleckmann/bleckmannSkuGet').bleckmannSkuGetApi,
   bleckmannSkusGet: require('./bleckmann/bleckmannSkusGet').bleckmannSkusGetApi,
+  bedrock_unlisted_shopifyStaffCustomerOffboard: require('./bedrock_unlisted/bedrock_unlisted_shopifyStaffCustomerOffboard').bedrock_unlisted_shopifyStaffCustomerOffboardApi,
 };
