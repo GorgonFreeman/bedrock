@@ -1,5 +1,6 @@
 const { credsByPath, CustomAxiosClient, Getter, getterAsGetFunction, logDeep, askQuestion } = require('../utils');
 const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
+const { MAX_PER_PAGE } = require('../etsy/etsy.constants');
 
 const ACCESS_TOKENS = new Map();
 
@@ -83,12 +84,20 @@ const etsyGetter = async (
   url,
   {
     credsPath,
+    params,
+    perPage = MAX_PER_PAGE,
     ...getterOptions
   } = {},
 ) => {
   return new Getter(
     {
       url,
+      payload: {
+        params: {
+          ...params,
+          limit: perPage,
+        },
+      },
       paginator: async (customAxiosPayload = {}, response, { resultsCount, lastPageResultsCount }) => {
         // logDeep(customAxiosPayload, response, resultsCount, lastPageResultsCount);
         // await askQuestion('paginator?');
