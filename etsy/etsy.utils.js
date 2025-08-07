@@ -139,7 +139,7 @@ const etsyClient = new CustomAxiosClient({
   },
   baseInterpreter: async (response, context) => {
 
-    console.log('baseInterpreter', response, context);
+    logDeep('baseInterpreter', response, context);
     await askQuestion('?');
 
     if (response?.success) {
@@ -148,7 +148,7 @@ const etsyClient = new CustomAxiosClient({
 
     const { error } = response;
 
-    if (!error) {
+    if (!error?.length) {
       return response;
     }
 
@@ -156,7 +156,7 @@ const etsyClient = new CustomAxiosClient({
     let changedCustomAxiosPayload;
     
     // Handle expired access token
-    if (error?.find(err => err.error_description === 'access token is expired')) {
+    if (error?.some(err => err?.data?.error_description === 'access token is expired')) {
 
       const { credsPath, customAxiosPayload } = context;
       const accessTokenResponse = await etsyAccessTokenGet({ credsPath, forceRefresh: true });
