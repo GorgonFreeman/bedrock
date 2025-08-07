@@ -1,7 +1,7 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/storeCreditAccountCredit
 
 const { respond, mandateParam, logDeep, objHasAny, dateTimeFromNow } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
 const shopifyStoreCreditAccountCredit = async (
   credsPath,
@@ -28,32 +28,8 @@ const shopifyStoreCreditAccountCredit = async (
     : `gid://shopify/StoreCreditAccount/${ storeCreditAccountId }`;
 
   const mutationName = 'storeCreditAccountCredit';
-  
-  const mutation = `
-    mutation ${ mutationName }($id: ID!, $creditInput: StoreCreditAccountCreditInput!) {
-      ${ mutationName }(id: $id, creditInput: $creditInput) {
-        storeCreditAccountTransaction {
-          amount {
-            amount
-            currencyCode
-          }
-          account {
-            id
-            balance {
-              amount
-              currencyCode
-            }
-          }
-        }
-        userErrors {
-          field
-          message
-        }
-      }
-    }
-  `;
 
-  const variables = {
+  const mutationVariables = {
     id: accountGid,
     creditInput: {
       creditAmount: {
@@ -64,22 +40,31 @@ const shopifyStoreCreditAccountCredit = async (
     },
   };
 
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query: mutation, variables },
-    context: {
-      credsPath,
+  const returnSchema = `
+    storeCreditAccountTransaction {
+      amount {
+        amount
+        currencyCode
+      }
+      account {
+        id
+        balance {
+          amount
+          currencyCode
+        }
+      }
+    }
+  `;
+
+  const response = await shopifyMutationDo(
+    credsPath,
+    mutationName,
+    mutationVariables,
+    returnSchema,
+    {
       apiVersion,
     },
-    interpreter: async (response) => {
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result[mutationName],
-        } : {},
-      };
-    },
-  });
+  );
 
   logDeep(response);
   return response;
