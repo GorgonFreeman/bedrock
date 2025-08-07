@@ -1,7 +1,7 @@
 // https://developers.etsy.com/documentation/reference/#operation/getListingsByShop
 
 const { respond, logDeep, credsByPath } = require('../utils');
-const { etsyGet } = require('../etsy/etsy.utils');
+const { etsyGet, etsyGetShopIdAndUserId } = require('../etsy/etsy.utils');
 
 const etsyShopListingsGet = async (
   {
@@ -13,9 +13,7 @@ const etsyShopListingsGet = async (
 ) => {
   
   if (!shopId) {
-    const creds = credsByPath(['etsy', credsPath]);
-    const { SHOP_ID } = creds;
-    shopId = SHOP_ID;
+    ({ shopId } = await etsyGetShopIdAndUserId({ credsPath, shopIdOnly: true }));
   }
 
   if (!shopId) {

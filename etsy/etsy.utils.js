@@ -258,8 +258,49 @@ const etsyGetter = async (
 
 const etsyGet = getterAsGetFunction(etsyGetter);
 
+const etsyGetShopIdAndUserId = async ({ credsPath, shopId, userId, shopIdOnly = false, userIdOnly = false } = {}) => {
+
+  if ((shopId && userId) || (shopIdOnly && shopId) || (userIdOnly && userId)) {
+    return { shopId, userId };
+  }
+
+  const creds = credsByPath(['etsy', credsPath]);
+  const { SHOP_ID, USER_ID } = creds;
+  !shopId && (shopId = SHOP_ID);
+  !userId && (userId = USER_ID);
+
+  if ((shopId && userId) || (shopIdOnly && shopId) || (userIdOnly && userId)) {
+    return { shopId, userId };
+  }
+  
+  // etsyMeGet
+  const meResponse = await etsyClient.fetch({ 
+    url: '/application/users/me',
+    context: {
+      credsPath,
+      withBearer: true,
+    },
+  });
+
+  if (meResponse?.success) {
+    const { user_id, shop_id } = meResponse?.result;
+    !shopId && (shopId = shop_id);
+    !userId && (userId = user_id);
+  }
+
+  if ((shopId && userId) || (shopIdOnly && shopId) || (userIdOnly && userId)) {
+    return { shopId, userId };
+  }
+
+  return {
+    success: false,
+    error: [`I tried SO MUCH stuff and couldn't get shopId and userId for ${ credsPath } ( -_-)`],
+  }
+};
+
 module.exports = {
   etsyClient,
   etsyGetter,
   etsyGet,
+  etsyGetShopIdAndUserId,
 };
