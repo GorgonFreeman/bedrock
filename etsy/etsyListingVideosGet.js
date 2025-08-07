@@ -42,4 +42,4 @@ module.exports = {
   etsyListingVideosGetApi,
 };
 
-// curl localhost:8000/etsyListingVideosGet -H "Content-Type: application/json" -d '{ "listingId": "123456" }' 
+// curl localhost:8000/etsyListingVideosGet -H "Content-Type: application/json" -d '{ "listingId": "4314509353" }' 
