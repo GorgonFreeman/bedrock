@@ -18,7 +18,9 @@ const etsyAuthCodeRequest = async (
   } = creds;
 
   const state = uuidv4();
-  // console.log('state', state);
+  // https://developer.etsy.com/documentation/essentials/authentication/#step-2-grant-access
+  console.log('Check this matches the state in the request Etsy makes to the redirect URL');
+  console.log('state:', state);
 
   const generateRandomString = (length) => {
     return crypto
