@@ -99,6 +99,7 @@ module.exports = {
   etsyBuyerTaxonomyNodePropertiesGet: require('./etsy/etsyBuyerTaxonomyNodePropertiesGet').etsyBuyerTaxonomyNodePropertiesGetApi,
   etsyMeGet: require('./etsy/etsyMeGet').etsyMeGetApi,
   etsyPing: require('./etsy/etsyPing').etsyPingApi,
+  etsySellerTaxonomyNodePropertiesGet: require('./etsy/etsySellerTaxonomyNodePropertiesGet').etsySellerTaxonomyNodePropertiesGetApi,
   etsyTaxonomyNodesGet: require('./etsy/etsyTaxonomyNodesGet').etsyTaxonomyNodesGetApi,
   collabsFulfillmentSweep: require('./collabs/collabsFulfillmentSweep').collabsFulfillmentSweepApi,
   bleckmannAsnGet: require('./bleckmann/bleckmannAsnGet').bleckmannAsnGetApi,
