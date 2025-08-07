@@ -30,13 +30,19 @@ const shopifyStoreCreditAccountCredit = async (
   const mutationName = 'storeCreditAccountCredit';
 
   const mutationVariables = {
-    id: accountGid,
+    id: {
+      type: 'ID!',
+      value: accountGid,
+    },
     creditInput: {
-      creditAmount: {
-        amount,
-        currencyCode,
+      type: 'StoreCreditAccountCreditInput!',
+      value: {
+        creditAmount: {
+          amount,
+          currencyCode,
+        },
+        ...(expiry ? { expiresAt: expiry } : {}),
       },
-      ...(expiry ? { expiresAt: expiry } : {}),
     },
   };
 
