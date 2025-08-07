@@ -567,9 +567,12 @@ class CustomAxiosClient {
         debug && await askQuestion('Continue?');
         
         // If customAxios gives a failure, it's nothing to do with user errors or data, it's because something has gone technically wrong. Return it as-is.
+        // Actually, we need to pass these through for failed auth for example.
         if (!response?.success) {
-          verbose && console.log('client response failed');
-          return response;
+          if (!response?.error || response?.error?.some(err => ![401].includes(err?.status))) {
+            verbose && console.log('client response failed');
+            return response;
+          }
         }
 
         if (!this.baseInterpreter && !interpreter) {

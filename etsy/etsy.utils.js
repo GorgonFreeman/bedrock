@@ -78,6 +78,55 @@ const etsyClient = new CustomAxiosClient({
   baseHeaders: {
     'Content-Type': 'application/json',
   },
+  baseInterpreter: async (response, context) => {
+
+    console.log('baseInterpreter', response, context);
+    await askQuestion('?');
+
+    if (response?.success) {
+      return response;
+    }
+
+    const { error } = response;
+
+    if (!error) {
+      return response;
+    }
+
+    let shouldRetry = false;
+    let changedCustomAxiosPayload;
+    
+    // Handle expired access token
+    if (error?.find(err => err.error_description === 'access token is expired')) {
+
+      const { credsPath, customAxiosPayload } = context;
+      const accessTokenResponse = await etsyAccessTokenGet({ credsPath });
+
+      const {
+        success: accessTokenGetSuccess,
+        result: accessToken,
+      } = accessTokenResponse;
+
+      if (!accessTokenGetSuccess) {
+        throw new Error(`Couldn't get access token for ${ credsPath }`);
+      }
+
+      shouldRetry = true;
+      changedCustomAxiosPayload = {
+        ...customAxiosPayload,
+        headers: {
+          ...customAxiosPayload?.headers,
+          Authorization: `Bearer ${ accessToken }`,
+        },
+      };
+    }
+
+    return {
+      ...response,
+      shouldRetry,
+      changedCustomAxiosPayload,
+    };
+  },
 });
 
 const etsyGetter = async (
