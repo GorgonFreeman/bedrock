@@ -26,6 +26,7 @@ const shopifyCustomerCreate = async (
     `customer { ${ returnAttrs } }`,
     { 
       apiVersion,
+      resultsNode: 'customer',
     },
   );
   logDeep(response);

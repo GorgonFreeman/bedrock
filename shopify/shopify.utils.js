@@ -269,6 +269,7 @@ const shopifyMutationDo = async (
   returnSchema,
   { 
     apiVersion,
+    resultsNode = mutationName,
   } = {},
 ) => {
 
@@ -295,7 +296,7 @@ const shopifyMutationDo = async (
     context: {
       credsPath,
       apiVersion,
-      resultsNode: mutationName,
+      resultsNode,
     },
     // interpreter: async (response) => {
     //   return {
