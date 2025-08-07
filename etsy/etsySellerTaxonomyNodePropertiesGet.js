@@ -2,13 +2,13 @@ const { respond, mandateParam, logDeep } = require('../utils');
 const { etsyClient } = require('../etsy/etsy.utils');
 
 const etsySellerTaxonomyNodePropertiesGet = async (
-  arg,
+  taxonomyNodeId,
   {
     credsPath,
   } = {},
 ) => {
   const response = await etsyClient.fetch({ 
-    url: `/application/things/${ arg }`,
+    url: `/application/seller-taxonomy/nodes/${ taxonomyNodeId }/properties`,
     context: {
       credsPath,
     },
@@ -19,19 +19,19 @@ const etsySellerTaxonomyNodePropertiesGet = async (
 
 const etsySellerTaxonomyNodePropertiesGetApi = async (req, res) => {
   const { 
-    arg,
+    taxonomyNodeId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'taxonomyNodeId', taxonomyNodeId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await etsySellerTaxonomyNodePropertiesGet(
-    arg,
+    taxonomyNodeId,
     options,
   );
   respond(res, 200, result);
@@ -42,4 +42,4 @@ module.exports = {
   etsySellerTaxonomyNodePropertiesGetApi,
 };
 
-// curl localhost:8000/etsySellerTaxonomyNodePropertiesGet
+// curl localhost:8000/etsySellerTaxonomyNodePropertiesGet -H "Content-Type: application/json" -d '{ "taxonomyNodeId": 873 }'
