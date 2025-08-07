@@ -1,4 +1,4 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, credsByPath } = require('../utils');
 const { etsyClient } = require('../etsy/etsy.utils');
 const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 
@@ -7,9 +7,21 @@ const etsyAccessTokenRefresh = async (
     credsPath,
   } = {},
 ) => {
+
+  const creds = credsByPath(['etsy', credsPath]);
+  const { API_KEY } = creds;
   
   const refreshTokenKey = `etsy_refresh_token_${ credsPath || 'default' }`;
-  const refreshToken = await upstashGet(refreshTokenKey);
+  const refreshTokenResponse = await upstashGet(refreshTokenKey);
+  
+  const { 
+    success: refreshTokenGetSuccess, 
+    result: refreshToken,
+  } = refreshTokenResponse;
+
+  if (!refreshTokenGetSuccess) {
+    return refreshTokenResponse;
+  }
 
   if (!refreshToken) {
     return { 
