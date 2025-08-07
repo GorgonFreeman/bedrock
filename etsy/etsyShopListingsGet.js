@@ -28,6 +28,7 @@ const etsyShopListingsGet = async (
     { 
       context: {
         credsPath,
+        withBearer: true,
       },
       ...(perPage && { perPage }),
       ...getterOptions,

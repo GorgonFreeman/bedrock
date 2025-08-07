@@ -194,6 +194,7 @@ const etsyGetter = async (
     credsPath,
     params,
     perPage = MAX_PER_PAGE,
+    context,
     ...getterOptions
   } = {},
 ) => {
@@ -246,9 +247,7 @@ const etsyGetter = async (
       },
       client: etsyClient,
       clientArgs: {
-        context: {
-          credsPath,
-        },
+        context,
       },
 
       ...getterOptions
