@@ -1,0 +1,3 @@
+[submodule "bedrock_unlisted"]
+	path = bedrock_unlisted
+	url = https://github.com/GorgonFreeman/bedrock_unlisted.git
