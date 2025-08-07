@@ -11,6 +11,7 @@ const etsyListingInventoryGet = async (
     url: `/application/listings/${ listingId }/inventory`,
     context: {
       credsPath,
+      withBearer: true,
     },
   });
   logDeep(response);
@@ -42,4 +43,4 @@ module.exports = {
   etsyListingInventoryGetApi,
 };
 
-// curl localhost:8000/etsyListingInventoryGet -H "Content-Type: application/json" -d '{ "listingId": "123456" }' 
+// curl localhost:8000/etsyListingInventoryGet -H "Content-Type: application/json" -d '{ "listingId": "4314509353" }' 
