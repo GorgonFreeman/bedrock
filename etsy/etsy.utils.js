@@ -89,28 +89,29 @@ const etsyGetter = async (
   return new Getter(
     {
       url,
-      paginator: async (customAxiosPayload, response) => {
-        logDeep(customAxiosPayload, response);
+      paginator: async (customAxiosPayload = {}, response, { resultsCount, lastPageResultsCount }) => {
+        logDeep(customAxiosPayload, response, resultsCount, lastPageResultsCount);
         await askQuestion('paginator?');
 
-        // const { success, result } = response;
-        // if (!success) { // Return if failed
-        //   return [true, null]; 
-        // }
+        const { success, result } = response;
+        if (!success) { // Return if failed
+          return [true, null]; 
+        }
 
-        // // 1. Extract necessary pagination info
+        // 1. Extract necessary pagination info
+        const { count: totalItems } = result;
 
-        // // 2. Supplement payload with next pagination info
-        // const paginatedPayload = {
-        //   ...customAxiosPayload,
-        //   params: {
-        //     ...customAxiosPayload.params,
-        //     skip: (customAxiosPayload.params?.skip || 0) + lastPageResultsCount,
-        //   },
-        // };
+        // 2. Supplement payload with next pagination info
+        const paginatedPayload = {
+          ...customAxiosPayload,
+          params: {
+            ...customAxiosPayload.params,
+            offset: (customAxiosPayload.params?.offset || 0) + lastPageResultsCount,
+          },
+        };
         
-        // // 3. Logic to determine done
-        // const done = lastPageResultsCount === 0;
+        // 3. Logic to determine done
+        const done = resultsCount >= totalItems;
         
         return [done, paginatedPayload];
       },
