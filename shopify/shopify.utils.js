@@ -269,6 +269,7 @@ const shopifyMutationDo = async (
   returnSchema,
   { 
     apiVersion,
+    ...clientOptions
   } = {},
 ) => {
 
@@ -297,14 +298,7 @@ const shopifyMutationDo = async (
       apiVersion,
       resultsNode: mutationName,
     },
-    // interpreter: async (response) => {
-    //   return {
-    //     ...response,
-    //     ...response.result ? {
-    //       result: response.result[mutationName],
-    //     } : {},
-    //   };
-    // },
+    ...clientOptions,
   });
 
   logDeep(response);

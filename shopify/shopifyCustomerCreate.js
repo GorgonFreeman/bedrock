@@ -26,6 +26,16 @@ const shopifyCustomerCreate = async (
     `customer { ${ returnAttrs } }`,
     { 
       apiVersion,
+
+      // client options
+      interpreter: async (response) => {
+        return {
+          ...response,
+          ...response?.result?.customer ? {
+            result: response.result.customer,
+          } : {},
+        };
+      },
     },
   );
   logDeep(response);
