@@ -60,6 +60,7 @@ const shopifyStoreCreditAccountCredit = async (
         amount,
         currencyCode,
       },
+      ...(expiry ? { expiresAt: expiry } : {}),
     },
   };
 
