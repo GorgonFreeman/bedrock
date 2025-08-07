@@ -1,15 +1,30 @@
-const { respond, logDeep } = require('../utils');
+const { respond, logDeep, credsByPath } = require('../utils');
 const { etsyGet } = require('../etsy/etsy.utils');
 
 const etsyShopListingsGet = async (
   {
     credsPath,
+    shopId,
     perPage,
     ...getterOptions
   } = {},
 ) => {
+  
+  if (!shopId) {
+    const creds = credsByPath(['etsy', credsPath]);
+    const { SHOP_ID } = creds;
+    shopId = SHOP_ID;
+  }
+
+  if (!shopId) {
+    return {
+      success: false,
+      error: [`Shop ID is required`],
+    };
+  }
+
   const response = await etsyGet(
-    '/application/listings/active',
+    `/application/shops/${ shopId }/listings`,
     { 
       context: {
         credsPath,
