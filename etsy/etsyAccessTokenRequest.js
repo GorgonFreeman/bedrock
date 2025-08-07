@@ -24,6 +24,7 @@ const etsyAccessTokenRequest = async (
   };
 
   const response = await etsyClient.fetch({
+    method: 'post',
     url: `/public/oauth/token`,
     params,
     headers: {
