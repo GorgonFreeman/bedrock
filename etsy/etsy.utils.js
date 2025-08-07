@@ -1,4 +1,38 @@
 const { credsByPath, CustomAxiosClient } = require('../utils');
+const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
+
+const ACCESS_TOKENS = new Map();
+
+const etsyAccessTokenGet = async ({ credsPath } = {}) => {
+
+  // 1. Check if we have a access token in memory
+  if (ACCESS_TOKENS.has(credsPath)) {
+    console.log('Using access token from map');
+    return {
+      success: true,
+      result: ACCESS_TOKENS.get(credsPath),
+    };
+  }
+
+  // 2. Check if we have a access token in Upstash
+  const upstashAccessTokenResponse = await upstashGet(`etsy_access_token_${ credsPath || 'default' }`);
+
+  if (upstashAccessTokenResponse?.success && upstashAccessTokenResponse?.result) {
+    const accessToken = upstashAccessTokenResponse.result;
+    ACCESS_TOKENS.set(credsPath, accessToken);
+    console.log('Using access token from Upstash');
+    return {
+      success: true,
+      result: accessToken,
+    };
+  }
+
+  // 3. Give up :)
+  return {
+    success: false,
+    error: [`Can't get an access token from Upstash or memory, maybe try etsyAccessTokenRequest?`],
+  };
+};
 
 const etsyRequestSetup = ({ credsPath } = {}) => {
 
