@@ -90,8 +90,8 @@ const etsyGetter = async (
     {
       url,
       paginator: async (customAxiosPayload = {}, response, { resultsCount, lastPageResultsCount }) => {
-        logDeep(customAxiosPayload, response, resultsCount, lastPageResultsCount);
-        await askQuestion('paginator?');
+        // logDeep(customAxiosPayload, response, resultsCount, lastPageResultsCount);
+        // await askQuestion('paginator?');
 
         const { success, result } = response;
         if (!success) { // Return if failed
