@@ -2,13 +2,12 @@ const { respond, mandateParam, logDeep } = require('../utils');
 const { etsyClient } = require('../etsy/etsy.utils');
 
 const etsyBuyerTaxonomyNodePropertiesGet = async (
-  arg,
   {
     credsPath,
   } = {},
 ) => {
   const response = await etsyClient.fetch({ 
-    url: `/application/things/${ arg }`,
+    url: `/application/buyer-taxonomy/nodes`,
     context: {
       credsPath,
     },
@@ -19,19 +18,10 @@ const etsyBuyerTaxonomyNodePropertiesGet = async (
 
 const etsyBuyerTaxonomyNodePropertiesGetApi = async (req, res) => {
   const { 
-    arg,
     options,
   } = req.body;
 
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
   const result = await etsyBuyerTaxonomyNodePropertiesGet(
-    arg,
     options,
   );
   respond(res, 200, result);
