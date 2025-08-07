@@ -139,8 +139,8 @@ const etsyClient = new CustomAxiosClient({
   },
   baseInterpreter: async (response, context) => {
 
-    logDeep('baseInterpreter', response, context);
-    await askQuestion('?');
+    // logDeep('baseInterpreter', response, context);
+    // await askQuestion('?');
 
     if (response?.success) {
       return response;
