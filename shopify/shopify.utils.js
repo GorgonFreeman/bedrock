@@ -57,14 +57,21 @@ const shopifyClient = new CustomAxiosClient({
     debug && await askQuestion('Continue?');
 
     const { result } = unnestedResponse;
-    const { errors } = result || {};
+    const { errors, userErrors } = result || {};
+    
+    console.log('unnestedResponse', unnestedResponse);
+    console.log('errors', errors);
+    console.log('userErrors', userErrors);
 
-    if (errors) {
+    if (errors || userErrors) {
       return {
         ...unnestedResponse,
         success: false,
         result: null,
-        error: errors,
+        error: [
+          ...errors ? [errors] : [],
+          ...userErrors ? [userErrors] : [],
+        ],
       };
     }
     
