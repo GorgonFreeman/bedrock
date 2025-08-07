@@ -34,7 +34,7 @@ const etsyAccessTokenGet = async ({ credsPath } = {}) => {
   };
 };
 
-const etsyRequestSetup = async ({ credsPath, withBearer = true } = {}) => {
+const etsyRequestSetup = async ({ credsPath, withBearer = false } = {}) => {
 
   const { 
     API_KEY,

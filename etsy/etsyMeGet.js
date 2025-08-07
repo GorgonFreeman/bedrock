@@ -10,6 +10,7 @@ const etsyMeGet = async (
     url: '/application/users/me',
     context: {
       credsPath,
+      withBearer: true,
     },
   });
   logDeep(response);
