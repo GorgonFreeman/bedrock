@@ -1,17 +1,51 @@
 const { respond, mandateParam, logDeep } = require('../utils');
 const { etsyClient } = require('../etsy/etsy.utils');
+const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 
 const etsyAccessTokenRefresh = async (
   {
     credsPath,
   } = {},
 ) => {
-  const response = await etsyClient.fetch({ 
-    url: `/application/things/${ arg }`,
-    context: {
-      credsPath,
+  
+  const refreshTokenKey = `etsy_refresh_token_${ credsPath || 'default' }`;
+  const refreshToken = await upstashGet(refreshTokenKey);
+
+  if (!refreshToken) {
+    return { 
+      success: false,
+      error: ['No refresh token found'],
+    };
+  }
+
+  const body = {
+    grant_type: 'refresh_token',
+    client_id: API_KEY,
+    refresh_token: refreshToken,
+  };
+  
+  const response = await etsyClient.fetch({
+    method: 'post',
+    url: `/public/oauth/token`,
+    body,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
     },
   });
+
+  if (!response?.success) {
+    logDeep(response);
+    return response;
+  }
+
+  const { 
+    access_token: accessToken, 
+    refresh_token: newRefreshToken,
+  } = response.result;
+
+  await upstashSet(`etsy_access_token_${ credsPath || 'default' }`, accessToken);
+  await upstashSet(refreshTokenKey, newRefreshToken);
+
   logDeep(response);
   return response;
 };
