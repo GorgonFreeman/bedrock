@@ -1,6 +1,6 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/storeCreditAccountCredit
 
-const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
+const { respond, mandateParam, logDeep, objHasAny, dateTimeFromNow } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 
 const shopifyStoreCreditAccountCredit = async (
@@ -13,8 +13,15 @@ const shopifyStoreCreditAccountCredit = async (
   currencyCode,
   {
     apiVersion,
+    expiresAt,
+    timeToLive,
   } = {},
 ) => {
+
+  let expiry = expiresAt;
+  if (!expiry && timeToLive) {
+    expiry = dateTimeFromNow({ plus: timeToLive });
+  }
 
   const accountGid = customerId 
     ? `gid://shopify/Customer/${ customerId }` 
