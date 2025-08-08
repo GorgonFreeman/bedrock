@@ -10,7 +10,7 @@ const iwishCustomerWishlistCountGet = async (
 ) => {
 
   const response = await iwishClient.fetch({
-    url: `/V2/fetchWishlistData/${ customerId }`,
+    url: `/V2/count/${ customerId }`,
     context: {
       credsPath,
     },
@@ -47,4 +47,4 @@ module.exports = {
   iwishCustomerWishlistCountGetApi,
 };
 
-// curl localhost:8000/iwishCustomerWishlistCountGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerId": "2700981665864" }'
+// curl localhost:8000/iwishCustomerWishlistCountGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerId": "8575963103304" }'
