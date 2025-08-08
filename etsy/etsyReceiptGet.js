@@ -1,16 +1,31 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { etsyClient } = require('../etsy/etsy.utils');
+const { etsyClient, etsyGetShopIdAndUserId } = require('../etsy/etsy.utils');
 
 const etsyReceiptGet = async (
   receiptId,
   {
     credsPath,
+    shopId,
   } = {},
 ) => {
+
+  if (!shopId) {
+    const shopIdAndUserId = await etsyGetShopIdAndUserId(credsPath);
+    shopId = shopIdAndUserId?.shopId;
+  }
+
+  if (!shopId) {
+    return {
+      success: false,
+      error: ['Shop ID not found'],
+    };
+  }
+  
   const response = await etsyClient.fetch({ 
-    url: `/application/receipts/${ receiptId }`,
+    url: `/application/shops/${ shopId }/receipts/${ receiptId }`,
     context: {
       credsPath,
+      withBearer: true,
     },
   });
   logDeep(response);
@@ -42,4 +57,4 @@ module.exports = {
   etsyReceiptGetApi,
 };
 
-// curl localhost:8000/etsyReceiptGet -H "Content-Type: application/json" -d '{ "receiptId": "123456" }' 
+// curl localhost:8000/etsyReceiptGet -H "Content-Type: application/json" -d '{ "receiptId": "3759771968" }' 
