@@ -1,3 +1,5 @@
+// https://developers.etsy.com/documentation/reference/#operation/getShopReturnPolicies
+
 const { respond, mandateParam, logDeep } = require('../utils');
 const { etsyGetShopIdAndUserId, etsyGet } = require('../etsy/etsy.utils');
 
