@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { etsyClient } = require('../etsy/etsy.utils');
+const { etsyGet } = require('../etsy/etsy.utils');
 
 const etsyUserShopsGet = async (
   userId,
@@ -7,8 +7,7 @@ const etsyUserShopsGet = async (
     credsPath,
   } = {},
 ) => {
-  const response = await etsyClient.fetch({ 
-    url: `/application/users/${ userId }/shops`,
+  const response = await etsyGet(`/application/users/${ userId }/shops`, { 
     context: {
       credsPath,
       withBearer: true,
