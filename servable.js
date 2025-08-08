@@ -123,7 +123,6 @@ module.exports = {
   etsyUserAddressGet: require('./etsy/etsyUserAddressGet').etsyUserAddressGetApi,
   etsyUserAddressesGet: require('./etsy/etsyUserAddressesGet').etsyUserAddressesGetApi,
   etsyUserGet: require('./etsy/etsyUserGet').etsyUserGetApi,
-  etsyUserProfileGet: require('./etsy/etsyUserProfileGet').etsyUserProfileGetApi,
   etsyUserShopsGet: require('./etsy/etsyUserShopsGet').etsyUserShopsGetApi,
   collabsFulfillmentSweep: require('./collabs/collabsFulfillmentSweep').collabsFulfillmentSweepApi,
   bleckmannAsnGet: require('./bleckmann/bleckmannAsnGet').bleckmannAsnGetApi,
