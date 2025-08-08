@@ -10,8 +10,8 @@ const etsyReceiptGet = async (
 ) => {
 
   if (!shopId) {
-    const shopIdAndUserId = await etsyGetShopIdAndUserId(credsPath);
-    shopId = shopIdAndUserId?.shopId;
+    const shopIdAndUserId = await etsyGetShopIdAndUserId({ credsPath, shopIdOnly: true });
+    ({ shopId } = shopIdAndUserId);
   }
 
   if (!shopId) {
