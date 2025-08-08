@@ -2,15 +2,17 @@ const { respond, mandateParam, logDeep } = require('../utils');
 const { etsyClient } = require('../etsy/etsy.utils');
 
 const etsyUserAddressGet = async (
-  arg,
+  addressId,
   {
     credsPath,
   } = {},
 ) => {
+
   const response = await etsyClient.fetch({ 
-    url: `/application/things/${ arg }`,
+    url: `/application/user/addresses/${ addressId }`,
     context: {
       credsPath,
+      withBearer: true,
     },
   });
   logDeep(response);
@@ -19,19 +21,19 @@ const etsyUserAddressGet = async (
 
 const etsyUserAddressGetApi = async (req, res) => {
   const { 
-    arg,
+    addressId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'addressId', addressId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await etsyUserAddressGet(
-    arg,
+    addressId,
     options,
   );
   respond(res, 200, result);
@@ -42,4 +44,4 @@ module.exports = {
   etsyUserAddressGetApi,
 };
 
-// curl localhost:8000/etsyUserAddressGet
+// curl localhost:8000/etsyUserAddressGet -H "Content-Type: application/json" -d '{ "addressId": "1296125024835" }' 
