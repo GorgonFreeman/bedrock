@@ -1,4 +1,4 @@
-const { credsByPath } = require('../utils');
+const { credsByPath, CustomAxiosClient } = require('../utils');
 
 const iwishRequestSetup = async ({ credsPath } = {}) => {
   const creds = credsByPath(['iwish', credsPath]);
@@ -17,6 +17,14 @@ const iwishRequestSetup = async ({ credsPath } = {}) => {
   };
 };
 
+const commonCreds = iwishRequestSetup();
+const { baseUrl } = commonCreds;
+
+const iwishClient = new CustomAxiosClient({
+  baseUrl,
+  factory: iwishRequestSetup,
+});
+
 module.exports = {
-  iwishRequestSetup,
+  iwishClient,
 };
