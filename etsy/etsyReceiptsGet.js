@@ -1,18 +1,33 @@
 const { respond, logDeep } = require('../utils');
-const { etsyGet } = require('../etsy/etsy.utils');
+const { etsyGet, etsyGetShopIdAndUserId } = require('../etsy/etsy.utils');
 
 const etsyReceiptsGet = async (
   {
     credsPath,
+    shopId,
     perPage,
     ...getterOptions
   } = {},
 ) => {
+
+  if (!shopId) {
+    const shopIdAndUserId = await etsyGetShopIdAndUserId({ credsPath, shopIdOnly: true });
+    ({ shopId } = shopIdAndUserId);
+  }
+
+  if (!shopId) {
+    return {
+      success: false,
+      error: ['Shop ID not found'],
+    };
+  }
+
   const response = await etsyGet(
-    '/application/listings/active',
+    `/application/shops/${ shopId }/receipts`,
     { 
       context: {
         credsPath,
+        withBearer: true,
       },
       ...(perPage && { perPage }),
       ...getterOptions,
