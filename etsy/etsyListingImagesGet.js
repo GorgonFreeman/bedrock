@@ -1,37 +1,33 @@
-const { respond, mandateParam, logDeep } = require('../utils');
-const { etsyClient } = require('../etsy/etsy.utils');
+const { respond, logDeep } = require('../utils');
+const { etsyGet } = require('../etsy/etsy.utils');
 
 const etsyListingImagesGet = async (
-  listingId,
   {
     credsPath,
+    perPage,
+    ...getterOptions
   } = {},
 ) => {
-  const response = await etsyClient.fetch({ 
-    url: `/application/listings/${ listingId }/images`,
-    context: {
-      credsPath,
+  const response = await etsyGet(
+    '/application/listings/active',
+    { 
+      context: {
+        credsPath,
+      },
+      ...(perPage && { perPage }),
+      ...getterOptions,
     },
-  });
+  );
   logDeep(response);
   return response;
 };
 
 const etsyListingImagesGetApi = async (req, res) => {
   const { 
-    listingId,
     options,
   } = req.body;
 
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'listingId', listingId),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
   const result = await etsyListingImagesGet(
-    listingId,
     options,
   );
   respond(res, 200, result);
@@ -42,4 +38,5 @@ module.exports = {
   etsyListingImagesGetApi,
 };
 
-// curl localhost:8000/etsyListingImagesGet -H "Content-Type: application/json" -d '{ "listingId": "4314509353" }' 
+// curl localhost:8000/etsyListingImagesGet 
+// curl localhost:8000/etsyListingImagesGet -H "Content-Type: application/json" -d '{ "options": { "limit": 600 } }'
