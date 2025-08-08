@@ -99,6 +99,7 @@ module.exports = {
   etsyAuthCodeRequest: require('./etsy/etsyAuthCodeRequest').etsyAuthCodeRequestApi,
   etsyBuyerTaxonomyNodePropertiesGet: require('./etsy/etsyBuyerTaxonomyNodePropertiesGet').etsyBuyerTaxonomyNodePropertiesGetApi,
   etsyListingGet: require('./etsy/etsyListingGet').etsyListingGetApi,
+  etsyListingImageDelete: require('./etsy/etsyListingImageDelete').etsyListingImageDeleteApi,
   etsyListingImagesGet: require('./etsy/etsyListingImagesGet').etsyListingImagesGetApi,
   etsyListingInventoryGet: require('./etsy/etsyListingInventoryGet').etsyListingInventoryGetApi,
   etsyListingOfferingGet: require('./etsy/etsyListingOfferingGet').etsyListingOfferingGetApi,
