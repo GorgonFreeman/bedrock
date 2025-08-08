@@ -114,7 +114,6 @@ module.exports = {
   etsyShopGet: require('./etsy/etsyShopGet').etsyShopGetApi,
   etsyShopListingsGet: require('./etsy/etsyShopListingsGet').etsyShopListingsGetApi,
   etsyShopPrivacyPoliciesGet: require('./etsy/etsyShopPrivacyPoliciesGet').etsyShopPrivacyPoliciesGetApi,
-  etsyShopReceiptsGet: require('./etsy/etsyShopReceiptsGet').etsyShopReceiptsGetApi,
   etsyShopReturnsPoliciesGet: require('./etsy/etsyShopReturnsPoliciesGet').etsyShopReturnsPoliciesGetApi,
   etsyShopReviewsGet: require('./etsy/etsyShopReviewsGet').etsyShopReviewsGetApi,
   etsyShopSectionListingsGet: require('./etsy/etsyShopSectionListingsGet').etsyShopSectionListingsGetApi,
