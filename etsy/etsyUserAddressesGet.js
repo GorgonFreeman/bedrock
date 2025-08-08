@@ -1,3 +1,5 @@
+// https://developers.etsy.com/documentation/reference/#operation/getUserAddresses
+
 const { respond, mandateParam, logDeep } = require('../utils');
 const { etsyGet } = require('../etsy/etsy.utils');
 
