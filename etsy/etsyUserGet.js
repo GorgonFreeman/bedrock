@@ -11,6 +11,7 @@ const etsyUserGet = async (
     url: `/application/users/${ userId }`,
     context: {
       credsPath,
+      withBearer: true,
     },
   });
   logDeep(response);
