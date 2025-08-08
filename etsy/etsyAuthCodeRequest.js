@@ -1,3 +1,5 @@
+// https://developers.etsy.com/documentation/essentials/authentication#requesting-an-oauth-token
+
 const { v4: uuidv4 } = require('uuid');
 const { exec } = require('child_process');
 const crypto = require('crypto');

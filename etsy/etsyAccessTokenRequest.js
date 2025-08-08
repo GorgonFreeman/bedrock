@@ -1,3 +1,5 @@
+// https://developers.etsy.com/documentation/essentials/authentication#requesting-an-oauth-token
+
 const { respond, mandateParam, logDeep, credsByPath } = require('../utils');
 const { etsyClient } = require('../etsy/etsy.utils');
 const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
