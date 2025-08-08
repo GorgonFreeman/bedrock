@@ -22,6 +22,7 @@ const etsyShopPoliciesGet = async (
   const response = await etsyGet(`/application/shops/${ shopId }/policies`, { 
     context: {
       credsPath,
+      withBearer: true,
     },
   });
   logDeep(response);
