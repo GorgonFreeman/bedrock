@@ -1,16 +1,20 @@
+// https://developers.etsy.com/documentation/reference/#operation/deleteUserAddress
+
 const { respond, mandateParam, logDeep } = require('../utils');
 const { etsyClient } = require('../etsy/etsy.utils');
 
 const etsyUserAddressDelete = async (
-  arg,
+  addressId,
   {
     credsPath,
   } = {},
 ) => {
   const response = await etsyClient.fetch({ 
-    url: `/application/things/${ arg }`,
+    url: `/application/user/addresses/${ addressId }`,
+    method: 'delete',
     context: {
       credsPath,
+      withBearer: true,
     },
   });
   logDeep(response);
@@ -19,19 +23,19 @@ const etsyUserAddressDelete = async (
 
 const etsyUserAddressDeleteApi = async (req, res) => {
   const { 
-    arg,
+    addressId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'addressId', addressId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await etsyUserAddressDelete(
-    arg,
+    addressId,
     options,
   );
   respond(res, 200, result);
@@ -42,4 +46,4 @@ module.exports = {
   etsyUserAddressDeleteApi,
 };
 
-// curl localhost:8000/etsyUserAddressDelete
+// curl localhost:8000/etsyUserAddressDelete -H "Content-Type: application/json" -d '{ "addressId": "123456" }' 
