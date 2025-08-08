@@ -1,19 +1,20 @@
 const { respond, mandateParam, credsByPath, CustomAxiosClient, logDeep } = require('../utils');
-const { iwishClient } = require('../iwish/iwish.utils');
+const { iwishGet } = require('../iwish/iwish.utils');
 
 const iwishStoreWishlistDataGet = async (
   credsPath,
   {
-    option,
+    ...getterOptions
   } = {},
 ) => {
 
-  const response = await iwishClient.fetch({
-    url: '/V2/storeWishlistData',
-    context: {
-      credsPath,
+  const response = await iwishGet(
+    '/V2/storeWishlistData',
+    credsPath,
+    {
+      ...getterOptions
     },
-  });
+  );
   logDeep('response', response);
   return response;
 };
