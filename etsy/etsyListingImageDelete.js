@@ -1,16 +1,32 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { etsyClient } = require('../etsy/etsy.utils');
+const { etsyClient, etsyGetShopIdAndUserId } = require('../etsy/etsy.utils');
 
 const etsyListingImageDelete = async (
-  arg,
+  listingId,
+  imageId,
   {
     credsPath,
+    shopId,
   } = {},
 ) => {
+  
+  if (!shopId) {
+    ({ shopId } = await etsyGetShopIdAndUserId({ credsPath, shopIdOnly: true }));
+  }
+
+  if (!shopId) {
+    return {
+      success: false,
+      error: ['Shop ID not provided'],
+    };
+  }
+
   const response = await etsyClient.fetch({ 
-    url: `/application/things/${ arg }`,
+    url: `/application/shops/${ shopId }/listings/${ listingId }/images/${ imageId }`,
+    method: 'delete',
     context: {
       credsPath,
+      withBearer: true,
     },
   });
   logDeep(response);
@@ -19,19 +35,22 @@ const etsyListingImageDelete = async (
 
 const etsyListingImageDeleteApi = async (req, res) => {
   const { 
-    arg,
+    listingId,
+    imageId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'listingId', listingId),
+    mandateParam(res, 'imageId', imageId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await etsyListingImageDelete(
-    arg,
+    listingId,
+    imageId,
     options,
   );
   respond(res, 200, result);
@@ -42,4 +61,4 @@ module.exports = {
   etsyListingImageDeleteApi,
 };
 
-// curl localhost:8000/etsyListingImageDelete
+// curl localhost:8000/etsyListingImageDelete -H "Content-Type: application/json" -d '{ "listingId": "123456", "imageId": "123456" }' 
