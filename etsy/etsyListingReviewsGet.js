@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { etsyClient } = require('../etsy/etsy.utils');
+const { etsyGet } = require('../etsy/etsy.utils');
 
 const etsyListingReviewsGet = async (
   listingId,
@@ -7,8 +7,7 @@ const etsyListingReviewsGet = async (
     credsPath,
   } = {},
 ) => {
-  const response = await etsyClient.fetch({ 
-    url: `/application/listings/${ listingId }/reviews`,
+  const response = await etsyGet(`/application/listings/${ listingId }/reviews`, { 
     context: {
       credsPath,
     },
@@ -42,4 +41,4 @@ module.exports = {
   etsyListingReviewsGetApi,
 };
 
-// curl localhost:8000/etsyListingReviewsGet -H "Content-Type: application/json" -d '{ "listingId": "4314509353" }' 
+// curl localhost:8000/etsyListingReviewsGet -H "Content-Type: application/json" -d '{ "listingId": "1849645522" }' 
