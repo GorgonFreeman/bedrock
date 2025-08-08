@@ -3,7 +3,7 @@
 const { respond, mandateParam, logDeep } = require('../utils');
 const { etsyGetShopIdAndUserId, etsyGet } = require('../etsy/etsy.utils');
 
-const etsyShopPoliciesGetReturns = async (
+const etsyShopReturnsPoliciesGet = async (
   {
     credsPath,
     shopId,
@@ -31,7 +31,7 @@ const etsyShopPoliciesGetReturns = async (
   return response;
 };
 
-const etsyShopPoliciesGetReturnsApi = async (req, res) => {
+const etsyShopReturnsPoliciesGetApi = async (req, res) => {
   const { 
     options,
   } = req.body;
@@ -43,15 +43,15 @@ const etsyShopPoliciesGetReturnsApi = async (req, res) => {
   //   return;
   // }
 
-  const result = await etsyShopPoliciesGetReturns(
+  const result = await etsyShopReturnsPoliciesGet(
     options,
   );
   respond(res, 200, result);
 };
 
 module.exports = {
-  etsyShopPoliciesGetReturns,
-  etsyShopPoliciesGetReturnsApi,
+  etsyShopReturnsPoliciesGet,
+  etsyShopReturnsPoliciesGetApi,
 };
 
-// curl localhost:8000/etsyShopPoliciesGetReturns
+// curl localhost:8000/etsyShopReturnsPoliciesGet
