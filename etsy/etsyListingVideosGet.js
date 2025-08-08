@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { etsyClient } = require('../etsy/etsy.utils');
+const { etsyGet } = require('../etsy/etsy.utils');
 
 const etsyListingVideosGet = async (
   listingId,
@@ -7,12 +7,14 @@ const etsyListingVideosGet = async (
     credsPath,
   } = {},
 ) => {
-  const response = await etsyClient.fetch({ 
-    url: `/application/listings/${ listingId }/videos`,
-    context: {
-      credsPath,
+  const response = await etsyGet(
+    `/application/listings/${ listingId }/videos`,
+    { 
+      context: {
+        credsPath,
+      },
     },
-  });
+  );
   logDeep(response);
   return response;
 };
