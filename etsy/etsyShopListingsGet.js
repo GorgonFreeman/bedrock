@@ -8,6 +8,13 @@ const etsyShopListingsGet = async (
     credsPath,
     shopId,
     perPage,
+    
+    state, // "active" "inactive" "sold_out" "draft" "expired"
+    sortOn, // "created" "price" "updated" "score"
+    sortOrder, // "asc" "ascending" "desc" "descending" "up" "down"
+    includes, // "Shipping" "Images" "Shop" "User" "Translations" "Inventory" "Videos"
+    legacy,
+
     ...getterOptions
   } = {},
 ) => {
@@ -23,9 +30,19 @@ const etsyShopListingsGet = async (
     };
   }
 
+  const params = {
+    ...(state && { state }),
+    ...(sortOn && { sort_on: sortOn }),
+    ...(sortOrder && { sort_order: sortOrder }),
+    ...(includes && { includes }),
+    ...(legacy && { legacy }),
+    ...(perPage && { limit: perPage }),
+  };
+
   const response = await etsyGet(
     `/application/shops/${ shopId }/listings`,
     { 
+      params,
       context: {
         credsPath,
         withBearer: true,
@@ -56,3 +73,4 @@ module.exports = {
 
 // curl localhost:8000/etsyShopListingsGet 
 // curl localhost:8000/etsyShopListingsGet -H "Content-Type: application/json" -d '{ "options": { "limit": 600 } }'
+// curl localhost:8000/etsyShopListingsGet -H "Content-Type: application/json" -d '{ "options": { "state": "draft", "sort_on": "created", "sort_order": "desc" } }'
