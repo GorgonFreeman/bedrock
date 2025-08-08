@@ -1,3 +1,5 @@
+// https://developers.etsy.com/documentation/reference/#operation/getShopReceipts
+
 const { respond, logDeep } = require('../utils');
 const { etsyGet, etsyGetShopIdAndUserId } = require('../etsy/etsy.utils');
 
