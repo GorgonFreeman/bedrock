@@ -120,6 +120,7 @@ module.exports = {
   etsyShopShippingPoliciesGet: require('./etsy/etsyShopShippingPoliciesGet').etsyShopShippingPoliciesGetApi,
   etsyShopsGet: require('./etsy/etsyShopsGet').etsyShopsGetApi,
   etsyTaxonomyNodesGet: require('./etsy/etsyTaxonomyNodesGet').etsyTaxonomyNodesGetApi,
+  etsyUserAddressGet: require('./etsy/etsyUserAddressGet').etsyUserAddressGetApi,
   etsyUserAddressesGet: require('./etsy/etsyUserAddressesGet').etsyUserAddressesGetApi,
   etsyUserAvatarGet: require('./etsy/etsyUserAvatarGet').etsyUserAvatarGetApi,
   etsyUserAvatarImgGet: require('./etsy/etsyUserAvatarImgGet').etsyUserAvatarImgGetApi,
