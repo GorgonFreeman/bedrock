@@ -1,12 +1,24 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { etsyClient } = require('../etsy/etsy.utils');
+const { etsyGetShopIdAndUserId, etsyClient } = require('../etsy/etsy.utils');
 
 const etsyShopPoliciesGet = async (
-  shopId,
   {
     credsPath,
+    shopId,
   } = {},
 ) => {
+
+  if (!shopId) {
+    ({ shopId } = await etsyGetShopIdAndUserId({ credsPath, shopIdOnly: true }));
+  }
+
+  if (!shopId) {
+    return {
+      success: false,
+      error: [`Shop ID is required`],
+    };
+  }
+
   const response = await etsyClient.fetch({ 
     url: `/application/shops/${ shopId }/policies`,
     context: {
@@ -19,19 +31,17 @@ const etsyShopPoliciesGet = async (
 
 const etsyShopPoliciesGetApi = async (req, res) => {
   const { 
-    shopId,
     options,
   } = req.body;
 
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'shopId', shopId),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
+  // const paramsValid = await Promise.all([
+  //   mandateParam(res, 'shopId', shopId),
+  // ]);
+  // if (paramsValid.some(valid => valid === false)) {
+  //   return;
+  // }
 
   const result = await etsyShopPoliciesGet(
-    shopId,
     options,
   );
   respond(res, 200, result);
@@ -42,4 +52,4 @@ module.exports = {
   etsyShopPoliciesGetApi,
 };
 
-// curl localhost:8000/etsyShopPoliciesGet -H "Content-Type: application/json" -d '{ "shopId": "123456" }' 
+// curl localhost:8000/etsyShopPoliciesGet
