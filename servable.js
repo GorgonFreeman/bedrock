@@ -93,6 +93,7 @@ module.exports = {
   logiwaOrderGet: require('./logiwa/logiwaOrderGet').logiwaOrderGetApi,
   logiwaOrdersList: require('./logiwa/logiwaOrdersList').logiwaOrdersListApi,
   logiwaProductGet: require('./logiwa/logiwaProductGet').logiwaProductGetApi,
+  iwishCustomerWishlistGet: require('./iwish/iwishCustomerWishlistGet').iwishCustomerWishlistGetApi,
   etsyAccessTokenRefresh: require('./etsy/etsyAccessTokenRefresh').etsyAccessTokenRefreshApi,
   etsyAccessTokenRequest: require('./etsy/etsyAccessTokenRequest').etsyAccessTokenRequestApi,
   etsyAllListingsGetActive: require('./etsy/etsyAllListingsGetActive').etsyAllListingsGetActiveApi,
