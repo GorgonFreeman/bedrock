@@ -102,6 +102,7 @@ module.exports = {
   etsyListingImageDelete: require('./etsy/etsyListingImageDelete').etsyListingImageDeleteApi,
   etsyListingImagesGet: require('./etsy/etsyListingImagesGet').etsyListingImagesGetApi,
   etsyListingInventoryGet: require('./etsy/etsyListingInventoryGet').etsyListingInventoryGetApi,
+  etsyListingInventoryUpdate: require('./etsy/etsyListingInventoryUpdate').etsyListingInventoryUpdateApi,
   etsyListingOfferingGet: require('./etsy/etsyListingOfferingGet').etsyListingOfferingGetApi,
   etsyListingProductGet: require('./etsy/etsyListingProductGet').etsyListingProductGetApi,
   etsyListingReviewsGet: require('./etsy/etsyListingReviewsGet').etsyListingReviewsGetApi,
