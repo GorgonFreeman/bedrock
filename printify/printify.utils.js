@@ -99,11 +99,11 @@ const printifyGetter = async (
       digester: printifyGetterDigester,
 
       client: printifyClient,
-          clientArgs: {
-      context: {
-        credsPath,
+      clientArgs: {
+        context: {
+          credsPath,
+        },
       },
-    },
 
       ...getterOptions
     },
