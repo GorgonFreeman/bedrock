@@ -31,8 +31,10 @@ const iwishPaginator = async (customAxiosPayload, response, additionalPagination
 };
 
 const iwishDigester = async (response) => {
-  console.log('iwishDigester', response);
-  await askQuestion('?');
+  // console.log('iwishDigester', response);
+  // await askQuestion('?');
+
+  return response?.result?.result;
 };
 
 const iwishGetter = (
