@@ -1,3 +1,5 @@
+// https://developers.etsy.com/documentation/reference/#operation/getShop
+
 const { respond, mandateParam, logDeep } = require('../utils');
 const { etsyGetShopIdAndUserId, etsyClient } = require('../etsy/etsy.utils');
 

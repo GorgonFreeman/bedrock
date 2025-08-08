@@ -1,3 +1,5 @@
+// https://developers.etsy.com/documentation/reference/#operation/findShops
+
 const { respond, logDeep } = require('../utils');
 const { etsyClient } = require('../etsy/etsy.utils');
 

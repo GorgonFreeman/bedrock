@@ -1,3 +1,5 @@
+// https://developers.etsy.com/documentation/reference/#operation/getUser
+
 const { respond, mandateParam, logDeep } = require('../utils');
 const { etsyClient } = require('../etsy/etsy.utils');
 

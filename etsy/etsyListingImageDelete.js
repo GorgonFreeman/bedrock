@@ -1,3 +1,5 @@
+// https://developers.etsy.com/documentation/reference/#operation/deleteListingImage
+
 const { respond, mandateParam, logDeep } = require('../utils');
 const { etsyClient, etsyGetShopIdAndUserId } = require('../etsy/etsy.utils');
 
