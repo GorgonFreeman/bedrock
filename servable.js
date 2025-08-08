@@ -110,7 +110,6 @@ module.exports = {
   etsyReceiptGet: require('./etsy/etsyReceiptGet').etsyReceiptGetApi,
   etsySellerTaxonomyNodePropertiesGet: require('./etsy/etsySellerTaxonomyNodePropertiesGet').etsySellerTaxonomyNodePropertiesGetApi,
   etsySellerTaxonomyNodesGet: require('./etsy/etsySellerTaxonomyNodesGet').etsySellerTaxonomyNodesGetApi,
-  etsyShopAboutGet: require('./etsy/etsyShopAboutGet').etsyShopAboutGetApi,
   etsyShopGet: require('./etsy/etsyShopGet').etsyShopGetApi,
   etsyShopListingsGet: require('./etsy/etsyShopListingsGet').etsyShopListingsGetApi,
   etsyShopPoliciesGet: require('./etsy/etsyShopPoliciesGet').etsyShopPoliciesGetApi,
