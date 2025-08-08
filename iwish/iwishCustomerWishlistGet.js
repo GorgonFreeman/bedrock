@@ -1,4 +1,5 @@
-const { respond, mandateParam, credsByPath, CustomAxiosClient } = require('../utils');
+const { respond, mandateParam, credsByPath, CustomAxiosClient, logDeep } = require('../utils');
+const { iwishRequestSetup } = require('../iwish/iwish.utils');
 
 const iwishCustomerWishlistGet = async (
   credsPath,
@@ -8,22 +9,17 @@ const iwishCustomerWishlistGet = async (
   } = {},
 ) => {
 
-  const creds = credsByPath(['iwish', credsPath]);
-  const { XTOKEN } = creds;
-  const baseHeaders = {
-    xtoken: XTOKEN,
-  };
-
-  const baseUrl = 'https://api.myshopapps.com/wishlist';
-
   const client = new CustomAxiosClient({
-    baseUrl,
-    baseHeaders,
+    factory: iwishRequestSetup,
   });
 
   const response = await client.fetch({
     url: `/V2/fetchWishlistData/${ customerId }`,
+    context: {
+      credsPath,
+    },
   });
+  logDeep('response', response);
   return response;
 };
 
@@ -55,4 +51,4 @@ module.exports = {
   iwishCustomerWishlistGetApi,
 };
 
-// curl localhost:8000/iwishCustomerWishlistGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerId": "8575963103304" }'
+// curl localhost:8000/iwishCustomerWishlistGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerId": "2700981665864" }'

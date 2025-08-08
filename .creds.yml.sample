@@ -63,5 +63,6 @@ yotpo:
     MERCHANT_ID: ______________________
 
 iwish:
+  BASE_URL: https://api.myshopapps.com/wishlist
   store:
     XTOKEN: ___________________________
