@@ -1,34 +1,50 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, credsByPath, CustomAxiosClient } = require('../utils');
 
 const iwishCustomerWishlistGet = async (
-  arg,
+  credsPath,
+  customerId,
   {
     option,
   } = {},
 ) => {
 
-  return { 
-    arg, 
-    option,
+  const creds = credsByPath(['iwish', credsPath]);
+  const { XTOKEN } = creds;
+  const baseHeaders = {
+    xtoken: XTOKEN,
   };
-  
+
+  const baseUrl = 'https://api.myshopapps.com/wishlist';
+
+  const client = new CustomAxiosClient({
+    baseUrl,
+    baseHeaders,
+  });
+
+  const response = await client.fetch({
+    url: `/V2/fetchWishlistData/${ customerId }`,
+  });
+  return response;
 };
 
 const iwishCustomerWishlistGetApi = async (req, res) => {
   const { 
-    arg,
+    credsPath,
+    customerId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'credsPath', credsPath),
+    mandateParam(res, 'customerId', customerId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await iwishCustomerWishlistGet(
-    arg,
+    credsPath,
+    customerId,
     options,
   );
   respond(res, 200, result);
@@ -39,4 +55,4 @@ module.exports = {
   iwishCustomerWishlistGetApi,
 };
 
-// curl localhost:8000/iwishCustomerWishlistGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/iwishCustomerWishlistGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerId": "8575963103304" }'
