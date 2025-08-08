@@ -1,3 +1,5 @@
+// https://developers.etsy.com/documentation/reference/#operation/getListingProduct
+
 const { respond, mandateParam, logDeep } = require('../utils');
 const { etsyClient } = require('../etsy/etsy.utils');
 
@@ -9,9 +11,10 @@ const etsyListingProductGet = async (
   } = {},
 ) => {
   const response = await etsyClient.fetch({ 
-    url: `/application/listings/${ listingId }/products/${ productId }`,
+    url: `/application/listings/${ listingId }/inventory/products/${ productId }`,
     context: {
       credsPath,
+      withBearer: true,
     },
   });
   logDeep(response);
@@ -46,4 +49,4 @@ module.exports = {
   etsyListingProductGetApi,
 };
 
-// curl localhost:8000/etsyListingProductGet -H "Content-Type: application/json" -d '{ "listingId": "123456", "productId": "789" }' 
+// curl localhost:8000/etsyListingProductGet -H "Content-Type: application/json" -d '{ "listingId": "1508355670", "productId": "17315318266" }' 
