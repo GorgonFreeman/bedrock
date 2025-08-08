@@ -1,7 +1,7 @@
 const { respond, mandateParam, logDeep } = require('../utils');
 const { etsyGetShopIdAndUserId, etsyGet } = require('../etsy/etsy.utils');
 
-const etsyShopPoliciesGet = async (
+const etsyShopPoliciesGetReturns = async (
   {
     credsPath,
     shopId,
@@ -19,7 +19,7 @@ const etsyShopPoliciesGet = async (
     };
   }
 
-  const response = await etsyGet(`/application/shops/${ shopId }/policies`, { 
+  const response = await etsyGet(`/application/shops/${ shopId }/policies/return`, { 
     context: {
       credsPath,
       withBearer: true,
@@ -29,7 +29,7 @@ const etsyShopPoliciesGet = async (
   return response;
 };
 
-const etsyShopPoliciesGetApi = async (req, res) => {
+const etsyShopPoliciesGetReturnsApi = async (req, res) => {
   const { 
     options,
   } = req.body;
@@ -41,15 +41,15 @@ const etsyShopPoliciesGetApi = async (req, res) => {
   //   return;
   // }
 
-  const result = await etsyShopPoliciesGet(
+  const result = await etsyShopPoliciesGetReturns(
     options,
   );
   respond(res, 200, result);
 };
 
 module.exports = {
-  etsyShopPoliciesGet,
-  etsyShopPoliciesGetApi,
+  etsyShopPoliciesGetReturns,
+  etsyShopPoliciesGetReturnsApi,
 };
 
-// curl localhost:8000/etsyShopPoliciesGet
+// curl localhost:8000/etsyShopPoliciesGetReturns
