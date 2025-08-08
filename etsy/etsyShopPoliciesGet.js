@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { etsyGetShopIdAndUserId, etsyClient } = require('../etsy/etsy.utils');
+const { etsyGetShopIdAndUserId, etsyGet } = require('../etsy/etsy.utils');
 
 const etsyShopPoliciesGet = async (
   {
@@ -19,8 +19,7 @@ const etsyShopPoliciesGet = async (
     };
   }
 
-  const response = await etsyClient.fetch({ 
-    url: `/application/shops/${ shopId }/policies`,
+  const response = await etsyGet(`/application/shops/${ shopId }/policies`, { 
     context: {
       credsPath,
     },
