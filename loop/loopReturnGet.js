@@ -1,14 +1,11 @@
 // https://docs.loopreturns.com/api-reference/latest/return-data/get-return-details
 
 const { respond, mandateParam, logDeep } = require('../utils');
-const { loopGet } = require('../loop/loop.utils');
+const { loopClient } = require('../loop/loop.utils');
 
 const loopReturnGet = async (
   credsPath,
   returnId,
-  {
-    ...getterOptions
-  } = {},
 ) => {
 
   if (!returnId) {
@@ -18,16 +15,15 @@ const loopReturnGet = async (
     };
   }
 
-  const response = await loopGet(
-    credsPath,
-    `/warehouse/return/details`,
-    {
-      params: {
-        return_id: returnId,
-      },
-      ...getterOptions,
+  const response = await loopClient.fetch({
+    url: `/warehouse/return/details`,
+    params: {
+      return_id: returnId,
     },
-  );
+    context: {
+      credsPath,
+    },
+  });
   
   logDeep(response);
   return response;
