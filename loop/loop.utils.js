@@ -12,7 +12,7 @@ const loopRequestSetup = ({ credsPath } = {}) => {
   return {
     baseUrl: BASE_URL,
     headers: {
-      'Authorization': `Bearer ${ API_KEY }`,
+      'X-Authorization': API_KEY,
     },
   };
 };
