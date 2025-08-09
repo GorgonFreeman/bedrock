@@ -27,6 +27,7 @@ const loopClient = new CustomAxiosClient({
 const loopGetter = async (
   credsPath,
   url,
+  nodeName,
   {
     params,
     perPage,
@@ -37,11 +38,14 @@ const loopGetter = async (
     {
       url,
       payload: {
-        params,
+        params: {
+          paginate: true,
+          ...params,
+        },
       },
       paginator: async (customAxiosPayload, response, { resultsCount, lastPageResultsCount }) => {
-        logDeep('paginator', customAxiosPayload, response);
-        askQuestion('continue?');
+        // logDeep('paginator', nodeName, customAxiosPayload, response);
+        // askQuestion('continue?');
 
         const { success, result } = response;
         if (!success) {
@@ -49,32 +53,26 @@ const loopGetter = async (
         }
 
         // Extract pagination info from response
-        const { pagination } = result || {};
-        const { current_page, total_pages } = pagination || {};
+        const { nextPageUrl } = result || {};
 
         // Determine if we're done
-        const done = !pagination || current_page >= total_pages;
+        const done = !nextPageUrl;
 
-        // Prepare next page payload
-        const paginatedPayload = {
-          ...customAxiosPayload,
-          params: {
-            ...customAxiosPayload.params,
-            page: current_page + 1,
-          },
-        };
 
-        return [done, paginatedPayload];
+        return [done, customAxiosPayload, {
+          url: nextPageUrl,
+        }];
       },
       digester: async (response) => {
-        // logDeep('digester', response);
-        // askQuestion('continue?');
-        return response?.result?.result;
+        logDeep('digester', response);
+        askQuestion('continue?');
+        return response?.result?.[nodeName];
       },
       client: loopClient,
       clientArgs: {
         context: {
           credsPath,
+          nodeName,
         },
       },
       ...getterOptions,

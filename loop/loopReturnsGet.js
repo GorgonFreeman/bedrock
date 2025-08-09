@@ -11,11 +11,8 @@ const loopReturnsGet = async (
   const response = await loopGet(
     credsPath,
     '/warehouse/return/list',
-    {
-      // params: {
-      //   ...options,
-      // },
-    },
+    'returns',
+    {},
   );
   logDeep(response);
   return response;

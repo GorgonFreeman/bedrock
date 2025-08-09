@@ -522,6 +522,9 @@ class CustomAxiosClient {
     } else if (baseUrl) {
       // Remove trailing and leading slashes
       baseUrl = baseUrl.replace(/\/$/, '');
+      if (url.startsWith(baseUrl)) {
+        url = url.slice(baseUrl.length);
+      }
       url = url.replace(/^\//, '');
       url = `${ baseUrl }/${ url }`;
     }
