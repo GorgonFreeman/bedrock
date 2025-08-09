@@ -67,17 +67,9 @@ const loopGetter = async (
         return [done, paginatedPayload];
       },
       digester: async (response) => {
-        logDeep('digester', response);
-        askQuestion('continue?');
-
-        const { success, result } = response;
-        if (!success) {
-          return null;
-        }
-
-        // Extract items from response
-        const items = result?.data || result?.returns || [];
-        return Array.isArray(items) ? items : [items];
+        // logDeep('digester', response);
+        // askQuestion('continue?');
+        return response?.result?.result;
       },
       client: loopClient,
       clientArgs: {
