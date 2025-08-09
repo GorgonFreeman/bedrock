@@ -66,3 +66,8 @@ iwish:
   BASE_URL: https://api.myshopapps.com/wishlist
   store:
     XTOKEN: ___________________________
+
+loop:
+  BASE_URL: https://api.loopreturns.com/api/v1
+  store:
+    API_KEY: __________________________
