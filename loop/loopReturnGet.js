@@ -61,4 +61,4 @@ module.exports = {
   loopReturnGetApi,
 };
 
-// curl localhost:8000/loopReturnGet -H "Content-Type: application/json" -d '{ "credsPath": "us", "returnId": "73822962" }'
+// curl localhost:8000/loopReturnGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "returnId": "85747906" }'
