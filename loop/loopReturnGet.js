@@ -4,9 +4,9 @@ const { respond, mandateParam, logDeep } = require('../utils');
 const { loopGet } = require('../loop/loop.utils');
 
 const loopReturnGet = async (
+  credsPath,
   returnId,
   {
-    credsPath,
     ...getterOptions
   } = {},
 ) => {
@@ -19,9 +19,9 @@ const loopReturnGet = async (
   }
 
   const response = await loopGet(
+    credsPath,
     `/returns/${ returnId }`,
     {
-      credsPath,
       ...getterOptions,
     },
   );
@@ -32,11 +32,13 @@ const loopReturnGet = async (
 
 const loopReturnGetApi = async (req, res) => {
   const { 
+    credsPath,
     returnId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
+    mandateParam(res, 'credsPath', credsPath),
     mandateParam(res, 'returnId', returnId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
@@ -44,6 +46,7 @@ const loopReturnGetApi = async (req, res) => {
   }
 
   const result = await loopReturnGet(
+    credsPath,
     returnId,
     options,
   );
@@ -55,4 +58,4 @@ module.exports = {
   loopReturnGetApi,
 };
 
-// curl localhost:8000/loopReturnGet -H "Content-Type: application/json" -d '{ "returnId": "1234" }'
+// curl localhost:8000/loopReturnGet -H "Content-Type: application/json" -d '{ "credsPath": "store", "returnId": "1234" }'
