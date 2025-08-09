@@ -1,4 +1,4 @@
-// https://developers.loopreturns.com/api/returns/get-return
+// https://docs.loopreturns.com/api-reference/latest/return-data/get-return-details
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { loopGet } = require('../loop/loop.utils');
@@ -20,8 +20,11 @@ const loopReturnGet = async (
 
   const response = await loopGet(
     credsPath,
-    `/returns/${ returnId }`,
+    `/warehouse/return/details`,
     {
+      params: {
+        return_id: returnId,
+      },
       ...getterOptions,
     },
   );
