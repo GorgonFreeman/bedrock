@@ -71,3 +71,9 @@ loop:
   BASE_URL: https://api.loopreturns.com/api/v1
   store:
     API_KEY: __________________________
+
+backblaze:
+  BASE_URL: https://api.backblazeb2.com
+  ACCOUNT_ID: _________________________
+  APPLICATION_KEY_ID: _________________
+  APPLICATION_KEY: ____________________
