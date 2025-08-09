@@ -1,47 +1,39 @@
-const { credsByPath, customAxios } = require('../utils');
+const { credsByPath, CustomAxiosClient, Getter, getterAsGetFunction } = require('../utils');
 
-const loopRequestSetup = (credsPath) => {
+const loopRequestSetup = ({ credsPath } = {}) => {
   const creds = credsByPath(['loop', credsPath]);
+
+  const { BASE_URL, API_KEY } = creds;
   
-  if (!creds.BASE_URL) {
+  if (!BASE_URL) {
     throw new Error('Loop BASE_URL is required');
-  }
-  
-  if (!creds.API_KEY) {
-    throw new Error('Loop API_KEY is required');
   }
 
   return {
-    baseUrl: creds.BASE_URL,
+    baseUrl: BASE_URL,
     headers: {
-      'Authorization': `Bearer ${ creds.API_KEY }`,
-      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${ API_KEY }`,
     },
   };
 };
 
-const loopFactory = async (context) => {
-  const { credsPath } = context;
-  return loopRequestSetup(credsPath);
-};
-
-const loopClient = new (require('../utils').CustomAxiosClient)({
-  factory: loopFactory,
+const loopClient = new CustomAxiosClient({
+  factory: loopRequestSetup,
   baseHeaders: {
     'Content-Type': 'application/json',
   },
 });
 
-const loopGet = async (
+const loopGetter = async (
+  credsPath,
   url,
   {
-    credsPath,
     params,
     perPage,
     ...getterOptions
   } = {},
 ) => {
-  return new (require('../utils').Getter)(
+  return new Getter(
     {
       url,
       payload: {
@@ -92,9 +84,11 @@ const loopGet = async (
   );
 };
 
+const loopGet = getterAsGetFunction(loopGetter);
+
 module.exports = {
   loopRequestSetup,
-  loopFactory,
   loopClient,
+  loopGetter,
   loopGet,
 }; 
