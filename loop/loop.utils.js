@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, Getter, getterAsGetFunction } = require('../utils');
+const { credsByPath, CustomAxiosClient, Getter, getterAsGetFunction, logDeep, askQuestion } = require('../utils');
 
 const loopRequestSetup = ({ credsPath } = {}) => {
   const creds = credsByPath(['loop', credsPath]);

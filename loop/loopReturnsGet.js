@@ -1,34 +1,41 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, logDeep } = require('../utils');
+const { loopGet } = require('../loop/loop.utils');
 
 const loopReturnsGet = async (
-  arg,
+  credsPath,
   {
     option,
   } = {},
 ) => {
 
-  return { 
-    arg, 
-    option,
-  };
-  
+  const response = await loopGet(
+    credsPath,
+    '/warehouse/return/list',
+    {
+      // params: {
+      //   ...options,
+      // },
+    },
+  );
+  logDeep(response);
+  return response;
 };
 
 const loopReturnsGetApi = async (req, res) => {
   const { 
-    arg,
+    credsPath,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'credsPath', credsPath),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await loopReturnsGet(
-    arg,
+    credsPath,
     options,
   );
   respond(res, 200, result);
@@ -39,4 +46,4 @@ module.exports = {
   loopReturnsGetApi,
 };
 
-// curl localhost:8000/loopReturnsGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/loopReturnsGet -H "Content-Type: application/json" -d '{ "credsPath": "au" }'
