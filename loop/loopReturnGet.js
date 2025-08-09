@@ -1,34 +1,50 @@
-const { respond, mandateParam } = require('../utils');
+// https://developers.loopreturns.com/api/returns/get-return
+
+const { respond, mandateParam, logDeep } = require('../utils');
+const { loopGet } = require('../loop/loop.utils');
 
 const loopReturnGet = async (
-  arg,
+  returnId,
   {
-    option,
+    credsPath,
+    ...getterOptions
   } = {},
 ) => {
 
-  return { 
-    arg, 
-    option,
-  };
+  if (!returnId) {
+    return {
+      success: false,
+      error: ['returnId is required'],
+    };
+  }
+
+  const response = await loopGet(
+    `/returns/${ returnId }`,
+    {
+      credsPath,
+      ...getterOptions,
+    },
+  );
   
+  logDeep(response);
+  return response;
 };
 
 const loopReturnGetApi = async (req, res) => {
   const { 
-    arg,
+    returnId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'returnId', returnId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await loopReturnGet(
-    arg,
+    returnId,
     options,
   );
   respond(res, 200, result);
@@ -39,4 +55,4 @@ module.exports = {
   loopReturnGetApi,
 };
 
-// curl localhost:8000/loopReturnGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/loopReturnGet -H "Content-Type: application/json" -d '{ "returnId": "1234" }'
