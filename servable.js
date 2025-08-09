@@ -145,4 +145,5 @@ module.exports = {
   bleckmannSkusGet: require('./bleckmann/bleckmannSkusGet').bleckmannSkusGetApi,
   bedrock_unlisted_shopifyStaffCustomerOffboard: require('./bedrock_unlisted/bedrock_unlisted_shopifyStaffCustomerOffboard').bedrock_unlisted_shopifyStaffCustomerOffboardApi,
   bedrock_unlisted_shopifyStaffCustomerOnboard: require('./bedrock_unlisted/bedrock_unlisted_shopifyStaffCustomerOnboard').bedrock_unlisted_shopifyStaffCustomerOnboardApi,
+  backblazeBucketsGet: require('./backblaze/backblazeBucketsGet').backblazeBucketsGetApi,
 };
