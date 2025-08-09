@@ -1101,6 +1101,41 @@ const actionMultipleOrSingle = async (input, func, buildOpArgs) => {
   return new Operation(func, buildOpArgs(input)).run();
 };
 
+const standardInterpreters = {
+  expectOne: (response) => {
+    if (!response?.success) {
+      return response;
+    }
+
+    result = response?.result;
+
+    if (!result) {
+      throw new Error('Nothing given, nothing gotten');
+    }
+
+    if (result?.length > 1) {
+      return {
+        success: false,
+        error: [{
+          message: 'Multiple results found',
+          data: result,
+        }],
+      };
+    }
+
+    parsedResult = result?.[0]
+      ? result?.[0]
+      : null;
+
+    return {
+      ...response,
+      ...(parsedResult ? {
+        result: parsedResult,
+      } : {}),
+    };
+  },
+};
+
 module.exports = {
 
   // Really core
@@ -1142,6 +1177,7 @@ module.exports = {
   gidToId,
   surveyObjects,
   actionMultipleOrSingle,
+  standardInterpreters,
   
   // Classes
   CustomAxiosClient,

@@ -1,6 +1,6 @@
 // https://docs.loopreturns.com/api-reference/latest/return-data/get-return-details
 
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, standardInterpreters } = require('../utils');
 const { loopClient } = require('../loop/loop.utils');
 
 const loopReturnGet = async (
@@ -23,6 +23,7 @@ const loopReturnGet = async (
     context: {
       credsPath,
     },
+    interpreter: standardInterpreters.expectOne,
   });
   
   logDeep(response);
