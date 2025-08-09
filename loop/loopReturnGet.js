@@ -1,29 +1,30 @@
 // https://docs.loopreturns.com/api-reference/latest/return-data/get-return-details
 
-const { respond, mandateParam, logDeep, standardInterpreters } = require('../utils');
+const { respond, mandateParam, logDeep, standardInterpreters, objHasAny } = require('../utils');
 const { loopClient } = require('../loop/loop.utils');
 
 const loopReturnGet = async (
   credsPath,
-  returnId,
+  {
+    returnId,
+    orderId,
+    orderName,
+  },
 ) => {
 
-  if (!returnId) {
-    return {
-      success: false,
-      error: ['returnId is required'],
-    };
-  }
+  const params = {
+    ...(returnId ? { return_id: returnId } : {}),
+    ...(orderId ? { order_id: orderId } : {}),
+    ...(orderName ? { order_name: orderName } : {}),
+  };
 
   const response = await loopClient.fetch({
     url: `/warehouse/return/details`,
-    params: {
-      return_id: returnId,
-    },
+    params,
     context: {
       credsPath,
     },
-    interpreter: standardInterpreters.expectOne,
+    ...(returnId ? { interpreter: standardInterpreters.expectOne } : {}),
   });
   
   logDeep(response);
@@ -33,13 +34,13 @@ const loopReturnGet = async (
 const loopReturnGetApi = async (req, res) => {
   const { 
     credsPath,
-    returnId,
+    returnIdentifier,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'returnId', returnId),
+    mandateParam(res, 'returnIdentifier', returnIdentifier, p => objHasAny(p, ['returnId', 'orderId', 'orderName'])),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -47,7 +48,7 @@ const loopReturnGetApi = async (req, res) => {
 
   const result = await loopReturnGet(
     credsPath,
-    returnId,
+    returnIdentifier,
     options,
   );
   respond(res, 200, result);
@@ -58,4 +59,4 @@ module.exports = {
   loopReturnGetApi,
 };
 
-// curl localhost:8000/loopReturnGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "returnId": "85747906" }'
+// curl localhost:8000/loopReturnGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "returnIdentifier": { "returnId": "85747906" } }'
