@@ -12,7 +12,7 @@ const backblazeBucketsGet = async (
   // Step 1: Authorize account to get token
   const authUrl = `${creds.BASE_URL}/b2api/v2/b2_authorize_account`;
   const authHeaders = {
-    'Authorization': `Basic ${Buffer.from(`${creds.ACCOUNT_ID}:${creds.APPLICATION_KEY}`).toString('base64')}`,
+    'Authorization': `Basic ${Buffer.from(`${creds.APP_ID}:${creds.API_KEY}`).toString('base64')}`,
   };
 
   console.log('backblaze authUrl', authUrl);
