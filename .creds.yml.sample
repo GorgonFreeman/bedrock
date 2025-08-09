@@ -74,6 +74,5 @@ loop:
 
 backblaze:
   BASE_URL: https://api.backblazeb2.com
-  ACCOUNT_ID: _________________________
-  APPLICATION_KEY_ID: _________________
-  APPLICATION_KEY: ____________________
+  APP_ID: _____________________________
+  API_KEY: ____________________________
