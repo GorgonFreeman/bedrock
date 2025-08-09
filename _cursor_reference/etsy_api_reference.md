@@ -189,36 +189,8 @@ Etsy's Open API provides a simple RESTful interface for various Etsy.com feature
 - `GET /v3/application/users/{user_id}/addresses` - Get user addresses
 
 ### Other
-
-#### Utility
 - `GET /v3/application/openapi-ping` - Ping
 - `POST /v3/application/oauth/scopes` - Token scopes
-
-## Response Format
-
-All API responses follow a standard JSON format:
-
-```json
-{
-  "count": 0,
-  "results": []
-}
-```
-
-## Error Codes
-
-- `200` - Success
-- `400` - Bad Request - There was a problem with the request data
-- `401` - Unauthorized - Authentication required
-- `403` - Forbidden - Access denied
-- `404` - Not Found - Resource could not be found
-- `429` - Too Many Requests - Rate limit exceeded
-- `500` - Internal Server Error - Server encountered an error
-- `503` - Service Unavailable - Service temporarily unavailable
-
-## Rate Limits
-
-The API implements rate limiting. Check response headers for rate limit information.
 
 ## Support
 
