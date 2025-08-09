@@ -7,8 +7,8 @@ const backblazeAuthGet = async (
     credsPath,
   } = {},
 ) => {
-  const creds = credsByPath(credsPath || 'backblaze');
-  console.log('backblaze creds', creds);
+  
+  const creds = credsByPath(['backblaze', credsPath]);
 
   // Authorize account to get token and account info
   const authUrl = `${creds.BASE_URL}/b2api/v2/b2_authorize_account`;
