@@ -40,6 +40,9 @@ const loopGetter = async (
         params,
       },
       paginator: async (customAxiosPayload, response, { resultsCount, lastPageResultsCount }) => {
+        logDeep('paginator', customAxiosPayload, response);
+        askQuestion('continue?');
+
         const { success, result } = response;
         if (!success) {
           return [true, null];
@@ -64,6 +67,9 @@ const loopGetter = async (
         return [done, paginatedPayload];
       },
       digester: async (response) => {
+        logDeep('digester', response);
+        askQuestion('continue?');
+
         const { success, result } = response;
         if (!success) {
           return null;

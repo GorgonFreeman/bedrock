@@ -90,6 +90,7 @@ module.exports = {
   peoplevoxOrdersGetById: require('./peoplevox/peoplevoxOrdersGetById').peoplevoxOrdersGetByIdApi,
   peoplevoxReportGet: require('./peoplevox/peoplevoxReportGet').peoplevoxReportGetApi,
   loopReturnGet: require('./loop/loopReturnGet').loopReturnGetApi,
+  loopReturnsGet: require('./loop/loopReturnsGet').loopReturnsGetApi,
   logiwaAuthGet: require('./logiwa/logiwaAuthGet').logiwaAuthGetApi,
   logiwaOrderGet: require('./logiwa/logiwaOrderGet').logiwaOrderGetApi,
   logiwaOrdersList: require('./logiwa/logiwaOrdersList').logiwaOrdersListApi,
