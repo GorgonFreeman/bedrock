@@ -797,6 +797,14 @@ class CustomAxiosClientV2 {
           body,
           verbose,
         };
+        // This is to pass through to interpreters so they have a source of truth for what was sent.
+        // They return stuff directly and since it's within the while loop, it doesn't get transformed again.
+        // So I think we're ok to mutate the fetchContext like this.
+        fetchContext = {
+          ...fetchContext,
+          ...customAxiosPayload, 
+        };
+
         logDeep('customAxiosPayload', customAxiosPayload);
         await askQuestion('?');
         
