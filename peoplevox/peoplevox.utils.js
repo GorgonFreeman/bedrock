@@ -185,8 +185,8 @@ const peoplevoxBaseInterpreter = async (response, context) => {
   let parsedResult = null;
   const { 
     credsPath,
-    customAxiosPayload,
     action,
+    body,
   } = context;
 
   if (!response?.result) {
@@ -248,7 +248,6 @@ const peoplevoxBaseInterpreter = async (response, context) => {
   ];
   if (!successful && fetchNewAuthMessages.includes(detail)) {
     // Auth has expired, fetch a fresh one and edit body to include it
-    const { body } = customAxiosPayload;
     const bodyJson = await xml2jsParserRaw.parseStringPromise(body);
 
     const sessionIdResponse = await getSessionId({ credsPath, forceRefresh: true });
@@ -262,7 +261,6 @@ const peoplevoxBaseInterpreter = async (response, context) => {
     const changedBodyXml = xml2jsBuilder.buildObject(bodyJson);
 
     changedCustomAxiosPayload = {
-      ...customAxiosPayload,
       body: changedBodyXml,
     };
     shouldRetry = true;
