@@ -1,6 +1,6 @@
 const xml2js = require('xml2js');
 const csvtojson = require('csvtojson');
-const { credsByPath, CustomAxiosClient, furthestNode, logDeep, askQuestion, strictlyFalsey } = require('../utils');
+const { credsByPath, CustomAxiosClient, furthestNode, logDeep, askQuestion, strictlyFalsey, CustomAxiosClientV2 } = require('../utils');
 const { peoplevoxAuthGet } = require('../peoplevox/peoplevoxAuthGet');
 const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 
@@ -333,8 +333,33 @@ const peoplevoxDateFormatter = (dateIso) => {
   return `DateTime(${ dateIso.slice(0, 10).split('-').join(',') },00,00,00)`;
 };
 
+const peoplevoxPreparer = async (context) => {
+
+  console.log('peoplevoxPreparer', context);
+  await askQuestion('Continue?');
+
+  const peoplevoxRequestSetupOutput = peoplevoxRequestSetup(context);
+
+  console.log('peoplevoxRequestSetupOutput', peoplevoxRequestSetupOutput);
+  await askQuestion('Continue?');
+
+  return {
+    ...peoplevoxRequestSetupOutput,
+  };
+};
+
+const commonCreds = peoplevoxRequestSetup();
+const peoplevoxClientV2 = new CustomAxiosClientV2({
+  ...commonCreds,
+  baseHeaders: {
+    'Content-Type': 'text/xml; charset=utf-8',
+  },
+  preparer: peoplevoxPreparer,
+});
+
 module.exports = {
   peoplevoxClient,
+  peoplevoxClientV2,
   peoplevoxStandardInterpreter,
   peoplevoxGetSingle,
   peoplevoxDateFormatter,
