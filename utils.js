@@ -665,7 +665,7 @@ class CustomAxiosClientV2 {
       const {
         baseUrl: preparedBaseUrl,
         headers: preparedHeaders,
-      } = this.preparer(this.context);
+      } = await this.preparer(this.context);
       
       this.context = {
         ...this.context,
@@ -734,7 +734,7 @@ class CustomAxiosClientV2 {
         headers: preparedHeaders,
         params: preparedParams,
         body: preparedBody,
-      } = this.preparer(fetchContext);
+      } = await this.preparer(fetchContext);
 
       if (preparedBaseUrl) {
         baseUrl = preparedBaseUrl;
