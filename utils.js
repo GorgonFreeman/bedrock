@@ -691,7 +691,11 @@ class CustomAxiosClientV2 {
     
   } = {}) {
 
-    logDeep('fetch', {
+    let { baseUrl, baseHeaders } = this;
+
+    debug && logDeep('fetch', {
+      baseUrl,
+      baseHeaders,
       url,
       method, 
       headers, 
@@ -701,15 +705,7 @@ class CustomAxiosClientV2 {
       interpreter,
       context,
     });
-    await askQuestion('?');
-
-    logDeep('before preparer', {
-      baseUrl: this.baseUrl,
-      headers,
-      params,
-      body,
-    });
-    await askQuestion('?');
+    debug && await askQuestion('?');
 
     let fetchContext = {
       ...context,
@@ -718,8 +714,6 @@ class CustomAxiosClientV2 {
       ...(params ? { params } : {}),
       ...(body ? { body } : {}),
     };
-
-    let { baseUrl, baseHeaders } = this;
     
     if (this.preparer) {
       const {
@@ -750,15 +744,15 @@ class CustomAxiosClientV2 {
       if (preparedBody) {
         body = preparedBody;
       }
-    }
 
-    logDeep('after preparer', {
-      baseUrl: this.baseUrl,
-      headers,
-      params,
-      body,
-    });
-    await askQuestion('?');
+      debug && logDeep('after preparer', {
+        baseUrl: this.baseUrl,
+        headers,
+        params,
+        body,
+      });
+      debug && await askQuestion('?');
+    }
 
     // Supplement url with baseUrl
     if (!url) {
@@ -805,13 +799,13 @@ class CustomAxiosClientV2 {
           ...customAxiosPayload, 
         };
 
-        logDeep('customAxiosPayload', customAxiosPayload);
-        await askQuestion('?');
+        debug && logDeep('customAxiosPayload', customAxiosPayload);
+        debug && await askQuestion('?');
         
         response = await customAxios(url, customAxiosPayload);
 
-        logDeep('response', response);
-        await askQuestion('Continue?');
+        debug && logDeep('response', response);
+        debug && await askQuestion('Continue?');
         
         // If customAxios gives a failure, it's nothing to do with user errors or data, it's because something has gone technically wrong. Return it as-is.
         // Actually, we need to pass these through for failed auth for example.
@@ -828,11 +822,11 @@ class CustomAxiosClientV2 {
         }
 
         response = this.baseInterpreter ? await this.baseInterpreter(response, fetchContext) : response;
-        logDeep('response after baseInterpreter', response);
-        await askQuestion('?');
+        debug && logDeep('response after baseInterpreter', response);
+        debug && await askQuestion('?');
         response = interpreter ? await interpreter(response, fetchContext) : response;
-        logDeep('response after interpreter', response);
-        await askQuestion('?');
+        debug && logDeep('response after interpreter', response);
+        debug && await askQuestion('?');
 
         let {
           // success,
@@ -842,9 +836,6 @@ class CustomAxiosClientV2 {
           retryWithPayload,
           ...interpretedResponse
         } = response;
-
-        logDeep('interpretedResponse', interpretedResponse);
-        await askQuestion('?');
         
         if (shouldRetry) {
           if (retryAttempt >= maxRetries) {
