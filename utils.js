@@ -663,6 +663,7 @@ class CustomAxiosClientV2 {
     // If context is supplied on construction, the result will update baseUrl, baseHeaders, etc.
     // url will replace existing url, headers will merge with existing headers
     // It wouldn't make any sense getting body from preparer on construction, so it's not supported
+    // TODO: Consider also actioning on no context supplied, to set things like baseUrl more easily
     if (context && preparer) {
       const {
         baseUrl: preparedBaseUrl,
