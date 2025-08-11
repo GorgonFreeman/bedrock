@@ -606,7 +606,35 @@ class CustomAxiosClient {
           }
 
           if (changedCustomAxiosPayload) {
-            context.customAxiosPayload = changedCustomAxiosPayload;
+            const {
+              // Commented out just because why would we change the method and retry?
+              // method: changedMethod,
+              body: changedBody,
+              headers: changedHeaders,
+              params: changedParams,
+            } = changedCustomAxiosPayload;
+
+            // if (changedMethod) {
+            //   method = changedMethod;
+            // }
+
+            if (changedHeaders) {
+              headers = {
+                ...(headers ?? {}),
+                ...(changedHeaders ?? {}),
+              };
+            }
+
+            if (changedParams) {
+              params = {
+                ...(params ?? {}),
+                ...(changedParams ?? {}),
+              };
+            }
+
+            if (changedBody) {
+              body = changedBody;
+            }
           }
 
           retryAttempt++;
