@@ -606,6 +606,7 @@ class CustomAxiosClient {
           }
 
           if (changedCustomAxiosPayload) {
+            // TODO: Consider just spreading the whole thing, and expecting the interpreter to retain headers and params.
             const {
               // Commented out just because why would we change the method and retry?
               // method: changedMethod,
