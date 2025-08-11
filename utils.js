@@ -640,6 +640,262 @@ class CustomAxiosClient {
   }
 }
 
+class CustomAxiosClientV2 {
+  constructor({ 
+    baseInterpreter, 
+    baseUrl, 
+    baseHeaders, 
+
+    context,
+    preparer,
+  } = {}) {
+
+    this.baseInterpreter = baseInterpreter;
+    this.baseUrl = baseUrl;
+    this.baseHeaders = baseHeaders;
+    
+    // Preparer is a function that takes context, and updates stuff like auth
+    // If context is supplied on construction, the result will update baseUrl, baseHeaders, etc.
+    // url will replace existing url, headers will merge with existing headers
+    // It wouldn't make any sense getting body from preparer on construction
+    this.preparer = preparer;
+    this.context = context;
+    
+    if (this.context) {
+      const {
+        baseUrl: preparedBaseUrl,
+        headers: preparedHeaders,
+      } = this.preparer(this.context);
+      
+      this.context = {
+        ...this.context,
+        ...(preparedBaseUrl ? { baseUrl: preparedBaseUrl } : {}),
+        ...(preparedHeaders ? { baseHeaders: {
+          ...(this.baseHeaders ?? {}),
+          ...(preparedHeaders ?? {}),
+        } } : {}),
+      }
+    }
+  }
+
+  async fetch({
+    url, // url is surprisingly optional because the base url may be all you need
+
+    // customAxios payload
+    method,
+    headers,
+    params,
+    body,
+    
+    verbose,
+    interpreter,
+    
+    /* Things to expect in context:
+      - credsPath
+      - needsAuth
+      - anything the preparer wants to use, case by case
+    */
+    context = {},
+    
+  } = {}) {
+
+    console.log('before preparer', {
+      baseUrl: this.baseUrl,
+      headers,
+      params,
+      body,
+    });
+
+    const fetchContext = {
+      ...this.context,
+      ...context,
+      ...(method ? { method } : {}),
+      ...(headers ? { headers } : {}),
+      ...(params ? { params } : {}),
+      ...(body ? { body } : {}),
+    };
+    
+    if (context && this.preparer) {
+      const {
+        baseUrl: preparedBaseUrl,
+        headers: preparedHeaders,
+        params: preparedParams,
+        body: preparedBody,
+      } = this.preparer(fetchContext);
+
+      if (preparedBaseUrl) {
+        baseUrl = preparedBaseUrl;
+      }
+
+      if (preparedHeaders) {
+        headers = {
+          ...(headers ?? {}),
+          ...(preparedHeaders ?? {}),
+        };
+      }
+
+      if (preparedParams) {
+        params = {
+          ...(params ?? {}),
+          ...(preparedParams ?? {}),
+        };
+      }
+
+      if (preparedBody) {
+        body = preparedBody;
+      }
+    }
+
+    console.log('after preparer', {
+      baseUrl: this.baseUrl,
+      headers,
+      params,
+      body,
+    });
+    
+    const { baseUrl, baseHeaders } = this;
+
+    // Supplement url with baseUrl
+    if (!url) {
+      url = baseUrl;
+    } else if (baseUrl) {
+      // Remove baseUrl from url if it's there
+      if (url.startsWith(baseUrl)) {
+        url = url.slice(baseUrl.length);
+      }
+      // Remove trailing and leading slashes
+      baseUrl = baseUrl.replace(/\/$/, '');
+      url = url.replace(/^\//, '');
+      // Construct final url from baseUrl + url
+      url = `${ baseUrl }/${ url }`;
+    }
+    
+    // Supplement headers with baseHeaders
+    headers = {
+      ...(baseHeaders ?? {}),
+      ...(headers ?? {}),
+    };
+    
+    let response;
+    let done = false;
+    let cooldown = 3000;
+    let retryAttempt = 0;
+    let maxRetries = 5;
+
+    while (!done) {
+      try {
+
+        let customAxiosPayload = {
+          method,
+          headers,
+          params,
+          body,
+          verbose,
+        };
+        
+        response = await customAxios(url, customAxiosPayload);
+
+        debug && logDeep('response', response);
+        debug && await askQuestion('Continue?');
+        
+        // If customAxios gives a failure, it's nothing to do with user errors or data, it's because something has gone technically wrong. Return it as-is.
+        // Actually, we need to pass these through for failed auth for example.
+        if (!response?.success) {
+          if (!response?.error || response?.error?.some(err => ![401].includes(err?.status))) {
+            verbose && console.log('client response failed');
+            return response;
+          }
+        }
+
+        if (!this.baseInterpreter && !interpreter) {
+          verbose && console.log('client response without interpretation');
+          return response;
+        }
+
+        response = this.baseInterpreter ? await this.baseInterpreter(response, fetchContext) : response;
+        debug && logDeep('response after baseInterpreter', response);
+        debug && await askQuestion('Continue?');
+        response = interpreter ? await interpreter(response, fetchContext) : response;
+        debug && logDeep('response after interpreter', response);
+        debug && await askQuestion('Continue?');
+
+        let {
+          // success,
+          // result,
+          // error,
+          shouldRetry,
+          retryWithPayload,
+          ...interpretedResponse
+        } = response;
+        
+        if (shouldRetry) {
+          if (retryAttempt >= maxRetries) {
+            console.warn(`Ran out of retries`);
+            return interpretedResponse;
+          }
+
+          if (retryWithPayload) {
+            const {
+              method: retryMethod,
+              headers: retryHeaders,
+              params: retryParams,
+              body: retryBody,
+            } = retryWithPayload;
+
+            if (retryMethod) {
+              method = retryMethod;
+            }
+
+            if (retryHeaders) {
+              headers = {
+                ...(headers ?? {}),
+                ...(retryHeaders ?? {}),
+              };
+            }
+
+            if (retryParams) {
+              params = {
+                ...(params ?? {}),
+                ...(retryParams ?? {}),
+              };
+            }
+
+            if (retryBody) {
+              body = retryBody;
+            }
+          }
+
+          retryAttempt++;
+          const waitTime = cooldown;
+          verbose && console.log(`Retry attempt #${ retryAttempt }, waiting ${ waitTime }`);
+          await wait(waitTime);
+          cooldown += cooldown;
+          continue;
+        }
+
+        if (!interpretedResponse || typeof interpretedResponse !== 'object') {
+          verbose && console.warn('client response interpreter failed');
+          return {
+            success: false,
+            error: ['Response interpreter failed'],
+          };
+        }
+        
+        verbose && console.log('client response successful and interpreted');
+        return interpretedResponse;
+
+      } catch(error) { 
+
+        verbose && console.warn('client response failed');
+        return {
+          success: false,
+          error,
+        } 
+      }
+    }
+  }
+}
+
 class Operation {
   constructor(func, { args = [], options = {} } = {}) {
     this.func = func;
