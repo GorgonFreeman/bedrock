@@ -31,15 +31,7 @@ const yotpoRequestSetup = ({
 const commonCreds = yotpoRequestSetup();
 const { baseUrl } = commonCreds;
 
-const yotpoClient = new CustomAxiosClient({
-  baseUrl,
-  baseHeaders: {
-    'Content-Type': 'application/json',
-  },
-  factory: yotpoRequestSetup,
-});
-
-const yotpoClientV2 = new CustomAxiosClientV2({
+const yotpoClient = new CustomAxiosClientV2({
   baseUrl,
   baseHeaders: {
     'Content-Type': 'application/json',
@@ -49,5 +41,4 @@ const yotpoClientV2 = new CustomAxiosClientV2({
 
 module.exports = {
   yotpoClient,
-  yotpoClientV2,
 };
