@@ -642,6 +642,16 @@ class CustomAxiosClient {
 
 class CustomAxiosClientV2 {
 
+  /* 
+    const newClient = await CustomAxiosClientV2.init({
+      baseUrl,
+      baseHeaders,
+      baseInterpreter,
+      context,
+      preparer,
+    });
+  */
+
   static async init(options) {
     const client = new CustomAxiosClientV2(options);
 
