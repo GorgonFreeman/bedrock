@@ -1484,6 +1484,7 @@ module.exports = {
   
   // Classes
   CustomAxiosClient,
+  CustomAxiosClientV2,
   Operation,
   OperationQueue,
   Getter,
