@@ -718,6 +718,7 @@ class CustomAxiosClientV2 {
     /* Things to expect in context:
       - credsPath
       - needsAuth
+      - apiVersion
       - anything the preparer wants to use, case by case
     */
     context = {},
