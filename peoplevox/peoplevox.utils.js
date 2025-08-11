@@ -1,6 +1,6 @@
 const xml2js = require('xml2js');
 const csvtojson = require('csvtojson');
-const { credsByPath, CustomAxiosClient, furthestNode, logDeep, askQuestion, strictlyFalsey, CustomAxiosClientV2 } = require('../utils');
+const { credsByPath, furthestNode, logDeep, askQuestion, strictlyFalsey, CustomAxiosClientV2 } = require('../utils');
 const { peoplevoxAuthGet } = require('../peoplevox/peoplevoxAuthGet');
 const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 
@@ -67,63 +67,6 @@ const getSessionId = async ({ credsPath, forceRefresh } = {}) => {
     success: true,
     result: sessionId,
   };
-};
-
-const peoplevoxBodyTransformer = async (body, context = {}) => {
-
-  const { 
-    action,
-    credsPath,
-  } = context;
-  if (!action) {
-    throw new Error('Action is required');
-  }
-  
-  const { CLIENT_ID } = credsByPath(['peoplevox', credsPath]);
-
-  let sessionId;
-  if (action !== 'Authenticate') {
-    // Needs auth
-    const sessionIdResponse = await getSessionId({ credsPath });
-
-    if (!sessionIdResponse?.success || !sessionIdResponse?.result) {
-      console.error('Failed to get session ID', sessionIdResponse);
-      throw new Error('Failed to get session ID');
-    }
-
-    sessionId = sessionIdResponse?.result;
-  }
-  
-  // TODO: Consider if multiple objects can be sent in one request
-  const envelopeObject = {
-    'soap:Envelope': {
-      '$': {
-        'xmlns:soap': 'http://schemas.xmlsoap.org/soap/envelope/',
-      },
-      ...(sessionId) ? {
-        'soap:Header': {
-          'UserSessionCredentials': {
-            '$': {
-              'xmlns': 'http://www.peoplevox.net/',
-            },
-            'UserId': 0,
-            'clientId': CLIENT_ID,
-            'SessionId': sessionId,
-          }
-        }
-      } : {},
-      'soap:Body': {
-        [action]: {
-          '$': {
-            'xmlns': 'http://www.peoplevox.net/',
-          },
-          ...body,
-        }
-      }
-    }
-  };
-
-  return xml2jsBuilder.buildObject(envelopeObject);
 };
 
 const peoplevoxStandardInterpreter = ({ expectOne } = {}) => async (response, context) => {
@@ -285,56 +228,6 @@ const peoplevoxBaseInterpreter = async (response, context) => {
   return interpretedResponse;
 };
 
-const peoplevoxClient = new CustomAxiosClient({
-  baseHeaders: {
-    'Content-Type': 'text/xml; charset=utf-8',
-  },
-  bodyTransformer: peoplevoxBodyTransformer,
-  factory: peoplevoxRequestSetup,
-  baseInterpreter: peoplevoxBaseInterpreter,
-});
-
-const peoplevoxGetSingle = async (
-  templateName, 
-  {
-    searchClause,
-    id,
-    idName,
-  },
-  { 
-    credsPath, 
-  } = {},
-) => {
-
-  const action = 'GetData';
-  searchClause = searchClause || `${ idName }.Equals("${ id }")`;
-
-  const response = await peoplevoxClient.fetch({
-    headers: {
-      'SOAPAction': `http://www.peoplevox.net/${ action }`,
-    },
-    method: 'post',
-    body: {
-      getRequest: {
-        TemplateName: templateName,
-        SearchClause: searchClause,
-      },
-    },
-    context: { 
-      credsPath,
-      action,
-     },
-    interpreter: peoplevoxStandardInterpreter({ expectOne: true }),
-  });
-
-  // logDeep(response);
-  return response;
-};
-
-const peoplevoxDateFormatter = (dateIso) => {
-  return `DateTime(${ dateIso.slice(0, 10).split('-').join(',') },00,00,00)`;
-};
-
 const peoplevoxPreparer = async (context) => {
 
   let output = peoplevoxRequestSetup(context);
@@ -405,7 +298,7 @@ const peoplevoxPreparer = async (context) => {
 };
 
 const commonCreds = peoplevoxRequestSetup();
-const peoplevoxClientV2 = new CustomAxiosClientV2({
+const peoplevoxClient = new CustomAxiosClientV2({
   ...commonCreds,
   baseInterpreter: peoplevoxBaseInterpreter,
   baseHeaders: {
@@ -414,9 +307,49 @@ const peoplevoxClientV2 = new CustomAxiosClientV2({
   preparer: peoplevoxPreparer,
 });
 
+const peoplevoxGetSingle = async (
+  templateName, 
+  {
+    searchClause,
+    id,
+    idName,
+  },
+  { 
+    credsPath, 
+  } = {},
+) => {
+
+  const action = 'GetData';
+  searchClause = searchClause || `${ idName }.Equals("${ id }")`;
+
+  const response = await peoplevoxClient.fetch({
+    headers: {
+      'SOAPAction': `http://www.peoplevox.net/${ action }`,
+    },
+    method: 'post',
+    body: {
+      getRequest: {
+        TemplateName: templateName,
+        SearchClause: searchClause,
+      },
+    },
+    context: { 
+      credsPath,
+      action,
+     },
+    interpreter: peoplevoxStandardInterpreter({ expectOne: true }),
+  });
+
+  // logDeep(response);
+  return response;
+};
+
+const peoplevoxDateFormatter = (dateIso) => {
+  return `DateTime(${ dateIso.slice(0, 10).split('-').join(',') },00,00,00)`;
+};
+
 module.exports = {
   peoplevoxClient,
-  peoplevoxClientV2,
   peoplevoxStandardInterpreter,
   peoplevoxGetSingle,
   peoplevoxDateFormatter,
