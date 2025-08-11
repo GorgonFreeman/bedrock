@@ -241,8 +241,12 @@ const peoplevoxBaseInterpreter = async (response, context) => {
   }
   
   // console.log('detail', detail);
-
-  if (!successful && detail === 'System : Security - Invalid Session') {
+  
+  const fetchNewAuthMessages = [
+    'System : Security - Invalid Session',
+    'System : Security - Session Expired',
+  ];
+  if (!successful && fetchNewAuthMessages.includes(detail)) {
     // Auth has expired, fetch a fresh one and edit body to include it
     const { body } = customAxiosPayload;
     const bodyJson = await xml2jsParserRaw.parseStringPromise(body);
