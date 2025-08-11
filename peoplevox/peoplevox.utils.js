@@ -409,6 +409,7 @@ const peoplevoxPreparer = async (context) => {
 const commonCreds = peoplevoxRequestSetup();
 const peoplevoxClientV2 = new CustomAxiosClientV2({
   ...commonCreds,
+  baseInterpreter: peoplevoxBaseInterpreter,
   baseHeaders: {
     'Content-Type': 'text/xml; charset=utf-8',
   },
