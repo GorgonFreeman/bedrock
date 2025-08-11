@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, Getter, askQuestion, logDeep, getterAsGetFunction } = require('../utils');
+const { credsByPath, CustomAxiosClientV2, Getter, askQuestion, logDeep, getterAsGetFunction } = require('../utils');
 
 const starshipitRequestSetup = ({ credsPath } = {}) => {
 
@@ -26,9 +26,9 @@ const starshipitRequestSetup = ({ credsPath } = {}) => {
 const commonCreds = starshipitRequestSetup();
 const { baseUrl } = commonCreds;
 
-const starshipitClient = new CustomAxiosClient({
+const starshipitClient = new CustomAxiosClientV2({
   baseUrl,
-  factory: starshipitRequestSetup,
+  preparer: starshipitRequestSetup,
   baseInterpreter: (response) => {
 
     if (!response?.result?.success) {

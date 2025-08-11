@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, Getter, logDeep, askQuestion, getterAsGetFunction } = require('../utils');
+const { credsByPath, CustomAxiosClientV2, Getter, logDeep, askQuestion, getterAsGetFunction } = require('../utils');
 const { logiwaAuthGet } = require('../logiwa/logiwaAuthGet');
 const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 
@@ -85,9 +85,9 @@ const logiwaFactory = async({ credsPath, apiVersion } = {}) => {
   };
 };
 
-const logiwaClient = new CustomAxiosClient({
+const logiwaClient = new CustomAxiosClientV2({
   baseUrl: logiwaRequestSetup().baseUrl,
-  factory: logiwaFactory,
+  preparer: logiwaFactory,
 });
 
 const logiwaGetter = async (

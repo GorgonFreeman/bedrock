@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, logDeep, askQuestion, Getter, getterAsGetFunction } = require('../utils');
+const { credsByPath, CustomAxiosClientV2, logDeep, askQuestion, Getter, getterAsGetFunction } = require('../utils');
 
 const pipe17RequestSetup = ({ credsPath } = {}) => {
 
@@ -20,8 +20,8 @@ const pipe17RequestSetup = ({ credsPath } = {}) => {
   };
 };
 
-const pipe17Client = new CustomAxiosClient({
-  factory: pipe17RequestSetup,
+const pipe17Client = new CustomAxiosClientV2({
+  preparer: pipe17RequestSetup,
   baseHeaders: {
     'Content-Type': 'application/json',
   },

@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, Getter, getterAsGetFunction, logDeep, askQuestion } = require('../utils');
+const { credsByPath, CustomAxiosClientV2, Getter, getterAsGetFunction, logDeep, askQuestion } = require('../utils');
 
 const loopRequestSetup = ({ credsPath } = {}) => {
   const creds = credsByPath(['loop', credsPath]);
@@ -17,8 +17,8 @@ const loopRequestSetup = ({ credsPath } = {}) => {
   };
 };
 
-const loopClient = new CustomAxiosClient({
-  factory: loopRequestSetup,
+const loopClient = new CustomAxiosClientV2({
+  preparer: loopRequestSetup,
   baseHeaders: {
     'Content-Type': 'application/json',
   },

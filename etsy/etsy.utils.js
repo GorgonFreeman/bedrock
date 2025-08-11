@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, Getter, getterAsGetFunction, logDeep, askQuestion } = require('../utils');
+const { credsByPath, CustomAxiosClientV2, Getter, getterAsGetFunction, logDeep, askQuestion } = require('../utils');
 const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 const { MAX_PER_PAGE } = require('../etsy/etsy.constants');
 const { etsyAccessTokenRefresh } = require('../etsy/etsyAccessTokenRefresh');
@@ -131,9 +131,9 @@ const etsyRequestSetup = async ({ credsPath, withBearer = false } = {}) => {
 const commonCreds = etsyRequestSetup();
 const { baseUrl } = commonCreds;
 
-const etsyClient = new CustomAxiosClient({
+const etsyClient = new CustomAxiosClientV2({
   baseUrl,
-  factory: etsyRequestSetup,
+  preparer: etsyRequestSetup,
   baseHeaders: {
     'Content-Type': 'application/json',
   },
@@ -153,7 +153,7 @@ const etsyClient = new CustomAxiosClient({
     }
 
     let shouldRetry = false;
-    let changedCustomAxiosPayload;
+    let retryWithPayload;
     
     // Handle expired access token
     if (error?.some(err => err?.data?.error_description === 'access token is expired')) {
@@ -171,19 +171,15 @@ const etsyClient = new CustomAxiosClient({
       }
 
       shouldRetry = true;
-      changedCustomAxiosPayload = {
-        ...customAxiosPayload,
-        headers: {
-          ...customAxiosPayload?.headers,
-          Authorization: `Bearer ${ accessToken }`,
-        },
+      retryWithPayload = {
+        headers: { Authorization: `Bearer ${ accessToken }` },
       };
     }
 
     return {
       ...response,
       shouldRetry,
-      changedCustomAxiosPayload,
+      retryWithPayload,
     };
   },
 });

@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, Getter, getterAsGetFunction, askQuestion } = require('../utils');
+const { credsByPath, CustomAxiosClientV2, Getter, getterAsGetFunction, askQuestion } = require('../utils');
 
 const iwishRequestSetup = async ({ credsPath } = {}) => {
   const creds = credsByPath(['iwish', credsPath]);
@@ -20,9 +20,9 @@ const iwishRequestSetup = async ({ credsPath } = {}) => {
 const commonCreds = iwishRequestSetup();
 const { baseUrl } = commonCreds;
 
-const iwishClient = new CustomAxiosClient({
+const iwishClient = new CustomAxiosClientV2({
   baseUrl,
-  factory: iwishRequestSetup,
+  preparer: iwishRequestSetup,
 });
 
 const iwishPaginator = async (customAxiosPayload, response, additionalPaginationData) => {
