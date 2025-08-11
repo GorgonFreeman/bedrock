@@ -641,6 +641,39 @@ class CustomAxiosClient {
 }
 
 class CustomAxiosClientV2 {
+
+  static async init(options) {
+    const client = new CustomAxiosClientV2(options);
+
+    const { 
+      context, 
+      preparer,
+    } = client;
+    
+    // If context is supplied on construction, the result will update baseUrl, baseHeaders, etc.
+    // url will replace existing url, headers will merge with existing headers
+    // It wouldn't make any sense getting body from preparer on construction, so it's not supported
+    if (context && preparer) {
+      const {
+        baseUrl: preparedBaseUrl,
+        headers: preparedHeaders,
+      } = await preparer(context);
+
+      if (preparedBaseUrl) {
+        client.baseUrl = preparedBaseUrl;
+      }
+
+      if (preparedHeaders) {
+        client.baseHeaders = {
+          ...(client.baseHeaders ?? {}),
+          ...(preparedHeaders ?? {}),
+        };
+      }
+    }
+    
+    return client;
+  }
+
   constructor({ 
     baseInterpreter, 
     baseUrl, 
@@ -655,27 +688,8 @@ class CustomAxiosClientV2 {
     this.baseHeaders = baseHeaders;
     
     // Preparer is a function that takes context, and updates stuff like auth
-    // If context is supplied on construction, the result will update baseUrl, baseHeaders, etc.
-    // url will replace existing url, headers will merge with existing headers
-    // It wouldn't make any sense getting body from preparer on construction
     this.preparer = preparer;
     this.context = context;
-    
-    if (this.context) {
-      const {
-        baseUrl: preparedBaseUrl,
-        headers: preparedHeaders,
-      } = await this.preparer(this.context);
-      
-      this.context = {
-        ...this.context,
-        ...(preparedBaseUrl ? { baseUrl: preparedBaseUrl } : {}),
-        ...(preparedHeaders ? { baseHeaders: {
-          ...(this.baseHeaders ?? {}),
-          ...(preparedHeaders ?? {}),
-        } } : {}),
-      }
-    }
   }
 
   async fetch({
@@ -799,7 +813,7 @@ class CustomAxiosClientV2 {
     while (!done) {
       try {
 
-        let customAxiosPayload = {
+        const customAxiosPayload = {
           method,
           headers,
           params,
