@@ -718,6 +718,8 @@ class CustomAxiosClientV2 {
       ...(params ? { params } : {}),
       ...(body ? { body } : {}),
     };
+
+    let { baseUrl, baseHeaders } = this;
     
     if (this.preparer) {
       const {
@@ -757,8 +759,6 @@ class CustomAxiosClientV2 {
       body,
     });
     await askQuestion('?');
-    
-    const { baseUrl, baseHeaders } = this;
 
     // Supplement url with baseUrl
     if (!url) {
