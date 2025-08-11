@@ -343,6 +343,17 @@ const peoplevoxPreparer = async (context) => {
   console.log('peoplevoxRequestSetupOutput', peoplevoxRequestSetupOutput);
   await askQuestion('Continue?');
 
+  const { 
+    credsPath,
+    action,
+  } = context;
+  if (!action) {
+    throw new Error('Action is required');
+  }
+
+  console.log(credsPath, action);
+  await askQuestion('Continue?');
+
   return {
     ...peoplevoxRequestSetupOutput,
   };
