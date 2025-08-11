@@ -643,53 +643,18 @@ class CustomAxiosClient {
 class CustomAxiosClientV2 {
 
   /* 
-    const newClient = await CustomAxiosClientV2.init({
+    const newClient = new CustomAxiosClientV2({
       baseUrl,
       baseHeaders,
       baseInterpreter,
-      context,
       preparer,
     });
   */
-
-  static async init(options) {
-    const client = new CustomAxiosClientV2(options);
-
-    const { 
-      context, 
-      preparer,
-    } = client;
-    
-    // If context is supplied on construction, the result will update baseUrl, baseHeaders, etc.
-    // url will replace existing url, headers will merge with existing headers
-    // It wouldn't make any sense getting body from preparer on construction, so it's not supported
-    // TODO: Consider also actioning on no context supplied, to set things like baseUrl more easily
-    if (context && preparer) {
-      const {
-        baseUrl: preparedBaseUrl,
-        headers: preparedHeaders,
-      } = await preparer(context);
-
-      if (preparedBaseUrl) {
-        client.baseUrl = preparedBaseUrl;
-      }
-
-      if (preparedHeaders) {
-        client.baseHeaders = {
-          ...(client.baseHeaders ?? {}),
-          ...(preparedHeaders ?? {}),
-        };
-      }
-    }
-    
-    return client;
-  }
 
   constructor({ 
     baseInterpreter, 
     baseUrl, 
     baseHeaders, 
-
     context,
     preparer,
   } = {}) {
@@ -698,9 +663,10 @@ class CustomAxiosClientV2 {
     this.baseUrl = baseUrl;
     this.baseHeaders = baseHeaders;
     
+    // Allow setting context on construction in case it's good for the life of the client
+    this.context = context;
     // Preparer is a function that takes context, and updates stuff like auth
     this.preparer = preparer;
-    this.context = context;
   }
 
   async fetch({
@@ -745,8 +711,7 @@ class CustomAxiosClientV2 {
     });
     await askQuestion('?');
 
-    const fetchContext = {
-      ...this.context,
+    let fetchContext = {
       ...context,
       ...(method ? { method } : {}),
       ...(headers ? { headers } : {}),
@@ -754,7 +719,7 @@ class CustomAxiosClientV2 {
       ...(body ? { body } : {}),
     };
     
-    if (context && this.preparer) {
+    if (this.preparer) {
       const {
         baseUrl: preparedBaseUrl,
         headers: preparedHeaders,
