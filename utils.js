@@ -606,36 +606,7 @@ class CustomAxiosClient {
           }
 
           if (changedCustomAxiosPayload) {
-            // TODO: Consider just spreading the whole thing, and expecting the interpreter to retain headers and params.
-            const {
-              // Commented out just because why would we change the method and retry?
-              // method: changedMethod,
-              body: changedBody,
-              headers: changedHeaders,
-              params: changedParams,
-            } = changedCustomAxiosPayload;
-
-            // if (changedMethod) {
-            //   method = changedMethod;
-            // }
-
-            if (changedHeaders) {
-              headers = {
-                ...(headers ?? {}),
-                ...(changedHeaders ?? {}),
-              };
-            }
-
-            if (changedParams) {
-              params = {
-                ...(params ?? {}),
-                ...(changedParams ?? {}),
-              };
-            }
-
-            if (changedBody) {
-              body = changedBody;
-            }
+            context.customAxiosPayload = changedCustomAxiosPayload;
           }
 
           retryAttempt++;
@@ -882,6 +853,7 @@ class CustomAxiosClientV2 {
           }
 
           if (retryWithPayload) {
+            // TODO: Consider just spreading the whole thing, and expecting the interpreter to retain headers and params.
             const {
               method: retryMethod,
               headers: retryHeaders,

@@ -155,7 +155,7 @@ const peoplevoxBaseInterpreter = async (response, context) => {
 
   const successful = responseId === '0';
   let shouldRetry = false;
-  let changedCustomAxiosPayload = null;
+  let retryWithPayload = null;
   
   // TODO: Consider expectArray as an option
   if (successful) {
@@ -203,7 +203,7 @@ const peoplevoxBaseInterpreter = async (response, context) => {
     bodyJson['soap:Envelope']['soap:Header']['UserSessionCredentials']['SessionId'] = sessionId;
     const changedBodyXml = xml2jsBuilder.buildObject(bodyJson);
 
-    changedCustomAxiosPayload = {
+    retryWithPayload = {
       body: changedBodyXml,
     };
     shouldRetry = true;
@@ -214,7 +214,7 @@ const peoplevoxBaseInterpreter = async (response, context) => {
     ...response,
 
     ...(shouldRetry ? { shouldRetry } : {}),
-    ...(changedCustomAxiosPayload ? { changedCustomAxiosPayload } : {}),
+    ...(retryWithPayload ? { retryWithPayload } : {}),
 
     success: successful,
     ...successful ? {
