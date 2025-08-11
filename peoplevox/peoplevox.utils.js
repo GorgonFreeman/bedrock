@@ -335,28 +335,71 @@ const peoplevoxDateFormatter = (dateIso) => {
 
 const peoplevoxPreparer = async (context) => {
 
-  console.log('peoplevoxPreparer', context);
-  await askQuestion('Continue?');
-
-  const peoplevoxRequestSetupOutput = peoplevoxRequestSetup(context);
-
-  console.log('peoplevoxRequestSetupOutput', peoplevoxRequestSetupOutput);
-  await askQuestion('Continue?');
+  let output = peoplevoxRequestSetup(context);
 
   const { 
     credsPath,
     action,
+    body,
   } = context;
   if (!action) {
     throw new Error('Action is required');
   }
 
-  console.log(credsPath, action);
+  const { CLIENT_ID } = credsByPath(['peoplevox', credsPath]);
+
+  let sessionId;
+  const needsAuth = action !== 'Authenticate';
+  if (needsAuth) {
+    const sessionIdResponse = await getSessionId({ credsPath });
+
+    if (!sessionIdResponse?.success || !sessionIdResponse?.result) {
+      console.error('Failed to get session ID', sessionIdResponse);
+      throw new Error('Failed to get session ID');
+    }
+
+    sessionId = sessionIdResponse?.result;
+  }
+
+  const envelopeObject = {
+    'soap:Envelope': {
+      '$': {
+        'xmlns:soap': 'http://schemas.xmlsoap.org/soap/envelope/',
+      },
+      ...(sessionId) ? {
+        'soap:Header': {
+          'UserSessionCredentials': {
+            '$': {
+              'xmlns': 'http://www.peoplevox.net/',
+            },
+            'UserId': 0,
+            'clientId': CLIENT_ID,
+            'SessionId': sessionId,
+          }
+        }
+      } : {},
+      'soap:Body': {
+        [action]: {
+          '$': {
+            'xmlns': 'http://www.peoplevox.net/',
+          },
+          ...body,
+        }
+      }
+    }
+  };
+
+  const envelopeXml = xml2jsBuilder.buildObject(envelopeObject);
+
+  output = {
+    ...output,
+    body: envelopeXml,
+  };
+
+  console.log('peoplevoxPreparer output', output);
   await askQuestion('Continue?');
 
-  return {
-    ...peoplevoxRequestSetupOutput,
-  };
+  return output;
 };
 
 const commonCreds = peoplevoxRequestSetup();
