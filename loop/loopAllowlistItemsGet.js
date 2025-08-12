@@ -10,8 +10,8 @@ const loopAllowlistItemsGet = async (
 
   const response = await loopGet(
     credsPath,
-    '/warehouse/return/list',
-    'returns',
+    '/allowlists',
+    'data',
     {
       ...getterOptions,
     },
@@ -45,4 +45,4 @@ module.exports = {
   loopAllowlistItemsGetApi,
 };
 
-// curl localhost:8000/loopAllowlistItemsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 20, "perPage": 7 } }'
+// curl localhost:8000/loopAllowlistItemsGet -H "Content-Type: application/json" -d '{ "credsPath": "au" }'
