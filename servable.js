@@ -138,6 +138,7 @@ module.exports = {
   etsyUserGet: require('./etsy/etsyUserGet').etsyUserGetApi,
   etsyUserShopsGet: require('./etsy/etsyUserShopsGet').etsyUserShopsGetApi,
   collabsFulfillmentSweep: require('./collabs/collabsFulfillmentSweep').collabsFulfillmentSweepApi,
+  collabsOrderSyncReview: require('./collabs/collabsOrderSyncReview').collabsOrderSyncReviewApi,
   bleckmannAsnGet: require('./bleckmann/bleckmannAsnGet').bleckmannAsnGetApi,
   bleckmannAsnsGet: require('./bleckmann/bleckmannAsnsGet').bleckmannAsnsGetApi,
   bleckmannEventsGet: require('./bleckmann/bleckmannEventsGet').bleckmannEventsGetApi,
