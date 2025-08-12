@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep } = require('../utils');
-const { peoplevoxClientV2, peoplevoxStandardInterpreter } = require('../peoplevox/peoplevox.utils');
+const { peoplevoxClient, peoplevoxStandardInterpreter } = require('../peoplevox/peoplevox.utils');
 
 const peoplevoxOrdersGet = async (
   searchClause,
@@ -10,7 +10,7 @@ const peoplevoxOrdersGet = async (
 
   const action = 'GetData';
 
-  const response = await peoplevoxClientV2.fetch({
+  const response = await peoplevoxClient.fetch({
     headers: {
       'SOAPAction': `http://www.peoplevox.net/${ action }`,
     },

@@ -1,9 +1,7 @@
 // https://loyaltyapi.yotpo.com/reference/fetch-vip-tiers
  
 const { respond, mandateParam, logDeep } = require('../utils');
-const { yotpoClientV2 } = require('../yotpo/yotpo.utils');
-
-console.log(yotpoClientV2);
+const { yotpoClient } = require('../yotpo/yotpo.utils');
 
 const yotpoVipTiersGet = async (
   credsPath,
@@ -12,7 +10,7 @@ const yotpoVipTiersGet = async (
   } = {},
 ) => {
 
-  const response = await yotpoClientV2.fetch({
+  const response = await yotpoClient.fetch({
     url: `/vip_tiers`,
     context: {
       credsPath,
