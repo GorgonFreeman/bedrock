@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, Getter, logDeep, askQuestion, getterAsGetFunction, CustomAxiosClientV2 } = require('../utils');
+const { credsByPath, CustomAxiosClient, Getter, logDeep, askQuestion, getterAsGetFunction } = require('../utils');
 
 const printifyRequestSetup = ({ credsPath } = {}) => {
 
@@ -24,7 +24,7 @@ const printifyRequestSetup = ({ credsPath } = {}) => {
 const commonCreds = printifyRequestSetup();
 const { baseUrl } = commonCreds;
 
-const printifyClient = new CustomAxiosClientV2({
+const printifyClient = new CustomAxiosClient({
   baseUrl,
   preparer: printifyRequestSetup,
   baseHeaders: {

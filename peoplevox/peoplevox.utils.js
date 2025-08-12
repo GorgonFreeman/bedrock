@@ -1,6 +1,6 @@
 const xml2js = require('xml2js');
 const csvtojson = require('csvtojson');
-const { credsByPath, furthestNode, logDeep, askQuestion, strictlyFalsey, CustomAxiosClientV2 } = require('../utils');
+const { credsByPath, furthestNode, logDeep, askQuestion, strictlyFalsey, CustomAxiosClient } = require('../utils');
 const { peoplevoxAuthGet } = require('../peoplevox/peoplevoxAuthGet');
 const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 
@@ -298,7 +298,7 @@ const peoplevoxPreparer = async (context) => {
 };
 
 const commonCreds = peoplevoxRequestSetup();
-const peoplevoxClient = new CustomAxiosClientV2({
+const peoplevoxClient = new CustomAxiosClient({
   ...commonCreds,
   baseInterpreter: peoplevoxBaseInterpreter,
   baseHeaders: {

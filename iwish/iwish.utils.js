@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClientV2, Getter, getterAsGetFunction, askQuestion } = require('../utils');
+const { credsByPath, CustomAxiosClient, Getter, getterAsGetFunction, askQuestion } = require('../utils');
 
 const iwishRequestSetup = async ({ credsPath } = {}) => {
   const creds = credsByPath(['iwish', credsPath]);
@@ -20,7 +20,7 @@ const iwishRequestSetup = async ({ credsPath } = {}) => {
 const commonCreds = iwishRequestSetup();
 const { baseUrl } = commonCreds;
 
-const iwishClient = new CustomAxiosClientV2({
+const iwishClient = new CustomAxiosClient({
   requiredContext: ['credsPath'],
   baseUrl,
   preparer: iwishRequestSetup,

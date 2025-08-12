@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClientV2, Getter, getterAsGetFunction, logDeep, askQuestion } = require('../utils');
+const { credsByPath, CustomAxiosClient, Getter, getterAsGetFunction, logDeep, askQuestion } = require('../utils');
 const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 const { MAX_PER_PAGE } = require('../etsy/etsy.constants');
 const { etsyAccessTokenRefresh } = require('../etsy/etsyAccessTokenRefresh');
@@ -131,7 +131,7 @@ const etsyRequestSetup = async ({ credsPath, withBearer = false } = {}) => {
 const commonCreds = etsyRequestSetup();
 const { baseUrl } = commonCreds;
 
-const etsyClient = new CustomAxiosClientV2({
+const etsyClient = new CustomAxiosClient({
   baseUrl,
   preparer: etsyRequestSetup,
   baseHeaders: {

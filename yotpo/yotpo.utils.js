@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, CustomAxiosClientV2 } = require('../utils');
+const { credsByPath, CustomAxiosClient } = require('../utils');
 
 const yotpoRequestSetup = ({
   credsPath,
@@ -31,7 +31,7 @@ const yotpoRequestSetup = ({
 const commonCreds = yotpoRequestSetup();
 const { baseUrl } = commonCreds;
 
-const yotpoClient = new CustomAxiosClientV2({
+const yotpoClient = new CustomAxiosClient({
   requiredContext: ['credsPath'],
   baseUrl,
   baseHeaders: {

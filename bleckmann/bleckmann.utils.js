@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClientV2, logDeep, Getter, getterAsGetFunction, askQuestion } = require('../utils');
+const { credsByPath, CustomAxiosClient, logDeep, Getter, getterAsGetFunction, askQuestion } = require('../utils');
 const { MAX_PER_PAGE } = require('../bleckmann/bleckmann.constants');
 
 const bleckmannRequestSetup = ({ credsPath } = {}) => {
@@ -21,7 +21,7 @@ const bleckmannRequestSetup = ({ credsPath } = {}) => {
 const commonCreds = bleckmannRequestSetup();
 const { baseUrl } = commonCreds;
 
-const bleckmannClient = new CustomAxiosClientV2({
+const bleckmannClient = new CustomAxiosClient({
   baseUrl,
   preparer: bleckmannRequestSetup,
 });
