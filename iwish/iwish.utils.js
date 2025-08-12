@@ -21,6 +21,7 @@ const commonCreds = iwishRequestSetup();
 const { baseUrl } = commonCreds;
 
 const iwishClient = new CustomAxiosClientV2({
+  requiredContext: ['credsPath'],
   baseUrl,
   preparer: iwishRequestSetup,
 });

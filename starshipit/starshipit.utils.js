@@ -27,6 +27,7 @@ const commonCreds = starshipitRequestSetup();
 const { baseUrl } = commonCreds;
 
 const starshipitClient = new CustomAxiosClientV2({
+  requiredContext: ['credsPath'],
   baseUrl,
   preparer: starshipitRequestSetup,
   baseInterpreter: (response) => {

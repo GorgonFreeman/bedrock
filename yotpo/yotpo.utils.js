@@ -32,6 +32,7 @@ const commonCreds = yotpoRequestSetup();
 const { baseUrl } = commonCreds;
 
 const yotpoClient = new CustomAxiosClientV2({
+  requiredContext: ['credsPath'],
   baseUrl,
   baseHeaders: {
     'Content-Type': 'application/json',

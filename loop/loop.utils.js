@@ -18,6 +18,7 @@ const loopRequestSetup = ({ credsPath } = {}) => {
 };
 
 const loopClient = new CustomAxiosClientV2({
+  requiredContext: ['credsPath'],
   preparer: loopRequestSetup,
   baseHeaders: {
     'Content-Type': 'application/json',
