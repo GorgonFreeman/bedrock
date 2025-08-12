@@ -67,8 +67,8 @@ const loopGetter = async (
         }];
       },
       digester: async (response) => {
-        logDeep('digester', response);
-        askQuestion('continue?');
+        // logDeep('digester', response);
+        // askQuestion('continue?');
         return response?.result?.[nodeName];
       },
       client: loopClient,
