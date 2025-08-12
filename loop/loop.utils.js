@@ -1,4 +1,5 @@
 const { credsByPath, CustomAxiosClient, Getter, getterAsGetFunction, logDeep, askQuestion } = require('../utils');
+const { MAX_PER_PAGE } = require('../loop/loop.constants');
 
 const loopRequestSetup = ({ credsPath } = {}) => {
   const creds = credsByPath(['loop', credsPath]);
@@ -31,7 +32,7 @@ const loopGetter = async (
   nodeName,
   {
     params,
-    perPage,
+    perPage = MAX_PER_PAGE,
     ...getterOptions
   } = {},
 ) => {
@@ -41,6 +42,7 @@ const loopGetter = async (
       payload: {
         params: {
           paginate: true,
+          pageSize: perPage,
           ...params,
         },
       },
