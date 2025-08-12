@@ -41,7 +41,7 @@ const loopGetter = async (
       url,
       payload: {
         params: {
-          paginate: true,
+          paginate: true, // quirk of the Loop API
           pageSize: perPage,
           ...params,
         },
