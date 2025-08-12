@@ -60,9 +60,9 @@ const shopifyClient = new CustomAxiosClient({
     const { result } = unnestedResponse;
     const { errors, userErrors } = result || {};
     
-    console.log('unnestedResponse', unnestedResponse);
-    console.log('errors', errors);
-    console.log('userErrors', userErrors);
+    // console.log('unnestedResponse', unnestedResponse);
+    // console.log('errors', errors);
+    // console.log('userErrors', userErrors);
 
     if (errors?.length || userErrors?.length) {
       return {
