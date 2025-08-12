@@ -18,7 +18,7 @@ const yotpoCustomerPointsAdjust = async (
   } = {},
 ) => {
 
-  const params = {
+  const body = {
     point_adjustment_amount: pointsAmount,
     ...customerId && { customer_id: customerId },
     ...customerEmail && { customer_email: customerEmail },
@@ -30,7 +30,7 @@ const yotpoCustomerPointsAdjust = async (
   const response = await yotpoClient.fetch({
     url: `/points/adjust`,
     method: 'post',
-    params,
+    body,
     context: {
       credsPath,
       apiVersion,
