@@ -28,7 +28,7 @@ const collabsOrderSyncReview = async (
         'delivery_method:shipping',
         `tag_not:'Sync:Confirmed'`,
       ],
-      limit: 5000, // TODO: Remove after testing
+      // limit: 5000, // TODO: Remove after testing
     },
   );
 
