@@ -1,6 +1,6 @@
 // https://loyaltyapi.yotpo.com/reference/adjust-a-customers-point-balance
 
-const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
+const { respond, mandateParam, logDeep, objHasAny, strictlyFalsey } = require('../utils');
 const { yotpoClient } = require('../yotpo/yotpo.utils');
 
 const yotpoCustomerPointsAdjust = async ( 
@@ -12,6 +12,9 @@ const yotpoCustomerPointsAdjust = async (
   pointsAmount,
   {
     apiVersion,
+    applyAdjustmentToPointsEarned,
+    historyTitle,
+    visibleToCustomer = true,
   } = {},
 ) => {
 
@@ -19,6 +22,9 @@ const yotpoCustomerPointsAdjust = async (
     point_adjustment_amount: pointsAmount,
     ...customerId && { customer_id: customerId },
     ...customerEmail && { customer_email: customerEmail },
+    ...historyTitle && { history_title: historyTitle },
+    ...!strictlyFalsey(applyAdjustmentToPointsEarned) && { apply_adjustment_to_points_earned: applyAdjustmentToPointsEarned },
+    ...!strictlyFalsey(visibleToCustomer) && { visible_to_customer: visibleToCustomer },
   };
 
   const response = await yotpoClient.fetch({
@@ -66,3 +72,4 @@ module.exports = {
 };
 
 // curl localhost:8000/yotpoCustomerPointsAdjust -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerIdentifier": { "customerEmail": "john+testing@whitefoxboutique.com" }, "pointsAmount": 100 }'
+// curl localhost:8000/yotpoCustomerPointsAdjust -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerIdentifier": { "customerEmail": "john+testing@whitefoxboutique.com" }, "pointsAmount": 101, "options": { "historyTitle": "Dalmatians", "applyAdjustmentToPointsEarned": true, "visibleToCustomer": false } }'
