@@ -14,7 +14,7 @@ const yotpoCustomerAnniversaryGet = async (
 
   const response = await yotpoClient.fetch({
     url: `/customer_anniversary`,
-    body: {
+    params: {
       ...customerId && { customer_id: customerId },
       ...customerEmail && { customer_email: customerEmail },
     },
