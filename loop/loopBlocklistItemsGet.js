@@ -10,8 +10,8 @@ const loopBlocklistItemsGet = async (
 
   const response = await loopGet(
     credsPath,
-    '/warehouse/return/list',
-    'returns',
+    '/blocklists',
+    'data',
     {
       ...getterOptions,
     },
