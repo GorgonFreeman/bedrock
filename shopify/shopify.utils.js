@@ -28,6 +28,7 @@ const shopifyRequestSetup = ({
 
 const shopifyClient = new CustomAxiosClientV2({
   preparer: shopifyRequestSetup,
+  requiredContext: ['credsPath'],
   baseHeaders: {
     'Content-Type': 'application/json',
   },

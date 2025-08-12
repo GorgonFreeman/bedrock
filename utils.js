@@ -656,6 +656,7 @@ class CustomAxiosClientV2 {
     baseUrl, 
     baseHeaders, 
     context,
+    requiredContext,
     preparer,
   } = {}) {
 
@@ -665,6 +666,7 @@ class CustomAxiosClientV2 {
     
     // Allow setting context on construction in case it's good for the life of the client
     this.context = context;
+    this.requiredContext = requiredContext;
     // Preparer is a function that takes context, and updates stuff like auth
     this.preparer = preparer;
   }
@@ -714,6 +716,14 @@ class CustomAxiosClientV2 {
       ...(params ? { params } : {}),
       ...(body ? { body } : {}),
     };
+
+    if (this.requiredContext) {
+      for (const contextProp of this.requiredContext) {
+        if (strictlyFalsey(fetchContext[contextProp])) {
+          throw new Error(`Missing context: ${ contextProp }`);
+        }
+      }
+    }
     
     if (this.preparer) {
       const {
