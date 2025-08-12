@@ -1,3 +1,5 @@
+// https://loyaltyapi.yotpo.com/reference/get-customer-anniversary
+
 const { respond, mandateParam, logDeep } = require('../utils');
 const { yotpoClient } = require('../yotpo/yotpo.utils');
 
