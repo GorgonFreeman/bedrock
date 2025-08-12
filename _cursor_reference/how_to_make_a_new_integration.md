@@ -1,6 +1,6 @@
 1. Find the documentation online.
 1. Open the url in the browser and wait for confirmation from the user before continuing, that it is correct.
-1. Make a summary of that documentation in markdown format in the _cursor_reference folder, using snake_case for the filename.
+1. Make a summary of that documentation in markdown format in the _cursor_reference folder, using snake_case for the filename. Do not include any implementation details, only summarise what you find online.
 1. Make a new directory called that platform. All lowercase, one word.
 1. Identify the necessary credentials and update .creds.yml.sample
 1. Commit this as `[platform] platform directory and creds sample`
