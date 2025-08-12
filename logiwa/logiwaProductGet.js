@@ -1,3 +1,5 @@
+// https://mydeveloper.logiwa.com/#tag/Product/paths/~1v3.1~1Product~1detail~1%7Bid%7D/get
+
 const { respond, mandateParam } = require('../utils');
 const { logiwaClient } = require('../logiwa/logiwa.utils');
 

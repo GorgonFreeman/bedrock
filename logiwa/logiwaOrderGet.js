@@ -1,3 +1,5 @@
+// https://mydeveloper.logiwa.com/#tag/ShipmentOrder/paths/~1v3.1~1ShipmentOrder~1%7Bid%7D/get
+
 const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
 const { logiwaClient } = require('../logiwa/logiwa.utils');
 const { logiwaOrdersList } = require('../logiwa/logiwaOrdersList');

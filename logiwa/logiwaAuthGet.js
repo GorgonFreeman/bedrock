@@ -1,3 +1,5 @@
+// https://mydeveloper.logiwa.com/#tag/Authorize/paths/~1v3.1~1Authorize~1token/post
+
 const { respond, mandateParam, credsByPath, logDeep, CustomAxiosClient } = require('../utils');
 
 const logiwaAuthGet = async (
