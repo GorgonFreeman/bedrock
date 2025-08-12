@@ -67,11 +67,15 @@ const collabsOrderSyncReview = async (
   const missingIds = shopifyOrderIds.filter(id => !foundIds.includes(id));
 
   logDeep(missingIds);
-  console.log(region, `found ${ foundIds.size } / ${ shopifyOrderIds.length }, missing ${ missingIds.length }`);
+  console.log(region, `found ${ foundIds.length } / ${ shopifyOrderIds.length }, missing ${ missingIds.length }`);
 
   return { 
     success: true,
-    result: foundIds,
+    result: {
+      missing: missingIds,
+      found: foundIds,
+      total: shopifyOrderIds.length,
+    },
   };
   
 };
