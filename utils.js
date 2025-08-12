@@ -666,6 +666,8 @@ class CustomAxiosClientV2 {
     
     // Allow setting context on construction in case it's good for the life of the client
     this.context = context;
+    // requiredContext is an array of props that must be present in context in order to make calls - usually credsPath
+    // If we need to support authless calls in the future, we can change it to a validator function, and that function can check needsAuth vs the presence of credsPath
     this.requiredContext = requiredContext;
     // Preparer is a function that takes context, and updates stuff like auth
     this.preparer = preparer;
