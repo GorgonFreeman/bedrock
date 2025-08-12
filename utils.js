@@ -35,7 +35,19 @@ const customAxios = async (url, {
   body,
   
   verbose,
+  omitRequestId = false,
 } = {}) => {
+  
+  // Generate a request ID if not provided
+  if (!omitRequestId) {
+    if (!headers) {
+      headers = {};
+    }
+
+    if (!headers['x-request-id']) {
+      headers['x-request-id'] = Date.now();
+    }
+  }
   
   const axiosConfig = {
     ...(headers && { headers }),
