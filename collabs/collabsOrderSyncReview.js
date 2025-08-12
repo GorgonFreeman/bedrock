@@ -27,7 +27,7 @@ const collabsOrderSyncReview = async (
         'status:open',
         'delivery_method:shipping',
       ],
-      // limit: 50, // TODO: Remove after testing
+      limit: 5000, // TODO: Remove after testing
     },
   );
 
@@ -52,13 +52,21 @@ const collabsOrderSyncReview = async (
 
   if (pvxRelevant) {
     const pvxOrdersResponse = await peoplevoxOrdersGetById(shopifyOrderIds);
+    logDeep('pvxOrdersResponse', pvxOrdersResponse);
+    await askQuestion('Continue?');
+
     const { success: pvxOrdersSuccess, result: pvxOrders } = pvxOrdersResponse;
+    logDeep('pvxOrders', pvxOrders);
+    await askQuestion('Continue?');
 
     if (!pvxOrdersSuccess) {
       return pvxOrdersResponse;
     }
 
     const pvxOrderIds = pvxOrders.map(order => order?.SalesOrderNumber).filter(id => id);
+    logDeep('pvxOrderIds', pvxOrderIds);
+    await askQuestion('Continue?');
+    
     foundIds.add(...pvxOrderIds);
   }
 
