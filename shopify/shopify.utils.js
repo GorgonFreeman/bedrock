@@ -2,14 +2,12 @@ require('dotenv').config();
 const { env } = process;
 const debug = env.DEBUG === 'true';
 
-const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey, logDeep, furthestNode, objHasAll } = require('../utils');
+const { credsByPath, CustomAxiosClientV2, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey, logDeep, furthestNode, objHasAll } = require('../utils');
 
-const shopifyRequestSetup = (
+const shopifyRequestSetup = ({ 
   credsPath,
-  { 
-    apiVersion = '2025-10', 
-  } = {},
-) => {
+  apiVersion = '2025-10', 
+} = {}) => {
   // returns { baseUrl, headers }
   
   const creds = credsByPath(['shopify', credsPath]);
@@ -28,11 +26,8 @@ const shopifyRequestSetup = (
   }; 
 };
 
-const shopifyClient = new CustomAxiosClient({
-  factory: async (context) => {
-    const { credsPath } = context;
-    return shopifyRequestSetup(credsPath);
-  },
+const shopifyClient = new CustomAxiosClientV2({
+  preparer: shopifyRequestSetup,
   baseHeaders: {
     'Content-Type': 'application/json',
   },
