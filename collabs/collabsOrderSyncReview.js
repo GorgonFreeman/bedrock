@@ -26,6 +26,7 @@ const collabsOrderSyncReview = async (
         'fulfillment_status:unshipped',
         'status:open',
         'delivery_method:shipping',
+        `tag_not:'Sync:Confirmed'`,
       ],
       limit: 5000, // TODO: Remove after testing
     },
