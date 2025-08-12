@@ -51,7 +51,7 @@ const collabsOrderSyncReview = async (
   const foundIds = new Set();
 
   if (pvxRelevant) {
-    const pvxOrdersResponse = await peoplevoxOrdersGetById(shopifyOrderIds);
+    const pvxOrdersResponse = await peoplevoxOrdersGetById(Array.from(shopifyOrderIds));
     logDeep('pvxOrdersResponse', pvxOrdersResponse);
     await askQuestion('Continue?');
 
