@@ -10,8 +10,8 @@ const loopDestinationsGet = async (
 
   const response = await loopGet(
     credsPath,
-    '/warehouse/return/list',
-    'returns',
+    '/destinations',
+    'destinations',
     {
       ...getterOptions,
     },
@@ -45,4 +45,4 @@ module.exports = {
   loopDestinationsGetApi,
 };
 
-// curl localhost:8000/loopDestinationsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 20, "perPage": 7 } }'
+// curl localhost:8000/loopDestinationsGet -H "Content-Type: application/json" -d '{ "credsPath": "au" }'
