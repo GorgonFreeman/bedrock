@@ -37,7 +37,7 @@ const collabsOrderSyncReview = async (
     return shopifyOrdersResponse;
   }
 
-  const shopifyOrderIds = new Set(shopifyOrders.map(order => gidToId(order.id)));
+  const shopifyOrderIds = shopifyOrders.map(order => gidToId(order.id));
 
   const pvxRelevant = REGIONS_PVX.includes(region);
 
@@ -48,10 +48,10 @@ const collabsOrderSyncReview = async (
     };
   }
 
-  const foundIds = new Set();
+  const foundIds = [];
 
   if (pvxRelevant) {
-    const pvxOrdersResponse = await peoplevoxOrdersGetById(Array.from(shopifyOrderIds));
+    const pvxOrdersResponse = await peoplevoxOrdersGetById(shopifyOrderIds);
     logDeep('pvxOrdersResponse', pvxOrdersResponse);
     await askQuestion('Continue?');
 
@@ -67,14 +67,13 @@ const collabsOrderSyncReview = async (
     logDeep('pvxOrderIds', pvxOrderIds);
     await askQuestion('Continue?');
     
-    foundIds.add(...pvxOrderIds);
+    foundIds.push(...pvxOrderIds);
   }
 
-  const missingIds = new Set([...shopifyOrderIds].filter(id => !foundIds.has(id)));
+  const missingIds = shopifyOrderIds.filter(id => !foundIds.includes(id));
 
   logDeep(missingIds);
-  console.log(`found ${ foundIds.size } / ${ shopifyOrderIds.size }, missing ${ missingIds.size }`);
-  await askQuestion('Continue?');
+  console.log(region, `found ${ foundIds.size } / ${ shopifyOrderIds.length }, missing ${ missingIds.length }`);
 
   return { 
     success: true,
