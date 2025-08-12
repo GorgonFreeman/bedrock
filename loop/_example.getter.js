@@ -1,0 +1,48 @@
+const { respond, mandateParam, logDeep } = require('../utils');
+const { loopGet } = require('../loop/loop.utils');
+
+const FUNC = async (
+  credsPath,
+  {
+    ...getterOptions
+  } = {},
+) => {
+
+  const response = await loopGet(
+    credsPath,
+    '/warehouse/return/list',
+    'returns',
+    {
+      ...getterOptions,
+    },
+  );
+  logDeep(response);
+  return response;
+};
+
+const FUNCApi = async (req, res) => {
+  const { 
+    credsPath,
+    options,
+  } = req.body;
+
+  const paramsValid = await Promise.all([
+    mandateParam(res, 'credsPath', credsPath),
+  ]);
+  if (paramsValid.some(valid => valid === false)) {
+    return;
+  }
+
+  const result = await FUNC(
+    credsPath,
+    options,
+  );
+  respond(res, 200, result);
+};
+
+module.exports = {
+  FUNC,
+  FUNCApi,
+};
+
+// curl localhost:8000/FUNC -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 20, "perPage": 7 } }'
