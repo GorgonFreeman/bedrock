@@ -27,7 +27,7 @@ const collabsOrderSyncReview = async (
         'status:open',
         'delivery_method:shipping',
       ],
-      limit: 50, // TODO: Remove after testing
+      // limit: 50, // TODO: Remove after testing
     },
   );
 
@@ -37,22 +37,40 @@ const collabsOrderSyncReview = async (
     return shopifyOrdersResponse;
   }
 
-  const shopifyOrderIds = shopifyOrders.map(order => gidToId(order.id));
+  const shopifyOrderIds = new Set(shopifyOrders.map(order => gidToId(order.id)));
 
   const pvxRelevant = REGIONS_PVX.includes(region);
-  const bleckmannRelevant = REGIONS_BLUEYONDER.includes(region);
-  const logiwaRelevant = REGIONS_LOGIWA.includes(region);
+
+  if (!pvxRelevant) {
+    return { 
+      success: false,
+      error: ['No platform finder relevant to this region'],
+    };
+  }
+
+  const foundIds = new Set();
 
   if (pvxRelevant) {
-    const pvxOrders = await peoplevoxOrdersGetById(shopifyOrders.filter(order => gidToId(order.id)));
+    const pvxOrdersResponse = await peoplevoxOrdersGetById(shopifyOrderIds);
+    const { success: pvxOrdersSuccess, result: pvxOrders } = pvxOrdersResponse;
 
-    logDeep(pvxOrders);
-    await askQuestion('Continue?');
+    if (!pvxOrdersSuccess) {
+      return pvxOrdersResponse;
+    }
+
+    const pvxOrderIds = pvxOrders.map(order => order?.SalesOrderNumber).filter(id => id);
+    foundIds.add(...pvxOrderIds);
   }
+
+  const missingIds = new Set([...shopifyOrderIds].filter(id => !foundIds.has(id)));
+
+  logDeep(missingIds);
+  console.log(`found ${ foundIds.size } / ${ shopifyOrderIds.size }, missing ${ missingIds.size }`);
+  await askQuestion('Continue?');
 
   return { 
     success: true,
-    result: shopifyOrders,
+    result: foundIds,
   };
   
 };
