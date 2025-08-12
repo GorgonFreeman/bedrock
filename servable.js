@@ -1,4 +1,5 @@
 module.exports = {
+  yotpoCustomerAnniversaryGet: require('./yotpo/yotpoCustomerAnniversaryGet').yotpoCustomerAnniversaryGetApi,
   yotpoCustomerGet: require('./yotpo/yotpoCustomerGet').yotpoCustomerGetApi,
   yotpoCustomerPointsAdjust: require('./yotpo/yotpoCustomerPointsAdjust').yotpoCustomerPointsAdjustApi,
   yotpoVipTiersGet: require('./yotpo/yotpoVipTiersGet').yotpoVipTiersGetApi,
