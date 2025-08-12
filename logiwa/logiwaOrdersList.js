@@ -27,6 +27,8 @@ const logiwaOrdersList = async (
     status_eq,
     expectedShipmentDate_bt,
     shipmentOrderTypeName_eq,
+
+    ...getterOptions
   } = {},
 ) => {
 
@@ -54,6 +56,7 @@ const logiwaOrdersList = async (
       credsPath,
       apiVersion,
       params,
+      ...getterOptions,
     },
   );
   // logDeep(response);
