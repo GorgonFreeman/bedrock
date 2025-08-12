@@ -20,6 +20,7 @@ const collabsOrderSyncReview = async (
     {
       attrs: `
         id
+        createdAt
       `,
       queries: [
         'created_at:>2025-07-01',
@@ -66,9 +67,14 @@ const collabsOrderSyncReview = async (
   }
 
   const missingIds = shopifyOrderIds.filter(id => !foundIds.includes(id));
-
   logDeep(missingIds);
+
+  const missingOrders = shopifyOrders.filter(order => missingIds.includes(gidToId(order.id)));
+
   console.log(region, `found ${ foundIds.length } / ${ shopifyOrderIds.length }, missing ${ missingIds.length }`);
+
+  const oldestUnsyncedOrder = missingOrders.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))?.[0];
+  const maxDelay = oldestUnsyncedOrder ? new Date() - new Date(oldestUnsyncedOrder?.createdAt) : 0;
 
   return { 
     success: true,
@@ -76,6 +82,7 @@ const collabsOrderSyncReview = async (
       missing: missingIds,
       found: foundIds,
       total: shopifyOrderIds.length,
+      delay: maxDelay,
     },
   };
   
