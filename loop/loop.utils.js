@@ -36,6 +36,7 @@ const loopGetter = async (
     ...getterOptions
   } = {},
 ) => {
+
   return new Getter(
     {
       url,
@@ -46,7 +47,7 @@ const loopGetter = async (
           ...params,
         },
       },
-      paginator: async (customAxiosPayload, response, { resultsCount, lastPageResultsCount }) => {
+      paginator: async (customAxiosPayload, response, additionalPaginationData) => {
         // logDeep('paginator', nodeName, customAxiosPayload, response);
         // askQuestion('continue?');
 
