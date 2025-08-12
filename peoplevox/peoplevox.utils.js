@@ -291,9 +291,6 @@ const peoplevoxPreparer = async (context) => {
     body: envelopeXml,
   };
 
-  console.log('peoplevoxPreparer output', output);
-  await askQuestion('Continue?');
-
   return output;
 };
 
