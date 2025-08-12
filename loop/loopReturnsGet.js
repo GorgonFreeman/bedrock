@@ -4,7 +4,7 @@ const { loopGet } = require('../loop/loop.utils');
 const loopReturnsGet = async (
   credsPath,
   {
-    option,
+    ...getterOptions
   } = {},
 ) => {
 
@@ -12,7 +12,9 @@ const loopReturnsGet = async (
     credsPath,
     '/warehouse/return/list',
     'returns',
-    {},
+    {
+      ...getterOptions,
+    },
   );
   logDeep(response);
   return response;
@@ -43,4 +45,4 @@ module.exports = {
   loopReturnsGetApi,
 };
 
-// curl localhost:8000/loopReturnsGet -H "Content-Type: application/json" -d '{ "credsPath": "au" }'
+// curl localhost:8000/loopReturnsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 20, "perPage": 7 } }'
