@@ -8,6 +8,7 @@ const printifyOrdersGet = async (
     perPage,
     status, // "on-hold", "in-production", "sending-to-production", "has-issues", "fulfilled", "canceled"
     sku,
+    ...getterOptions
   } = {},
 ) => {
 
@@ -37,6 +38,8 @@ const printifyOrdersGet = async (
       
       // client args
       credsPath,
+      
+      ...getterOptions,
     },
   );
 

@@ -4,6 +4,7 @@ const { printifyGet } = require('../printify/printify.utils');
 const printifyShopsGet = async (
   {
     credsPath,
+    ...getterOptions
   } = {},
 ) => {
 
@@ -12,6 +13,7 @@ const printifyShopsGet = async (
     {
       verbose: true,
       credsPath,
+      ...getterOptions,
     },
   );
 

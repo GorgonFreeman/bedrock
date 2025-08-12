@@ -5,6 +5,7 @@ const printifyWebhooksGet = async (
   {
     credsPath,
     shopId,
+    ...getterOptions
   } = {},
 ) => {
 
@@ -25,6 +26,7 @@ const printifyWebhooksGet = async (
     {
       verbose: true,
       credsPath,
+      ...getterOptions,
     },
   );
 

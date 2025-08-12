@@ -6,7 +6,7 @@ const printifyProductsGet = async (
     credsPath, 
     shopId,
     perPage,
-    limit,
+    ...getterOptions
   } = {},
 ) => {
 
@@ -29,7 +29,7 @@ const printifyProductsGet = async (
       params: {
         ...perPage ? { limit: perPage } : {},
       },
-      limit,
+      ...getterOptions,
     },
   );
 
