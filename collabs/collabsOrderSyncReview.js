@@ -1,5 +1,12 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, gidToId, askQuestion, logDeep } = require('../utils');
+const { 
+  REGIONS_PVX, 
+  REGIONS_BLUEYONDER,
+  REGIONS_LOGIWA,
+} = require('../constants');
+
 const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
+const { peoplevoxOrdersGetById } = require('../peoplevox/peoplevoxOrdersGetById');
 
 const collabsOrderSyncReview = async (
   region,
@@ -8,7 +15,7 @@ const collabsOrderSyncReview = async (
   } = {},
 ) => {
 
-  const shopifyOrders = await shopifyOrdersGet(
+  const shopifyOrdersResponse = await shopifyOrdersGet(
     region, 
     {
       attrs: `
@@ -23,6 +30,25 @@ const collabsOrderSyncReview = async (
       limit: 50, // TODO: Remove after testing
     },
   );
+
+  const { success: shopifyOrdersSuccess, result: shopifyOrders } = shopifyOrdersResponse;
+
+  if (!shopifyOrdersSuccess) {
+    return shopifyOrdersResponse;
+  }
+
+  const shopifyOrderIds = shopifyOrders.map(order => gidToId(order.id));
+
+  const pvxRelevant = REGIONS_PVX.includes(region);
+  const bleckmannRelevant = REGIONS_BLUEYONDER.includes(region);
+  const logiwaRelevant = REGIONS_LOGIWA.includes(region);
+
+  if (pvxRelevant) {
+    const pvxOrders = await peoplevoxOrdersGetById(shopifyOrders.filter(order => gidToId(order.id)));
+
+    logDeep(pvxOrders);
+    await askQuestion('Continue?');
+  }
 
   return { 
     success: true,
