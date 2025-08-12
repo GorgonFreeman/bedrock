@@ -149,16 +149,3 @@ All responses follow the standard Bedrock response format:
   error?: string[] // Error messages if success is false
 }
 ```
-
-## Notes
-
-- **Automatic Pagination**: You don't need to manually handle pagination - it's built into the `loopGetter` function
-- **Credential Management**: Uses the `credsByPath` utility to manage credentials securely
-- **Debug Mode**: Set `DEBUG=true` in your environment to see detailed request/response logging
-- **Rate Limiting**: The integration includes automatic retry logic for rate-limited requests
-
-## Dependencies
-
-- `CustomAxiosClient`: Handles HTTP requests and authentication
-- `Getter`: Manages pagination and data collection
-- `getterAsGetFunction`: Converts the getter to a simple function interface 
