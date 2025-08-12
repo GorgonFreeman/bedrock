@@ -9,13 +9,14 @@ const yotpoCustomerPointsAdjust = async (
     customerId,
     customerEmail,
   },
-  
+  pointsAmount,
   {
     apiVersion,
   } = {},
 ) => {
 
   const params = {
+    point_adjustment_amount: pointsAmount,
     ...customerId && { customer_id: customerId },
     ...customerEmail && { customer_email: customerEmail },
   };
@@ -37,14 +38,14 @@ const yotpoCustomerPointsAdjustApi = async (req, res) => {
   const { 
     credsPath,
     customerIdentifier,
-    
+    pointsAmount,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
     mandateParam(res, 'customerIdentifier', customerIdentifier, p => objHasAny(p, ['customerId', 'customerEmail'])),
-
+    mandateParam(res, 'pointsAmount', pointsAmount),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -53,7 +54,7 @@ const yotpoCustomerPointsAdjustApi = async (req, res) => {
   const result = await yotpoCustomerPointsAdjust(
     credsPath,
     customerIdentifier,
-
+    pointsAmount,
     options,
   );
   respond(res, 200, result);
@@ -64,4 +65,4 @@ module.exports = {
   yotpoCustomerPointsAdjustApi,
 };
 
-// curl localhost:8000/yotpoCustomerPointsAdjust -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerIdentifier": { "customerEmail": "john+testing@whitefoxboutique.com" }, ... }'
+// curl localhost:8000/yotpoCustomerPointsAdjust -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerIdentifier": { "customerEmail": "john+testing@whitefoxboutique.com" }, "pointsAmount": 100 }'
