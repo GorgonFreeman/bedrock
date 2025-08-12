@@ -162,7 +162,7 @@ const collabsFulfillmentSweep = async (
       const shippingMethod = shippingLine?.title;
       const starshipitAccount = shopifyRegionToStarshipitAccount(region, shippingMethod);
       const accountShippedOrders = starshipitShippedOrdersByAccount[starshipitAccount];
-      const shippedOrder = accountShippedOrders.find(order => order.order_id === orderId);
+      const shippedOrder = accountShippedOrders?.find(order => order.order_id === orderId);
 
       if (shippedOrder) {
 
@@ -212,7 +212,7 @@ const collabsFulfillmentSweep = async (
     async (pile) => {
       const order = pile.shift();
       const { orderId } = order;
-      const recentDispatch = pvxRecentDispatches.find(dispatch => dispatch['Salesorder number'] === orderId);
+      const recentDispatch = pvxRecentDispatches?.find(dispatch => dispatch['Salesorder number'] === orderId);
 
       if (recentDispatch && recentDispatch?.['Tracking number']) {
 
@@ -260,7 +260,7 @@ const collabsFulfillmentSweep = async (
 
       const peoplevoxDispatches = peoplevoxDispatchesResponse.result;
       for (const order of orders) {
-        const peoplevoxDispatch = peoplevoxDispatches.find(dispatch => dispatch['Salesorder number'] === order.orderId);
+        const peoplevoxDispatch = peoplevoxDispatches?.find(dispatch => dispatch['Salesorder number'] === order.orderId);
 
         if (peoplevoxDispatch && peoplevoxDispatch['Tracking number']) {
 
