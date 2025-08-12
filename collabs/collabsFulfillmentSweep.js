@@ -139,7 +139,7 @@ const collabsFulfillmentSweep = async (
     async (pile) => {
       const order = pile.shift();
       const { name: orderName } = order;
-      const logiwaOrder = logiwaPrefetchedOrders.find(order => order.code === orderName);
+      const logiwaOrder = logiwaPrefetchedOrders?.find(order => order.code === orderName);
 
       if (logiwaOrder) {
         console.log(logiwaOrder);
@@ -504,7 +504,7 @@ const collabsFulfillmentSweep = async (
 
     const pipeline = new ProcessorPipeline();
 
-    if (logiwaRelevant) {
+    if (logiwaRelevant && logiwaPrefetchedOrders) {
       pipeline.add({
         maker: logiwaPrefetchProcessorMaker,
         piles: { 
@@ -516,7 +516,7 @@ const collabsFulfillmentSweep = async (
       });
     }
 
-    if (REGIONS_STARSHIPIT.includes(region)) {
+    if (starshipitRelevant && starshipitShippedOrdersByAccount) {
       pipeline.add({
         maker: starshipitShippedProcessorMaker,
         piles: { 
@@ -528,7 +528,7 @@ const collabsFulfillmentSweep = async (
     }
 
     // Add PVX processors if region supports it
-    if (REGIONS_PVX.includes(region)) {
+    if (peoplevoxRelevant && pvxRecentDispatches) {
       pipeline.add({
         maker: recentDispatchProcessorMaker,
         piles: { 
@@ -548,7 +548,7 @@ const collabsFulfillmentSweep = async (
     }
 
     // Add Starshipit processor if region supports it
-    if (REGIONS_STARSHIPIT.includes(region)) {
+    if (starshipitRelevant) {
       pipeline.add({
         maker: starshipitProcessorMaker,
         piles: { 
@@ -560,7 +560,7 @@ const collabsFulfillmentSweep = async (
       });
     }
 
-    if (REGIONS_LOGIWA.includes(region)) {
+    if (logiwaRelevant) {
       pipeline.add({
         maker: logiwaProcessorMaker,
         piles: { 
@@ -631,5 +631,5 @@ module.exports = {
   collabsFulfillmentSweepApi,
 };
 
-// curl localhost:8000/collabsFulfillmentSweep
+// curl localhost:8100/collabsFulfillmentSweep
 // curl localhost:8000/collabsFulfillmentSweep -H "Content-Type: application/json" -d '{ "options": { "shopifyRegions": ["au"], "notifyCustomers": false } }'
