@@ -1,14 +1,14 @@
 const { respond, mandateParam } = require('../utils');
 
 const collabsInventoryReview = async (
-  arg,
+  region,
   {
     option,
   } = {},
 ) => {
 
   return { 
-    arg, 
+    region, 
     option,
   };
   
@@ -16,19 +16,19 @@ const collabsInventoryReview = async (
 
 const collabsInventoryReviewApi = async (req, res) => {
   const { 
-    arg,
+    region,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'region', region),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await collabsInventoryReview(
-    arg,
+    region,
     options,
   );
   respond(res, 200, result);
@@ -39,4 +39,4 @@ module.exports = {
   collabsInventoryReviewApi,
 };
 
-// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "au" }'
