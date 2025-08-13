@@ -147,6 +147,7 @@ module.exports = {
   bleckmannInventoryAdjustmentGet: require('./bleckmann/bleckmannInventoryAdjustmentGet').bleckmannInventoryAdjustmentGetApi,
   bleckmannInventoryAdjustmentsGet: require('./bleckmann/bleckmannInventoryAdjustmentsGet').bleckmannInventoryAdjustmentsGetApi,
   bleckmannInventoryGet: require('./bleckmann/bleckmannInventoryGet').bleckmannInventoryGetApi,
+  bleckmannParcelsGet: require('./bleckmann/bleckmannParcelsGet').bleckmannParcelsGetApi,
   bleckmannPickticketGet: require('./bleckmann/bleckmannPickticketGet').bleckmannPickticketGetApi,
   bleckmannPickticketsGet: require('./bleckmann/bleckmannPickticketsGet').bleckmannPickticketsGetApi,
   bleckmannReturnGet: require('./bleckmann/bleckmannReturnGet').bleckmannReturnGetApi,
