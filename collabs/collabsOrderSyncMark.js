@@ -38,6 +38,10 @@ const collabsOrderSyncMark = async (
     markOrderNames.push(...logiwaSyncedOrderCodes);
   }
 
+  console.log(markOrderNames.length);
+  console.log(markOrderGids.length);
+  console.log(markOrderIds.length);
+
   if (markOrderNames?.length) {
     const shopifyNamedOrdersResponse = await shopifyOrderGet(
       region, 
@@ -62,6 +66,8 @@ const collabsOrderSyncMark = async (
   if (markOrderIds?.length) {
     markOrderGids.push(...markOrderIds.map(id => `gid://shopify/Order/${ id }`));
   }
+
+  console.log(markOrderGids.length);
 
   const response = await shopifyTagsAdd(
     region,
