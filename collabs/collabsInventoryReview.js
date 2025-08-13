@@ -27,7 +27,7 @@ const collabsInventoryReview = async (
   }
 
   const shopifyInventory = await shopifyVariantsGet(
-    credsPath,
+    region,
     {
       attrs: 'sku inventoryQuantity'
     },
