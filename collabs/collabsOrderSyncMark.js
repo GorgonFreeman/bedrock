@@ -6,7 +6,7 @@ const {
 } = require('../constants');
 
 const { logiwaOrdersList } = require('../logiwa/logiwaOrdersList');
-
+const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 
 const collabsOrderSyncMark = async (
   region,
@@ -33,6 +33,19 @@ const collabsOrderSyncMark = async (
     await askQuestion('?');
     
     // Tag orders as Sync:Confirmed in Shopify
+    const shopifyOrdersResponse = await shopifyOrderGet(
+      region, 
+      logiwaSyncedOrderCodes.map(code => ({
+        orderName: code,
+      })), 
+      {
+        queueRunOptions: {
+          interval: 20,
+        },
+      },
+    );
+    logDeep(shopifyOrdersResponse);
+    await askQuestion('?');
   }
 
   return { 
