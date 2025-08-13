@@ -32,7 +32,7 @@ const shopifyOrderFulfill = async (
 
   const fulfillmentsResponse = await shopifyOrderGet(
     credsPath, 
-    orderId, 
+    { orderId }, 
     {
       apiVersion,
       attrs: fulfillmentOrderAttrs,
