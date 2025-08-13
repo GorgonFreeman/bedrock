@@ -18,7 +18,7 @@ const bleckmannAsnsGet = async (
 ) => {
 
   const response = await bleckmannGet(
-    '/asns',
+    '/warehousing/asns',
     {
       credsPath,
       params: {

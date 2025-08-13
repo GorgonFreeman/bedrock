@@ -15,7 +15,7 @@ const bleckmannInventoryAdjustmentsGet = async (
 ) => {
 
   const response = await bleckmannGet(
-    '/inventory/adjustments',
+    '/warehousing/inventory/adjustments',
     {
       credsPath,
       params: {

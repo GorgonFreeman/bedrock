@@ -15,7 +15,7 @@ const bleckmannEventsGet = async (
 ) => {
 
   const response = await bleckmannGet(
-    '/events',
+    '/warehousing/events',
     {
       credsPath,
       params: {

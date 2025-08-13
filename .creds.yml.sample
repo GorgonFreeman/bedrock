@@ -51,7 +51,7 @@ logiwa:
   AUTH_TOKEN: _________________________
 
 bleckmann:
-  BASE_URL: https://apis.bleckmann.com/warehousing
+  BASE_URL: https://apis.bleckmann.com
   PRIMARY_KEY: ________________________
   SECONDARY_KEY: ______________________
 

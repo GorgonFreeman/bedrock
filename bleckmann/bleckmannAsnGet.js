@@ -11,7 +11,7 @@ const bleckmannAsnGet = async (
 ) => {
 
   const response = await bleckmannClient.fetch({
-    url: `/asns/${ asnId }`,
+    url: `/warehousing/asns/${ asnId }`,
   });
 
   logDeep(response);

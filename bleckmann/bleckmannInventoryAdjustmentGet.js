@@ -11,7 +11,7 @@ const bleckmannInventoryAdjustmentGet = async (
 ) => {
 
   const response = await bleckmannClient.fetch({
-    url: `/inventory/adjustments/${ adjustmentId }`,
+    url: `/warehousing/inventory/adjustments/${ adjustmentId }`,
     // TODO: Consider implementing an interpreter to return result.data - unclear if one adjustmentId can return multiple results validly
   });
 

@@ -11,7 +11,7 @@ const bleckmannReturnGet = async (
 ) => {
 
   const response = await bleckmannClient.fetch({
-    url: `/returns/${ encodeURIComponent(returnId) }`,
+    url: `/warehousing/returns/${ encodeURIComponent(returnId) }`,
   });
 
   logDeep(response);

@@ -48,7 +48,7 @@ const bleckmannSkusGet = async (
   }
 
   const response = await bleckmannGet(
-    '/skus',
+    '/warehousing/skus',
     {
       credsPath,
       params: {

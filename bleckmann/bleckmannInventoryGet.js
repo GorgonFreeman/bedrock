@@ -11,7 +11,7 @@ const bleckmannInventoryGet = async (
 ) => {
 
   const response = await bleckmannClient.fetch({
-    url: `/inventory/${ encodeURIComponent(sku) }`,
+    url: `/warehousing/inventory/${ encodeURIComponent(sku) }`,
   });
 
   logDeep(response);

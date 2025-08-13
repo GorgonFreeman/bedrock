@@ -20,7 +20,7 @@ const bleckmannReturnsGet = async (
 ) => {
 
   const response = await bleckmannGet(
-    '/returns',
+    '/warehousing/returns',
     {
       credsPath,
       params: {
