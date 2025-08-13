@@ -44,6 +44,15 @@ const collabsInventoryReview = async (
     return shopifyInventoryResponse;
   }
 
+  if (logiwaRelevant) {
+    const logiwaInventoryResponse = await bleckmannInventoryGet(
+      region,
+      {
+        attrs: 'sku inventoryQuantity',
+      },
+    );
+  }
+
   return { 
     region, 
     option,
