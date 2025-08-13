@@ -99,7 +99,7 @@ module.exports = {
   loopReturnsGet: require('./loop/loopReturnsGet').loopReturnsGetApi,
   logiwaAuthGet: require('./logiwa/logiwaAuthGet').logiwaAuthGetApi,
   logiwaOrderGet: require('./logiwa/logiwaOrderGet').logiwaOrderGetApi,
-  logiwaOrdersList: require('./logiwa/logiwaOrdersList').logiwaOrdersListApi,
+  logiwaOrdersGet: require('./logiwa/logiwaOrdersGet').logiwaOrdersGetApi,
   logiwaProductGet: require('./logiwa/logiwaProductGet').logiwaProductGetApi,
   logiwaProductsGet: require('./logiwa/logiwaProductsGet').logiwaProductsGetApi,
   iwishCustomerWishlistCountGet: require('./iwish/iwishCustomerWishlistCountGet').iwishCustomerWishlistCountGetApi,

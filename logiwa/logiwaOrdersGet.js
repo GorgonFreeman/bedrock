@@ -4,7 +4,7 @@ const { respond, mandateParam, logDeep } = require('../utils');
 const { logiwaGet } = require('../logiwa/logiwa.utils');
 const { MAX_PER_PAGE } = require('../logiwa/logiwa.constants');
 
-const logiwaOrdersList = async (
+const logiwaOrdersGet = async (
   {
     credsPath,
     apiVersion = 'v3.1',
@@ -63,7 +63,7 @@ const logiwaOrdersList = async (
   return response;
 };
 
-const logiwaOrdersListApi = async (req, res) => {  const { 
+const logiwaOrdersGetApi = async (req, res) => {  const { 
     options,
   } = req.body;
 
@@ -74,17 +74,17 @@ const logiwaOrdersListApi = async (req, res) => {  const {
   //   return;
   // }
 
-  const result = await logiwaOrdersList(
+  const result = await logiwaOrdersGet(
     options,
   );
   respond(res, 200, result);
 };
 
 module.exports = {
-  logiwaOrdersList,
-  logiwaOrdersListApi,
+  logiwaOrdersGet,
+  logiwaOrdersGetApi,
 };
 
-// curl localhost:8000/logiwaOrdersList
-// curl localhost:8000/logiwaOrdersList -H "Content-Type: application/json" -d '{ "options": { "createdDateTime_bt": "2025-05-21T00:00:00Z,2025-05-22T00:00:00Z" } }'
-// curl localhost:8000/logiwaOrdersList -H "Content-Type: application/json" -d '{ "options": { "code_eq": "#USA4165771" } }'
+// curl localhost:8000/logiwaOrdersGet
+// curl localhost:8000/logiwaOrdersGet -H "Content-Type: application/json" -d '{ "options": { "createdDateTime_bt": "2025-05-21T00:00:00Z,2025-05-22T00:00:00Z" } }'
+// curl localhost:8000/logiwaOrdersGet -H "Content-Type: application/json" -d '{ "options": { "code_eq": "#USA4165771" } }'

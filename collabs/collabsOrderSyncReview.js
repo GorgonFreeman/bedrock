@@ -9,7 +9,7 @@ const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
 const { peoplevoxOrdersGetById } = require('../peoplevox/peoplevoxOrdersGetById');
 
 const { logiwaStatusToStatusId } = require('../logiwa/logiwa.utils');
-const { logiwaOrdersList } = require('../logiwa/logiwaOrdersList');
+const { logiwaOrdersGet } = require('../logiwa/logiwaOrdersGet');
 const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
 
 const collabsOrderSyncReview = async (
@@ -86,7 +86,7 @@ const collabsOrderSyncReview = async (
 
     let findOrders = [...shopifyOrders];
 
-    const logiwaPrefetchedOrdersResponse = await logiwaOrdersList({
+    const logiwaPrefetchedOrdersResponse = await logiwaOrdersGet({
       status_eq: logiwaStatusToStatusId('Open'),
     });
     const { result: logiwaPrefetchedOrders = [] } = logiwaPrefetchedOrdersResponse;

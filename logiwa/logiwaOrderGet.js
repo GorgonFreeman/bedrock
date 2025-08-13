@@ -2,7 +2,7 @@
 
 const { respond, mandateParam, logDeep, objHasAny, actionMultipleOrSingle } = require('../utils');
 const { logiwaClient } = require('../logiwa/logiwa.utils');
-const { logiwaOrdersList } = require('../logiwa/logiwaOrdersList');
+const { logiwaOrdersGet } = require('../logiwa/logiwaOrdersGet');
 
 const logiwaOrderGetSingle = async (
   {
@@ -25,7 +25,7 @@ const logiwaOrderGetSingle = async (
   }
 
   /* orderCode */
-  const response = await logiwaOrdersList({
+  const response = await logiwaOrdersGet({
     credsPath,
     apiVersion,
     code_eq: orderCode,

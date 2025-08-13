@@ -5,7 +5,7 @@ const {
   REGIONS_LOGIWA,
 } = require('../constants');
 
-const { logiwaOrdersList } = require('../logiwa/logiwaOrdersList');
+const { logiwaOrdersGet } = require('../logiwa/logiwaOrdersGet');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { shopifyTagsAdd } = require('../shopify/shopifyTagsAdd');
 
@@ -37,7 +37,7 @@ const collabsOrderSyncMark = async (
   }
 
   if (logiwaRelevant) {
-    const logiwaSyncedOrdersResponse = await logiwaOrdersList({
+    const logiwaSyncedOrdersResponse = await logiwaOrdersGet({
       shipmentOrderDate_bt: `${ dateTimeFromNow({ minus: days(2) }) },${ dateTimeFromNow() }`,
       // limit: 1000,
     });
