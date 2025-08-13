@@ -73,6 +73,11 @@ const collabsOrderSyncMark = async (
     region,
     markOrderGids,
     ['sync_confirmed'],
+    {
+      queueRunOptions: {
+        interval: 20,
+      },
+    },
   );
   logDeep(response);
   return response;
