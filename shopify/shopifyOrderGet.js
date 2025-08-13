@@ -1,15 +1,15 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/queries/order
 
-const { respond, mandateParam, logDeep, objHasAny, standardInterpreters } = require('../utils');
+const { respond, mandateParam, logDeep, objHasAny, standardInterpreters, actionMultipleOrSingle } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
 
 const defaultAttrs = `id name`;
 
-const shopifyOrderGet = async (
+const shopifyOrderGetSingle = async (
   credsPath,
-  {
-    orderId,
+  { 
+    orderId, 
     orderName,
   },
   {
@@ -22,7 +22,7 @@ const shopifyOrderGet = async (
     const response = await shopifyGetSingle(
       credsPath,
       'order',
-      orderIdentifier,
+      orderId,
       {
         apiVersion,
         attrs,
@@ -45,6 +45,30 @@ const shopifyOrderGet = async (
   logDeep(singleResponse);
   return singleResponse;
   /* /orderName */
+};
+
+const shopifyOrderGet = async (
+  credsPath,
+  orderIdentifier,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    orderIdentifier,
+    shopifyOrderGetSingle,
+    (orderIdentifier) => ({
+      args: [credsPath, orderIdentifier],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+  
+  logDeep(response);
+  return response;
 };
 
 const shopifyOrderGetApi = async (req, res) => {
@@ -77,3 +101,4 @@ module.exports = {
 
 // curl localhost:8000/shopifyOrderGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "orderIdentifier": { "orderId": "7015155466312" } }'
 // curl localhost:8000/shopifyOrderGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "orderIdentifier": { "orderName": "#AUS5492283" } }'
+// curl localhost:8000/shopifyOrderGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "orderIdentifier": [{ "orderId": "7015155466312" }, { "orderName": "#AUS5492283" }] }'
