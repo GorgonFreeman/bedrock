@@ -43,7 +43,7 @@ const collabsOrderSyncReview = async (
         'delivery_method:shipping',
         ...(regionQueries?.[region] || []),
       ],
-      limit: 50, // TODO: Remove after testing
+      // limit: 1000, // TODO: Remove after testing
     },
   );
 
@@ -94,7 +94,7 @@ const collabsOrderSyncReview = async (
 
     const logiwaOrdersResponse = await logiwaOrderGet(findOrders.map(o => ({ orderCode: o.name })), {
       queueRunOptions: {
-        interval: 100,
+        interval: 20,
       },
     });
     // Success may be false due to the presence of unfound orders
