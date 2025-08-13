@@ -7,6 +7,7 @@ const {
 
 const { logiwaOrdersList } = require('../logiwa/logiwaOrdersList');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
+const { shopifyTagsAdd } = require('../shopify/shopifyTagsAdd');
 
 const collabsOrderSyncMark = async (
   region,
@@ -14,6 +15,10 @@ const collabsOrderSyncMark = async (
     option,
   } = {},
 ) => {
+
+  const markOrderIds = [];
+  const markOrderGids = [];
+  const markOrderNames = [];
 
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
 
@@ -25,18 +30,26 @@ const collabsOrderSyncMark = async (
     await askQuestion('?');
 
     const { success: logiwaSyncedOrdersSuccess, result: logiwaSyncedOrders } = logiwaSyncedOrdersResponse;
+
+    if (!logiwaSyncedOrdersSuccess) {
+      return logiwaSyncedOrdersResponse;
+    }
+
     logDeep(logiwaSyncedOrders);
     await askQuestion('?');
 
     const logiwaSyncedOrderCodes = logiwaSyncedOrders.map(order => order?.code).filter(code => code);
     logDeep(logiwaSyncedOrderCodes);
     await askQuestion('?');
-    
-    // Tag orders as Sync:Confirmed in Shopify
-    const shopifyOrdersResponse = await shopifyOrderGet(
+
+    markOrderNames.push(...logiwaSyncedOrderCodes);
+  }
+
+  if (markOrderNames?.length) {
+    const shopifyNamedOrdersResponse = await shopifyOrderGet(
       region, 
-      logiwaSyncedOrderCodes.map(code => ({
-        orderName: code,
+      markOrderNames.map(orderName => ({
+        orderName,
       })), 
       {
         queueRunOptions: {
@@ -44,15 +57,26 @@ const collabsOrderSyncMark = async (
         },
       },
     );
-    logDeep(shopifyOrdersResponse);
-    await askQuestion('?');
+
+    if (!shopifyNamedOrdersResponse.success) {
+      return shopifyNamedOrdersResponse;
+    }
+
+    const shopifyNamedOrderGids = shopifyNamedOrdersResponse.result.map(order => order.id);
+    markOrderGids.push(...shopifyNamedOrderGids);
   }
 
-  return { 
-    region, 
-    option,
-  };
-  
+  if (markOrderIds?.length) {
+    markOrderGids.push(...markOrderIds.map(id => `gid://shopify/Order/${ id }`));
+  }
+
+  const response = await shopifyTagsAdd(
+    region,
+    markOrderGids,
+    ['sync_confirmed'],
+  );
+  logDeep(response);
+  return response;
 };
 
 const collabsOrderSyncMarkApi = async (req, res) => {
