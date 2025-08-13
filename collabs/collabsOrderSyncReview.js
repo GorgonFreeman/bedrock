@@ -134,8 +134,10 @@ const collabsOrderSyncReview = async (
   return { 
     success: true,
     result: {
-      missing: missingIds,
-      found: foundIds,
+      missing: missingIds.length,
+      missingSample: missingIds.slice(0, 10),
+      found: foundIds.length,
+      foundSample: foundIds.slice(0, 10),
       total: shopifyOrderIds.length,
       delay: readableTimeFromMs(approxDelay),
     },
