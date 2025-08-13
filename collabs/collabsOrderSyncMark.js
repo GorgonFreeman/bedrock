@@ -25,6 +25,7 @@ const collabsOrderSyncMark = async (
   if (logiwaRelevant) {
     const logiwaSyncedOrdersResponse = await logiwaOrdersList({
       shipmentOrderDate_bt: `${ dateTimeFromNow({ minus: days(2) }) },${ dateTimeFromNow() }`,
+      // limit: 1000,
     });
 
     const { success: logiwaSyncedOrdersSuccess, result: logiwaSyncedOrders } = logiwaSyncedOrdersResponse;
