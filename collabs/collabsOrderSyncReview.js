@@ -1,4 +1,4 @@
-const { respond, mandateParam, gidToId, askQuestion, logDeep, readableTimeFromMs } = require('../utils');
+const { respond, mandateParam, gidToId, askQuestion, logDeep, readableTimeFromMs, valueExcludingOutliers } = require('../utils');
 const { 
   REGIONS_PVX, 
   REGIONS_BLUEYONDER,
@@ -117,8 +117,18 @@ const collabsOrderSyncReview = async (
 
   console.log(region, `found ${ foundIds.length } / ${ shopifyOrderIds.length }, missing ${ missingIds.length }`);
 
-  const oldestUnsyncedOrder = missingOrders.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))?.[0];
-  const maxDelay = oldestUnsyncedOrder ? new Date() - new Date(oldestUnsyncedOrder?.createdAt) : 0;
+  // const oldestUnsyncedOrder = missingOrders.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))?.[0];
+  // logDeep('oldestUnsyncedOrder', oldestUnsyncedOrder);
+  // const maxDelay = oldestUnsyncedOrder ? new Date() - new Date(oldestUnsyncedOrder?.createdAt) : 0;
+
+  let approxDelay = 0;
+  
+  if (missingOrders.length > 0) {
+    const oldestMissingOrderDate = valueExcludingOutliers(missingOrders.map(order => new Date(order.createdAt)), { returnHighest: false, convertToDate: true });
+    if (oldestMissingOrderDate) {
+      approxDelay = new Date() - oldestMissingOrderDate;
+    }
+  }
 
   return { 
     success: true,
@@ -126,7 +136,7 @@ const collabsOrderSyncReview = async (
       missing: missingIds,
       found: foundIds,
       total: shopifyOrderIds.length,
-      delay: readableTimeFromMs(maxDelay),
+      delay: readableTimeFromMs(approxDelay),
     },
   };
   

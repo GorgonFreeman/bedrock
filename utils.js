@@ -1261,6 +1261,42 @@ const standardInterpreters = {
   },
 };
 
+const valueExcludingOutliers = (values, { returnHighest = false, convertToDate = false } = {}) => {
+  if (!values || values.length === 0) {
+    return null;
+  }
+
+  // Convert values to comparable numbers
+  let ts;
+  if (convertToDate) {
+    ts = values.map(d => +new Date(d));
+  } else {
+    ts = values.map(v => typeof v === 'number' ? v : +v);
+  }
+
+  // Sort values
+  ts.sort((a, b) => a - b);
+
+  const q1 = ts[Math.floor(ts.length * 0.25)];
+  const q3 = ts[Math.floor(ts.length * 0.75)];
+  const iqr = q3 - q1;
+
+  const upperBound = q3 + 1.5 * iqr;
+  const lowerBound = q1 - 1.5 * iqr;
+
+  // Filter outliers based on whether we want highest or lowest
+  let filtered;
+  if (returnHighest) {
+    filtered = ts.filter(t => t <= upperBound);
+    const result = Math.max(...filtered);
+    return result;
+  }
+
+  filtered = ts.filter(t => t >= lowerBound);
+  const result = Math.min(...filtered);
+  return result;
+};
+
 module.exports = {
 
   // Really core
@@ -1304,6 +1340,7 @@ module.exports = {
   surveyObjects,
   actionMultipleOrSingle,
   standardInterpreters,
+  valueExcludingOutliers,
   
   // Classes
   CustomAxiosClient,
