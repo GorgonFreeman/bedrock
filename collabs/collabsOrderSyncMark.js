@@ -26,8 +26,6 @@ const collabsOrderSyncMark = async (
     const logiwaSyncedOrdersResponse = await logiwaOrdersList({
       shipmentOrderDate_bt: `${ dateTimeFromNow({ minus: days(2) }) },${ dateTimeFromNow() }`,
     });
-    logDeep(logiwaSyncedOrdersResponse);
-    await askQuestion('?');
 
     const { success: logiwaSyncedOrdersSuccess, result: logiwaSyncedOrders } = logiwaSyncedOrdersResponse;
 
@@ -35,12 +33,7 @@ const collabsOrderSyncMark = async (
       return logiwaSyncedOrdersResponse;
     }
 
-    logDeep(logiwaSyncedOrders);
-    await askQuestion('?');
-
     const logiwaSyncedOrderCodes = logiwaSyncedOrders.map(order => order?.code).filter(code => code);
-    logDeep(logiwaSyncedOrderCodes);
-    await askQuestion('?');
 
     markOrderNames.push(...logiwaSyncedOrderCodes);
   }
