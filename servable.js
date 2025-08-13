@@ -40,6 +40,7 @@ module.exports = {
   shopifyTagsAdd: require('./shopify/shopifyTagsAdd').shopifyTagsAddApi,
   shopifyTagsRemove: require('./shopify/shopifyTagsRemove').shopifyTagsRemoveApi,
   shopifyThemesGet: require('./shopify/shopifyThemesGet').shopifyThemesGetApi,
+  shopifyVariantsGet: require('./shopify/shopifyVariantsGet').shopifyVariantsGetApi,
   printifyBlueprintGet: require('./printify/printifyBlueprintGet').printifyBlueprintGetApi,
   printifyBlueprintPrintProviderVariantsGet: require('./printify/printifyBlueprintPrintProviderVariantsGet').printifyBlueprintPrintProviderVariantsGetApi,
   printifyBlueprintPrintProvidersGet: require('./printify/printifyBlueprintPrintProvidersGet').printifyBlueprintPrintProvidersGetApi,
