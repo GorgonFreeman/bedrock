@@ -29,7 +29,7 @@ const collabsInventoryReview = async (
   const shopifyInventory = await shopifyVariantsGet(
     region,
     {
-      attrs: 'sku inventoryQuantity'
+      attrs: 'sku inventoryQuantity',
     },
   );
 
