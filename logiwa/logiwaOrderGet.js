@@ -1,10 +1,10 @@
 // https://mydeveloper.logiwa.com/#tag/ShipmentOrder/paths/~1v3.1~1ShipmentOrder~1%7Bid%7D/get
 
-const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
+const { respond, mandateParam, logDeep, objHasAny, actionMultipleOrSingle } = require('../utils');
 const { logiwaClient } = require('../logiwa/logiwa.utils');
 const { logiwaOrdersList } = require('../logiwa/logiwaOrdersList');
 
-const logiwaOrderGet = async (
+const logiwaOrderGetSingle = async (
   {
     orderId, // Logiwa order UUID
     orderCode, // Shopify order name
@@ -63,6 +63,22 @@ const logiwaOrderGet = async (
   // logDeep(transformedResponse);
   return transformedResponse;
   /* /orderCode */
+};
+
+const logiwaOrderGet = async (
+  orderIdentifier,
+  options,
+) => {
+  const response = await actionMultipleOrSingle(
+    orderIdentifier,
+    logiwaOrderGetSingle,
+    (orderIdentifier) => ({ 
+      args: [orderIdentifier], 
+      options, 
+    }),
+  );
+  logDeep(response);
+  return response;
 };
 
 const logiwaOrderGetApi = async (req, res) => {
