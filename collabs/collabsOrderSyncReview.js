@@ -8,6 +8,10 @@ const {
 const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
 const { peoplevoxOrdersGetById } = require('../peoplevox/peoplevoxOrdersGetById');
 
+const { logiwaStatusToStatusId } = require('../logiwa/logiwa.utils');
+const { logiwaOrdersList } = require('../logiwa/logiwaOrdersList');
+const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
+
 const collabsOrderSyncReview = async (
   region,
   {
@@ -42,8 +46,9 @@ const collabsOrderSyncReview = async (
   const shopifyOrderIds = shopifyOrders.map(order => gidToId(order.id));
 
   const pvxRelevant = REGIONS_PVX.includes(region);
+  const logiwaRelevant = REGIONS_LOGIWA.includes(region);
 
-  if (!pvxRelevant) {
+  if (!(pvxRelevant || logiwaRelevant)) {
     return { 
       success: false,
       error: ['No platform finder relevant to this region'],
@@ -64,6 +69,15 @@ const collabsOrderSyncReview = async (
     const pvxOrderIds = pvxOrders.map(order => order?.SalesOrderNumber).filter(id => id);
     
     foundIds.push(...pvxOrderIds);
+  } else if (logiwaRelevant) {
+
+    const logiwaUnshippedOrders = await logiwaOrdersList({
+      status_eq: logiwaStatusToStatusId('Open'),
+    });
+    logDeep('logiwaUnshippedOrders', logiwaUnshippedOrders);
+    await askQuestion('Continue?');
+
+
   }
 
   const missingIds = shopifyOrderIds.filter(id => !foundIds.includes(id));
