@@ -1,9 +1,9 @@
 // https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/PICKTICKET/patchPickticketForId
 
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, actionMultipleOrSingle } = require('../utils');
 const { bleckmannClient } = require('../bleckmann/bleckmann.utils');
 
-const bleckmannPickticketCancel = async (
+const bleckmannPickticketCancelSingle = async (
   pickticketId,
   {
     credsPath,
@@ -21,6 +21,29 @@ const bleckmannPickticketCancel = async (
     },
   });
 
+  logDeep(response);
+  return response;
+};
+
+const bleckmannPickticketCancel = async (
+  pickticketId,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    pickticketId,
+    bleckmannPickticketCancelSingle,
+    (pickticketId) => ({
+      args: [pickticketId],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+  
   logDeep(response);
   return response;
 };
