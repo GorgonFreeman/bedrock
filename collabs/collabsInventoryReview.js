@@ -26,15 +26,23 @@ const collabsInventoryReview = async (
     };
   }
 
-  const shopifyInventory = await shopifyVariantsGet(
+  const shopifyInventoryResponse = await shopifyVariantsGet(
     region,
     {
       attrs: 'sku inventoryQuantity',
     },
   );
 
-  logDeep(shopifyInventory);
+  logDeep(shopifyInventoryResponse);
   await askQuestion('?');
+
+  const { 
+    success: shopifyInventorySuccess, 
+    result: shopifyInventory,
+  } = shopifyInventoryResponse;
+  if (!shopifyInventorySuccess) {
+    return shopifyInventoryResponse;
+  }
 
   return { 
     region, 
