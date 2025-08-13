@@ -39,8 +39,8 @@ const collabsOrderSyncMark = async (
   }
 
   console.log(markOrderNames.length);
-  console.log(markOrderGids.length);
   console.log(markOrderIds.length);
+  console.log(markOrderGids.length);
 
   if (markOrderNames?.length) {
     const shopifyNamedOrdersResponse = await shopifyOrderGet(
