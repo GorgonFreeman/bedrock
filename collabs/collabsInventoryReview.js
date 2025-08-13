@@ -6,6 +6,8 @@ const {
   // REGIONS_BLECKMANN,
 } = require('../constants');
 
+const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
+
 const collabsInventoryReview = async (
   region,
   {
@@ -23,6 +25,16 @@ const collabsInventoryReview = async (
       message: 'Region not supported',
     };
   }
+
+  const shopifyInventory = await shopifyVariantsGet(
+    credsPath,
+    {
+      attrs: 'sku inventoryQuantity'
+    },
+  );
+
+  logDeep(shopifyInventory);
+  await askQuestion('?');
 
   return { 
     region, 
