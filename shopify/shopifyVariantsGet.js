@@ -1,9 +1,9 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/orders
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/productVariants
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyGet } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id name`;
+const defaultAttrs = `id title`;
 
 const shopifyVariantsGet = async (
   credsPath,
@@ -15,7 +15,7 @@ const shopifyVariantsGet = async (
 
   const response = await shopifyGet(
     credsPath, 
-    'order', 
+    'productVariant', 
     {
       attrs,
       ...options,
