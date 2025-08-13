@@ -60,7 +60,8 @@ const collabsOrderSyncReview = async (
   const pvxRelevant = REGIONS_PVX.includes(region);
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
 
-  if (!(pvxRelevant || logiwaRelevant)) {
+  const anyRelevant = [pvxRelevant, logiwaRelevant].some(Boolean);
+  if (!anyRelevant) {
     return { 
       success: false,
       error: ['No platform finder relevant to this region'],
