@@ -19,6 +19,15 @@ const collabsOrderSyncReview = async (
   } = {},
 ) => {
 
+  const regionQueries = {
+    au: [
+      `tag_not:'Sync:Confirmed'`,
+    ],
+    us: [
+      `tag:'sync-to-radial'`,
+    ],
+  }
+
   const shopifyOrdersResponse = await shopifyOrdersGet(
     region, 
     {
@@ -32,7 +41,7 @@ const collabsOrderSyncReview = async (
         'fulfillment_status:unshipped',
         'status:open',
         'delivery_method:shipping',
-        `tag_not:'Sync:Confirmed'`,
+        ...(regionQueries?.[region] || []),
       ],
       limit: 200, // TODO: Remove after testing
     },
