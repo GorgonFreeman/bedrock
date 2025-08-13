@@ -41,6 +41,7 @@ const collabsOrderSyncReview = async (
         'fulfillment_status:unshipped',
         'status:open',
         'delivery_method:shipping',
+        `tag_not:'order_sync_review_exclude'`,
         ...(regionQueries?.[region] || []),
       ],
       // limit: 1000, // TODO: Remove after testing
