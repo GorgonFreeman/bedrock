@@ -76,6 +76,9 @@ const logiwaOrderGet = async (
       args: [orderIdentifier], 
       options, 
     }),
+    {
+      ...(options?.queueRunOptions ? { queueRunOptions: options.queueRunOptions } : {}),
+    },
   );
   logDeep(response);
   return response;

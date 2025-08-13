@@ -1212,13 +1212,13 @@ class ProcessorPipeline {
   }
 };
 
-const actionMultipleOrSingle = async (input, func, buildOpArgs) => {
+const actionMultipleOrSingle = async (input, func, buildOpArgs, { queueRunOptions = {} } = {}) => {
   if (Array.isArray(input)) {
     const queue = new OperationQueue(input.map(inputItem => new Operation(
       func, 
       buildOpArgs(inputItem),
     )));
-    let queueResponses = await queue.run();
+    let queueResponses = await queue.run(queueRunOptions);
     queueResponse = arrayStandardResponse(queueResponses);
     return queueResponse;
   }
