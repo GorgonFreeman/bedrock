@@ -1,11 +1,28 @@
 const { respond, mandateParam } = require('../utils');
 
+const {
+  REGIONS_PVX,
+  REGIONS_LOGIWA,
+  // REGIONS_BLECKMANN,
+} = require('../constants');
+
 const collabsInventoryReview = async (
   region,
   {
     option,
   } = {},
 ) => {
+
+  const pvxRelevant = REGIONS_PVX.includes(region);
+  const logiwaRelevant = REGIONS_LOGIWA.includes(region);
+  
+  const anyRelevant = [pvxRelevant, logiwaRelevant].some(Boolean);
+  if (!anyRelevant) {
+    return {
+      success: false,
+      message: 'Region not supported',
+    };
+  }
 
   return { 
     region, 
