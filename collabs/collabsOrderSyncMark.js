@@ -19,8 +19,17 @@ const collabsOrderSyncMark = async (
   const markOrderIds = [];
   const markOrderGids = [];
   const markOrderNames = [];
-
+  
+  const pvxRelevant = REGIONS_PVX.includes(region);
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
+  
+  const anyRelevant = [pvxRelevant, logiwaRelevant].some(Boolean);
+  if (!anyRelevant) {
+    return {
+      success: false,
+      message: 'Region not supported',
+    };
+  }
 
   if (logiwaRelevant) {
     const logiwaSyncedOrdersResponse = await logiwaOrdersList({
