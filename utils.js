@@ -975,6 +975,25 @@ const weeks = number => number * 1000 * 60 * 60 * 24 * 7;
 const monthsish = number => number * 1000 * 60 * 60 * 24 * 30;
 const yearsish = number => number * 1000 * 60 * 60 * 24 * 365;
 
+const readableTimeFromMs = (ms) => {
+
+  let readableMs = ms;
+
+  let readableSeconds = Math.floor(readableMs / 1000);
+  readableMs -= seconds(readableSeconds);
+
+  let readableMinutes = Math.floor(readableSeconds / 60);
+  readableSeconds -= minutes(readableMinutes);
+
+  let readableHours = Math.floor(readableMinutes / 60);
+  readableMinutes -= hours(readableHours);
+
+  let readableDays = Math.floor(readableHours / 24);
+  readableHours -= days(readableDays);
+
+  return `${ readableDays }d ${ readableHours }h ${ readableMinutes }m ${ readableSeconds }s ${ readableMs }ms`;
+};
+
 const dateTimeFromNow = ({ plus, minus, startDate, dateOnly } = {}) => {
   let adjustedDate = startDate ? new Date(startDate) : new Date();
 
@@ -1263,6 +1282,7 @@ module.exports = {
   monthsish,
   yearsish,
   dateTimeFromNow,
+  readableTimeFromMs,
   
   // Misc
   arrayFromIntRange,

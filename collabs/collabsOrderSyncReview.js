@@ -1,4 +1,4 @@
-const { respond, mandateParam, gidToId, askQuestion, logDeep } = require('../utils');
+const { respond, mandateParam, gidToId, askQuestion, logDeep, readableTimeFromMs } = require('../utils');
 const { 
   REGIONS_PVX, 
   REGIONS_BLUEYONDER,
@@ -43,7 +43,7 @@ const collabsOrderSyncReview = async (
         'delivery_method:shipping',
         ...(regionQueries?.[region] || []),
       ],
-      limit: 200, // TODO: Remove after testing
+      limit: 50, // TODO: Remove after testing
     },
   );
 
@@ -121,7 +121,7 @@ const collabsOrderSyncReview = async (
       missing: missingIds,
       found: foundIds,
       total: shopifyOrderIds.length,
-      delay: maxDelay,
+      delay: readableTimeFromMs(maxDelay),
     },
   };
   
