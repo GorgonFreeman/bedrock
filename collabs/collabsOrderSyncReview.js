@@ -24,6 +24,7 @@ const collabsOrderSyncReview = async (
     {
       attrs: `
         id
+        name
         createdAt
       `,
       queries: [
@@ -71,13 +72,18 @@ const collabsOrderSyncReview = async (
     foundIds.push(...pvxOrderIds);
   } else if (logiwaRelevant) {
 
-    const logiwaUnshippedOrders = await logiwaOrdersList({
+    let findOrders = [...shopifyOrders];
+
+    const logiwaPrefetchedOrdersResponse = await logiwaOrdersList({
       status_eq: logiwaStatusToStatusId('Open'),
     });
-    logDeep('logiwaUnshippedOrders', logiwaUnshippedOrders);
-    await askQuestion('Continue?');
+    const { result: logiwaPrefetchedOrders = [] } = logiwaPrefetchedOrdersResponse;
+    const logiwaPrefetchedOrderCodes = logiwaPrefetchedOrders.map(order => order?.code).filter(code => code);
 
+    const orderSet = new Set(logiwaPrefetchedOrderCodes);
+    findOrders = findOrders.filter(o => !orderSet.has(o.name));
 
+    foundIds.push(...logiwaPrefetchedOrderIds);
   }
 
   const missingIds = shopifyOrderIds.filter(id => !foundIds.includes(id));
