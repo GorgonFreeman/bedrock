@@ -34,7 +34,7 @@ const collabsOrderSyncReview = async (
         'delivery_method:shipping',
         `tag_not:'Sync:Confirmed'`,
       ],
-      // limit: 5000, // TODO: Remove after testing
+      limit: 200, // TODO: Remove after testing
     },
   );
 
@@ -83,7 +83,19 @@ const collabsOrderSyncReview = async (
     const orderSet = new Set(logiwaPrefetchedOrderCodes);
     findOrders = findOrders.filter(o => !orderSet.has(o.name));
 
-    foundIds.push(...logiwaPrefetchedOrderIds);
+    const logiwaOrdersResponse = await logiwaOrderGet(findOrders.map(o => ({ orderCode: o.name })));
+    const { success: logiwaOrdersSuccess, result: logiwaOrders = [] } = logiwaOrdersResponse;
+
+    if (!logiwaOrdersSuccess) {
+      return logiwaOrdersResponse;
+    }
+
+    const logiwaOrderCodes = logiwaOrders.map(order => order?.code).filter(code => code);
+    const logiwaOrderCodesSet = new Set(logiwaOrderCodes);
+    findOrders = findOrders.filter(o => !logiwaOrderCodesSet.has(o.name));
+
+    const impliedFoundIds = shopifyOrders.filter(order => !findOrders.find(o => o.id === order.id)).map(o => gidToId(o.id));
+    foundIds.push(...impliedFoundIds);
   }
 
   const missingIds = shopifyOrderIds.filter(id => !foundIds.includes(id));
