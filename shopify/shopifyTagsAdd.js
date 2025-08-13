@@ -1,11 +1,11 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/tagsAdd
 
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id`;
 
-const shopifyTagsAdd = async (
+const shopifyTagsAddSingle = async (
   credsPath,
   gid,
   tags,
@@ -33,6 +33,31 @@ const shopifyTagsAdd = async (
       apiVersion,
     },
   );
+  logDeep(response);
+  return response;
+};
+
+const shopifyTagsAdd = async (
+  credsPath,
+  gid,
+  tags,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    gid,
+    shopifyTagsAddSingle,
+    (gid) => ({
+      args: [credsPath, gid, tags],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+  
   logDeep(response);
   return response;
 };
@@ -69,3 +94,4 @@ module.exports = {
 };
 
 // curl http://localhost:8000/shopifyTagsAdd -H 'Content-Type: application/json' -d '{ "credsPath": "au", "gid": "gid://shopify/Product/6981195825224", "tags": ["watermelon", "banana"] }'
+// curl http://localhost:8000/shopifyTagsAdd -H 'Content-Type: application/json' -d '{ "credsPath": "au", "gid": ["gid://shopify/Product/6981195825224", "gid://shopify/Product/6981195825225"], "tags": ["watermelon", "banana"] }'
