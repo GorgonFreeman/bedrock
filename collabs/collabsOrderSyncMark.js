@@ -23,8 +23,17 @@ const collabsOrderSyncMark = async (
     });
     logDeep(logiwaSyncedOrdersResponse);
     await askQuestion('?');
-  }
 
+    const { success: logiwaSyncedOrdersSuccess, result: logiwaSyncedOrders } = logiwaSyncedOrdersResponse;
+    logDeep(logiwaSyncedOrders);
+    await askQuestion('?');
+
+    const logiwaSyncedOrderCodes = logiwaSyncedOrders.map(order => order?.code).filter(code => code);
+    logDeep(logiwaSyncedOrderCodes);
+    await askQuestion('?');
+    
+    // Tag orders as Sync:Confirmed in Shopify
+  }
 
   return { 
     region, 
