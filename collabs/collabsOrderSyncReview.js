@@ -171,4 +171,4 @@ module.exports = {
   collabsOrderSyncReviewApi,
 };
 
-// curl localhost:8000/collabsOrderSyncReview -H "Content-Type: application/json" -d '{ "region": "au" }'
+// curl localhost:8000/collabsOrderSyncReview -H "Content-Type: application/json" -d '{ "region": "us" }'

@@ -15,6 +15,15 @@ const shopifyTagsAddSingle = async (
   } = {},
 ) => {
 
+  console.log('awndioawnod', credsPath, gid, tags);
+
+  if (!gid) {
+    return {
+      success: false,
+      message: 'No gid provided',
+    };
+  }
+
   const response = await shopifyMutationDo(
     credsPath,
     'tagsAdd',
@@ -46,6 +55,7 @@ const shopifyTagsAdd = async (
     ...options
   } = {},
 ) => {
+  logDeep('aiodnow', gid);
   const response = await actionMultipleOrSingle(
     gid,
     shopifyTagsAddSingle,

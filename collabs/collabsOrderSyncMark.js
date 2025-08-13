@@ -79,7 +79,7 @@ const collabsOrderSyncMark = async (
   }
 
   if (markOrderIds?.length) {
-    markOrderGids.push(...markOrderIds.map(id => `gid://shopify/Order/${ id }`));
+    markOrderGids.push(...markOrderIds.filter(Boolean).map(id => `gid://shopify/Order/${ id }`));
   }
 
   console.log(markOrderGids.length);
