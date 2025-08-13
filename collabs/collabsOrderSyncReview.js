@@ -45,7 +45,7 @@ const collabsOrderSyncReview = async (
         `tag_not:'sync_confirmed'`,
         ...(regionQueries?.[region] || []),
       ],
-      limit: 1000, // TODO: Remove after testing
+      // limit: 1000,
     },
   );
 
