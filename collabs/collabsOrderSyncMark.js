@@ -1,9 +1,11 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, logDeep, askQuestion, dateTimeFromNow, days } = require('../utils');
 const {
   REGIONS_PVX,
   REGIONS_BLUEYONDER,
   REGIONS_LOGIWA,
 } = require('../constants');
+
+const { logiwaOrdersList } = require('../logiwa/logiwaOrdersList');
 
 
 const collabsOrderSyncMark = async (
@@ -13,7 +15,16 @@ const collabsOrderSyncMark = async (
   } = {},
 ) => {
 
-  
+  const logiwaRelevant = REGIONS_LOGIWA.includes(region);
+
+  if (logiwaRelevant) {
+    const logiwaSyncedOrdersResponse = await logiwaOrdersList({
+      shipmentOrderDate_bt: `${ dateTimeFromNow({ minus: days(2) }) },${ dateTimeFromNow() }`,
+    });
+    logDeep(logiwaSyncedOrdersResponse);
+    await askQuestion('?');
+  }
+
 
   return { 
     region, 
