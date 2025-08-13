@@ -1,17 +1,24 @@
-// https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/SKU/getSkuForId
+// https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/PICKTICKET/patchPickticketForId
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { bleckmannClient } = require('../bleckmann/bleckmann.utils');
 
 const bleckmannPickticketCancel = async (
-  sku,
+  pickticketId,
   {
     credsPath,
   } = {},
 ) => {
 
   const response = await bleckmannClient.fetch({
-    url: `/skus/${ encodeURIComponent(sku) }`,
+    method: 'patch',
+    url: `/warehousing/picktickets/${ pickticketId }`,
+    body: {
+      status: 'CANCELLED',
+    },
+    context: {
+      credsPath,
+    },
   });
 
   logDeep(response);
@@ -20,19 +27,19 @@ const bleckmannPickticketCancel = async (
 
 const bleckmannPickticketCancelApi = async (req, res) => {
   const { 
-    sku,
+    pickticketId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'sku', sku),
+    mandateParam(res, 'pickticketId', pickticketId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await bleckmannPickticketCancel(
-    sku,
+    pickticketId,
     options,
   );
   respond(res, 200, result);
@@ -43,4 +50,4 @@ module.exports = {
   bleckmannPickticketCancelApi,
 };
 
-// curl localhost:8000/bleckmannPickticketCancel -H "Content-Type: application/json" -d '{ "sku": "EXD1224-3-3XS/XXS" }'
+// curl localhost:8000/bleckmannPickticketCancel -H "Content-Type: application/json" -d '{ "pickticketId": ... }'
