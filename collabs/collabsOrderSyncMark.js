@@ -1,14 +1,22 @@
 const { respond, mandateParam } = require('../utils');
+const {
+  REGIONS_PVX,
+  REGIONS_BLUEYONDER,
+  REGIONS_LOGIWA,
+} = require('../constants');
+
 
 const collabsOrderSyncMark = async (
-  arg,
+  region,
   {
     option,
   } = {},
 ) => {
 
+  
+
   return { 
-    arg, 
+    region, 
     option,
   };
   
@@ -16,19 +24,19 @@ const collabsOrderSyncMark = async (
 
 const collabsOrderSyncMarkApi = async (req, res) => {
   const { 
-    arg,
+    region,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'region', region),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await collabsOrderSyncMark(
-    arg,
+    region,
     options,
   );
   respond(res, 200, result);
@@ -39,4 +47,4 @@ module.exports = {
   collabsOrderSyncMarkApi,
 };
 
-// curl localhost:8000/collabsOrderSyncMark -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/collabsOrderSyncMark -H "Content-Type: application/json" -d '{ "region": "us" }'
