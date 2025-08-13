@@ -31,6 +31,11 @@ const collabsOrderSyncMark = async (
     };
   }
 
+  if (pvxRelevant) {
+    // Get report of orders from PVX
+    // markOrderIds.push(...pvxOrders.map(o => o.SalesOrderNumber));
+  }
+
   if (logiwaRelevant) {
     const logiwaSyncedOrdersResponse = await logiwaOrdersList({
       shipmentOrderDate_bt: `${ dateTimeFromNow({ minus: days(2) }) },${ dateTimeFromNow() }`,
