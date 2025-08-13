@@ -84,11 +84,9 @@ const collabsOrderSyncReview = async (
     findOrders = findOrders.filter(o => !orderSet.has(o.name));
 
     const logiwaOrdersResponse = await logiwaOrderGet(findOrders.map(o => ({ orderCode: o.name })));
-    const { success: logiwaOrdersSuccess, result: logiwaOrders = [] } = logiwaOrdersResponse;
-
-    if (!logiwaOrdersSuccess) {
-      return logiwaOrdersResponse;
-    }
+    // Success may be false due to the presence of unfound orders
+    // TODO: Consider interpreting this as a success in the future, inside logiwaOrderGet. It seems right to say the call was successful, but the order was not found.
+    const { result: logiwaOrders = [] } = logiwaOrdersResponse;
 
     const logiwaOrderCodes = logiwaOrders.map(order => order?.code).filter(code => code);
     const logiwaOrderCodesSet = new Set(logiwaOrderCodes);
