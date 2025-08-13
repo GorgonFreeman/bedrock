@@ -980,16 +980,16 @@ const readableTimeFromMs = (ms) => {
   let readableMs = ms;
 
   let readableSeconds = Math.floor(readableMs / 1000);
-  readableMs -= seconds(readableSeconds);
+  readableMs -= readableSeconds * 1000;
 
   let readableMinutes = Math.floor(readableSeconds / 60);
-  readableSeconds -= minutes(readableMinutes);
+  readableSeconds -= readableMinutes * 60;
 
   let readableHours = Math.floor(readableMinutes / 60);
-  readableMinutes -= hours(readableHours);
+  readableMinutes -= readableHours * 60;
 
   let readableDays = Math.floor(readableHours / 24);
-  readableHours -= days(readableDays);
+  readableHours -= readableDays * 24;
 
   return `${ readableDays }d ${ readableHours }h ${ readableMinutes }m ${ readableSeconds }s ${ readableMs }ms`;
 };
