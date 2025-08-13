@@ -8,6 +8,15 @@ const bleckmannPickticketsGet = async (
     credsPath,
     skip,
     perPage,
+
+    createdFrom,
+    createdTo,
+    shippedFrom,
+    shippedTo,
+    status,
+    reference,
+    customerReference,
+
     ...getterOptions
   } = {},
 ) => {
@@ -18,6 +27,13 @@ const bleckmannPickticketsGet = async (
       credsPath,
       params: {
         ...(skip && { skip }),
+        ...(createdFrom && { createdFrom }),
+        ...(createdTo && { createdTo }),
+        ...(shippedFrom && { shippedFrom }),
+        ...(shippedTo && { shippedTo }),
+        ...(status && { status }),
+        ...(reference && { reference }),
+        ...(customerReference && { customerReference }),
       },
       ...(perPage && { perPage }),
       ...getterOptions,
