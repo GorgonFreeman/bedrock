@@ -1,6 +1,6 @@
 // https://mydeveloper.logiwa.com/#tag/Product/paths/~1v3.1~1Product~1detail~1%7Bid%7D/get
 
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, logDeep } = require('../utils');
 const { logiwaClient } = require('../logiwa/logiwa.utils');
 
 const logiwaProductGet = async (
@@ -44,4 +44,4 @@ module.exports = {
   logiwaProductGetApi,
 };
 
-// curl localhost:8000/logiwaProductGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/logiwaProductGet -H "Content-Type: application/json" -d '{ "productId": "261a02aa-ce5a-4b06-a528-d419e0aa87a1" }'
