@@ -9,7 +9,7 @@ const {
 } = require('../constants');
 
 const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
-const { logiwaProductsGet } = require('../logiwa/logiwaProductsGet');
+const { logiwaInventoriesGet } = require('../logiwa/logiwaInventoriesGet');
 
 const collabsInventoryReview = async (
   region,
@@ -48,7 +48,7 @@ const collabsInventoryReview = async (
   }
 
   if (logiwaRelevant) {
-    const logiwaInventoryResponse = await logiwaProductsGet();
+    const logiwaInventoryResponse = await logiwaInventoriesGet();
     logDeep('logiwaInventoryResponse', logiwaInventoryResponse);
     await askQuestion('?');
 
