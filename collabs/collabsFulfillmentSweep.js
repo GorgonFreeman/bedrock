@@ -302,6 +302,13 @@ const collabsFulfillmentSweep = async (
       const { orderId, shippingLine } = order;
       const shippingMethod = shippingLine?.title;
       const starshipitAccount = shopifyRegionToStarshipitAccount(region, shippingMethod);
+
+      if (!starshipitAccount) {
+        console.warn(`No Starshipit account found for ${ region }:${ shippingMethod } (${ orderId })`);
+        piles.continue.push(order);
+        return;
+      }
+
       const starshipitOrderResponse = await starshipitOrderGet(starshipitAccount, { orderNumber: orderId });
 
       if (!starshipitOrderResponse?.success || !starshipitOrderResponse?.result) {
