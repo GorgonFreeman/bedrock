@@ -103,6 +103,7 @@ module.exports = {
   logiwaOrdersGet: require('./logiwa/logiwaOrdersGet').logiwaOrdersGetApi,
   logiwaProductGet: require('./logiwa/logiwaProductGet').logiwaProductGetApi,
   logiwaProductsGet: require('./logiwa/logiwaProductsGet').logiwaProductsGetApi,
+  logiwaReportGetInventorySnapshot: require('./logiwa/logiwaReportGetInventorySnapshot').logiwaReportGetInventorySnapshotApi,
   iwishCustomerWishlistCountGet: require('./iwish/iwishCustomerWishlistCountGet').iwishCustomerWishlistCountGetApi,
   iwishCustomerWishlistGet: require('./iwish/iwishCustomerWishlistGet').iwishCustomerWishlistGetApi,
   iwishStoreWishlistDataGet: require('./iwish/iwishStoreWishlistDataGet').iwishStoreWishlistDataGetApi,
