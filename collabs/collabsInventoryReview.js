@@ -72,6 +72,29 @@ const collabsInventoryReview = async (
 
     logDeep('logiwaInventory', logiwaInventory);
     await askQuestion('?');
+
+    for (const inventoryItem of logiwaInventory) {
+      const { 
+        productSku: sku, 
+        freeUOMQuantity: undamagedQuantity,
+      } = inventoryItem;
+
+      if (!inventoryReviewObject[sku]) {
+        continue;
+      }
+
+      if (inventoryReviewObject[sku].logiwaUndamaged) {
+        inventoryReviewObject[sku].logiwaUndamaged += undamagedQuantity;
+        continue;
+      }
+
+      reviewEntry.logiwaUndamaged = undamagedQuantity;
+    }
+
+    for (const [key, value] of Object.entries(inventoryReviewObject)) {
+      const { shopifyAvailable, logiwaUndamaged } = value;
+      inventoryReviewObject[key].diff = shopifyAvailable - logiwaUndamaged;
+    }
   }
 
   return { 
