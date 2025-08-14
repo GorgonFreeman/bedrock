@@ -15,8 +15,6 @@ const shopifyTagsAddSingle = async (
   } = {},
 ) => {
 
-  console.log('awndioawnod', credsPath, gid, tags);
-
   if (!gid) {
     return {
       success: false,
@@ -55,7 +53,7 @@ const shopifyTagsAdd = async (
     ...options
   } = {},
 ) => {
-  logDeep('aiodnow', gid);
+
   const response = await actionMultipleOrSingle(
     gid,
     shopifyTagsAddSingle,
