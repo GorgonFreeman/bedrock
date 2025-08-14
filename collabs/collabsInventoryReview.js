@@ -46,6 +46,16 @@ const collabsInventoryReview = async (
   if (!shopifyInventorySuccess) {
     return shopifyInventoryResponse;
   }
+  
+  const inventoryReviewObject = {};
+  for (const variant of shopifyInventory) {
+    const { sku, inventoryQuantity } = variant;
+    inventoryReviewObject[sku] = {
+      shopifyAvailable: inventoryQuantity,
+    };
+  }
+  logDeep('inventoryReviewObject', inventoryReviewObject);
+  await askQuestion('?');
 
   if (logiwaRelevant) {
     const logiwaInventoryResponse = await logiwaInventoriesGet();
