@@ -1,6 +1,6 @@
 // For unfulfilled orders in Shopify, checks for and adds tracking info from relevant platforms
 
-const { respond, mandateParam, logDeep, gidToId, askQuestion, dateTimeFromNow, weeks, Processor, ProcessorPipeline } = require('../utils');
+const { respond, mandateParam, logDeep, gidToId, askQuestion, dateTimeFromNow, weeks, Processor, ProcessorPipeline, objHasAll } = require('../utils');
 const { 
   REGIONS_ALL, 
   REGIONS_PVX, 
@@ -135,6 +135,75 @@ const collabsFulfillmentSweep = async (
   // await askQuestion('?');
 
   const arrayExhaustedCheck = (arr) => arr.length === 0;
+  
+  // piles used: resolved, continue, disqualified
+  const logiwaOrderDecider = (piles, logiwaOrder) => {
+
+    if (!objHasAll(piles, ['resolved', 'continue', 'disqualified'])) {
+      throw new Error('piles must have resolved, continue, and disqualified');
+    }
+
+    const {
+      currentTrackingNumber,
+      trackingNumbers,
+      products,
+      shipmentOrderStatusName,
+      shipmentOrderStatusId,
+    } = logiwaOrder;
+
+    let trackingNumber = currentTrackingNumber;
+    if (!trackingNumber && trackingNumbers?.length === 1) {
+      trackingNumber = trackingNumbers[0];
+    }
+
+    const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
+
+    const knownBadStatuses = [
+      'Open', 
+      'Cancelled', 
+      'Shortage', 
+      'Ready to Pick', 
+      'Picking Started', 
+      'Ready to Pack', 
+      'On Hold',
+    ];
+    const knownGoodStatuses = [
+      'Shipped',
+    ];
+    
+    if (!knownGoodStatuses.includes(shipmentOrderStatusName)) {
+
+      if (!knownBadStatuses.includes(shipmentOrderStatusName)) {
+        console.log(shipmentOrderStatusId, shipmentOrderStatusName);
+        piles.continue.push(order);
+        return;
+      }
+
+      piles.disqualified.push(order);
+      return;
+    }
+
+    if (!trackingNumber || !allShipped) {
+      console.log(`Logiwa processing, not fully shipped`, logiwaOrder);
+      piles.disqualified.push(order);
+      return;
+    }
+
+    const fulfillPayload = {
+      originAddress: {
+        // Logiwa, therefore US
+        countryCode: 'US',
+      },
+      trackingInfo: {
+        number: trackingNumber,
+      },
+    };
+
+    piles.resolved.push({
+      ...order,
+      fulfillPayload,
+    });
+  };
 
   const logiwaPrefetchProcessorMaker = (piles, processorOptions = {}) => new Processor(
     piles.in,
@@ -144,72 +213,7 @@ const collabsFulfillmentSweep = async (
       const logiwaOrder = logiwaPrefetchedOrders?.find(order => order.code === orderName);
 
       if (logiwaOrder) {
-        // console.log(logiwaOrder);
-        // await askQuestion('?');
-
-        // TODO: Deduplicate this logic between the prefetch and individual processor
-
-        const {
-          currentTrackingNumber,
-          trackingNumbers,
-          products,
-          shipmentOrderStatusName,
-          shipmentOrderStatusId,
-        } = logiwaOrder;
-  
-        let trackingNumber = currentTrackingNumber;
-        if (!trackingNumber && trackingNumbers?.length === 1) {
-          trackingNumber = trackingNumbers[0];
-        }
-  
-        const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
-  
-        const knownBadStatuses = [
-          'Open', 
-          'Cancelled', 
-          'Shortage', 
-          'Ready to Pick', 
-          'Picking Started', 
-          'Ready to Pack', 
-          'On Hold',
-        ];
-        const knownGoodStatuses = [
-          'Shipped',
-        ];
-        
-        if (!knownGoodStatuses.includes(shipmentOrderStatusName)) {
-  
-          if (!knownBadStatuses.includes(shipmentOrderStatusName)) {
-            console.log(shipmentOrderStatusId, shipmentOrderStatusName);
-            piles.continue.push(order);
-            return;
-          }
-  
-          piles.disqualified.push(order);
-          return;
-        }
-  
-        if (!trackingNumber || !allShipped) {
-          console.log(`Logiwa processing, not fully shipped`, logiwaOrder);
-          piles.disqualified.push(order);
-          return;
-        }
-  
-        const fulfillPayload = {
-          originAddress: {
-            // Logiwa, therefore US
-            countryCode: 'US',
-          },
-          trackingInfo: {
-            number: trackingNumber,
-          },
-        };
-  
-        piles.resolved.push({
-          ...order,
-          fulfillPayload,
-        });
-        return;
+        return logiwaOrderDecider(piles, logiwaOrder);
       }
 
       piles.continue.push(order);
@@ -478,66 +482,7 @@ const collabsFulfillmentSweep = async (
       }
 
       const logiwaOrder = logiwaOrderResponse.result;
-      const {
-        currentTrackingNumber,
-        trackingNumbers,
-        products,
-        shipmentOrderStatusName,
-        shipmentOrderStatusId,
-      } = logiwaOrder;
-
-      let trackingNumber = currentTrackingNumber;
-      if (!trackingNumber && trackingNumbers?.length === 1) {
-        trackingNumber = trackingNumbers[0];
-      }
-
-      const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
-
-      const knownBadStatuses = [
-        'Open', 
-        'Cancelled', 
-        'Shortage', 
-        'Ready to Pick', 
-        'Picking Started', 
-        'Ready to Pack', 
-        'On Hold',
-      ];
-      const knownGoodStatuses = [
-        'Shipped',
-      ];
-      
-      if (!knownGoodStatuses.includes(shipmentOrderStatusName)) {
-
-        if (!knownBadStatuses.includes(shipmentOrderStatusName)) {
-          console.log(shipmentOrderStatusId, shipmentOrderStatusName);
-          piles.continue.push(order);
-          return;
-        }
-
-        piles.disqualified.push(order);
-        return;
-      }
-
-      if (!trackingNumber || !allShipped) {
-        console.log(`Logiwa processing, not fully shipped`, logiwaOrder);
-        piles.disqualified.push(order);
-        return;
-      }
-
-      const fulfillPayload = {
-        originAddress: {
-          // Logiwa, therefore US
-          countryCode: 'US',
-        },
-        trackingInfo: {
-          number: trackingNumber,
-        },
-      };
-
-      piles.resolved.push({
-        ...order,
-        fulfillPayload,
-      });
+      return logiwaOrderDecider(piles, logiwaOrder);
     },
     arrayExhaustedCheck, // pileExhaustedCheck
     processorOptions,
