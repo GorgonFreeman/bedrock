@@ -24,7 +24,10 @@ module.exports = {
   REGIONS_LOGIWA: [
     'us',
   ],
-  REGIONS_BLUEYONDER: [
+  REGIONS_BLUEYONDER: [ // We don't have direct access to Blue Yonder, use Bleckmann API instead
+    'uk',
+  ],
+  REGIONS_BLECKMANN: [
     'uk',
   ],
   STARSHIPIT_ACCOUNT_HANDLES: [

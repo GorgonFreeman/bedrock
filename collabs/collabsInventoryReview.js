@@ -9,7 +9,7 @@ const { respond, mandateParam, logDeep, askQuestion, strictlyFalsey, arraySortBy
 const {
   REGIONS_PVX,
   REGIONS_LOGIWA,
-  // REGIONS_BLECKMANN,
+  REGIONS_BLECKMANN,
 } = require('../constants');
 
 const { shopifyRegionToPvxSite } = require('../mappings');
@@ -17,6 +17,7 @@ const { shopifyRegionToPvxSite } = require('../mappings');
 const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
 const { logiwaReportGetAvailableToPromise } = require('../logiwa/logiwaReportGetAvailableToPromise');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
+const { bleckmannInventoriesGet } = require('../bleckmann/bleckmannInventoriesGet');
 
 const collabsInventoryReview = async (
   region,
@@ -27,8 +28,8 @@ const collabsInventoryReview = async (
 
   const pvxRelevant = REGIONS_PVX.includes(region);
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
-  
-  const anyRelevant = [pvxRelevant, logiwaRelevant].some(Boolean);
+  const bleckmannRelevant = REGIONS_BLECKMANN.includes(region);
+  const anyRelevant = [pvxRelevant, logiwaRelevant, bleckmannRelevant].some(Boolean);
   if (!anyRelevant) {
     return {
       success: false,
@@ -173,6 +174,52 @@ const collabsInventoryReview = async (
       const diff = shopifyAvailable - pvxAvailable;
       inventoryReviewObject[key].pvxOversellRisk = diff > 0;
       inventoryReviewObject[key].pvxDiff = Math.abs(diff);
+    }
+  }
+
+  if (bleckmannRelevant) {
+    const bleckmannInventoryResponse = await bleckmannInventoriesGet();
+
+    logDeep('bleckmannInventoryResponse', bleckmannInventoryResponse);
+    await askQuestion('?');
+
+    const {
+      success: bleckmannInventorySuccess,
+      result: bleckmannInventory,
+    } = bleckmannInventoryResponse;
+    if (!bleckmannInventorySuccess) {
+      return bleckmannInventoryResponse;
+    }
+
+    logDeep('bleckmannInventory', bleckmannInventory);
+    await askQuestion('?');
+
+    for (const inventoryItem of bleckmannInventory) {
+      const { 
+        skuId: sku, 
+        quantityTotal,
+        quantityLocked,
+      } = inventoryItem;
+
+      if (!inventoryReviewObject[sku]) {
+        continue;
+      }
+
+      const bleckmannAvailable = quantityTotal - quantityLocked;
+      inventoryReviewObject[sku].bleckmannAvailable = bleckmannAvailable;
+    }
+
+    for (const [key, value] of Object.entries(inventoryReviewObject)) {
+
+      if (strictlyFalsey(inventoryReviewObject[key].bleckmannAvailable)) {
+        inventoryReviewObject[key].bleckmannAvailable = 0;
+      }
+
+      const { shopifyAvailable, bleckmannAvailable } = value;
+
+      const diff = shopifyAvailable - bleckmannAvailable;
+      inventoryReviewObject[key].bleckmannOversellRisk = diff > 0;
+      inventoryReviewObject[key].bleckmannDiff = Math.abs(diff);
     }
   }
 
