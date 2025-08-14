@@ -182,6 +182,8 @@ const collabsInventoryReview = async (
   });
   const diffProp = Object.keys(inventoryReviewArray?.[0])?.find(key => key.toLowerCase().includes('diff'));
   inventoryReviewArray = arraySortByProp(inventoryReviewArray, diffProp, { descending: true });
+  const oversellRiskProp = Object.keys(inventoryReviewArray?.[0])?.find(key => key.toLowerCase().includes('oversellrisk'));
+  inventoryReviewArray = arraySortByProp(inventoryReviewArray, oversellRiskProp, { descending: true });
   logDeep('inventoryReviewArray', inventoryReviewArray);
 
   return { 
