@@ -1,5 +1,7 @@
 // Compares Shopify to respective WMS platforms to quantify inventory discrepancies
 
+const fs = require('fs');
+const { json2csv } = require('json-2-csv');
 const { respond, mandateParam, logDeep, askQuestion, strictlyFalsey, arraySortByProp } = require('../utils');
 
 const {
@@ -17,7 +19,7 @@ const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 const collabsInventoryReview = async (
   region,
   {
-    option,
+    downloadCsv = false,
   } = {},
 ) => {
 
@@ -186,6 +188,11 @@ const collabsInventoryReview = async (
   inventoryReviewArray = arraySortByProp(inventoryReviewArray, oversellRiskProp, { descending: true });
   logDeep('inventoryReviewArray', inventoryReviewArray);
 
+  if (downloadCsv) {
+    const csv = await json2csv(inventoryReviewArray);
+    fs.writeFileSync('collabsInventoryReview.csv', csv);
+  }
+
   return { 
     success: true, 
     result: inventoryReviewObject,
@@ -219,3 +226,4 @@ module.exports = {
 };
 
 // curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "us" }'
+// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "au", "options": { "downloadCsv": true } }'
