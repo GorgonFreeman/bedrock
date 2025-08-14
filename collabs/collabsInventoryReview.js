@@ -7,6 +7,7 @@ const {
 } = require('../constants');
 
 const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
+const { logiwaProductsGet } = require('../logiwa/logiwaProductsGet');
 
 const collabsInventoryReview = async (
   region,
@@ -33,7 +34,7 @@ const collabsInventoryReview = async (
     },
   );
 
-  logDeep(shopifyInventoryResponse);
+  logDeep('shopifyInventoryResponse', shopifyInventoryResponse);
   await askQuestion('?');
 
   const { 
@@ -45,12 +46,20 @@ const collabsInventoryReview = async (
   }
 
   if (logiwaRelevant) {
-    const logiwaInventoryResponse = await bleckmannInventoryGet(
-      region,
-      {
-        attrs: 'sku inventoryQuantity',
-      },
-    );
+    const logiwaInventoryResponse = await logiwaProductsGet();
+    logDeep('logiwaInventoryResponse', logiwaInventoryResponse);
+    await askQuestion('?');
+
+    const {
+      success: logiwaInventorySuccess,
+      result: logiwaInventory,
+    } = logiwaInventoryResponse;
+    if (!logiwaInventorySuccess) {
+      return logiwaInventoryResponse;
+    }
+
+    logDeep('logiwaInventory', logiwaInventory);
+    await askQuestion('?');
   }
 
   return { 
