@@ -1,3 +1,5 @@
+// Tag Shopify orders as having synced to their respective platforms, to exclude from future reviews.
+
 const { respond, mandateParam, logDeep, askQuestion, dateTimeFromNow, days } = require('../utils');
 const {
   REGIONS_PVX,

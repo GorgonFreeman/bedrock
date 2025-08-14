@@ -1,3 +1,5 @@
+// Compares Shopify to respective WMS platforms to quantify inventory discrepancies
+
 const { respond, mandateParam, logDeep, askQuestion } = require('../utils');
 
 const {

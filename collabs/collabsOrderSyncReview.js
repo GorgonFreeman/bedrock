@@ -1,3 +1,5 @@
+// Check if Shopify orders are present in their respective platforms to establish whether the sync is working.
+
 const { respond, mandateParam, gidToId, askQuestion, logDeep, readableTimeFromMs, valueExcludingOutliers } = require('../utils');
 const { 
   REGIONS_PVX, 
