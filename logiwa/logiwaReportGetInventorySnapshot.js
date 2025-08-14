@@ -68,3 +68,4 @@ module.exports = {
 
 // curl localhost:8000/logiwaReportGetInventorySnapshot
 // curl localhost:8000/logiwaReportGetInventorySnapshot -H "Content-Type: application/json" -d '{ "options": { "limit": 10 } }'
+// curl localhost:8000/logiwaReportGetInventorySnapshot -H "Content-Type: application/json" -d '{ "options": { "clientIdentifier_eq": "9f1ea39a-fccc-48af-8986-a35c34fcef8b" } }'
