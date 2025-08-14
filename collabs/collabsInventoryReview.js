@@ -8,8 +8,11 @@ const {
   // REGIONS_BLECKMANN,
 } = require('../constants');
 
+const { shopifyRegionToPvxSite } = require('../mappings');
+
 const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
 const { logiwaReportGetAvailableToPromise } = require('../logiwa/logiwaReportGetAvailableToPromise');
+const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
 const collabsInventoryReview = async (
   region,
@@ -111,6 +114,64 @@ const collabsInventoryReview = async (
       inventoryReviewObject[key].logiwaDiff = Math.abs(diff);
     }
   }
+
+  if (pvxRelevant) {
+    const pvxSite = shopifyRegionToPvxSite(region);
+
+    if (!pvxSite) {
+      return {
+        success: false,
+        error: [`No PVX site found for ${ region }`],
+      };
+    }
+
+    const pvxInventoryResponse = await peoplevoxReportGet(
+      'Item inventory summary', 
+      {
+        searchClause: `([Site reference].Equals("${ pvxSite }"))`, 
+        columns: ['Item code', 'Available'], 
+      },
+    );
+  
+    console.log(pvxInventoryResponse);
+
+    const {
+      success: pvxReportSuccess,
+      result: pvxInventory,
+    } = pvxInventoryResponse;
+    if (!pvxReportSuccess) {
+      return pvxInventoryResponse;
+    }
+
+    logDeep('pvxInventory', pvxInventory);
+
+    for (const inventoryItem of pvxInventory) {
+      const { 
+        'Item code': sku, 
+        'Available': pvxAvailable,
+      } = inventoryItem;
+
+      if (!inventoryReviewObject[sku]) {
+        continue;
+      }
+
+      inventoryReviewObject[sku].pvxAvailable = pvxAvailable;
+    }
+
+    for (const [key, value] of Object.entries(inventoryReviewObject)) {
+
+      if (strictlyFalsey(inventoryReviewObject[key].pvxAvailable)) {
+        inventoryReviewObject[key].pvxAvailable = 0;
+      }
+
+      const { shopifyAvailable, pvxAvailable } = value;
+
+      const diff = shopifyAvailable - pvxAvailable;
+      inventoryReviewObject[key].pvxOversellRisk = diff > 0;
+      inventoryReviewObject[key].pvxDiff = Math.abs(diff);
+    }
+  }
+
   logDeep('inventoryReviewObject', inventoryReviewObject);
 
   let inventoryReviewArray = Object.entries(inventoryReviewObject).map(([key, value]) => {
@@ -119,7 +180,8 @@ const collabsInventoryReview = async (
       ...value,
     };
   });
-  inventoryReviewArray = arraySortByProp(inventoryReviewArray, 'diff', { descending: true });
+  const diffProp = Object.keys(inventoryReviewArray?.[0])?.find(key => key.toLowerCase().includes('diff'));
+  inventoryReviewArray = arraySortByProp(inventoryReviewArray, diffProp, { descending: true });
   logDeep('inventoryReviewArray', inventoryReviewArray);
 
   return { 
