@@ -9,7 +9,7 @@ const {
 } = require('../constants');
 
 const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
-const { logiwaInventoriesGet } = require('../logiwa/logiwaInventoriesGet');
+const { logiwaReportGetAvailableToPromise } = require('../logiwa/logiwaReportGetAvailableToPromise');
 
 const collabsInventoryReview = async (
   region,
@@ -58,7 +58,14 @@ const collabsInventoryReview = async (
   await askQuestion('?');
 
   if (logiwaRelevant) {
-    const logiwaInventoryResponse = await logiwaInventoriesGet();
+    const logiwaInventoryResponse = await logiwaReportGetAvailableToPromise(
+      {
+        undamagedQuantity_gt: '0',
+      },
+      {
+        apiVersion: 'v3.2',
+      },
+    );
     logDeep('logiwaInventoryResponse', logiwaInventoryResponse);
     await askQuestion('?');
 
@@ -76,7 +83,7 @@ const collabsInventoryReview = async (
     for (const inventoryItem of logiwaInventory) {
       const { 
         productSku: sku, 
-        freeUOMQuantity: undamagedQuantity,
+        undamagedQuantity,
       } = inventoryItem;
 
       if (!inventoryReviewObject[sku]) {
