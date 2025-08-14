@@ -1,4 +1,4 @@
-// https://mydeveloper.logiwa.com/#tag/Report/paths/~1v3.1~1Report~1InventorySnapshot~1i~1%7Bindex%7D~1s~1%7Bsize%7D/get
+// https://mydeveloper.logiwa.com/#tag/Report/paths/~1v3.1~1Report~1TotalInventory~1i~1%7Bindex%7D~1s~1%7Bsize%7D/get
 
 const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
 const { logiwaGet } = require('../logiwa/logiwa.utils');
@@ -6,11 +6,14 @@ const { MAX_PER_PAGE } = require('../logiwa/logiwa.constants');
 
 const logiwaReportGetTotalInventory = async (
   {
-    warehouseIdentifier_eq,
-    clientIdentifier_eq,
-    locationIdentifier_eq,
     sku_eq,
-    snapshotDate_bt,
+    clientIdentifier_eq,
+    clientIdentifier_in,
+    outOfStock_eq,
+    warehouseIdentifier_eq,
+    warehouseIdentifier_in,
+    productTypeName_eq,
+    productGroupName_eq,
   },
   {
     credsPath,
@@ -24,15 +27,18 @@ const logiwaReportGetTotalInventory = async (
 ) => {
 
   const params = {
-    ...(warehouseIdentifier_eq && { 'WarehouseIdentifier.eq': warehouseIdentifier_eq }),
-    ...(clientIdentifier_eq && { 'ClientIdentifier.eq': clientIdentifier_eq }),
-    ...(locationIdentifier_eq && { 'LocationIdentifier.eq': locationIdentifier_eq }),
     ...(sku_eq && { 'Sku.eq': sku_eq }),
-    ...(snapshotDate_bt && { 'SnapshotDate.bt': snapshotDate_bt }),
+    ...(clientIdentifier_eq && { 'ClientIdentifier.eq': clientIdentifier_eq }),
+    ...(clientIdentifier_in && { 'ClientIdentifier.in': clientIdentifier_in }),
+    ...(outOfStock_eq && { 'OutOfStock.eq': outOfStock_eq }),
+    ...(warehouseIdentifier_eq && { 'WarehouseIdentifier.eq': warehouseIdentifier_eq }),
+    ...(warehouseIdentifier_in && { 'WarehouseIdentifier.in': warehouseIdentifier_in }),
+    ...(productTypeName_eq && { 'ProductTypeName.eq': productTypeName_eq }),
+    ...(productGroupName_eq && { 'ProductGroupName.eq': productGroupName_eq }),
   };
 
   const response = await logiwaGet(
-    `/Report/InventorySnapshot/i/${ page }/s/${ perPage }`,
+    `/Report/TotalInventory/i/${ page }/s/${ perPage }`,
     {
       credsPath,
       apiVersion,
@@ -51,7 +57,7 @@ const logiwaReportGetTotalInventoryApi = async (req, res) => {
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'criteria', criteria, p => objHasAny(p, ['warehouseIdentifier_eq', 'clientIdentifier_eq', 'locationIdentifier_eq', 'sku_eq', 'snapshotDate_bt'])),
+    mandateParam(res, 'criteria', criteria, p => objHasAny(p, ['sku_eq', 'clientIdentifier_eq', 'clientIdentifier_in', 'outOfStock_eq', 'warehouseIdentifier_eq', 'warehouseIdentifier_in', 'productTypeName_eq', 'productGroupName_eq'])),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -69,4 +75,4 @@ module.exports = {
   logiwaReportGetTotalInventoryApi,
 };
 
-// curl localhost:8000/logiwaReportGetTotalInventory -H "Content-Type: application/json" -d '{ "criteria":{ "clientIdentifier_eq": "9f1ea39a-fccc-48af-8986-a35c34fcef8b" } }'
+// curl localhost:8000/logiwaReportGetTotalInventory -H "Content-Type: application/json" -d '{ "criteria": { "outOfStock_eq": true } }'
