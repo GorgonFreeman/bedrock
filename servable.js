@@ -98,6 +98,7 @@ module.exports = {
   loopReturnGet: require('./loop/loopReturnGet').loopReturnGetApi,
   loopReturnsGet: require('./loop/loopReturnsGet').loopReturnsGetApi,
   logiwaAuthGet: require('./logiwa/logiwaAuthGet').logiwaAuthGetApi,
+  logiwaInventoriesGet: require('./logiwa/logiwaInventoriesGet').logiwaInventoriesGetApi,
   logiwaOrderGet: require('./logiwa/logiwaOrderGet').logiwaOrderGetApi,
   logiwaOrdersGet: require('./logiwa/logiwaOrdersGet').logiwaOrdersGetApi,
   logiwaProductGet: require('./logiwa/logiwaProductGet').logiwaProductGetApi,

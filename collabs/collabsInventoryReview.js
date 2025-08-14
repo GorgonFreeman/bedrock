@@ -94,4 +94,4 @@ module.exports = {
   collabsInventoryReviewApi,
 };
 
-// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "au" }'
+// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "us" }'
