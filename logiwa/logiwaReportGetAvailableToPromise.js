@@ -145,3 +145,4 @@ module.exports = {
 
 // curl localhost:8000/logiwaReportGetAvailableToPromise -H "Content-Type: application/json" -d '{ "criteria": { "clientIdentifier_eq": "9f1ea39a-fccc-48af-8986-a35c34fcef8b" } }'
 // curl localhost:8000/logiwaReportGetAvailableToPromise -H "Content-Type: application/json" -d '{ "criteria": { "totalStockQuantity_gte": 500 } }'
+// curl localhost:8000/logiwaReportGetAvailableToPromise -H "Content-Type: application/json" -d '{ "criteria": { "undamagedQuantity_gt": 0, "options": { "apiVersion": "v3.2" } } }'
