@@ -99,6 +99,42 @@ const logiwaReportGetAvailableToPromise = async (
   };
 
   if (Object.keys(params).length === 0) {
+
+    console.error(
+      'empty params',
+      'apiVersion', apiVersion,
+      'sku_eq', sku_eq,
+      'clientIdentifier_eq', clientIdentifier_eq,
+      'clientIdentifier_in', clientIdentifier_in,
+      'warehouseIdentifier_eq', warehouseIdentifier_eq,
+      'warehouseIdentifier_in', warehouseIdentifier_in,
+      'plannedAtpQuantity_eq', plannedAtpQuantity_eq,
+      'plannedAtpQuantity_gt', plannedAtpQuantity_gt,
+      'plannedAtpQuantity_lt', plannedAtpQuantity_lt,
+      'plannedAtpQuantity_gte', plannedAtpQuantity_gte,
+      'plannedAtpQuantity_lte', plannedAtpQuantity_lte,
+      'totalStockQuantity_eq', totalStockQuantity_eq,
+      'totalStockQuantity_gt', totalStockQuantity_gt,
+      'totalStockQuantity_lt', totalStockQuantity_lt,
+      'totalStockQuantity_gte', totalStockQuantity_gte,
+      'totalStockQuantity_lte', totalStockQuantity_lte,
+      'inventoryAtpQuantity_eq', inventoryAtpQuantity_eq,
+      'inventoryAtpQuantity_gt', inventoryAtpQuantity_gt,
+      'inventoryAtpQuantity_lt', inventoryAtpQuantity_lt,
+      'inventoryAtpQuantity_gte', inventoryAtpQuantity_gte,
+      'inventoryAtpQuantity_lte', inventoryAtpQuantity_lte,
+      'undamagedQuantity_eq', undamagedQuantity_eq,
+      'undamagedQuantity_gt', undamagedQuantity_gt,
+      'undamagedQuantity_lt', undamagedQuantity_lt,
+      'undamagedQuantity_gte', undamagedQuantity_gte,
+      'undamagedQuantity_lte', undamagedQuantity_lte,
+      'currentAtpQuantity_eq', currentAtpQuantity_eq,
+      'currentAtpQuantity_gt', currentAtpQuantity_gt,
+      'currentAtpQuantity_lt', currentAtpQuantity_lt,
+      'currentAtpQuantity_gte', currentAtpQuantity_gte,
+      'currentAtpQuantity_lte', currentAtpQuantity_lte,
+    );
+    
     return {
       success: false,
       error: [`You did it. You managed to make an invalid payload by using criteria that don't match your API version. I hope you're happy.`],
@@ -145,4 +181,4 @@ module.exports = {
 
 // curl localhost:8000/logiwaReportGetAvailableToPromise -H "Content-Type: application/json" -d '{ "criteria": { "clientIdentifier_eq": "9f1ea39a-fccc-48af-8986-a35c34fcef8b" } }'
 // curl localhost:8000/logiwaReportGetAvailableToPromise -H "Content-Type: application/json" -d '{ "criteria": { "totalStockQuantity_gte": 500 } }'
-// curl localhost:8000/logiwaReportGetAvailableToPromise -H "Content-Type: application/json" -d '{ "criteria": { "undamagedQuantity_gt": 0, "options": { "apiVersion": "v3.2" } } }'
+// curl localhost:8000/logiwaReportGetAvailableToPromise -H "Content-Type: application/json" -d '{ "criteria": { "undamagedQuantity_gt": 1000, "options": { "apiVersion": "v3.2" } } }'
