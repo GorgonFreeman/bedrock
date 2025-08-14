@@ -12,16 +12,32 @@ const logiwaInventoriesGet = async (
     page = 0,
     perPage = MAX_PER_PAGE,
 
+    sku_eq,
+    clientIdentifier_eq,
+    warehouseIdentifier_eq,
+    inventoryStatusId_eq,
+    location_eq,
+    useSnapshotData_eq,
+
     ...getterOptions
   } = {},
 ) => {
+
+  const params = {
+    ...(sku_eq && { 'Sku.eq': sku_eq }),
+    ...(clientIdentifier_eq && { 'ClientIdentifier.eq': clientIdentifier_eq }),
+    ...(warehouseIdentifier_eq && { 'WarehouseIdentifier.eq': warehouseIdentifier_eq }),
+    ...(inventoryStatusId_eq && { 'InventoryStatusId.eq': inventoryStatusId_eq }),
+    ...(location_eq && { 'Location.eq': location_eq }),
+    ...(useSnapshotData_eq && { 'UseSnapshotData.eq': useSnapshotData_eq }),
+  };
 
   const response = await logiwaGet(
     `/Product/list/i/${ page }/s/${ perPage }`,
     {
       credsPath,
       apiVersion,
-      // params,
+      params,
       ...getterOptions,
     },
   );
