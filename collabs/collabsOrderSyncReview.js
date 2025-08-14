@@ -145,8 +145,6 @@ const collabsOrderSyncReview = async (
         },
       },
     );
-    logDeep(markResponse);
-    return markResponse;
   }
 
   return { 
