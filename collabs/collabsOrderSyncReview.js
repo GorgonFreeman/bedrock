@@ -6,6 +6,8 @@ const {
 } = require('../constants');
 
 const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
+const { shopifyTagsAdd } = require('../shopify/shopifyTagsAdd');
+
 const { peoplevoxOrdersGetById } = require('../peoplevox/peoplevoxOrdersGetById');
 
 const { logiwaStatusToStatusId } = require('../logiwa/logiwa.utils');
@@ -15,7 +17,7 @@ const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
 const collabsOrderSyncReview = async (
   region,
   {
-    option,
+    markFound = false,
   } = {},
 ) => {
 
@@ -132,6 +134,21 @@ const collabsOrderSyncReview = async (
     }
   }
 
+  if (markFound) {
+    const markResponse = await shopifyTagsAdd(
+      region,
+      foundIds.map(id => `gid://shopify/Order/${ id }`),
+      ['sync_confirmed'],
+      {
+        queueRunOptions: {
+          interval: 20,
+        },
+      },
+    );
+    logDeep(markResponse);
+    return markResponse;
+  }
+
   return { 
     success: true,
     result: {
@@ -172,3 +189,4 @@ module.exports = {
 };
 
 // curl localhost:8000/collabsOrderSyncReview -H "Content-Type: application/json" -d '{ "region": "us" }'
+// curl localhost:8000/collabsOrderSyncReview -H "Content-Type: application/json" -d '{ "region": "us", "options": { "markFound": true } }'
