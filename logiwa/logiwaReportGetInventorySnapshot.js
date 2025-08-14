@@ -27,7 +27,7 @@ const logiwaReportGetInventorySnapshot = async (
     ...(warehouseIdentifier_eq && { 'WarehouseIdentifier.eq': warehouseIdentifier_eq }),
     ...(clientIdentifier_eq && { 'ClientIdentifier.eq': clientIdentifier_eq }),
     ...(locationIdentifier_eq && { 'LocationIdentifier.eq': locationIdentifier_eq }),
-    ...(sku_eq && { 'SKU.eq': sku_eq }),
+    ...(sku_eq && { 'Sku.eq': sku_eq }),
     ...(snapshotDate_bt && { 'SnapshotDate.bt': snapshotDate_bt }),
   };
 
