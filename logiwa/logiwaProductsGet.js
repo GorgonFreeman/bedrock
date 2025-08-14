@@ -12,16 +12,38 @@ const logiwaProductsGet = async (
     page = 0,
     perPage = MAX_PER_PAGE,
 
+    sku_eq,
+    fnsku_eq,
+    clientIdentifier_eq,
+    clientIdentifier_in,
+    identifier_eq,
+    createdDateTime_bt,
+    updatedDateTime_bt,
+    productTypeName_eq,
+    productGroupName_eq,
+
     ...getterOptions
   } = {},
 ) => {
+
+  const params = {
+    ...(sku_eq && { 'Sku.eq': sku_eq }),
+    ...(fnsku_eq && { 'FNSKU.eq': fnsku_eq }),
+    ...(clientIdentifier_eq && { 'ClientIdentifier.eq': clientIdentifier_eq }),
+    ...(clientIdentifier_in && { 'ClientIdentifier.in': clientIdentifier_in }),
+    ...(identifier_eq && { 'Identifier.eq': identifier_eq }),
+    ...(createdDateTime_bt && { 'CreatedDateTime.bt': createdDateTime_bt }),
+    ...(updatedDateTime_bt && { 'UpdatedDateTime.bt': updatedDateTime_bt }),
+    ...(productTypeName_eq && { 'ProductTypeName.eq': productTypeName_eq }),
+    ...(productGroupName_eq && { 'ProductGroupName.eq': productGroupName_eq }),
+  };
 
   const response = await logiwaGet(
     `/Product/list/i/${ page }/s/${ perPage }`,
     {
       credsPath,
       apiVersion,
-      // params,
+      params,
       ...getterOptions,
     },
   );
