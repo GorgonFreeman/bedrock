@@ -96,10 +96,11 @@ const collabsInventoryReview = async (
       inventoryReviewObject[key].diff = shopifyAvailable - logiwaUndamaged;
     }
   }
-
+  
+  logDeep('inventoryReviewObject', inventoryReviewObject);
   return { 
-    region, 
-    option,
+    success: true, 
+    result: inventoryReviewObject,
   };
   
 };
