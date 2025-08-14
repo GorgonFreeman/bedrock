@@ -513,7 +513,7 @@ const collabsFulfillmentSweep = async (
 
     const pipeline = new ProcessorPipeline();
 
-    if (logiwaRelevant && logiwaPrefetchedOrders) {
+    if (REGIONS_LOGIWA.includes(region) && logiwaPrefetchedOrders) {
       pipeline.add({
         maker: logiwaPrefetchProcessorMaker,
         piles: { 
@@ -525,7 +525,7 @@ const collabsFulfillmentSweep = async (
       });
     }
 
-    if (starshipitRelevant && starshipitShippedOrdersByAccount) {
+    if (REGIONS_STARSHIPIT.includes(region) && starshipitShippedOrdersByAccount) {
       pipeline.add({
         maker: starshipitShippedProcessorMaker,
         piles: { 
@@ -537,7 +537,7 @@ const collabsFulfillmentSweep = async (
     }
 
     // Add PVX processors if region supports it
-    if (peoplevoxRelevant && pvxRecentDispatches) {
+    if (REGIONS_PVX.includes(region) && pvxRecentDispatches) {
       pipeline.add({
         maker: recentDispatchProcessorMaker,
         piles: { 
@@ -557,7 +557,7 @@ const collabsFulfillmentSweep = async (
     }
 
     // Add Starshipit processor if region supports it
-    if (starshipitRelevant) {
+    if (REGIONS_STARSHIPIT.includes(region)) {
       pipeline.add({
         maker: starshipitProcessorMaker,
         piles: { 
@@ -569,7 +569,7 @@ const collabsFulfillmentSweep = async (
       });
     }
 
-    if (logiwaRelevant) {
+    if (REGIONS_LOGIWA.includes(region)) {
       pipeline.add({
         maker: logiwaProcessorMaker,
         piles: { 
