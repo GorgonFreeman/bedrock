@@ -1,4 +1,4 @@
-// https://mydeveloper.logiwa.com/#tag/Product/paths/~1v3.1~1Product~1list~1i~1%7Bindex%7D~1s~1%7Bsize%7D/get
+// https://mydeveloper.logiwa.com/#tag/Report/paths/~1v3.1~1Report~1InventorySnapshot~1i~1%7Bindex%7D~1s~1%7Bsize%7D/get
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { logiwaGet } = require('../logiwa/logiwa.utils');
@@ -12,16 +12,30 @@ const logiwaReportGetInventorySnapshot = async (
     page = 0,
     perPage = MAX_PER_PAGE,
 
+    warehouseIdentifier_eq,
+    clientIdentifier_eq,
+    locationIdentifier_eq,
+    sku_eq,
+    snapshotDate_bt,
+
     ...getterOptions
   } = {},
 ) => {
 
+  const params = {
+    ...(warehouseIdentifier_eq && { 'WarehouseIdentifier.eq': warehouseIdentifier_eq }),
+    ...(clientIdentifier_eq && { 'ClientIdentifier.eq': clientIdentifier_eq }),
+    ...(locationIdentifier_eq && { 'LocationIdentifier.eq': locationIdentifier_eq }),
+    ...(sku_eq && { 'SKU.eq': sku_eq }),
+    ...(snapshotDate_bt && { 'SnapshotDate.bt': snapshotDate_bt }),
+  };
+
   const response = await logiwaGet(
-    `/Product/list/i/${ page }/s/${ perPage }`,
+    `/Report/InventorySnapshot/i/${ page }/s/${ perPage }`,
     {
       credsPath,
       apiVersion,
-      // params,
+      params,
       ...getterOptions,
     },
   );
