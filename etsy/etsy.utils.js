@@ -9,7 +9,7 @@ const REFRESH_TOKENS = new Map();
 const etsyRefreshTokenGet = async ({ credsPath }) => {
   // 1. Check if we have a refresh token in memory
   if (REFRESH_TOKENS.has(credsPath)) {
-    console.log('Using refresh token from map');
+    // console.log('Using refresh token from map');
     return {
       success: true,
       result: REFRESH_TOKENS.get(credsPath),
@@ -41,7 +41,7 @@ const etsyAccessTokenGet = async ({ credsPath, forceRefresh } = {}) => {
   if (!forceRefresh) {
     // 1. Check if we have a access token in memory
     if (ACCESS_TOKENS.has(credsPath)) {
-      console.log('Using access token from map');
+      // console.log('Using access token from map');
       return {
         success: true,
         result: ACCESS_TOKENS.get(credsPath),

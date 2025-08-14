@@ -38,7 +38,7 @@ const logiwaFactory = async({ credsPath, apiVersion } = {}) => {
 
   if (AUTH_TOKENS.has(credsPath)) {
     authToken = AUTH_TOKENS.get(credsPath);
-    console.log('Using auth token from map');
+    // console.log('Using auth token from map');
   }
 
   if (!authToken) {
