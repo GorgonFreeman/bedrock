@@ -95,7 +95,7 @@ const collabsInventoryReview = async (
         continue;
       }
 
-      reviewEntry.logiwaUndamaged = undamagedQuantity;
+      inventoryReviewObject[sku].logiwaUndamaged = undamagedQuantity;
     }
 
     for (const [key, value] of Object.entries(inventoryReviewObject)) {
