@@ -1,6 +1,6 @@
 // Compares Shopify to respective WMS platforms to quantify inventory discrepancies
 
-const { respond, mandateParam, logDeep, askQuestion } = require('../utils');
+const { respond, mandateParam, logDeep, askQuestion, strictlyFalsey, arraySortByProp } = require('../utils');
 
 const {
   REGIONS_PVX,
@@ -99,12 +99,29 @@ const collabsInventoryReview = async (
     }
 
     for (const [key, value] of Object.entries(inventoryReviewObject)) {
+
+      if (strictlyFalsey(inventoryReviewObject[key].logiwaUndamaged)) {
+        inventoryReviewObject[key].logiwaUndamaged = 0;
+      }
+
       const { shopifyAvailable, logiwaUndamaged } = value;
-      inventoryReviewObject[key].diff = shopifyAvailable - logiwaUndamaged;
+
+      const diff = shopifyAvailable - logiwaUndamaged;
+      inventoryReviewObject[key].logiwaOversellRisk = diff > 0;
+      inventoryReviewObject[key].logiwaDiff = Math.abs(diff);
     }
   }
-  
   logDeep('inventoryReviewObject', inventoryReviewObject);
+
+  let inventoryReviewArray = Object.entries(inventoryReviewObject).map(([key, value]) => {
+    return {
+      sku: key,
+      ...value,
+    };
+  });
+  inventoryReviewArray = arraySortByProp(inventoryReviewArray, 'diff', { descending: true });
+  logDeep('inventoryReviewArray', inventoryReviewArray);
+
   return { 
     success: true, 
     result: inventoryReviewObject,

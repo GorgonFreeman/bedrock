@@ -1299,6 +1299,12 @@ const valueExcludingOutliers = (values, { returnHighest = false, convertToDate =
 
 const arrayUnique = (arr) => [...new Set(arr)];
 
+const arraySortByProp = (arr, prop, { descending = false } = {}) => {
+  return [...arr].sort((a, b) => {
+    return descending ? b[prop] - a[prop] : a[prop] - b[prop];
+  });
+};
+
 module.exports = {
 
   // Really core
@@ -1344,6 +1350,7 @@ module.exports = {
   standardInterpreters,
   valueExcludingOutliers,
   arrayUnique,
+  arraySortByProp,
   
   // Classes
   CustomAxiosClient,
