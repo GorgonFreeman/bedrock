@@ -1,6 +1,6 @@
 // https://mydeveloper.logiwa.com/#tag/Report/paths/~1v3.1~1Report~1AvailableToPromise~1i~1%7Bindex%7D~1s~1%7Bsize%7D/get
 
-const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
+const { respond, mandateParam, logDeep, objHasAny, strictlyFalsey } = require('../utils');
 const { logiwaGet } = require('../logiwa/logiwa.utils');
 const { MAX_PER_PAGE } = require('../logiwa/logiwa.constants');
 
@@ -63,38 +63,38 @@ const logiwaReportGetAvailableToPromise = async (
     ...(clientIdentifier_in && { 'ClientIdentifier.in': clientIdentifier_in }),
     ...(warehouseIdentifier_eq && { 'WarehouseIdentifier.eq': warehouseIdentifier_eq }),
     ...(warehouseIdentifier_in && { 'WarehouseIdentifier.in': warehouseIdentifier_in }),
-    ...(plannedAtpQuantity_eq && { 'PlannedATPQuantity.eq': plannedAtpQuantity_eq }),
-    ...(plannedAtpQuantity_gt && { 'PlannedATPQuantity.gt': plannedAtpQuantity_gt }),
-    ...(plannedAtpQuantity_lt && { 'PlannedATPQuantity.lt': plannedAtpQuantity_lt }),
-    ...(plannedAtpQuantity_gte && { 'PlannedATPQuantity.gte': plannedAtpQuantity_gte }),
-    ...(plannedAtpQuantity_lte && { 'PlannedATPQuantity.lte': plannedAtpQuantity_lte }),
+    ...(!strictlyFalsey(plannedAtpQuantity_eq) && { 'PlannedATPQuantity.eq': plannedAtpQuantity_eq }),
+    ...(!strictlyFalsey(plannedAtpQuantity_gt) && { 'PlannedATPQuantity.gt': plannedAtpQuantity_gt }),
+    ...(!strictlyFalsey(plannedAtpQuantity_lt) && { 'PlannedATPQuantity.lt': plannedAtpQuantity_lt }),
+    ...(!strictlyFalsey(plannedAtpQuantity_gte) && { 'PlannedATPQuantity.gte': plannedAtpQuantity_gte }),
+    ...(!strictlyFalsey(plannedAtpQuantity_lte) && { 'PlannedATPQuantity.lte': plannedAtpQuantity_lte }),
 
     // v3.1 only
     ...(apiVersion === 'v3.1' ? {
-      ...(totalStockQuantity_eq && { 'TotalStockQuantity.eq': totalStockQuantity_eq }),
-      ...(totalStockQuantity_gt && { 'TotalStockQuantity.gt': totalStockQuantity_gt }),
-      ...(totalStockQuantity_lt && { 'TotalStockQuantity.lt': totalStockQuantity_lt }),
-      ...(totalStockQuantity_gte && { 'TotalStockQuantity.gte': totalStockQuantity_gte }),
-      ...(totalStockQuantity_lte && { 'TotalStockQuantity.lte': totalStockQuantity_lte }),
-      ...(inventoryAtpQuantity_eq && { 'InventoryATPQuantity.eq': inventoryAtpQuantity_eq }),
-      ...(inventoryAtpQuantity_gt && { 'InventoryATPQuantity.gt': inventoryAtpQuantity_gt }),
-      ...(inventoryAtpQuantity_lt && { 'InventoryATPQuantity.lt': inventoryAtpQuantity_lt }),
-      ...(inventoryAtpQuantity_gte && { 'InventoryATPQuantity.gte': inventoryAtpQuantity_gte }),
-      ...(inventoryAtpQuantity_lte && { 'InventoryATPQuantity.lte': inventoryAtpQuantity_lte }),
+      ...(!strictlyFalsey(totalStockQuantity_eq) && { 'TotalStockQuantity.eq': totalStockQuantity_eq }),
+      ...(!strictlyFalsey(totalStockQuantity_gt) && { 'TotalStockQuantity.gt': totalStockQuantity_gt }),
+      ...(!strictlyFalsey(totalStockQuantity_lt) && { 'TotalStockQuantity.lt': totalStockQuantity_lt }),
+      ...(!strictlyFalsey(totalStockQuantity_gte) && { 'TotalStockQuantity.gte': totalStockQuantity_gte }),
+      ...(!strictlyFalsey(totalStockQuantity_lte) && { 'TotalStockQuantity.lte': totalStockQuantity_lte }),
+      ...(!strictlyFalsey(inventoryAtpQuantity_eq) && { 'InventoryATPQuantity.eq': inventoryAtpQuantity_eq }),
+      ...(!strictlyFalsey(inventoryAtpQuantity_gt) && { 'InventoryATPQuantity.gt': inventoryAtpQuantity_gt }),
+      ...(!strictlyFalsey(inventoryAtpQuantity_lt) && { 'InventoryATPQuantity.lt': inventoryAtpQuantity_lt }),
+      ...(!strictlyFalsey(inventoryAtpQuantity_gte) && { 'InventoryATPQuantity.gte': inventoryAtpQuantity_gte }),
+      ...(!strictlyFalsey(inventoryAtpQuantity_lte) && { 'InventoryATPQuantity.lte': inventoryAtpQuantity_lte }),
     } : {}),
 
     // v3.2 only
     ...(apiVersion === 'v3.2' ? {
-      ...(undamagedQuantity_eq && { 'UndamagedQuantity.eq': undamagedQuantity_eq }),
-      ...(undamagedQuantity_gt && { 'UndamagedQuantity.gt': undamagedQuantity_gt }),
-      ...(undamagedQuantity_lt && { 'UndamagedQuantity.lt': undamagedQuantity_lt }),
-      ...(undamagedQuantity_gte && { 'UndamagedQuantity.gte': undamagedQuantity_gte }),
-      ...(undamagedQuantity_lte && { 'UndamagedQuantity.lte': undamagedQuantity_lte }),
-      ...(currentAtpQuantity_eq && { 'CurrentATPQuantity.eq': currentAtpQuantity_eq }),
-      ...(currentAtpQuantity_gt && { 'CurrentATPQuantity.gt': currentAtpQuantity_gt }),
-      ...(currentAtpQuantity_lt && { 'CurrentATPQuantity.lt': currentAtpQuantity_lt }),
-      ...(currentAtpQuantity_gte && { 'CurrentATPQuantity.gte': currentAtpQuantity_gte }),
-      ...(currentAtpQuantity_lte && { 'CurrentATPQuantity.lte': currentAtpQuantity_lte }),
+      ...(!strictlyFalsey(undamagedQuantity_eq) && { 'UndamagedQuantity.eq': undamagedQuantity_eq }),
+      ...(!strictlyFalsey(undamagedQuantity_gt) && { 'UndamagedQuantity.gt': undamagedQuantity_gt }),
+      ...(!strictlyFalsey(undamagedQuantity_lt) && { 'UndamagedQuantity.lt': undamagedQuantity_lt }),
+      ...(!strictlyFalsey(undamagedQuantity_gte) && { 'UndamagedQuantity.gte': undamagedQuantity_gte }),
+      ...(!strictlyFalsey(undamagedQuantity_lte) && { 'UndamagedQuantity.lte': undamagedQuantity_lte }),
+      ...(!strictlyFalsey(currentAtpQuantity_eq) && { 'CurrentATPQuantity.eq': currentAtpQuantity_eq }),
+      ...(!strictlyFalsey(currentAtpQuantity_gt) && { 'CurrentATPQuantity.gt': currentAtpQuantity_gt }),
+      ...(!strictlyFalsey(currentAtpQuantity_lt) && { 'CurrentATPQuantity.lt': currentAtpQuantity_lt }),
+      ...(!strictlyFalsey(currentAtpQuantity_gte) && { 'CurrentATPQuantity.gte': currentAtpQuantity_gte }),
+      ...(!strictlyFalsey(currentAtpQuantity_lte) && { 'CurrentATPQuantity.lte': currentAtpQuantity_lte }),
     } : {}),
   };
 
