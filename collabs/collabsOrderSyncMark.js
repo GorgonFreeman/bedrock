@@ -36,6 +36,7 @@ const collabsOrderSyncMark = async (
 
   if (pvxRelevant) {
     // Get report of orders from PVX
+    // TODO: Custom report from API options that differentiates between stores
     const pvxOrdersResponse = await peoplevoxReportGet('Orders Last 2 Days');
     const { success: pvxReportSuccess, result: pvxReportOrders } = pvxOrdersResponse;
 
