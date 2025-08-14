@@ -144,10 +144,70 @@ const collabsFulfillmentSweep = async (
       const logiwaOrder = logiwaPrefetchedOrders?.find(order => order.code === orderName);
 
       if (logiwaOrder) {
-        console.log(logiwaOrder);
-        await askQuestion('?');
-        // piles.resolved.push(order);
-        // return;
+        // console.log(logiwaOrder);
+        // await askQuestion('?');
+
+        const {
+          currentTrackingNumber,
+          trackingNumbers,
+          products,
+          shipmentOrderStatusName,
+          shipmentOrderStatusId,
+        } = logiwaOrder;
+  
+        let trackingNumber = currentTrackingNumber;
+        if (!trackingNumber && trackingNumbers?.length === 1) {
+          trackingNumber = trackingNumbers[0];
+        }
+  
+        const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
+  
+        const knownBadStatuses = [
+          'Open', 
+          'Cancelled', 
+          'Shortage', 
+          'Ready to Pick', 
+          'Picking Started', 
+          'Ready to Pack', 
+          'On Hold',
+        ];
+        const knownGoodStatuses = [
+          'Shipped',
+        ];
+        
+        if (!knownGoodStatuses.includes(shipmentOrderStatusName)) {
+  
+          if (!knownBadStatuses.includes(shipmentOrderStatusName)) {
+            console.log(shipmentOrderStatusId, shipmentOrderStatusName);
+            piles.continue.push(order);
+            return;
+          }
+  
+          piles.disqualified.push(order);
+          return;
+        }
+  
+        if (!trackingNumber || !allShipped) {
+          console.log(`Logiwa processing, not fully shipped`, logiwaOrder);
+          piles.disqualified.push(order);
+          return;
+        }
+  
+        const fulfillPayload = {
+          originAddress: {
+            // Logiwa, therefore US
+            countryCode: 'US',
+          },
+          trackingInfo: {
+            number: trackingNumber,
+          },
+        };
+  
+        piles.resolved.push({
+          ...order,
+          fulfillPayload,
+        });
+        return;
       }
 
       piles.continue.push(order);
