@@ -1,6 +1,8 @@
 // Compares Shopify to respective WMS platforms to quantify inventory discrepancies
 
 const fs = require('fs');
+const path = require('path');
+require('dotenv').config();
 const { json2csv } = require('json-2-csv');
 const { respond, mandateParam, logDeep, askQuestion, strictlyFalsey, arraySortByProp } = require('../utils');
 
@@ -190,7 +192,9 @@ const collabsInventoryReview = async (
 
   if (downloadCsv) {
     const csv = await json2csv(inventoryReviewArray);
-    fs.writeFileSync('collabsInventoryReview.csv', csv);
+    const downloadsPath = process.env.DOWNLOADS_PATH || '.';
+    const filePath = path.join(downloadsPath, 'collabsInventoryReview.csv');
+    fs.writeFileSync(filePath, csv);
   }
 
   return { 
