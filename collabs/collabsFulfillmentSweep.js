@@ -147,6 +147,8 @@ const collabsFulfillmentSweep = async (
         // console.log(logiwaOrder);
         // await askQuestion('?');
 
+        // TODO: Deduplicate this logic between the prefetch and individual processor
+
         const {
           currentTrackingNumber,
           trackingNumbers,
