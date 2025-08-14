@@ -19,6 +19,10 @@ const logiwaProductGet = async (
     const response = await logiwaClient.fetch({
       method: 'get',
       url: `/Product/detail/${ productId }`,
+      context: {
+        credsPath,
+        apiVersion,
+      },
     });
     logDeep(response);
     return response;
