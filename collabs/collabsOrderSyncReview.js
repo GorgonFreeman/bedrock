@@ -87,15 +87,19 @@ const collabsOrderSyncReview = async (
   } else if (logiwaRelevant) {
 
     let findOrders = [...shopifyOrders];
+    
+    const worthPrefetching = findOrders.length > 500;
+    if (worthPrefetching) {
 
-    const logiwaPrefetchedOrdersResponse = await logiwaOrdersGet({
-      status_eq: logiwaStatusToStatusId('Open'),
-    });
-    const { result: logiwaPrefetchedOrders = [] } = logiwaPrefetchedOrdersResponse;
-    const logiwaPrefetchedOrderCodes = logiwaPrefetchedOrders.map(order => order?.code).filter(code => code);
+      const logiwaPrefetchedOrdersResponse = await logiwaOrdersGet({
+        status_eq: logiwaStatusToStatusId('Open'),
+      });
+      const { result: logiwaPrefetchedOrders = [] } = logiwaPrefetchedOrdersResponse;
+      const logiwaPrefetchedOrderCodes = logiwaPrefetchedOrders.map(order => order?.code).filter(code => code);
 
-    const orderSet = new Set(logiwaPrefetchedOrderCodes);
-    findOrders = findOrders.filter(o => !orderSet.has(o.name));
+      const orderSet = new Set(logiwaPrefetchedOrderCodes);
+      findOrders = findOrders.filter(o => !orderSet.has(o.name));
+    }
 
     const logiwaOrdersResponse = await logiwaOrderGet(findOrders.map(o => ({ orderCode: o.name })), {
       queueRunOptions: {
