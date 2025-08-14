@@ -104,6 +104,7 @@ module.exports = {
   logiwaProductGet: require('./logiwa/logiwaProductGet').logiwaProductGetApi,
   logiwaProductsGet: require('./logiwa/logiwaProductsGet').logiwaProductsGetApi,
   logiwaReportGetAvailableToPromise: require('./logiwa/logiwaReportGetAvailableToPromise').logiwaReportGetAvailableToPromiseApi,
+  logiwaReportGetInventoryCalculation: require('./logiwa/logiwaReportGetInventoryCalculation').logiwaReportGetInventoryCalculationApi,
   logiwaReportGetInventorySnapshot: require('./logiwa/logiwaReportGetInventorySnapshot').logiwaReportGetInventorySnapshotApi,
   iwishCustomerWishlistCountGet: require('./iwish/iwishCustomerWishlistCountGet').iwishCustomerWishlistCountGetApi,
   iwishCustomerWishlistGet: require('./iwish/iwishCustomerWishlistGet').iwishCustomerWishlistGetApi,
