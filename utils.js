@@ -1297,6 +1297,8 @@ const valueExcludingOutliers = (values, { returnHighest = false, convertToDate =
   return result;
 };
 
+const arrayUnique = (arr) => [...new Set(arr)];
+
 module.exports = {
 
   // Really core
@@ -1341,6 +1343,7 @@ module.exports = {
   actionMultipleOrSingle,
   standardInterpreters,
   valueExcludingOutliers,
+  arrayUnique,
   
   // Classes
   CustomAxiosClient,

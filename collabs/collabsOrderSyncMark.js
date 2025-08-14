@@ -1,6 +1,6 @@
 // Tag Shopify orders as having synced to their respective platforms, to exclude from future reviews.
 
-const { respond, mandateParam, logDeep, askQuestion, dateTimeFromNow, days } = require('../utils');
+const { respond, mandateParam, logDeep, askQuestion, dateTimeFromNow, days, arrayUnique } = require('../utils');
 const {
   REGIONS_PVX,
   REGIONS_BLUEYONDER,
@@ -10,6 +10,7 @@ const {
 const { logiwaOrdersGet } = require('../logiwa/logiwaOrdersGet');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { shopifyTagsAdd } = require('../shopify/shopifyTagsAdd');
+const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
 const collabsOrderSyncMark = async (
   region,
@@ -18,9 +19,9 @@ const collabsOrderSyncMark = async (
   } = {},
 ) => {
 
-  const markOrderIds = [];
-  const markOrderGids = [];
-  const markOrderNames = [];
+  let markOrderIds = [];
+  let markOrderGids = [];
+  let markOrderNames = [];
   
   const pvxRelevant = REGIONS_PVX.includes(region);
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
@@ -35,7 +36,15 @@ const collabsOrderSyncMark = async (
 
   if (pvxRelevant) {
     // Get report of orders from PVX
-    // markOrderIds.push(...pvxOrders.map(o => o.SalesOrderNumber));
+    const pvxOrdersResponse = await peoplevoxReportGet('Orders Last 2 Days');
+    const { success: pvxReportSuccess, result: pvxReportOrders } = pvxOrdersResponse;
+
+    if (!pvxReportSuccess) {
+      return pvxOrdersResponse;
+    }
+
+    const pvxOrderIds = pvxReportOrders.map(o => o['Sales order no.']);
+    markOrderIds.push(...pvxOrderIds);
   }
 
   if (logiwaRelevant) {
@@ -81,9 +90,11 @@ const collabsOrderSyncMark = async (
   }
 
   if (markOrderIds?.length) {
+    markOrderIds = arrayUnique(markOrderIds);
     markOrderGids.push(...markOrderIds.filter(Boolean).map(id => `gid://shopify/Order/${ id }`));
   }
-
+  
+  markOrderGids = arrayUnique(markOrderGids);
   console.log(markOrderGids.length);
 
   const response = await shopifyTagsAdd(
@@ -125,4 +136,4 @@ module.exports = {
   collabsOrderSyncMarkApi,
 };
 
-// curl localhost:8000/collabsOrderSyncMark -H "Content-Type: application/json" -d '{ "region": "us" }'
+// curl localhost:8000/collabsOrderSyncMark -H "Content-Type: application/json" -d '{ "region": "au" }'
