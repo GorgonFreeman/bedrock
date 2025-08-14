@@ -1,4 +1,4 @@
-// https://mydeveloper.logiwa.com/#tag/Product/paths/~1v3.1~1Product~1list~1i~1%7Bindex%7D~1s~1%7Bsize%7D/get
+// https://mydeveloper.logiwa.com/#tag/Inventory/paths/~1v3.1~1Inventory~1list~1i~1%7Bindex%7D~1s~1%7Bsize%7D/get
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { logiwaGet } = require('../logiwa/logiwa.utils');
@@ -33,7 +33,7 @@ const logiwaInventoriesGet = async (
   };
 
   const response = await logiwaGet(
-    `/Product/list/i/${ page }/s/${ perPage }`,
+    `/Inventory/list/i/${ page }/s/${ perPage }`,
     {
       credsPath,
       apiVersion,
