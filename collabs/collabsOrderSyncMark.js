@@ -3,7 +3,7 @@
 const { respond, mandateParam, logDeep, askQuestion, dateTimeFromNow, days, arrayUnique } = require('../utils');
 const {
   REGIONS_PVX,
-  REGIONS_BLUEYONDER,
+  REGIONS_BLECKMANN,
   REGIONS_LOGIWA,
 } = require('../constants');
 
@@ -11,6 +11,7 @@ const { logiwaOrdersGet } = require('../logiwa/logiwaOrdersGet');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { shopifyTagsAdd } = require('../shopify/shopifyTagsAdd');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
+const { bleckmannPickticketsGet } = require('../bleckmann/bleckmannPickticketsGet');
 
 const collabsOrderSyncMark = async (
   region,
@@ -25,8 +26,8 @@ const collabsOrderSyncMark = async (
   
   const pvxRelevant = REGIONS_PVX.includes(region);
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
-  
-  const anyRelevant = [pvxRelevant, logiwaRelevant].some(Boolean);
+  const bleckmannRelevant = REGIONS_BLECKMANN.includes(region);
+  const anyRelevant = [pvxRelevant, logiwaRelevant, bleckmannRelevant].some(Boolean);
   if (!anyRelevant) {
     return {
       success: false,
@@ -63,6 +64,21 @@ const collabsOrderSyncMark = async (
     const logiwaSyncedOrderCodes = logiwaSyncedOrders.map(order => order?.code).filter(code => code);
 
     markOrderNames.push(...logiwaSyncedOrderCodes);
+  }
+
+  if (bleckmannRelevant) {
+    const bleckmannSyncedOrdersResponse = await bleckmannPickticketsGet({
+      createdFrom: `${ dateTimeFromNow({ minus: days(5), dateOnly: true }) }T00.00.00Z`,
+    });
+
+    const { success: bleckmannSyncedOrdersSuccess, result: bleckmannSyncedOrders } = bleckmannSyncedOrdersResponse;
+
+    if (!bleckmannSyncedOrdersSuccess) {
+      return bleckmannSyncedOrdersResponse;
+    }
+
+    const bleckmannSyncedOrderIds = bleckmannSyncedOrders.map(order => order?.reference).filter(Boolean);
+    markOrderIds.push(...bleckmannSyncedOrderIds);
   }
 
   console.log(markOrderNames.length);
