@@ -65,8 +65,6 @@ const collabsOrderSyncReview = async (
   const shopifyOrderIds = shopifyOrders.map(order => gidToId(order.id));
   const oldestShopifyOrderToFind = arraySortByProp(shopifyOrders, 'createdAt')?.[0];
   const oldestDate = oldestShopifyOrderToFind?.createdAt;
-  console.log('oldestDate', oldestDate);
-  await askQuestion('?');
 
   const pvxRelevant = REGIONS_PVX.includes(region);
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
