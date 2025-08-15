@@ -129,9 +129,12 @@ const collabsOrderSyncReview = async (
     let findOrders = [...shopifyOrders];
     console.log('findOrders', findOrders.length);
 
+    const bleckmannOrdersResponse = await bleckmannPickticketsGet();
+    /* TODO: Consider getting from the oldest date
     const bleckmannOrdersResponse = await bleckmannPickticketsGet({
       createdFrom: oldestDate,
     });
+    */
     
     const {
       success: bleckmannOrdersSuccess,
@@ -145,7 +148,8 @@ const collabsOrderSyncReview = async (
     findOrders = findOrders.filter(o => !foundIds.includes(gidToId(o.id)));
 
     console.log('findOrders after prefetch', findOrders.length);
-
+    
+    /* Get orders individually - way too slow and API 429s quickly
     const bleckmannRemainingResponse = await bleckmannPickticketGet(
       findOrders.map(o => ({ pickticketReference: gidToId(o.id) })),
     );
@@ -163,6 +167,7 @@ const collabsOrderSyncReview = async (
     findOrders = findOrders.filter(o => !bleckmannRemainingOrderIds.includes(gidToId(o.id)));
 
     console.log('findOrders after individual fetch', findOrders.length);
+    */
   }
 
   const missingIds = shopifyOrderIds.filter(id => !foundIds.includes(id));
