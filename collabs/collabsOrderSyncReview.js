@@ -1,9 +1,9 @@
 // Check if Shopify orders are present in their respective platforms to establish whether the sync is working.
 
-const { respond, mandateParam, gidToId, askQuestion, logDeep, readableTimeFromMs, valueExcludingOutliers } = require('../utils');
+const { respond, mandateParam, gidToId, askQuestion, logDeep, readableTimeFromMs, valueExcludingOutliers, dateTimeFromNow, days } = require('../utils');
 const { 
   REGIONS_PVX, 
-  REGIONS_BLUEYONDER,
+  REGIONS_BLECKMANN,
   REGIONS_LOGIWA,
 } = require('../constants');
 
@@ -15,6 +15,8 @@ const { peoplevoxOrdersGetById } = require('../peoplevox/peoplevoxOrdersGetById'
 const { logiwaStatusToStatusId } = require('../logiwa/logiwa.utils');
 const { logiwaOrdersGet } = require('../logiwa/logiwaOrdersGet');
 const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
+
+const { bleckmannPickticketsGet } = require('../bleckmann/bleckmannPickticketsGet');
 
 const collabsOrderSyncReview = async (
   region,
@@ -63,8 +65,8 @@ const collabsOrderSyncReview = async (
 
   const pvxRelevant = REGIONS_PVX.includes(region);
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
-
-  const anyRelevant = [pvxRelevant, logiwaRelevant].some(Boolean);
+  const bleckmannRelevant = REGIONS_BLECKMANN.includes(region);
+  const anyRelevant = [pvxRelevant, logiwaRelevant, bleckmannRelevant].some(Boolean);
   if (!anyRelevant) {
     return { 
       success: false,
@@ -118,6 +120,25 @@ const collabsOrderSyncReview = async (
 
     const impliedFoundIds = shopifyOrders.filter(order => !findOrders.find(o => o.id === order.id)).map(o => gidToId(o.id));
     foundIds.push(...impliedFoundIds);
+
+  } else if (bleckmannRelevant) {
+
+    const bleckmannOrdersResponse = await bleckmannPickticketsGet({
+      createdFrom: `${ dateTimeFromNow({ minus: days(2), dateOnly: true }) }T00:00:00Z`,
+    });
+    logDeep('bleckmannOrdersResponse', bleckmannOrdersResponse);
+    await askQuestion('?');
+    
+    const {
+      success: bleckmannOrdersSuccess,
+      result: bleckmannOrders,
+    } = bleckmannOrdersResponse;
+    if (!bleckmannOrdersSuccess) {
+      return bleckmannOrdersResponse;
+    }
+
+    logDeep('bleckmannOrders', bleckmannOrders);
+    await askQuestion('?');
   }
 
   const missingIds = shopifyOrderIds.filter(id => !foundIds.includes(id));
