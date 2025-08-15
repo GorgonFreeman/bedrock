@@ -1,6 +1,6 @@
 // Check if Shopify orders are present in their respective platforms to establish whether the sync is working.
 
-const { respond, mandateParam, gidToId, askQuestion, logDeep, readableTimeFromMs, valueExcludingOutliers, dateTimeFromNow, days } = require('../utils');
+const { respond, mandateParam, gidToId, askQuestion, logDeep, readableTimeFromMs, valueExcludingOutliers, dateTimeFromNow, days, arraySortByProp } = require('../utils');
 const { 
   REGIONS_PVX, 
   REGIONS_BLECKMANN,
@@ -63,6 +63,10 @@ const collabsOrderSyncReview = async (
   }
 
   const shopifyOrderIds = shopifyOrders.map(order => gidToId(order.id));
+  const oldestShopifyOrderToFind = arraySortByProp(shopifyOrders, 'createdAt')?.[0];
+  const oldestDate = oldestShopifyOrderToFind?.createdAt;
+  console.log('oldestDate', oldestDate);
+  await askQuestion('?');
 
   const pvxRelevant = REGIONS_PVX.includes(region);
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
