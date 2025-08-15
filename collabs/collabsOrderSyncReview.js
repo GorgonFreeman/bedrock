@@ -16,6 +16,7 @@ const { logiwaStatusToStatusId } = require('../logiwa/logiwa.utils');
 const { logiwaOrdersGet } = require('../logiwa/logiwaOrdersGet');
 const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
 
+const { bleckmannPickticketGet } = require('../bleckmann/bleckmannPickticketGet');
 const { bleckmannPickticketsGet } = require('../bleckmann/bleckmannPickticketsGet');
 
 const collabsOrderSyncReview = async (
@@ -147,6 +148,26 @@ const collabsOrderSyncReview = async (
     findOrders = findOrders.filter(o => !foundIds.includes(gidToId(o.id)));
 
     console.log('findOrders after prefetch', findOrders.length);
+
+    const bleckmannRemainingResponse = await bleckmannPickticketGet(
+      findOrders.map(o => ({ pickticketReference: gidToId(o.id) })),
+    );
+    logDeep('bleckmannRemainingResponse', bleckmannRemainingResponse);
+    await askQuestion('?');
+
+    const {
+      success: bleckmannRemainingSuccess,
+      result: bleckmannRemainingOrders,
+    } = bleckmannRemainingResponse;
+    if (!bleckmannRemainingSuccess) {
+      return bleckmannRemainingResponse;
+    }
+
+    const bleckmannRemainingOrderIds = bleckmannRemainingOrders.map(order => order?.reference).filter(Boolean);
+    foundIds.push(...bleckmannRemainingOrderIds);
+    findOrders = findOrders.filter(o => !bleckmannRemainingOrderIds.includes(gidToId(o.id)));
+
+    console.log('findOrders after individual fetch', findOrders.length);
   }
 
   const missingIds = shopifyOrderIds.filter(id => !foundIds.includes(id));
