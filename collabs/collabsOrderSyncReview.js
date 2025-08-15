@@ -129,12 +129,9 @@ const collabsOrderSyncReview = async (
     let findOrders = [...shopifyOrders];
     console.log('findOrders', findOrders.length);
 
-    const bleckmannOrdersResponse = await bleckmannPickticketsGet();
-    /* TODO: Consider getting from the oldest date
     const bleckmannOrdersResponse = await bleckmannPickticketsGet({
       createdFrom: oldestDate,
     });
-    */
     
     const {
       success: bleckmannOrdersSuccess,
