@@ -76,6 +76,7 @@ const customAxios = async (url, {
       
       const { response: errResponse } = error;
       const { code, status, statusText, config, headers = {}, data } = errResponse || {};
+      const { message } = data || {};
       
       verbose && console.error(status, code);
 
@@ -107,7 +108,13 @@ const customAxios = async (url, {
         }
         
         retryAttempt++;
-        const waitTime = headers?.['retry-after'] ? (headers['retry-after'] * 1000) : cooldown;
+        // TODO: Consider moving logic into Bleckmann interpreter, the only API to use this format so far
+        const waitSecondsFromMessage = parseInt(message.match(/(\d+) seconds/)?.[1]);
+        const waitTime = headers?.['retry-after'] 
+          ? seconds(headers['retry-after'])
+          : waitSecondsFromMessage
+            ? seconds(waitSecondsFromMessage)
+            : cooldown;
         verbose && console.log(`Retry attempt #${ retryAttempt }, waiting ${ waitTime }`);
         await wait(waitTime);
         cooldown += cooldown;
