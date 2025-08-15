@@ -13,15 +13,20 @@ const bleckmannPickticketGet = async (
   } = {},
 ) => {
 
-  const response = await bleckmannClient.fetch({
-    url: `/warehousing/picktickets/${ pickticketId }`,
-    context: {
-      credsPath,
-    },
-  });
+  if (pickticketId) {
+    const response = await bleckmannClient.fetch({
+      url: `/warehousing/picktickets/${ pickticketId }`,
+      context: {
+        credsPath,
+      },
+    });
 
-  logDeep(response);
-  return response;
+    logDeep(response);
+    return response;
+  }
+
+  /* pickticketReference */
+  /* /pickticketReference */
 };
 
 const bleckmannPickticketGetApi = async (req, res) => {
