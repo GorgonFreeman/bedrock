@@ -44,9 +44,6 @@ const collabsInventoryReview = async (
     },
   );
 
-  logDeep('shopifyInventoryResponse', shopifyInventoryResponse);
-  await askQuestion('?');
-
   const { 
     success: shopifyInventorySuccess, 
     result: shopifyInventory,
@@ -62,8 +59,8 @@ const collabsInventoryReview = async (
       shopifyAvailable: inventoryQuantity,
     };
   }
-  logDeep('inventoryReviewObject', inventoryReviewObject);
-  await askQuestion('?');
+  // logDeep('inventoryReviewObject', inventoryReviewObject);
+  // await askQuestion('?');
 
   if (logiwaRelevant) {
     const logiwaInventoryResponse = await logiwaReportGetAvailableToPromise(
@@ -74,8 +71,6 @@ const collabsInventoryReview = async (
         apiVersion: 'v3.2',
       },
     );
-    logDeep('logiwaInventoryResponse', logiwaInventoryResponse);
-    await askQuestion('?');
 
     const {
       success: logiwaInventorySuccess,
@@ -85,8 +80,8 @@ const collabsInventoryReview = async (
       return logiwaInventoryResponse;
     }
 
-    logDeep('logiwaInventory', logiwaInventory);
-    await askQuestion('?');
+    // logDeep('logiwaInventory', logiwaInventory);
+    // await askQuestion('?');
 
     for (const inventoryItem of logiwaInventory) {
       const { 
@@ -180,9 +175,6 @@ const collabsInventoryReview = async (
   if (bleckmannRelevant) {
     const bleckmannInventoryResponse = await bleckmannInventoriesGet();
 
-    logDeep('bleckmannInventoryResponse', bleckmannInventoryResponse);
-    await askQuestion('?');
-
     const {
       success: bleckmannInventorySuccess,
       result: bleckmannInventory,
@@ -191,8 +183,8 @@ const collabsInventoryReview = async (
       return bleckmannInventoryResponse;
     }
 
-    logDeep('bleckmannInventory', bleckmannInventory);
-    await askQuestion('?');
+    // logDeep('bleckmannInventory', bleckmannInventory);
+    // await askQuestion('?');
 
     for (const inventoryItem of bleckmannInventory) {
       const { 
@@ -278,4 +270,4 @@ module.exports = {
 };
 
 // curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "us" }'
-// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "au", "options": { "downloadCsv": true } }'
+// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "uk", "options": { "downloadCsv": true } }'
