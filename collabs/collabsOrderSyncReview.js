@@ -132,8 +132,6 @@ const collabsOrderSyncReview = async (
     const bleckmannOrdersResponse = await bleckmannPickticketsGet({
       createdFrom: oldestDate,
     });
-    logDeep('bleckmannOrdersResponse', bleckmannOrdersResponse);
-    await askQuestion('?');
     
     const {
       success: bleckmannOrdersSuccess,
@@ -143,9 +141,6 @@ const collabsOrderSyncReview = async (
       return bleckmannOrdersResponse;
     }
 
-    logDeep('bleckmannOrders', bleckmannOrders);
-    await askQuestion('?');
-
     foundIds.push(...bleckmannOrders.map(order => order?.reference).filter(Boolean));
     findOrders = findOrders.filter(o => !foundIds.includes(gidToId(o.id)));
 
@@ -154,8 +149,6 @@ const collabsOrderSyncReview = async (
     const bleckmannRemainingResponse = await bleckmannPickticketGet(
       findOrders.map(o => ({ pickticketReference: gidToId(o.id) })),
     );
-    logDeep('bleckmannRemainingResponse', bleckmannRemainingResponse);
-    await askQuestion('?');
 
     const {
       success: bleckmannRemainingSuccess,
