@@ -1,10 +1,10 @@
 // https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/PICKTICKET/getPickticketForId
 
-const { respond, mandateParam, logDeep, objHasAny, standardInterpreters } = require('../utils');
+const { respond, mandateParam, logDeep, objHasAny, standardInterpreters, actionMultipleOrSingle } = require('../utils');
 const { bleckmannClient } = require('../bleckmann/bleckmann.utils');
 const { bleckmannPickticketsGet } = require('../bleckmann/bleckmannPickticketsGet');
 
-const bleckmannPickticketGet = async (
+const bleckmannPickticketGetSingle = async (
   {
     pickticketId,
     pickticketReference, // equivalent to Shopify ID
@@ -39,6 +39,26 @@ const bleckmannPickticketGet = async (
   /* /pickticketReference */
 };
 
+const bleckmannPickticketGet = async (
+  pickticketIdentifier,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  return actionMultipleOrSingle(
+    pickticketIdentifier, 
+    bleckmannPickticketGetSingle, 
+    (pickticketIdentifier) => ({
+      args: [pickticketIdentifier],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+};
+
 const bleckmannPickticketGetApi = async (req, res) => {
   const { 
     pickticketIdentifier,
@@ -66,3 +86,4 @@ module.exports = {
 
 // curl localhost:8000/bleckmannPickticketGet -H "Content-Type: application/json" -d '{ "pickticketIdentifier": { "pickticketId": "13017998197109" } }'
 // curl localhost:8000/bleckmannPickticketGet -H "Content-Type: application/json" -d '{ "pickticketIdentifier": { "pickticketReference": "12091628323189" } }'
+// curl localhost:8000/bleckmannPickticketGet -H "Content-Type: application/json" -d '{ "pickticketIdentifier": [{ "pickticketReference": "12094721622389" }, { "pickticketReference": "12095146164597" }, { "pickticketReference": "12089134252405" }] }'
