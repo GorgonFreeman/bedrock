@@ -130,7 +130,7 @@ const collabsOrderSyncReview = async (
     console.log('findOrders', findOrders.length);
 
     const bleckmannOrdersResponse = await bleckmannPickticketsGet({
-      createdFrom: `${ dateTimeFromNow({ minus: days(2), dateOnly: true }) }T00:00:00Z`,
+      createdFrom: oldestDate,
     });
     logDeep('bleckmannOrdersResponse', bleckmannOrdersResponse);
     await askQuestion('?');
