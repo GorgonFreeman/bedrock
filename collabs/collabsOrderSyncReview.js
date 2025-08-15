@@ -143,8 +143,13 @@ const collabsOrderSyncReview = async (
     if (!bleckmannOrdersSuccess) {
       return bleckmannOrdersResponse;
     }
-
-    foundIds.push(...bleckmannOrders.map(order => order?.reference).filter(Boolean));
+    
+    const bleckmannPrefetchFoundIds = bleckmannOrders
+      .map(order => order?.reference)
+      .filter(Boolean)
+      // Only record orders that we're actually looking for, to avoid reporting tagged orders as found
+      .filter(id => findOrders.find(o => gidToId(o.id) === id)); 
+    foundIds.push(...bleckmannPrefetchFoundIds);
     findOrders = findOrders.filter(o => !foundIds.includes(gidToId(o.id)));
 
     console.log('findOrders after prefetch', findOrders.length);
