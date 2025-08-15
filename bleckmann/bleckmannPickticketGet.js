@@ -1,7 +1,8 @@
 // https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/PICKTICKET/getPickticketForId
 
-const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
+const { respond, mandateParam, logDeep, objHasAny, standardInterpreters } = require('../utils');
 const { bleckmannClient } = require('../bleckmann/bleckmann.utils');
+const { bleckmannPickticketsGet } = require('../bleckmann/bleckmannPickticketsGet');
 
 const bleckmannPickticketGet = async (
   {
@@ -26,6 +27,15 @@ const bleckmannPickticketGet = async (
   }
 
   /* pickticketReference */
+  const response = await bleckmannPickticketsGet({
+    credsPath,
+    reference: pickticketReference,
+  });
+
+  const singleResponse = standardInterpreters.expectOne(response);
+
+  logDeep(singleResponse);
+  return singleResponse;
   /* /pickticketReference */
 };
 
