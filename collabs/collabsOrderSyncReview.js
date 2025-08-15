@@ -161,7 +161,8 @@ const collabsOrderSyncReview = async (
       );
 
       const {
-        success: bleckmannRemainingSuccess,        result: bleckmannRemainingOrders,
+        success: bleckmannRemainingSuccess,
+        result: bleckmannRemainingOrders,
       } = bleckmannRemainingResponse;
       if (!bleckmannRemainingSuccess) {
         return bleckmannRemainingResponse;
