@@ -109,7 +109,7 @@ const customAxios = async (url, {
         
         retryAttempt++;
         // TODO: Consider moving logic into Bleckmann interpreter, the only API to use this format so far
-        const waitSecondsFromMessage = parseInt(message.match(/(\d+) seconds/)?.[1]);
+        const waitSecondsFromMessage = parseInt(message?.match(/(\d+) seconds/)?.[1]);
         const waitTime = headers?.['retry-after'] 
           ? seconds(headers['retry-after'])
           : waitSecondsFromMessage
