@@ -96,9 +96,14 @@ const bleckmannGetter = async (
 
 const bleckmannGet = getterAsGetFunction(bleckmannGetter);
 
+const bleckmannNowTime = () => {
+  return new Date().toISOString().slice(0, 19) + 'Z';
+};
+
 module.exports = {
   bleckmannRequestSetup,
   bleckmannClient,
   bleckmannGetter,
   bleckmannGet,
+  bleckmannNowTime,
 };

@@ -1,7 +1,7 @@
 // https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/PICKTICKET/getPicktickets
 
 const { respond, mandateParam, logDeep } = require('../utils');
-const { bleckmannGet } = require('../bleckmann/bleckmann.utils');
+const { bleckmannGet, bleckmannNowTime } = require('../bleckmann/bleckmann.utils');
 
 const bleckmannPickticketsGet = async (
   {
@@ -20,6 +20,10 @@ const bleckmannPickticketsGet = async (
     ...getterOptions
   } = {},
 ) => {
+
+  if (createdFrom && !createdTo) {
+    createdTo = bleckmannNowTime();
+  }
 
   const response = await bleckmannGet(
     'warehousing/picktickets',
