@@ -123,6 +123,9 @@ const collabsOrderSyncReview = async (
 
   } else if (bleckmannRelevant) {
 
+    let findOrders = [...shopifyOrders];
+    console.log('findOrders', findOrders.length);
+
     const bleckmannOrdersResponse = await bleckmannPickticketsGet({
       createdFrom: `${ dateTimeFromNow({ minus: days(2), dateOnly: true }) }T00:00:00Z`,
     });
@@ -139,6 +142,11 @@ const collabsOrderSyncReview = async (
 
     logDeep('bleckmannOrders', bleckmannOrders);
     await askQuestion('?');
+
+    foundIds.push(...bleckmannOrders.map(order => order?.reference).filter(Boolean));
+    findOrders = findOrders.filter(o => !foundIds.includes(gidToId(o.id)));
+
+    console.log('findOrders after prefetch', findOrders.length);
   }
 
   const missingIds = shopifyOrderIds.filter(id => !foundIds.includes(id));
