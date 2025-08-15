@@ -13,9 +13,8 @@ const bleckmannPickticketsGet = async (
     createdTo,
     shippedFrom,
     shippedTo,
-    // status default is INPROGRESS in the API, so we make it explicit
-    // TODO: Consider if status should be a mandatory arg
-    status = 'INPROGRESS',
+    // status default is INPROGRESS in the API, so to remove that unexpected default, we make it ANY unless provided
+    status = 'ANY',
     reference,
     customerReference,
 
