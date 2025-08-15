@@ -197,11 +197,12 @@ const collabsInventoryReview = async (
     for (const inventoryItem of bleckmannInventory) {
       const { 
         skuId: sku, 
+        inventoryType,
         quantityTotal,
         quantityLocked,
       } = inventoryItem;
 
-      if (!inventoryReviewObject[sku]) {
+      if (!inventoryReviewObject[sku] || inventoryType !== 'OK1') {
         continue;
       }
 
