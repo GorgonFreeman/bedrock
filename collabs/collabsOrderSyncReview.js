@@ -128,8 +128,10 @@ const collabsOrderSyncReview = async (
 
     let findOrders = [...shopifyOrders];
     console.log('findOrders', findOrders.length);
-
+    
+    console.log(`prefetching Bleckmann orders from ${ oldestDate }`);
     const bleckmannOrdersResponse = await bleckmannPickticketsGet({
+      // TODO: Consider a max lookback on oldest date
       createdFrom: oldestDate,
     });
     
