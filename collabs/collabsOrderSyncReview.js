@@ -153,25 +153,26 @@ const collabsOrderSyncReview = async (
 
     console.log('findOrders after prefetch', findOrders.length);
     
-    /* Get orders individually - way too slow and API 429s quickly
-    const bleckmannRemainingResponse = await bleckmannPickticketGet(
-      findOrders.map(o => ({ pickticketReference: gidToId(o.id) })),
-    );
+    /* Get orders individually - way too slow and API 429s quickly, so we have a low threshold for bothering */
+    const worthIndividualFetching = findOrders.length <= 50;
+    if (worthIndividualFetching) {
+      const bleckmannRemainingResponse = await bleckmannPickticketGet(
+        findOrders.map(o => ({ pickticketReference: gidToId(o.id) })),
+      );
 
-    const {
-      success: bleckmannRemainingSuccess,
-      result: bleckmannRemainingOrders,
-    } = bleckmannRemainingResponse;
-    if (!bleckmannRemainingSuccess) {
-      return bleckmannRemainingResponse;
+      const {
+        success: bleckmannRemainingSuccess,        result: bleckmannRemainingOrders,
+      } = bleckmannRemainingResponse;
+      if (!bleckmannRemainingSuccess) {
+        return bleckmannRemainingResponse;
+      }
+
+      const bleckmannRemainingOrderIds = bleckmannRemainingOrders.map(order => order?.reference).filter(Boolean);
+      foundIds.push(...bleckmannRemainingOrderIds);
+      findOrders = findOrders.filter(o => !bleckmannRemainingOrderIds.includes(gidToId(o.id)));
+
+      console.log('findOrders after individual fetch', findOrders.length);
     }
-
-    const bleckmannRemainingOrderIds = bleckmannRemainingOrders.map(order => order?.reference).filter(Boolean);
-    foundIds.push(...bleckmannRemainingOrderIds);
-    findOrders = findOrders.filter(o => !bleckmannRemainingOrderIds.includes(gidToId(o.id)));
-
-    console.log('findOrders after individual fetch', findOrders.length);
-    */
   }
 
   const missingIds = shopifyOrderIds.filter(id => !foundIds.includes(id));
