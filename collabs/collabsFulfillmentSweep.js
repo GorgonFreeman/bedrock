@@ -340,6 +340,8 @@ const collabsFulfillmentSweep = async (
         // TODO: Fulfillment payload logic
       }
 
+      console.warn('unhandled status', status, bleckmannOrder);
+
       piles.continue.push(order);
     },
     arrayExhaustedCheck, // pileExhaustedCheck
