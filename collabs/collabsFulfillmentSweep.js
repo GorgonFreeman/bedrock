@@ -6,6 +6,7 @@ const {
   REGIONS_PVX, 
   REGIONS_STARSHIPIT,
   REGIONS_LOGIWA,
+  REGIONS_BLECKMANN,
   STARSHIPIT_ACCOUNT_HANDLES,
 } = require('../constants');
 const { shopifyRegionToStarshipitAccount } = require('../mappings');
@@ -24,6 +25,9 @@ const { starshipitOrdersListShipped } = require('../starshipit/starshipitOrdersL
 const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
 const { logiwaOrdersGet } = require('../logiwa/logiwaOrdersGet');
 const { logiwaStatusToStatusId } = require('../logiwa/logiwa.utils');
+
+const { bleckmannPickticketGet } = require('../bleckmann/bleckmannPickticketGet');
+const { bleckmannPickticketsGet } = require('../bleckmann/bleckmannPickticketsGet');
 
 // TODO: Implement more mass ways of getting orders out of Starshipit
 
@@ -113,15 +117,30 @@ const collabsFulfillmentSweep = async (
     return logiwaShippedOrdersResponse.result;
   };
 
+  const bleckmannRelevant = shopifyRegions.some(region => REGIONS_BLECKMANN.includes(region));
+  const getBleckmannShippedOrders = async () => {
+    const bleckmannShippedOrdersResponse = await bleckmannPickticketsGet({
+      createdFrom: prefetchWindowStartDate,
+    });
+
+    if (!bleckmannShippedOrdersResponse?.success || !bleckmannShippedOrdersResponse?.result) {
+      return;
+    }
+
+    return bleckmannShippedOrdersResponse.result;
+  };
+
   const [
     pvxRecentDispatches,
     starshipitShippedOrdersByAccount,
     logiwaPrefetchedOrders,
+    bleckmannPrefetchedOrders,
     ...shopifyOrderResponses
   ] = await Promise.all([
     ...(peoplevoxRelevant ? [getPeoplevoxRecentDispatches()] : [false]),
     ...(starshipitRelevant ? [getStarshipitShippedOrders()] : [false]),
     ...(logiwaRelevant ? [getLogiwaShippedOrders()] : [false]),
+    ...(bleckmannRelevant ? [getBleckmannShippedOrders()] : [false]),
     ...shopifyRegions.map(region => getShopifyOrdersPerRegion(region)),
   ]);
 
@@ -268,6 +287,21 @@ const collabsFulfillmentSweep = async (
         return;
       }
   
+      piles.continue.push(order);
+    },
+    arrayExhaustedCheck, // pileExhaustedCheck
+    processorOptions,
+  );
+
+  const bleckmannPrefetchProcessorMaker = (piles, processorOptions = {}) => new Processor(
+    piles.in,
+    async (pile) => {
+      const order = pile.shift();
+      logDeep(order);
+      await askQuestion('?');
+
+      // TODO: Bleckmann order to pile logic
+
       piles.continue.push(order);
     },
     arrayExhaustedCheck, // pileExhaustedCheck
@@ -519,6 +553,18 @@ const collabsFulfillmentSweep = async (
     };
 
     const pipeline = new ProcessorPipeline();
+
+    if (REGIONS_BLECKMANN.includes(region) && bleckmannPrefetchedOrders) {
+      pipeline.add({
+        maker: bleckmannPrefetchProcessorMaker,
+        piles: { 
+          resolved: piles.readyToFulfill,
+        },
+        makerOptions: { 
+          logFlavourText: `${ region }:bleckmannprefetch:`,
+        },
+      });
+    }
 
     if (REGIONS_LOGIWA.includes(region) && logiwaPrefetchedOrders) {
       pipeline.add({
