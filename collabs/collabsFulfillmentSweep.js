@@ -120,7 +120,7 @@ const collabsFulfillmentSweep = async (
   const bleckmannRelevant = shopifyRegions.some(region => REGIONS_BLECKMANN.includes(region));
   const getBleckmannShippedOrders = async () => {
     const bleckmannShippedOrdersResponse = await bleckmannPickticketsGet({
-      createdFrom: prefetchWindowStartDate,
+      createdFrom: `${ prefetchWindowStartDate }T00:00:00Z`,
     });
 
     if (!bleckmannShippedOrdersResponse?.success || !bleckmannShippedOrdersResponse?.result) {
