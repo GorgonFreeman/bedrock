@@ -153,8 +153,8 @@ const collabsFulfillmentSweep = async (
   // logDeep(shopifyOrderResponses);
   // await askQuestion('?');
 
-  logDeep('bleckmannPrefetchedOrders', surveyObjects(bleckmannPrefetchedOrders));
-  await askQuestion('?');
+  // logDeep('bleckmannPrefetchedOrders', surveyObjects(bleckmannPrefetchedOrders));
+  // await askQuestion('?');
 
   const arrayExhaustedCheck = (arr) => arr.length === 0;
   
