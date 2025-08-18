@@ -135,7 +135,7 @@ const collabsFulfillmentSweep = async (
     pvxRecentDispatches,
     starshipitShippedOrdersByAccount,
     logiwaPrefetchedOrders,
-    bleckmannPrefetchedOrders,
+    bleckmannShippedOrders,
     ...shopifyOrderResponses
   ] = await Promise.all([
     ...(peoplevoxRelevant ? [getPeoplevoxRecentDispatches()] : [false]),
@@ -153,22 +153,20 @@ const collabsFulfillmentSweep = async (
   // logDeep(shopifyOrderResponses);
   // await askQuestion('?');
 
-  // logDeep('bleckmannPrefetchedOrders', surveyObjects(bleckmannPrefetchedOrders));
+  // logDeep('bleckmannShippedOrders', surveyObjects(bleckmannShippedOrders));
   // await askQuestion('?');
 
   const arrayExhaustedCheck = (arr) => arr.length === 0;
   
   // piles used: resolved, continue, disqualified
   const logiwaOrderDecider = (piles, logiwaOrder) => {
-
     if (!objHasAll(piles, ['resolved', 'continue', 'disqualified'])) {
       throw new Error('piles must have resolved, continue, and disqualified');
     }
 
     const {
       currentTrackingNumber,
-      trackingNumbers,
-      products,
+      trackingNumbers,      products,
       shipmentOrderStatusName,
       shipmentOrderStatusId,
     } = logiwaOrder;
@@ -301,15 +299,14 @@ const collabsFulfillmentSweep = async (
     async (pile) => {
       const order = pile.shift();
 
-      const bleckmannOrder = bleckmannPrefetchedOrders?.find(o => o.reference === gidToId(order.id));
+      const bleckmannOrder = bleckmannShippedOrders?.find(o => o.reference === gidToId(order.id));
 
       if (!bleckmannOrder) {
         piles.continue.push(order);
         return;
       }
 
-      logDeep(bleckmannOrder);
-      await askQuestion('?');
+      logDeep(bleckmannOrder);      await askQuestion('?');
 
       // TODO: Fulfillment payload logic
 
@@ -563,7 +560,7 @@ const collabsFulfillmentSweep = async (
 
     const pipeline = new ProcessorPipeline();
 
-    if (REGIONS_BLECKMANN.includes(region) && bleckmannPrefetchedOrders) {
+    if (REGIONS_BLECKMANN.includes(region) && bleckmannShippedOrders) {
       pipeline.add({
         maker: bleckmannPrefetchProcessorMaker,
         piles: { 
