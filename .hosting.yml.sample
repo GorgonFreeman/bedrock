@@ -1,0 +1,26 @@
+google_cloud_info:
+  project_id: 
+  region: 
+  zone: 
+  env_vars:
+    - mask: on
+
+functions:
+  platformThingDo: 
+    # If different from function name:
+    src: platform/platformThingDo
+    memory: 1024
+    timeout: 300
+    maxInstances: 1
+    minInstances: 1
+    env_vars:
+      - mask: off
+    schedules:
+      - name: do_thing_errday
+        schedule: 0 0 * * *
+      - name: do_thing_every_10_minutes
+        schedule: */10 * * * *
+
+groups:
+  doing_things:
+    - platformThingDo
