@@ -52,7 +52,8 @@ const collabsOrderSyncReview = async (
         `tag_not:'sync_confirmed'`,
         ...(regionQueries?.[region] || []),
       ],
-      // limit: 1000,    },
+      // limit: 1000,    
+    },
   );
 
   const { success: shopifyOrdersSuccess, result: shopifyOrders } = shopifyOrdersResponse;
