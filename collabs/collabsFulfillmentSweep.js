@@ -319,9 +319,13 @@ const collabsFulfillmentSweep = async (
 
       const disqualifyStatuses = [
         'CREATED',
+        'INPROGRESS',
+        'PACKED',
+        'CANCELLED', // TODO: Consider doing something with cancelled orders
       ];
 
       const resolveStatuses = [
+        'SHIPPED',
       ];
 
       if (disqualifyStatuses.includes(status)) {
