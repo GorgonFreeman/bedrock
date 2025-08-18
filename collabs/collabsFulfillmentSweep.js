@@ -307,9 +307,34 @@ const collabsFulfillmentSweep = async (
         piles.continue.push(order);
         return;
       }
-      
+
+      const { 
+        status,
+        statusReason,
+      } = bleckmannOrder;
+
+      if (statusReason) {
+        console.warn(`statusReason: ${ statusReason }`, bleckmannOrder);
+      }
+
+      const disqualifyStatuses = [
+        'CREATED',
+      ];
+
+      const resolveStatuses = [
+      ];
+
+      if (disqualifyStatuses.includes(status)) {
+        piles.disqualified.push(order);
+        return;
+      }
+
       logDeep(bleckmannOrder);
       await askQuestion('?');
+
+      if (resolveStatuses.includes(status)) {
+        // TODO: Fulfillment payload logic
+      }
 
       piles.continue.push(order);
     },
