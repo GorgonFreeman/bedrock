@@ -1,5 +1,5 @@
 google_cloud_info:
-  project_id: 
+  project: 
   region: 
   zone: 
   env_vars:
