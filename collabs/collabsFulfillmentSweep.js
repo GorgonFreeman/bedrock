@@ -599,6 +599,7 @@ const collabsFulfillmentSweep = async (
         maker: bleckmannPrefetchProcessorMaker,
         piles: { 
           resolved: piles.readyToFulfill,
+          disqualified: piles.notShipped,
         },
         makerOptions: { 
           logFlavourText: `${ region }:bleckmannprefetch:`,
