@@ -5,8 +5,6 @@ const yotpoRequestSetup = ({
   apiVersion = 'v2',
 } = {}) => {
 
-  console.log('yotpoRequestSetup', credsPath, apiVersion);
-
   const creds = credsByPath(['yotpo', credsPath]);
 
   const {
