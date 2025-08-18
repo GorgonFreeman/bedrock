@@ -10,9 +10,17 @@ const { readFileYaml } = require('../utils');
     groups,
   } = hostingYml;
 
+  const {
+    project,
+    region,
+  } = gcloudInfo;
+
   if (process.argv.includes('all')) {
     for (const [functionName, functionConfig] of Object.entries(functions)) {
       console.log(functionName, functionConfig);
+
+      const deployCommand = `gcloud functions deploy ${ functionName } --project ${ project } --region ${ region }`;
+      console.log(deployCommand);
     }
   }
 })();
