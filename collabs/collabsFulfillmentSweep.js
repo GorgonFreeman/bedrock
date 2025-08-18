@@ -1,6 +1,6 @@
 // For unfulfilled orders in Shopify, checks for and adds tracking info from relevant platforms
 
-const { respond, mandateParam, logDeep, gidToId, askQuestion, dateTimeFromNow, weeks, Processor, ProcessorPipeline, objHasAll } = require('../utils');
+const { respond, mandateParam, logDeep, gidToId, askQuestion, dateTimeFromNow, weeks, Processor, ProcessorPipeline, objHasAll, surveyObjects } = require('../utils');
 const { 
   REGIONS_ALL, 
   REGIONS_PVX, 
@@ -152,6 +152,9 @@ const collabsFulfillmentSweep = async (
 
   // logDeep(shopifyOrderResponses);
   // await askQuestion('?');
+
+  logDeep('bleckmannPrefetchedOrders', surveyObjects(bleckmannPrefetchedOrders));
+  await askQuestion('?');
 
   const arrayExhaustedCheck = (arr) => arr.length === 0;
   
