@@ -8,6 +8,7 @@
     "new": "node _build_scripts/createNewFunction commit",
     "dev": "(trap 'kill 0' SIGINT; node _build_scripts/runScriptsOnFileSave & nodemon server)",
     "serve": "(trap 'kill 0' SIGINT; node _build_scripts/runScriptsOnFileSave & PORT=8100 node server)",
+    "deploy": "node _deploy_scripts/deployFromHostingYml",
     "say_hi": "echo 'hi'"
   },
   "author": "",
