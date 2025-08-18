@@ -13,13 +13,15 @@ const { readFileYaml } = require('../utils');
   const {
     project,
     region,
+    trigger = 'http',
+    runtime = 'nodejs20',
   } = gcloudInfo;
 
   if (process.argv.includes('all')) {
     for (const [functionName, functionConfig] of Object.entries(functions)) {
       console.log(functionName, functionConfig);
 
-      const deployCommand = `gcloud functions deploy ${ functionName } --project ${ project } --region ${ region }`;
+      const deployCommand = `gcloud functions deploy ${ functionName } --project ${ project } --region ${ region } --trigger-${ trigger } --runtime ${ runtime }`;
       console.log(deployCommand);
     }
   }
