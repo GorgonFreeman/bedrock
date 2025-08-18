@@ -297,10 +297,16 @@ const collabsFulfillmentSweep = async (
     piles.in,
     async (pile) => {
       const order = pile.shift();
-      logDeep(order);
-      await askQuestion('?');
 
-      // TODO: Bleckmann order to pile logic
+      const bleckmannOrder = bleckmannPrefetchedOrders?.find(o => o.reference === gidToId(order.id));
+
+      if (!bleckmannOrder) {
+        piles.continue.push(order);
+        return;
+      }
+      
+      logDeep(bleckmannOrder);
+      await askQuestion('?');
 
       piles.continue.push(order);
     },
