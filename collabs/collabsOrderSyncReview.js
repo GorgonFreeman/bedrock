@@ -45,15 +45,14 @@ const collabsOrderSyncReview = async (
       `,
       queries: [
         'created_at:>2025-07-01',
-        'fulfillment_status:unshipped',
+        'fulfillment_status:unshipped OR fulfillment_status:partial',
         'status:open',
         'delivery_method:shipping',
         `tag_not:'order_sync_review_exclude'`,
         `tag_not:'sync_confirmed'`,
         ...(regionQueries?.[region] || []),
       ],
-      // limit: 1000,
-    },
+      // limit: 1000,    },
   );
 
   const { success: shopifyOrdersSuccess, result: shopifyOrders } = shopifyOrdersResponse;
