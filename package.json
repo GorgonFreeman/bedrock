@@ -7,7 +7,8 @@
     "install_tools": "curl https://sdk.cloud.google.com | bash && exec -l $SHELL",
     "new": "node _build_scripts/createNewFunction commit",
     "dev": "(trap 'kill 0' SIGINT; node _build_scripts/runScriptsOnFileSave & nodemon server)",
-    "serve": "(trap 'kill 0' SIGINT; node _build_scripts/runScriptsOnFileSave & PORT=8100 node server)"
+    "serve": "(trap 'kill 0' SIGINT; node _build_scripts/runScriptsOnFileSave & PORT=8100 node server)",
+    "say_hi": "echo 'hi'"
   },
   "author": "",
   "license": "ISC",
