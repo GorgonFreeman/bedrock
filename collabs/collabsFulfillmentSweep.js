@@ -121,6 +121,7 @@ const collabsFulfillmentSweep = async (
   const getBleckmannShippedOrders = async () => {
     const bleckmannShippedOrdersResponse = await bleckmannPickticketsGet({
       createdFrom: `${ prefetchWindowStartDate }T00:00:00Z`,
+      status: 'SHIPPED',
     });
 
     if (!bleckmannShippedOrdersResponse?.success || !bleckmannShippedOrdersResponse?.result) {
@@ -141,8 +142,7 @@ const collabsFulfillmentSweep = async (
     ...(starshipitRelevant ? [getStarshipitShippedOrders()] : [false]),
     ...(logiwaRelevant ? [getLogiwaShippedOrders()] : [false]),
     ...(bleckmannRelevant ? [getBleckmannShippedOrders()] : [false]),
-    ...shopifyRegions.map(region => getShopifyOrdersPerRegion(region)),
-  ]);
+    ...shopifyRegions.map(region => getShopifyOrdersPerRegion(region)),  ]);
 
   // logDeep('pvxRecentDispatches', pvxRecentDispatches);
   // await askQuestion('?');
@@ -308,46 +308,16 @@ const collabsFulfillmentSweep = async (
         return;
       }
 
-      const { 
-        status,
-        statusReason,
-      } = bleckmannOrder;
-
-      if (statusReason) {
-        console.warn(`statusReason: ${ statusReason }`, bleckmannOrder);
-      }
-
-      const disqualifyStatuses = [
-        'CREATED',
-        'INPROGRESS',
-        'PACKED',
-        'CANCELLED', // TODO: Consider doing something with cancelled orders
-      ];
-
-      const resolveStatuses = [
-        'SHIPPED',
-      ];
-
-      if (disqualifyStatuses.includes(status)) {
-        piles.disqualified.push(order);
-        return;
-      }
-
       logDeep(bleckmannOrder);
       await askQuestion('?');
 
-      if (resolveStatuses.includes(status)) {
-        // TODO: Fulfillment payload logic
-      }
-
-      console.warn('unhandled status', status, bleckmannOrder);
+      // TODO: Fulfillment payload logic
 
       piles.continue.push(order);
     },
     arrayExhaustedCheck, // pileExhaustedCheck
     processorOptions,
   );
-
   // piles used: in, continue, resolved
   const recentDispatchProcessorMaker = (piles, processorOptions = {}) => new Processor(
     piles.in,
@@ -355,7 +325,6 @@ const collabsFulfillmentSweep = async (
       const order = pile.shift();
       const { orderId } = order;
       const recentDispatch = pvxRecentDispatches?.find(dispatch => dispatch['Salesorder number'] === orderId);
-
       if (recentDispatch && recentDispatch?.['Tracking number']) {
 
         // console.log(1, recentDispatch);
