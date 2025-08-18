@@ -142,7 +142,8 @@ const collabsFulfillmentSweep = async (
     ...(starshipitRelevant ? [getStarshipitShippedOrders()] : [false]),
     ...(logiwaRelevant ? [getLogiwaShippedOrders()] : [false]),
     ...(bleckmannRelevant ? [getBleckmannShippedOrders()] : [false]),
-    ...shopifyRegions.map(region => getShopifyOrdersPerRegion(region)),  ]);
+    ...shopifyRegions.map(region => getShopifyOrdersPerRegion(region)),
+  ]);
 
   // logDeep('pvxRecentDispatches', pvxRecentDispatches);
   // await askQuestion('?');
@@ -160,13 +161,15 @@ const collabsFulfillmentSweep = async (
   
   // piles used: resolved, continue, disqualified
   const logiwaOrderDecider = (piles, logiwaOrder) => {
+
     if (!objHasAll(piles, ['resolved', 'continue', 'disqualified'])) {
       throw new Error('piles must have resolved, continue, and disqualified');
     }
 
     const {
       currentTrackingNumber,
-      trackingNumbers,      products,
+      trackingNumbers,
+      products,
       shipmentOrderStatusName,
       shipmentOrderStatusId,
     } = logiwaOrder;
@@ -306,7 +309,8 @@ const collabsFulfillmentSweep = async (
         return;
       }
 
-      logDeep(bleckmannOrder);      await askQuestion('?');
+      logDeep(bleckmannOrder);
+      await askQuestion('?');
 
       // TODO: Fulfillment payload logic
 
@@ -315,6 +319,7 @@ const collabsFulfillmentSweep = async (
     arrayExhaustedCheck, // pileExhaustedCheck
     processorOptions,
   );
+
   // piles used: in, continue, resolved
   const recentDispatchProcessorMaker = (piles, processorOptions = {}) => new Processor(
     piles.in,
@@ -322,6 +327,7 @@ const collabsFulfillmentSweep = async (
       const order = pile.shift();
       const { orderId } = order;
       const recentDispatch = pvxRecentDispatches?.find(dispatch => dispatch['Salesorder number'] === orderId);
+
       if (recentDispatch && recentDispatch?.['Tracking number']) {
 
         // console.log(1, recentDispatch);
