@@ -21,12 +21,18 @@ const { readFileYaml } = require('../utils');
       console.log(config);
 
       const {
+        // Native gcloud args
         project,
         region,
         trigger = 'http',
         runtime = 'nodejs20',
         allowUnauthenticated = true,
         gen2 = true,
+        
+        // Custom config properties
+        schedules,
+        
+        // Unstated gcloud args
         ...miscCommandArgs
       } = config;
 
