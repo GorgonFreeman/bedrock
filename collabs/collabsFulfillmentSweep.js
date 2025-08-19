@@ -1,6 +1,6 @@
 // For unfulfilled orders in Shopify, checks for and adds tracking info from relevant platforms
 
-const { respond, mandateParam, logDeep, gidToId, askQuestion, dateTimeFromNow, weeks, Processor, ProcessorPipeline, objHasAll, surveyObjects } = require('../utils');
+const { funcApi, logDeep, gidToId, askQuestion, dateTimeFromNow, weeks, Processor, ProcessorPipeline, objHasAll, surveyObjects } = require('../utils');
 const { 
   REGIONS_ALL, 
   REGIONS_PVX, 
@@ -684,31 +684,7 @@ const collabsFulfillmentSweep = async (
   };
 };
 
-const collabsFulfillmentSweepApi = async (req, res) => {
-  
-  if (HOSTED) {
-    const authorised = await requireHostedApiKey(req, res);
-    if (!authorised) {
-      return;
-    }
-  }
-
-  const { 
-    options,
-  } = req.body;
-
-  // const paramsValid = await Promise.all([
-  //   mandateParam(res, 'arg', arg),
-  // ]);
-  // if (paramsValid.some(valid => valid === false)) {
-  //   return;
-  // }
-
-  const result = await collabsFulfillmentSweep(
-    options,
-  );
-  respond(res, 200, result);
-};
+const collabsFulfillmentSweepApi = funcApi(collabsFulfillmentSweep, { argNames: ['options'], requireHostedApiKey: true });
 
 module.exports = {
   collabsFulfillmentSweep,
