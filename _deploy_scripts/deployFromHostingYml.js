@@ -16,13 +16,15 @@ const { readFileYaml } = require('../utils');
     trigger = 'http',
     runtime = 'nodejs20',
     allowUnauthenticated = true,
+    gen2 = true,
+    ...miscCommandArgs
   } = gcloudInfo;
 
   if (process.argv.includes('all')) {
     for (const [functionName, functionConfig] of Object.entries(functions)) {
       console.log(functionName, functionConfig);
 
-      const deployCommand = `gcloud functions deploy ${ functionName } --project ${ project } --region ${ region } --trigger-${ trigger } --runtime ${ runtime } ${ allowUnauthenticated ? '--allow-unauthenticated' : '' }`;
+      const deployCommand = `gcloud functions deploy ${ functionName } --project ${ project } --region ${ region } --trigger-${ trigger } --runtime ${ runtime } ${ allowUnauthenticated ? '--allow-unauthenticated' : '' } ${ gen2 ? '--gen2' : '' } ${ Object.entries(miscCommandArgs).map(([key, value]) => `--${ key.replaceAll('_', '-') } ${ value }`).join(' ') }`;
       console.log(deployCommand);
     }
   }
