@@ -23,6 +23,7 @@ const collabsInventoryReview = async (
   region,
   {
     downloadCsv = false,
+    shopifyVariantsFetchQueries,
   } = {},
 ) => {
 
@@ -41,6 +42,7 @@ const collabsInventoryReview = async (
     region,
     {
       attrs: 'sku inventoryQuantity',
+      ...(shopifyVariantsFetchQueries ? { queries: shopifyVariantsFetchQueries } : {}),
     },
   );
 
@@ -274,4 +276,4 @@ module.exports = {
 };
 
 // curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "us" }'
-// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "uk", "options": { "downloadCsv": true } }'
+// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "uk", "options": { "shopifyVariantsFetchQueries": ["tag_not:not_for_radial", "product_publication_status:published"], "downloadCsv": true } }'
