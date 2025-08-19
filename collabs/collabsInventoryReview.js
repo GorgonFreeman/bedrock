@@ -89,30 +89,30 @@ const collabsInventoryReview = async (
     for (const inventoryItem of logiwaInventory) {
       const { 
         productSku: sku, 
-        undamagedQuantity,
+        sellableQuantity,
       } = inventoryItem;
 
       if (!inventoryReviewObject[sku]) {
         continue;
       }
 
-      if (inventoryReviewObject[sku].logiwaUndamaged) {
-        inventoryReviewObject[sku].logiwaUndamaged += undamagedQuantity;
+      if (inventoryReviewObject[sku].logiwaSellable) {
+        inventoryReviewObject[sku].logiwaSellable += sellableQuantity;
         continue;
       }
 
-      inventoryReviewObject[sku].logiwaUndamaged = undamagedQuantity;
+      inventoryReviewObject[sku].logiwaSellable = sellableQuantity;
     }
 
     for (const [key, value] of Object.entries(inventoryReviewObject)) {
 
-      if (strictlyFalsey(inventoryReviewObject[key].logiwaUndamaged)) {
-        inventoryReviewObject[key].logiwaUndamaged = 0;
+      if (strictlyFalsey(inventoryReviewObject[key].logiwaSellable)) {
+        inventoryReviewObject[key].logiwaSellable = 0;
       }
 
-      const { shopifyAvailable, logiwaUndamaged } = value;
+      const { shopifyAvailable, logiwaSellable } = value;
 
-      const diff = shopifyAvailable - logiwaUndamaged;
+      const diff = shopifyAvailable - logiwaSellable;
       inventoryReviewObject[key].logiwaOversellRisk = diff > 0;
       inventoryReviewObject[key].logiwaDiff = Math.abs(diff);
     }
