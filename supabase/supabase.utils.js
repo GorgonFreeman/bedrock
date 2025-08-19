@@ -1,4 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
+const { credsByPath, funcApi } = require('../utils');
 
 const SUPABASE_INSTANCES = new Map();
 
@@ -50,6 +51,9 @@ const supabaseRowGet = async (
 };
 
 module.exports = {
-  supabase,
+  getSupabaseClient,
   supabaseRowGet,
+  supabaseRowGetApi: funcApi(supabaseRowGet, { argNames: ['credsPath', 'tableName', 'rowField', 'rowValue'] }),
 };
+
+// curl localhost:8000/supabaseRowGet -H "Content-Type: application/json" -d '{ "credsPath": "foxtron", "tableName": "catalogue_sync_products", "rowField": "handle", "rowValue": "asking-for-more-cap-black" }'
