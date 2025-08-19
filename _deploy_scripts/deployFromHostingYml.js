@@ -48,6 +48,7 @@ const { execCommand } = require('./execCommand');
         ...Object.entries(miscCommandArgs).map(([key, value]) => `--${ key.replaceAll('_', '-') } ${ value }`),
       ].join(' ');
 
+      console.log(deployCommand);
       execCommand(deployCommand);
 
       // After deploying the function, create scheduled triggers
@@ -69,8 +70,8 @@ const { execCommand } = require('./execCommand');
             `--location=${ region }`,
             ...Object.entries(miscSchedulerArgs).map(([key, value]) => `--${ key.replaceAll('_', '-') } ${ value }`),
           ].join(' ');
-          
-          console.log('Creating scheduler job:', schedule.name);
+
+          console.log(schedulerCommand);
           execCommand(schedulerCommand);
         }
       }
