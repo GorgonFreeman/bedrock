@@ -1,4 +1,5 @@
 const { readFileYaml } = require('../utils');
+const { execCommand } = require('./execCommand');
 
 (async() => {
   const hostingYml = await readFileYaml('.hosting.yml');
@@ -46,7 +47,8 @@ const { readFileYaml } = require('../utils');
         ...(gen2 ? ['--gen2'] : []),
         ...Object.entries(miscCommandArgs).map(([key, value]) => `--${ key.replaceAll('_', '-') } ${ value }`),
       ].join(' ');
-      console.log(deployCommand);
+
+      execCommand(deployCommand);
     }
   }
 })();
