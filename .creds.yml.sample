@@ -71,3 +71,8 @@ loop:
   BASE_URL: https://api.loopreturns.com/api/v1
   store:
     API_KEY: __________________________
+
+supabase:
+  project:
+    BASE_URL: https://_____.supabase.co
+    API_KEY: __________________________
