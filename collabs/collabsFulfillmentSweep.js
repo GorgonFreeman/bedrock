@@ -685,12 +685,11 @@ const collabsFulfillmentSweep = async (
 };
 
 const collabsFulfillmentSweepApi = async (req, res) => {
-
+  
   if (HOSTED) {
-    const { headers } = req;
-    const { 'x-api-key': apiKey } = headers;
-    if (apiKey !== process.env.HOSTED_API_KEY) {
-      return respond(res, 401, { success: false, error: ['Unauthorized'] });
+    const authorised = await requireHostedApiKey(req, res);
+    if (!authorised) {
+      return;
     }
   }
 

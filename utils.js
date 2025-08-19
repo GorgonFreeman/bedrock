@@ -4,6 +4,7 @@ const fs = require('fs').promises;
 const readline = require('readline');
 const axios = require('axios');
 const { EventEmitter } = require('events');
+const { HOSTED } = require('./constants');
 
 const { env } = process;
 const debug = env.DEBUG === 'true';
@@ -407,8 +408,15 @@ const objSatisfies = (obj, validators) => {
   return validators.every(validator => validator(obj));
 };
 
-const funcApi = (func, { argNames, validatorsByArg } = {}) => {
+const funcApi = (func, { argNames, validatorsByArg, requireHostedApiKey = false } = {}) => {
   return async (req, res) => {
+
+    if (requireHostedApiKey && HOSTED) {
+      const authorised = await requireHostedApiKey(req, res);
+      if (!authorised) {
+        return;
+      }
+    }
 
     const { body } = req;
 
@@ -1347,6 +1355,16 @@ const interactiveChooseOption = async (
     : selectedOption;
 };
 
+const requireHostedApiKey = async (req, res) => {
+  const { headers } = req;
+  const { 'x-api-key': apiKey } = headers;
+  if (apiKey !== process.env.HOSTED_API_KEY) {
+    respond(res, 401, { success: false, error: ['Unauthorized'] });
+    return false;
+  }
+  return true;
+};
+
 module.exports = {
 
   // Really core
@@ -1394,6 +1412,7 @@ module.exports = {
   arrayUnique,
   arraySortByProp,
   interactiveChooseOption,
+  requireHostedApiKey,
   
   // Classes
   CustomAxiosClient,
