@@ -24,6 +24,7 @@ const collabsInventoryReview = async (
   {
     downloadCsv = false,
     shopifyVariantsFetchQueries,
+    minReportableDiff = 0,
   } = {},
 ) => {
 
@@ -228,6 +229,7 @@ const collabsInventoryReview = async (
   });
   const diffProp = Object.keys(inventoryReviewArray?.[0])?.find(key => key.toLowerCase().includes('diff'));
   inventoryReviewArray = arraySortByProp(inventoryReviewArray, diffProp, { descending: true });
+  inventoryReviewArray = inventoryReviewArray.filter(item => item[diffProp] >= minReportableDiff);
   const oversellRiskProp = Object.keys(inventoryReviewArray?.[0])?.find(key => key.toLowerCase().includes('oversellrisk'));
   inventoryReviewArray = arraySortByProp(inventoryReviewArray, oversellRiskProp, { descending: true });
   logDeep('inventoryReviewArray', inventoryReviewArray);
@@ -276,4 +278,4 @@ module.exports = {
 };
 
 // curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "us" }'
-// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "uk", "options": { "shopifyVariantsFetchQueries": ["tag_not:not_for_radial", "product_publication_status:published"], "downloadCsv": true } }'
+// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "uk", "options": { "shopifyVariantsFetchQueries": ["tag_not:not_for_radial", "product_publication_status:published"], "minReportableDiff": 3, "downloadCsv": true } }'
