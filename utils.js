@@ -1312,6 +1312,41 @@ const arraySortByProp = (arr, prop, { descending = false } = {}) => {
   });
 };
 
+const interactiveChooseOption = async (
+  question, 
+  options, 
+  { nameNode, valueNode, allowSkip = false } = {},
+) => {
+  
+  if (!options?.length) {
+    throw new Error('No options provided to interactiveChooseOption');
+  }
+
+  const formatOption = (option, index) => {
+    const name = nameNode 
+      ? option?.[nameNode] 
+      : typeof option === 'object' 
+        ? JSON.stringify(option) 
+        : option;
+    return `[${ index + 1 }] ${ name }`;
+  };
+
+  const prompt = `${ question }:\n${ options.map(formatOption).join('\n') }\n`;
+  const answer = await askQuestion(prompt);
+  
+  const selectedIndex = parseInt(answer, 10) - 1;
+  const selectedOption = options[selectedIndex];
+
+  if (selectedOption === undefined) {
+    if (allowSkip) return undefined;
+    throw new Error('Invalid selection');
+  }
+
+  return valueNode 
+    ? selectedOption?.[valueNode] 
+    : selectedOption;
+};
+
 module.exports = {
 
   // Really core
@@ -1358,6 +1393,7 @@ module.exports = {
   valueExcludingOutliers,
   arrayUnique,
   arraySortByProp,
+  interactiveChooseOption,
   
   // Classes
   CustomAxiosClient,
