@@ -235,6 +235,10 @@ const collabsInventoryReview = async (
     const downloadsPath = process.env.DOWNLOADS_PATH || '.';
     const filePath = path.join(downloadsPath, 'collabsInventoryReview.csv');
     fs.writeFileSync(filePath, csv);
+    
+    // Open the downloads folder once the file is complete
+    const { exec } = require('child_process');
+    exec(`open "${ downloadsPath }"`);
   }
 
   return { 
