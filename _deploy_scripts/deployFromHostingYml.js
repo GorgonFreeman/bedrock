@@ -49,6 +49,23 @@ const { execCommand } = require('./execCommand');
       ].join(' ');
 
       execCommand(deployCommand);
+
+      // After deploying the function, create scheduled triggers
+      if (schedules?.length) {
+        for (const schedule of schedules) {
+          const schedulerCommand = [
+            `gcloud scheduler jobs create http ${ schedule.name }`,
+            `--schedule="${ schedule.schedule }"`,
+            `--uri="https://${ region }-${ project }.cloudfunctions.net/${ functionName }"`,
+            `--http-method=POST`,
+            `--project=${ project }`,
+            `--location=${ region }`,
+          ].join(' ');
+          
+          console.log('Creating scheduler job:', schedule.name);
+          execCommand(schedulerCommand);
+        }
+      }
     }
   }
 })();
