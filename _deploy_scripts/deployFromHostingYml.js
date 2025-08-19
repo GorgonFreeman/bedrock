@@ -10,19 +10,25 @@ const { readFileYaml } = require('../utils');
     groups,
   } = hostingYml;
 
-  const {
-    project,
-    region,
-    trigger = 'http',
-    runtime = 'nodejs20',
-    allowUnauthenticated = true,
-    gen2 = true,
-    ...miscCommandArgs
-  } = gcloudInfo;
-
   if (process.argv.includes('all')) {
     for (const [functionName, functionConfig] of Object.entries(functions)) {
       console.log(functionName, functionConfig);
+
+      const config = {
+        ...gcloudInfo,
+        ...functionConfig,
+      };
+      console.log(config);
+
+      const {
+        project,
+        region,
+        trigger = 'http',
+        runtime = 'nodejs20',
+        allowUnauthenticated = true,
+        gen2 = true,
+        ...miscCommandArgs
+      } = config;
 
       const deployCommand = [
         `gcloud functions deploy ${ functionName }`,
