@@ -48,6 +48,26 @@ const { execCommand } = require('./execCommand');
       return;
     }
 
+    // Handle individual function deployment
+    if (process.argv.includes('function')) {
+      if (!functions || Object.keys(functions).length === 0) {
+        console.log('No functions defined in .hosting.yml');
+        return;
+      }
+
+      const functionNames = Object.keys(functions);
+      const selectedFunctionName = await interactiveChooseOption(
+        'Which function would you like to deploy?',
+        functionNames,
+        { nameNode: null, valueNode: null }
+      );
+
+      console.log(`Deploying function: ${ selectedFunctionName }`);
+      await deployFunction(selectedFunctionName, functions[selectedFunctionName], gcloudInfo);
+      
+      return;
+    }
+
     if (process.argv.includes('all')) {
       for (const [functionName, functionConfig] of Object.entries(functions)) {
         console.log(functionName, functionConfig);
