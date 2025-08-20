@@ -151,6 +151,7 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
             `--http-method=${ jobHttpMethod }`,
             `--project=${ project }`,
             `--location=${ region }`,
+            // TODO: Consider calculating headers to remove if necessary
             `--update-headers ${ jobHeaders }`,
             ...Object.entries(miscSchedulerArgs).map(([key, value]) => `--${ key.replaceAll('_', '-') } ${ value }`),
           ].join(' ');
