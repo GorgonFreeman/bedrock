@@ -132,6 +132,7 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
         schedule: jobSchedule,
         http_method: jobHttpMethod = 'POST',
         headers: jobHeaders = '',
+        message_body: jobMessageBody,
         ...miscSchedulerArgs
       } = schedule;
       
@@ -158,6 +159,7 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
             `--location=${ region }`,
             // TODO: Consider calculating headers to remove if necessary
             `--update-headers ${ jobHeaders }`,
+            ...(jobMessageBody ? [`--message-body '${ jobMessageBody }'`] : []),
             ...Object.entries(miscSchedulerArgs).map(([key, value]) => `--${ key.replaceAll('_', '-') } ${ value }`),
           ].join(' ');
         } else {
@@ -170,6 +172,7 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
             `--project=${ project }`,
             `--location=${ region }`,
             `--headers ${ jobHeaders }`,
+            ...(jobMessageBody ? [`--message-body '${ jobMessageBody }'`] : []),
             ...Object.entries(miscSchedulerArgs).map(([key, value]) => `--${ key.replaceAll('_', '-') } ${ value }`),
           ].join(' ');
         }
