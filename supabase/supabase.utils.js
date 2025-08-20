@@ -53,7 +53,10 @@ const supabaseRowGet = async (
 module.exports = {
   getSupabaseClient,
   supabaseRowGet,
-  supabaseRowGetApi: funcApi(supabaseRowGet, { argNames: ['credsPath', 'tableName', 'rowField', 'rowValue'] }),
+  supabaseRowGetApi: funcApi(supabaseRowGet, { 
+    argNames: ['credsPath', 'tableName', 'rowField', 'rowValue'],
+    validatorsByArg: { credsPath: Boolean, tableName: Boolean, rowField: Boolean, rowValue: Boolean },
+   }),
 };
 
 // curl localhost:8000/supabaseRowGet -H "Content-Type: application/json" -d '{ "credsPath": "foxtron", "tableName": "catalogue_sync_products", "rowField": "handle", "rowValue": "asking-for-more-cap-black" }'
