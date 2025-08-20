@@ -1,7 +1,7 @@
 const { respond, mandateParam } = require('../utils');
 
 const collabsFulfillmentsReview = async (
-  arg,
+  region,
   {
     option,
   } = {},
@@ -16,19 +16,19 @@ const collabsFulfillmentsReview = async (
 
 const collabsFulfillmentsReviewApi = async (req, res) => {
   const { 
-    arg,
+    region,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'region', region),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await collabsFulfillmentsReview(
-    arg,
+    region,
     options,
   );
   respond(res, 200, result);
@@ -39,4 +39,4 @@ module.exports = {
   collabsFulfillmentsReviewApi,
 };
 
-// curl localhost:8000/collabsFulfillmentsReview -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/collabsFulfillmentsReview -H "Content-Type: application/json" -d '{ "region": "us" }'
