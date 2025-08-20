@@ -127,13 +127,18 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
   if (schedules?.length) {
     for (const schedule of schedules) {
       
-      const {
+      let {
         name: jobName,
         schedule: jobSchedule,
         http_method: jobHttpMethod = 'POST',
-        headers: jobHeaders,
+        headers: jobHeaders = '',
         ...miscSchedulerArgs
       } = schedule;
+      
+      if (jobHeaders) {
+        jobHeaders += ',';
+      }
+      jobHeaders += `x-api-key=${ process.env.HOSTED_API_KEY }`;
 
       try {
         // Check if job exists first
