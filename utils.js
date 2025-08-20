@@ -412,7 +412,7 @@ const funcApi = (func, { argNames, validatorsByArg, requireHostedApiKey = false 
   return async (req, res) => {
 
     if (requireHostedApiKey && HOSTED) {
-      const authorised = await requireHostedApiKey(req, res);
+      const authorised = await checkHostedApiKey(req, res);
       if (!authorised) {
         return;
       }
@@ -1355,7 +1355,7 @@ const interactiveChooseOption = async (
     : selectedOption;
 };
 
-const requireHostedApiKey = async (req, res) => {
+const checkHostedApiKey = async (req, res) => {
   const { headers } = req;
   const { 'x-api-key': apiKey } = headers;
   if (apiKey !== process.env.HOSTED_API_KEY) {
@@ -1412,7 +1412,7 @@ module.exports = {
   arrayUnique,
   arraySortByProp,
   interactiveChooseOption,
-  requireHostedApiKey,
+  checkHostedApiKey,
   
   // Classes
   CustomAxiosClient,
