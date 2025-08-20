@@ -130,6 +130,7 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
       const {
         name: jobName,
         schedule: jobSchedule,
+        http_method: jobHttpMethod = 'POST',
         ...miscSchedulerArgs
       } = schedule;
 
@@ -146,7 +147,7 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
             `gcloud scheduler jobs update http ${ jobName }`,
             `--schedule="${ jobSchedule }"`,
             `--uri="https://${ region }-${ project }.cloudfunctions.net/${ functionName }"`,
-            `--http-method=POST`,
+            `--http-method=${ jobHttpMethod }`,
             `--project=${ project }`,
             `--location=${ region }`,
             ...Object.entries(miscSchedulerArgs).map(([key, value]) => `--${ key.replaceAll('_', '-') } ${ value }`),
@@ -157,7 +158,7 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
             `gcloud scheduler jobs create http ${ jobName }`,
             `--schedule="${ jobSchedule }"`,
             `--uri="https://${ region }-${ project }.cloudfunctions.net/${ functionName }"`,
-            `--http-method=POST`,
+            `--http-method=${ jobHttpMethod }`,
             `--project=${ project }`,
             `--location=${ region }`,
             ...Object.entries(miscSchedulerArgs).map(([key, value]) => `--${ key.replaceAll('_', '-') } ${ value }`),
