@@ -131,6 +131,7 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
         name: jobName,
         schedule: jobSchedule,
         http_method: jobHttpMethod = 'POST',
+        headers: jobHeaders,
         ...miscSchedulerArgs
       } = schedule;
 
@@ -150,6 +151,7 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
             `--http-method=${ jobHttpMethod }`,
             `--project=${ project }`,
             `--location=${ region }`,
+            `--update-headers ${ jobHeaders }`,
             ...Object.entries(miscSchedulerArgs).map(([key, value]) => `--${ key.replaceAll('_', '-') } ${ value }`),
           ].join(' ');
         } else {
@@ -161,6 +163,7 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
             `--http-method=${ jobHttpMethod }`,
             `--project=${ project }`,
             `--location=${ region }`,
+            `--headers ${ jobHeaders }`,
             ...Object.entries(miscSchedulerArgs).map(([key, value]) => `--${ key.replaceAll('_', '-') } ${ value }`),
           ].join(' ');
         }
