@@ -585,6 +585,7 @@ const collabsFulfillmentSweep = async (
         maker: logiwaPrefetchProcessorMaker,
         piles: { 
           resolved: piles.readyToFulfill,
+          disqualified: piles.notShipped,
         },
         makerOptions: { 
           logFlavourText: `${ region }:logiwaprefetch:`,
