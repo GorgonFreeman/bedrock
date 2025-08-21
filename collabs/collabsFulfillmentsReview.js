@@ -16,6 +16,7 @@ const collabsFulfillmentsReview = async (
     {
       attrs: `
         id
+        orderId
         fulfillments (first: 10) {
           edges {
             node {
