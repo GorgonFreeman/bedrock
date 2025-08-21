@@ -35,7 +35,7 @@ const collabsFulfillmentsReview = async (
       `,
       includeClosed: true,
       queries: [
-        `createdAt:>${ dateTimeFromNow({ minus: weeks(1), dateOnly: true }) }`,
+        `created_at:>${ dateTimeFromNow({ minus: weeks(1), dateOnly: true }) }`,
       ],
 
       onItems: (items) => {
