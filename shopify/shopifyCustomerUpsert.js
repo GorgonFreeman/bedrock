@@ -32,7 +32,7 @@ const shopifyCustomerUpsert = async (
   // 2. Look up customer by email - if no customer found, create one.  
 
   return {
-    success: false,
+    success: true,
     result: customerPayload,
   };
 };
