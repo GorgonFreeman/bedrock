@@ -7,12 +7,19 @@ const defaultAttrs = `defaultEmailAddress { marketingState }`;
 
 const shopifyCustomerMarketingConsentUpdateEmail = async (
   credsPath,
-  consentInput,
+  customerId,
+  marketingState, // SUBSCRIBED, UNSUBSCRIBED
   {
     apiVersion,
     returnAttrs = defaultAttrs,
+
+    marketingOptInLevel, // CONFIRMED_OPT_IN, SINGLE_OPT_IN, UNKNOWN
+    consentUpdatedAt,
+    sourceLocationId,
   } = {},
 ) => {
+
+  const customerGid = `gid://shopify/Customer/${ customerId }`;
 
   const response = await shopifyMutationDo(
     credsPath,
@@ -20,7 +27,15 @@ const shopifyCustomerMarketingConsentUpdateEmail = async (
     {
       input: {
         type: 'CustomerEmailMarketingConsentUpdateInput!',
-        value: consentInput,
+        value: {
+          customerId: customerGid,
+          emailMarketingConsent: {
+            ...(marketingState && { marketingState }),
+            ...(marketingOptInLevel && { marketingOptInLevel }),
+            ...(consentUpdatedAt && { consentUpdatedAt }),
+            ...(sourceLocationId && { sourceLocationId }),
+          },
+        },
       },
     },
     `customer { ${ returnAttrs } }`,
@@ -35,13 +50,15 @@ const shopifyCustomerMarketingConsentUpdateEmail = async (
 const shopifyCustomerMarketingConsentUpdateEmailApi = async (req, res) => {
   const {
     credsPath,
-    consentInput,
+    customerId,
+    marketingState,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'consentInput', consentInput),
+    mandateParam(res, 'customerId', customerId),
+    mandateParam(res, 'marketingState', marketingState),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -49,7 +66,8 @@ const shopifyCustomerMarketingConsentUpdateEmailApi = async (req, res) => {
 
   const result = await shopifyCustomerMarketingConsentUpdateEmail(
     credsPath,
-    consentInput,
+    customerId,
+    marketingState,
     options,
   );
   respond(res, 200, result);
@@ -60,5 +78,5 @@ module.exports = {
   shopifyCustomerMarketingConsentUpdateEmailApi,
 };
 
-// curl http://localhost:8000/shopifyCustomerMarketingConsentUpdateEmail -H 'Content-Type: application/json' -d '{ "credsPath": "au", "consentInput": { "customerId": "gid://shopify/Customer/8575963103304", "emailMarketingConsent": { "marketingState": "SUBSCRIBED", "marketingOptInLevel": "SINGLE_OPT_IN" } } }'
-// curl http://localhost:8000/shopifyCustomerMarketingConsentUpdateEmail -H 'Content-Type: application/json' -d '{ "credsPath": "au", "consentInput": { "customerId": "gid://shopify/Customer/8575963103304", "emailMarketingConsent": { "marketingState": "UNSUBSCRIBED" } } }'
+// curl http://localhost:8000/shopifyCustomerMarketingConsentUpdateEmail -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerId": "8575963103304", "marketingState": "SUBSCRIBED" }'
+// curl http://localhost:8000/shopifyCustomerMarketingConsentUpdateEmail -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerId": "8575963103304", "marketingState": "UNSUBSCRIBED" }'
