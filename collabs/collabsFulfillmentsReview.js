@@ -1,4 +1,4 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, dateTimeFromNow, weeks } = require('../utils');
 const { shopifyGet } = require('../shopify/shopify.utils');
 
 const collabsFulfillmentsReview = async (
@@ -31,6 +31,9 @@ const collabsFulfillmentsReview = async (
         } 
       `,
       includeClosed: true,
+      queries: [
+        `createdAt:>${ dateTimeFromNow({ minus: weeks(1), dateOnly: true }) }`,
+      ],
     },
   );
 
