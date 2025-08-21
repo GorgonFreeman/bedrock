@@ -8,6 +8,7 @@ module.exports = {
   upstashDel: require('./upstash/upstash.utils').upstashDelApi,
   upstashExists: require('./upstash/upstash.utils').upstashExistsApi,
   supabaseRowGet: require('./supabase/supabase.utils').supabaseRowGetApi,
+  supabaseRowDelete: require('./supabase/supabase.utils').supabaseRowDeleteApi,
   starshipitAddressCreate: require('./starshipit/starshipitAddressCreate').starshipitAddressCreateApi,
   starshipitAddressDelete: require('./starshipit/starshipitAddressDelete').starshipitAddressDeleteApi,
   starshipitAddressUpdate: require('./starshipit/starshipitAddressUpdate').starshipitAddressUpdateApi,

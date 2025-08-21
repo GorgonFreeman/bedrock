@@ -23,20 +23,8 @@ const getSupabaseClient = (credsPath) => {
   return client;
 };
 
-const supabaseRowGet = async (
-  credsPath,
-  tableName,
-  rowField,
-  rowValue,
-) => {
-  const client = getSupabaseClient(credsPath);
-  const { data, error } = await client
-    .from(tableName)
-    .select('*')
-    .eq(rowField, rowValue)
-    .single()
-  ;
-
+const supabaseInterpreter = (response) => {
+  const { data, error } = response;
   if (error) {
     return {
       success: false,
@@ -50,6 +38,66 @@ const supabaseRowGet = async (
   };
 };
 
+const supabaseRowGet = async (
+  credsPath,
+  tableName,
+  rowField,
+  rowValue,
+) => {
+  const client = getSupabaseClient(credsPath);
+  const response = await client
+    .from(tableName)
+    .select('*')
+    .eq(rowField, rowValue)
+    .single()
+  ;
+  return supabaseInterpreter(response);
+};
+
+const supabaseRowDelete = async (
+  credsPath, 
+  tableName, 
+  deleteConfig, // { field: 'id', value: 123 } OR { conditions: { field1: 'value1', field2: 'value2' } })
+) => {
+  const client = getSupabaseClient(credsPath);
+  
+  // Validate and determine deletion type
+  if (!deleteConfig || typeof deleteConfig !== 'object') {
+    throw new Error('deleteConfig must be an object with either {field, value} or {conditions}');
+  }
+
+  let queryResponse;
+
+  if (deleteConfig.conditions) {
+    // Multiple condition deletion (composite key)
+    if (typeof deleteConfig.conditions !== 'object') {
+      throw new Error('conditions must be an object with field-value pairs');
+    }
+
+    console.log(`🗑️  Deleting row with conditions:`, deleteConfig.conditions);
+    
+    let query = supabase.from(tableName).delete();
+    
+    Object.entries(deleteConfig.conditions).forEach(([field, value]) => {
+      query = query.eq(field, value);
+    });
+    
+    queryResponse = await query;
+  } else if (deleteConfig.field && deleteConfig.value !== undefined) {
+    // Single field deletion
+    console.log(`🗑️  Deleting row where ${deleteConfig.field} = ${deleteConfig.value}`);
+    
+    queryResponse = await supabase
+      .from(tableName)
+      .delete()
+      .eq(deleteConfig.field, deleteConfig.value);
+  } else {
+    throw new Error('deleteConfig must have either { field, value } or { conditions }');
+  }
+
+  return supabaseInterpreter(queryResponse);
+};
+
 module.exports = {
   getSupabaseClient,
   supabaseRowGet,
@@ -57,6 +105,11 @@ module.exports = {
     argNames: ['credsPath', 'tableName', 'rowField', 'rowValue'],
     validatorsByArg: { credsPath: Boolean, tableName: Boolean, rowField: Boolean, rowValue: Boolean },
    }),
+  supabaseRowDelete,
+  supabaseRowDeleteApi: funcApi(supabaseRowDelete, { 
+    argNames: ['credsPath', 'tableName', 'deleteConfig'],
+    validatorsByArg: { credsPath: Boolean, tableName: Boolean, deleteConfig: Boolean },
+  }),
 };
 
 // curl localhost:8000/supabaseRowGet -H "Content-Type: application/json" -d '{ "credsPath": "foxtron", "tableName": "catalogue_sync_products", "rowField": "handle", "rowValue": "asking-for-more-cap-black" }'
