@@ -1,10 +1,10 @@
 // https://mydeveloper.logiwa.com/#tag/ShipmentOrder/paths/~1v3.1~1ShipmentOrder~1list~1i~1%7Bindex%7D~1s~1%7Bsize%7D/get
 
 const { respond, mandateParam, logDeep } = require('../utils');
-const { logiwaGet } = require('../logiwa/logiwa.utils');
+const { logiwaGet, logiwaGetter } = require('../logiwa/logiwa.utils');
 const { MAX_PER_PAGE } = require('../logiwa/logiwa.constants');
 
-const logiwaOrdersGet = async (
+const payloadMaker = (
   {
     credsPath,
     apiVersion = 'v3.1',
@@ -50,7 +50,7 @@ const logiwaOrdersGet = async (
     ...(shipmentOrderTypeName_eq && { 'ShipmentOrderTypeName.eq': shipmentOrderTypeName_eq }),
   };
 
-  const response = await logiwaGet(
+  return [
     `/ShipmentOrder/list/i/${ page }/s/${ perPage }`,
     {
       credsPath,
@@ -58,8 +58,16 @@ const logiwaOrdersGet = async (
       params,
       ...getterOptions,
     },
-  );
-  // logDeep(response);
+  ];
+};
+
+const logiwaOrdersGet = async (...args) => {
+  const response = await logiwaGet(...payloadMaker(...args));
+  return response;
+};
+
+const logiwaOrdersGetter = async (...args) => {
+  const response = await logiwaGetter(...payloadMaker(...args));
   return response;
 };
 
@@ -82,6 +90,7 @@ const logiwaOrdersGetApi = async (req, res) => {  const {
 
 module.exports = {
   logiwaOrdersGet,
+  logiwaOrdersGetter,
   logiwaOrdersGetApi,
 };
 
