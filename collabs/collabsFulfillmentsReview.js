@@ -1,4 +1,5 @@
-const { respond, mandateParam } = require('../utils');
+const { respond, mandateParam, logDeep } = require('../utils');
+const { shopifyGet } = require('../shopify/shopify.utils');
 
 const collabsFulfillmentsReview = async (
   region,
@@ -7,10 +8,34 @@ const collabsFulfillmentsReview = async (
   } = {},
 ) => {
 
-  return { 
-    arg, 
-    option,
-  };
+  const shopifyFulfillmentOrdersResponse = await shopifyGet(
+    region,
+    'fulfillmentOrder',
+    {
+      attrs: `
+        id
+        fulfillments (first: 10) {
+          edges {
+            node {
+              id
+              name
+              displayStatus
+              requiresShipping
+              trackingInfo (first: 10) {
+                company
+                number
+                url
+              }
+            }
+          }
+        } 
+      `,
+      includeClosed: true,
+    },
+  );
+
+  logDeep(shopifyFulfillmentOrdersResponse);
+  return shopifyFulfillmentOrdersResponse;
   
 };
 

@@ -147,6 +147,8 @@ const shopifyGetter = async (
     pinnedStatus,
     // https://shopify.dev/docs/api/admin-graphql/unstable/queries/metafields#arguments-owner
     ownerGid,
+    // https://shopify.dev/docs/api/admin-graphql/latest/objects/fulfillmentOrder#queries
+    includeClosed,
     
     // Helpers
     resources, // for when plural of the resource isn't `${ resource }s`
@@ -175,6 +177,7 @@ const shopifyGetter = async (
     ...ownerType ? ['$ownerType: MetafieldOwnerType!,'] : [],
     ...pinnedStatus ? ['$pinnedStatus: MetafieldDefinitionPinnedStatus,'] : [],
     ...ownerGid ? ['$owner: ID!,'] : [],
+    ...includeClosed ? ['$includeClosed: Boolean,'] : [],
   ].join('\n');
 
   const queryVariableDeclaration = [
@@ -192,6 +195,7 @@ const shopifyGetter = async (
     ...ownerType ? ['ownerType: $ownerType'] : [],
     ...pinnedStatus ? ['pinnedStatus: $pinnedStatus'] : [],
     ...ownerGid ? ['owner: $owner'] : [],
+    ...includeClosed ? ['includeClosed: $includeClosed'] : [],
   ].join('\n');
 
   const query = `
@@ -229,6 +233,7 @@ const shopifyGetter = async (
     ...ownerType && { ownerType },
     ...pinnedStatus && { pinnedStatus },
     ...ownerGid && { owner: ownerGid },
+    ...includeClosed && { includeClosed },
   };
 
   const getter = new Getter({
