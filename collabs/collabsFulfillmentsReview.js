@@ -34,9 +34,8 @@ const collabsFulfillmentsReview = async (
         } 
       `,
       includeClosed: true,
-      queries: [
-        `created_at:>${ dateTimeFromNow({ minus: weeks(1), dateOnly: true }) }`,
-      ],
+      sortKey: 'UPDATED_AT',
+      reverse: true,
 
       onItems: (items) => {
         fulfillmentOrders.push(...items);
