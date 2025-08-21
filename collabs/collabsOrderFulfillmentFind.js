@@ -46,18 +46,49 @@ const collabsOrderFulfillmentFind = async (
 
   if (logiwaRelevant) {
     const logiwaOrderResponse = await logiwaOrderGet({ orderCode: orderName });
-    if (!logiwaOrderResponse.success) {
+    const { success, result: logiwaOrder } = logiwaOrderResponse;
+    if (!success) {
       return logiwaOrderResponse;
     }
 
-    logDeep(logiwaOrderResponse.result);
+    const {
+      currentTrackingNumber,
+      trackingNumbers,
+      products,
+      shipmentOrderStatusName,
+      shipmentOrderStatusId,
+    } = logiwaOrder;
+
+    let trackingNumber = currentTrackingNumber;
+    if (!trackingNumber && trackingNumbers?.length === 1) {
+      trackingNumber = trackingNumbers[0];
+    }
+
+    const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
+
+    // TODO: Consider reporting status
+    if (shipmentOrderStatusName === 'Shipped') {
+      if (trackingNumber && allShipped) {
+
+        const fulfillPayload = {
+          originAddress: {
+            // Logiwa, therefore US
+            countryCode: 'US',
+          },
+          trackingInfo: {
+            number: trackingNumber,
+          },
+        };
+        
+        // TODO: Consider notifying customer
+        return await shopifyOrderFulfill(region, { orderId }, fulfillPayload);
+      }
+    }
   }
   
   const response = {
-    success: true,
-    result: {
-      orderName,
-    },
+    success: false,
+    error: ['Unable to fulfill order'],
   };
   logDeep(response);
   return response;
