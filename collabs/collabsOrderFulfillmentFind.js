@@ -77,20 +77,32 @@ const collabsOrderFulfillmentFind = async (
       };
     }
 
-    if (trackingNumber && allShipped) {
-      const fulfillPayload = {
-        originAddress: {
-          // Logiwa, therefore US
-          countryCode: 'US',
-        },
-        trackingInfo: {
-          number: trackingNumber,
-        },
+    if (!trackingNumber) {
+      return {
+        success: false,
+        error: ['No tracking number found'],
       };
-      
-      // TODO: Consider notifying customer
-      return await shopifyOrderFulfill(region, { orderId }, fulfillPayload);
     }
+
+    if (!allShipped) {
+      return {
+        success: false,
+        error: [`Order is not fully shipped`],
+      };
+    }
+
+    const fulfillPayload = {
+      originAddress: {
+        // Logiwa, therefore US
+        countryCode: 'US',
+      },
+      trackingInfo: {
+        number: trackingNumber,
+      },
+    };
+    
+    // TODO: Consider notifying customer
+    return await shopifyOrderFulfill(region, { orderId }, fulfillPayload);
   }
   
   const response = {
