@@ -149,6 +149,7 @@ module.exports = {
   collabsFulfillmentSweepV2: require('./collabs/collabsFulfillmentSweepV2').collabsFulfillmentSweepV2Api,
   collabsFulfillmentsReview: require('./collabs/collabsFulfillmentsReview').collabsFulfillmentsReviewApi,
   collabsInventoryReview: require('./collabs/collabsInventoryReview').collabsInventoryReviewApi,
+  collabsOrderFulfillmentFind: require('./collabs/collabsOrderFulfillmentFind').collabsOrderFulfillmentFindApi,
   collabsOrderSyncMark: require('./collabs/collabsOrderSyncMark').collabsOrderSyncMarkApi,
   collabsOrderSyncReview: require('./collabs/collabsOrderSyncReview').collabsOrderSyncReviewApi,
   bleckmannAsnGet: require('./bleckmann/bleckmannAsnGet').bleckmannAsnGetApi,
