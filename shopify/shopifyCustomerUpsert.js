@@ -1,4 +1,5 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// Creates or updates a customer account, including marketing etc.
+// Based on shopifyCustomerUpdateDetails in pebl
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
@@ -7,8 +8,7 @@ const defaultAttrs = `id title handle`;
 
 const shopifyCustomerUpsert = async (
   credsPath,
-  pageInput,
-  {
+  pageInput,  {
     apiVersion,
     returnAttrs = defaultAttrs,
   } = {},
