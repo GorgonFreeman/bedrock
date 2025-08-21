@@ -161,7 +161,7 @@ const collabsFulfillmentSweep = async (
   const arrayExhaustedCheck = (arr) => arr.length === 0;
   
   // piles used: resolved, continue, disqualified
-  const logiwaOrderDecider = (piles, logiwaOrder) => {
+  const logiwaOrderDecider = (piles, order, logiwaOrder) => {
 
     if (!objHasAll(piles, ['resolved', 'continue', 'disqualified'])) {
       throw new Error('piles must have resolved, continue, and disqualified');
@@ -237,7 +237,7 @@ const collabsFulfillmentSweep = async (
       const logiwaOrder = logiwaPrefetchedOrders?.find(order => order.code === orderName);
 
       if (logiwaOrder) {
-        return logiwaOrderDecider(piles, logiwaOrder);
+        return logiwaOrderDecider(piles, order, logiwaOrder);
       }
 
       piles.continue.push(order);
@@ -529,7 +529,7 @@ const collabsFulfillmentSweep = async (
       }
 
       const logiwaOrder = logiwaOrderResponse.result;
-      return logiwaOrderDecider(piles, logiwaOrder);
+      return logiwaOrderDecider(piles, order, logiwaOrder);
     },
     arrayExhaustedCheck, // pileExhaustedCheck
     processorOptions,
@@ -692,4 +692,4 @@ module.exports = {
 };
 
 // curl localhost:8100/collabsFulfillmentSweep
-// curl localhost:8000/collabsFulfillmentSweep -H "Content-Type: application/json" -d '{ "options": { "shopifyRegions": ["au"], "notifyCustomers": false } }'
+// curl localhost:8000/collabsFulfillmentSweep -H "Content-Type: application/json" -d '{ "options": { "shopifyRegions": ["us"], "notifyCustomers": false } }'
