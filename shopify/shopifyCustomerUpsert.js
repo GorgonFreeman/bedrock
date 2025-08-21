@@ -21,6 +21,7 @@ const shopifyCustomerUpsert = async (
 
 const shopifyCustomerUpsertApi = funcApi(shopifyCustomerUpsert, { 
   argNames: ['credsPath', 'customerPayload', 'options'],
+  // TODO: Require either identifiers to find customer or minimum for customer create
   validatorsByArg: { credsPath: Boolean, customerPayload: Boolean },
 });
 
