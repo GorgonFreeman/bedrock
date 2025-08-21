@@ -66,23 +66,30 @@ const collabsOrderFulfillmentFind = async (
 
     const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
 
-    // TODO: Consider reporting status
-    if (shipmentOrderStatusName === 'Shipped') {
-      if (trackingNumber && allShipped) {
+    const knownGoodStatuses = [
+      'Shipped',
+    ];
 
-        const fulfillPayload = {
-          originAddress: {
-            // Logiwa, therefore US
-            countryCode: 'US',
-          },
-          trackingInfo: {
-            number: trackingNumber,
-          },
-        };
-        
-        // TODO: Consider notifying customer
-        return await shopifyOrderFulfill(region, { orderId }, fulfillPayload);
-      }
+    if (!knownGoodStatuses.includes(shipmentOrderStatusName)) {
+      return {
+        success: false,
+        error: [`Order is not shipped: ${ shipmentOrderStatusName }`],
+      };
+    }
+
+    if (trackingNumber && allShipped) {
+      const fulfillPayload = {
+        originAddress: {
+          // Logiwa, therefore US
+          countryCode: 'US',
+        },
+        trackingInfo: {
+          number: trackingNumber,
+        },
+      };
+      
+      // TODO: Consider notifying customer
+      return await shopifyOrderFulfill(region, { orderId }, fulfillPayload);
     }
   }
   
