@@ -1,11 +1,24 @@
 const { funcApi } = require('../utils');
 
+const { 
+  REGIONS_LOGIWA,
+} = require('../constants');
+
 const collabsFulfillmentSweepV2 = async (
   region,
   {
     option,
   } = {},
 ) => {
+
+  const logiwaRelevant = REGIONS_LOGIWA.includes(region);
+  const anyRelevant = [logiwaRelevant].some(Boolean);
+  if (!anyRelevant) {
+    return {
+      success: false,
+      message: 'Region not supported',
+    };
+  }
 
   return {
     success: true,
