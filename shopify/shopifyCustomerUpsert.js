@@ -48,4 +48,4 @@ module.exports = {
   shopifyCustomerUpsertApi,
 };
 
-// curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { ... } }'
+// curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { "id": "8575963103304" } }'
