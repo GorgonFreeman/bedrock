@@ -3,6 +3,7 @@
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
+const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
 
 const shopifyCustomerUpsert = async (
   credsPath,
@@ -12,6 +13,23 @@ const shopifyCustomerUpsert = async (
     returnAttrs = 'id email firstName lastName',
   } = {},
 ) => {
+
+  const {
+    id: customerId,
+    email,
+    phone,
+  } = customerPayload;
+  
+  // 1. Look up customer by ID - if ID was provided but no customer found, return failure.
+  if (customerId) {
+    const customerGetResponse = await shopifyCustomerGet(credsPath, customerId);
+    const { success, results: customer } = customerGetResponse;
+    if (!success) {
+      return customerGetResponse;
+    }
+  }
+
+  // 2. Look up customer by email - if no customer found, create one.  
 
   return {
     success: false,
