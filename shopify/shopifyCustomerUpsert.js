@@ -22,7 +22,7 @@ const shopifyCustomerUpsert = async (
     phone,
   } = customerPayload;
   
-  // 1. Look up customer by ID - if ID was provided but no customer found, return failure.
+  // 1. Look up customer by ID - if ID was provided but no customer found, return failure
   if (customerId) {
     const customerGetResponse = await shopifyCustomerGet(credsPath, { customerId }, { apiVersion, returnAttrs });
     const { success, result } = customerGetResponse;
@@ -40,7 +40,26 @@ const shopifyCustomerUpsert = async (
     shopifyCustomer = result;
   }
 
-  // 2. Look up customer by email - if no customer found, create one.  
+  // 2. Look up customer by email 
+  if (!shopifyCustomer) {
+    if (email) {
+      const customerGetResponse = await shopifyCustomerGet(credsPath, { email }, { apiVersion, returnAttrs });
+      const { success, result } = customerGetResponse;
+      if (!success) {
+        return customerGetResponse;
+      }
+
+      if (result) {
+        shopifyCustomer = result;
+      }      
+    }
+  }
+
+  // TODO: Consider looking up by phone number
+
+  // 3. If no customer found, create one
+
+  // 4. Update anything that couldn't be included in the create call
 
   return {
     success: true,
