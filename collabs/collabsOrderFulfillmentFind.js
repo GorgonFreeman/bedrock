@@ -23,10 +23,34 @@ const collabsOrderFulfillmentFind = async (
     };
   }
 
-  const shopifyOrderResponse = await shopifyOrderGet(region, { orderId });
-  logDeep(shopifyOrderResponse);
-  return shopifyOrderResponse;
+  const shopifyOrderResponse = await shopifyOrderGet(region, { orderId }, {
+    attrs: 'id name fulfillable',
+  });
+
+  if (!shopifyOrderResponse.success) {
+    return shopifyOrderResponse;
+  }
+
+  const { 
+    name: orderName,
+    fulfillable,
+  } = shopifyOrderResponse.result;
+
+  if (!fulfillable) {
+    return {
+      success: false,
+      message: 'Order is not fulfillable',
+    };
+  }
   
+  const response = {
+    success: true,
+    result: {
+      orderName,
+    },
+  };
+  logDeep(response);
+  return response;
 };
 
 const collabsOrderFulfillmentFindApi = funcApi(collabsOrderFulfillmentFind, {
