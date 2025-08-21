@@ -27,6 +27,13 @@ const shopifyCustomerUpsert = async (
     if (!success) {
       return customerGetResponse;
     }
+
+    if (!customer) {
+      return {
+        success: false,
+        error: ['No customer with ID'],
+      };
+    }
   }
 
   // 2. Look up customer by email - if no customer found, create one.  
