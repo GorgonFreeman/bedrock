@@ -98,6 +98,68 @@ const supabaseRowDelete = async (
   return supabaseInterpreter(queryResponse);
 };
 
+const supabaseRowInsert = async (
+  credsPath,
+  tableName,
+  rowObject,
+) => {
+  const client = getSupabaseClient(credsPath);
+  const response = await client
+    .from(tableName)
+    .insert(rowObject)
+  ;
+  return supabaseInterpreter(response);
+};
+
+const supabaseTableGet = async (
+  credsPath,
+  tableName,
+) => {
+  const client = getSupabaseClient(credsPath);
+  const response = await client.from(tableName).select('*');
+  return supabaseInterpreter(response);
+};
+
+const supabaseTableGetAll = async (
+  credsPath,
+  tableName,
+  { 
+    orderBy = 'id', 
+  } = {},
+) => {
+  const client = getSupabaseClient(credsPath);
+
+  const rowsCountResponse = await client.from(tableName).select('*', { count: 'exact', head: true });
+  const { count: rowsCount } = rowsCountResponse;
+
+  const PAGE_SIZE = 1000;
+  let rowsFetched = 0;
+  let rows = []; // Separating these in case the number of rows doesn't exactly match count
+
+  while (rowsFetched < rowsCount) {
+    const pageRowsResponse = await client.from(tableName).select('*').order(orderBy).range(rowsFetched, (rowsFetched + PAGE_SIZE) - 1);
+    const { data, error } = pageRowsResponse;
+    
+    if (error) {
+      throw new Error(`Supabase error: ${error.message}`);
+    }
+    
+    if (!data) {
+      break; // No more data
+    }
+    
+    rows.push(...data);
+    rowsFetched += PAGE_SIZE;
+    console.log(`${ rows.length } / ${ rowsCount }`);
+  }
+
+  // console.log(rows);
+  return {
+    success: true,
+    results: rows,
+  };
+};
+
 module.exports = {
   getSupabaseClient,
   supabaseRowGet,
@@ -110,6 +172,22 @@ module.exports = {
     argNames: ['credsPath', 'tableName', 'deleteConfig'],
     validatorsByArg: { credsPath: Boolean, tableName: Boolean, deleteConfig: Boolean },
   }),
+  supabaseRowInsert,
+  supabaseRowInsertApi: funcApi(supabaseRowInsert, { 
+    argNames: ['credsPath', 'tableName', 'rowObject'],
+    validatorsByArg: { credsPath: Boolean, tableName: Boolean, rowObject: Boolean },
+  }),
+  supabaseTableGet,
+  supabaseTableGetApi: funcApi(supabaseTableGet, { 
+    argNames: ['credsPath', 'tableName'],
+    validatorsByArg: { credsPath: Boolean, tableName: Boolean },
+  }),
+  supabaseTableGetAll,
+  supabaseTableGetAllApi: funcApi(supabaseTableGetAll, { 
+    argNames: ['credsPath', 'tableName', 'options'],
+    validatorsByArg: { credsPath: Boolean, tableName: Boolean },
+  }),
 };
 
 // curl localhost:8000/supabaseRowGet -H "Content-Type: application/json" -d '{ "credsPath": "foxtron", "tableName": "catalogue_sync_products", "rowField": "handle", "rowValue": "asking-for-more-cap-black" }'
+// curl localhost:8000/supabaseTableGetAll -H "Content-Type: application/json" -d '{ "credsPath": "foxtron", "tableName": "catalogue_sync_products", "options": { "orderBy": "handle" } }'
