@@ -1,13 +1,13 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/customerUpdate
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `id firstName lastName email phone`;
 
 const shopifyCustomerUpdate = async (
   credsPath,
-  pageInput,
+  customerInput,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
@@ -16,14 +16,14 @@ const shopifyCustomerUpdate = async (
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'customerUpdate',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      customer: {
+        type: 'customerUpdateInput!',
+        value: customerInput,
       },
     },
-    `page { ${ returnAttrs } }`,
+    `customer { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -35,13 +35,13 @@ const shopifyCustomerUpdate = async (
 const shopifyCustomerUpdateApi = async (req, res) => {
   const {
     credsPath,
-    pageInput,
+    customerInput,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'pageInput', pageInput),
+    mandateParam(res, 'customerInput', customerInput),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -49,7 +49,7 @@ const shopifyCustomerUpdateApi = async (req, res) => {
 
   const result = await shopifyCustomerUpdate(
     credsPath,
-    pageInput,
+    customerInput,
     options,
   );
   respond(res, 200, result);
@@ -60,4 +60,4 @@ module.exports = {
   shopifyCustomerUpdateApi,
 };
 
-// curl http://localhost:8000/shopifyCustomerUpdate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyCustomerUpdate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerInput": { ... }, "options": { "returnAttrs": "id" } }'
