@@ -14,6 +14,8 @@ const shopifyCustomerUpsert = async (
   } = {},
 ) => {
 
+  let shopifyCustomer;
+
   const {
     id: customerId,
     email,
@@ -23,24 +25,26 @@ const shopifyCustomerUpsert = async (
   // 1. Look up customer by ID - if ID was provided but no customer found, return failure.
   if (customerId) {
     const customerGetResponse = await shopifyCustomerGet(credsPath, { customerId }, { apiVersion, returnAttrs });
-    const { success, results: customer } = customerGetResponse;
+    const { success, result } = customerGetResponse;
     if (!success) {
       return customerGetResponse;
     }
 
-    if (!customer) {
+    if (!result) {
       return {
         success: false,
         error: ['No customer with ID'],
       };
     }
+
+    shopifyCustomer = result;
   }
 
   // 2. Look up customer by email - if no customer found, create one.  
 
   return {
     success: true,
-    result: customerPayload,
+    result: customer,
   };
 };
 
