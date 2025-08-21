@@ -13,7 +13,7 @@ const shopifyCustomerMarketingConsentUpdateEmail = async (
     apiVersion,
     returnAttrs = defaultAttrs,
 
-    marketingOptInLevel, // CONFIRMED_OPT_IN, SINGLE_OPT_IN, UNKNOWN
+    marketingOptInLevel = 'UNKNOWN', // CONFIRMED_OPT_IN, SINGLE_OPT_IN, UNKNOWN
     consentUpdatedAt,
     sourceLocationId,
   } = {},
