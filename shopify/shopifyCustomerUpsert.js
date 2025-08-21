@@ -4,6 +4,7 @@
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
+const { shopifyCustomerCreate } = require('../shopify/shopifyCustomerCreate');
 
 const shopifyCustomerUpsert = async (
   credsPath,
@@ -58,6 +59,15 @@ const shopifyCustomerUpsert = async (
   // TODO: Consider looking up by phone number
 
   // 3. If no customer found, create one
+  if (!shopifyCustomer) {
+    const customerCreateResponse = await shopifyCustomerCreate(credsPath, customerPayload, { apiVersion, returnAttrs });
+    const { success, result } = customerCreateResponse;
+    if (!success) {
+      return customerCreateResponse;
+    }
+
+    shopifyCustomer = result;
+  }
 
   // 4. Update anything that couldn't be included in the create call
 
@@ -79,3 +89,4 @@ module.exports = {
 };
 
 // curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { "id": "8575963103304" } }'
+// curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { "email": "john+zodiac@whitefoxboutique.com", "firstName": "Ted", "lastName": "Cruz" } }'
