@@ -5,6 +5,7 @@ const {
 const { funcApi, logDeep } = require('../utils');
 
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
+const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
 
 const collabsOrderFulfillmentFind = async (
   region,
@@ -41,6 +42,15 @@ const collabsOrderFulfillmentFind = async (
       success: false,
       message: 'Order is not fulfillable',
     };
+  }
+
+  if (logiwaRelevant) {
+    const logiwaOrderResponse = await logiwaOrderGet({ orderCode: orderName });
+    if (!logiwaOrderResponse.success) {
+      return logiwaOrderResponse;
+    }
+
+    logDeep(logiwaOrderResponse.result);
   }
   
   const response = {
