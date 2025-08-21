@@ -18,6 +18,7 @@ const shopifyCustomerUpsert = async (
     metafields,
 
     birthDate,
+    gender,
     emailConsent,
     smsConsent,
 
@@ -91,13 +92,19 @@ const shopifyCustomerUpsert = async (
         marketingState: 'SUBSCRIBED',
       }}),
       
-      ...((metafields || birthDate) && { metafields: [
+      ...((metafields || birthDate || gender) && { metafields: [
         ...(metafields || []),
         ...(birthDate ? [{
           namespace: 'facts',
           key: 'birth_date',
           value: birthDate,
           type: 'date',
+        }] : []),
+        ...(gender ? [{
+          namespace: 'facts',
+          key: 'gender',
+          value: gender,
+          type: 'single_line_text_field',
         }] : []),
       ]}),
     };
@@ -131,4 +138,4 @@ module.exports = {
 };
 
 // curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { "customerId": "8575963103304" } }'
-// curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { "email": "john+zodiac@whitefoxboutique.com", "firstName": "Ted", "lastName": "Cruz", "phone": "+61490789078", "smsConsent": true, "emailConsent": true, "birthDate": "1980-01-01", "tags": ["skip_welcome", "hello_there"] } }'
+// curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { "email": "john+zodiac@whitefoxboutique.com", "firstName": "Ted", "lastName": "Cruz", "phone": "+61490789078", "smsConsent": true, "emailConsent": true, "birthDate": "1980-01-01", "tags": ["skip_welcome", "hello_there"], "gender": "Prefer not to say" } }'
