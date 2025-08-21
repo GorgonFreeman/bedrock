@@ -12,6 +12,14 @@ const shopifyCustomerUpsert = async (
     customerId,
     email,
     phone,
+    firstName,
+    lastName,
+    tags,
+
+    birthDate,
+    emailConsent,
+    smsConsent,
+    
     ...customerPayload
   },
   {
@@ -19,6 +27,9 @@ const shopifyCustomerUpsert = async (
     returnAttrs = 'id email firstName lastName',
   } = {},
 ) => {
+  
+  // Not doing anything with the rest of customerPayload for now - will expand as we go
+  logDeep(customerPayload);
 
   let shopifyCustomer;
   
@@ -59,7 +70,37 @@ const shopifyCustomerUpsert = async (
 
   // 3. If no customer found, create one
   if (!shopifyCustomer) {
-    const customerCreateResponse = await shopifyCustomerCreate(credsPath, customerPayload, { apiVersion, returnAttrs });
+    
+    const customerCreatePayload = {
+      // Native attributes
+      ...(email && { email }),
+      ...(phone && { phone }),
+      ...(firstName && { firstName }),
+      ...(lastName && { lastName }),
+      ...(tags && { tags }),
+
+      // Custom attributes
+      ...(emailConsent && { emailMarketingConsent: {
+        marketingOptInLevel: 'SINGLE_OPT_IN',
+        marketingState: 'SUBSCRIBED',
+      } }),
+
+      ...(smsConsent && { smsMarketingConsent: {
+        marketingOptInLevel: 'SINGLE_OPT_IN',
+        marketingState: 'SUBSCRIBED',
+      } }),
+      
+      ...(birthDate && { metafields: [
+        {
+          namespace: 'facts',
+          key: 'birth_date',
+          value: birthDate,
+          type: 'date',
+        },
+      ]}),
+    };
+
+    const customerCreateResponse = await shopifyCustomerCreate(credsPath, customerCreatePayload, { apiVersion, returnAttrs });
     const { success, result } = customerCreateResponse;
     if (!success) {
       return customerCreateResponse;
