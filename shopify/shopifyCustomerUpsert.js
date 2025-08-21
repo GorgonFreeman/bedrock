@@ -1,63 +1,32 @@
 // Creates or updates a customer account, including marketing etc.
 // Based on shopifyCustomerUpdateDetails in pebl
 
-const { respond, mandateParam, logDeep } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
-
-const defaultAttrs = `id title handle`;
 
 const shopifyCustomerUpsert = async (
   credsPath,
-  pageInput,  {
+  customerPayload,
+  {
     apiVersion,
-    returnAttrs = defaultAttrs,
+    returnAttrs = 'id email firstName lastName',
   } = {},
 ) => {
 
-  const response = await shopifyMutationDo(
-    credsPath,
-    'pageCreate',
-    {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
-      },
-    },
-    `page { ${ returnAttrs } }`,
-    { 
-      apiVersion,
-    },
-  );
-  logDeep(response);
-  return response;
+  return {
+    success: false,
+    result: customerPayload,
+  };
 };
 
-const shopifyCustomerUpsertApi = async (req, res) => {
-  const {
-    credsPath,
-    pageInput,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'pageInput', pageInput),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await shopifyCustomerUpsert(
-    credsPath,
-    pageInput,
-    options,
-  );
-  respond(res, 200, result);
-};
+const shopifyCustomerUpsertApi = funcApi(shopifyCustomerUpsert, { 
+  argNames: ['credsPath', 'customerPayload', 'options'],
+  validatorsByArg: { credsPath: Boolean, customerPayload: Boolean },
+});
 
 module.exports = {
   shopifyCustomerUpsert,
   shopifyCustomerUpsertApi,
 };
 
-// curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { ... } }'
