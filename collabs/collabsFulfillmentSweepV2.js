@@ -1,4 +1,4 @@
-const { funcApi, dateTimeFromNow, weeks } = require('../utils');
+const { funcApi, dateTimeFromNow, weeks, logDeep } = require('../utils');
 
 const { logiwaStatusToStatusId } = require('../logiwa/logiwa.utils');
 const { logiwaOrdersGetter } = require('../logiwa/logiwaOrdersGet');
@@ -22,31 +22,29 @@ const collabsFulfillmentSweepV2 = async (
       message: 'Region not supported',
     };
   }
-
-  const shippedGetters = [];
-  const shippedOrders = [];
-
+  
+  const shippedOrderGetters = [];
   const shippedWindowWeeksAgo = 2;
   const shippedWindowStartDate = dateTimeFromNow({ minus: weeks(shippedWindowWeeksAgo), dateOnly: true });
-
-  const logiwaShippedGetter = await logiwaOrdersGetter({
-    createdDateTime_bt: `${ new Date(shippedWindowStartDate).toISOString() },${ new Date().toISOString() }`,
-    status_eq: logiwaStatusToStatusId('Shipped'),
-    onItems: (items) => {
-      shippedOrders.push(...items);
-    },
-  });
-
+  
+  const logiwaShippedOrders = [];
   if (logiwaRelevant) {
-    shippedGetters.push(logiwaShippedGetter);
+    const logiwaShippedGetter = await logiwaOrdersGetter({
+      createdDateTime_bt: `${ new Date(shippedWindowStartDate).toISOString() },${ new Date().toISOString() }`,
+      status_eq: logiwaStatusToStatusId('Shipped'),
+      onItems: (items) => {
+        logiwaShippedOrders.push(...items);
+      },
+    });
+    shippedOrderGetters.push(logiwaShippedGetter);
   }
 
-  await Promise.all(shippedGetters.map(getter => getter.run()));
+  await Promise.all(shippedOrderGetters.map(getter => getter.run()));
 
-  logDeep(shippedOrders);
+  logDeep(logiwaShippedOrders);
   return {
     success: true,
-    result: shippedOrders,
+    result: logiwaShippedOrders,
   };
 };
 
