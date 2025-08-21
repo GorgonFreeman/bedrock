@@ -43,8 +43,22 @@ const collabsFulfillmentsReview = async (
     },
   );
 
-  const processor = new Processor(
+  const filteredFulfillmentOrders = [];
+
+  const filterer = new Processor(
     fulfillmentOrders,
+    async (pile) => {
+      const fulfillmentOrder = pile.shift();
+      filteredFulfillmentOrders.push(fulfillmentOrder);
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+    },
+  );
+
+  const decider = new Processor(
+    filteredFulfillmentOrders,
     async (pile) => {
       const fulfillmentOrder = pile.shift();
       logDeep(fulfillmentOrder);
@@ -53,16 +67,21 @@ const collabsFulfillmentsReview = async (
     pile => pile.length === 0,
     {
       canFinish: false,
-    }
+    },
   );
 
   getter.on('done', () => {
-    processor.canFinish = true;
+    filterer.canFinish = true;
+  });
+
+  filterer.on('done', () => {
+    decider.canFinish = true;
   });
 
   const results = await Promise.all([
     getter.run(),
-    processor.run(),
+    filterer.run(),
+    decider.run(),
   ]);
 
   logDeep(results);
