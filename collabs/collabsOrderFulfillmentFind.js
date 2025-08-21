@@ -63,7 +63,8 @@ const collabsOrderFulfillmentFind = async (
     if (!trackingNumber && trackingNumbers?.length === 1) {
       trackingNumber = trackingNumbers[0];
     }
-
+    
+    // TODO: Handle partial shipments
     const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
 
     const knownGoodStatuses = [
