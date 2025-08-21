@@ -25,6 +25,7 @@ module.exports = {
   shopifyCustomerDelete: require('./shopify/shopifyCustomerDelete').shopifyCustomerDeleteApi,
   shopifyCustomerGet: require('./shopify/shopifyCustomerGet').shopifyCustomerGetApi,
   shopifyCustomerStoreCreditZero: require('./shopify/shopifyCustomerStoreCreditZero').shopifyCustomerStoreCreditZeroApi,
+  shopifyCustomerUpdate: require('./shopify/shopifyCustomerUpdate').shopifyCustomerUpdateApi,
   shopifyCustomerUpsert: require('./shopify/shopifyCustomerUpsert').shopifyCustomerUpsertApi,
   shopifyDiscountClassTagsReport: require('./shopify/shopifyDiscountClassTagsReport').shopifyDiscountClassTagsReportApi,
   shopifyGetSingle: require('./shopify/shopifyGetSingle').shopifyGetSingleApi,
