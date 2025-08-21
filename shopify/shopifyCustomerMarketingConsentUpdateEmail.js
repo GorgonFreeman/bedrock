@@ -3,11 +3,11 @@
 const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `defaultEmailAddress { marketingState }`;
 
 const shopifyCustomerMarketingConsentUpdateEmail = async (
   credsPath,
-  pageInput,
+  consentInput,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
@@ -16,14 +16,14 @@ const shopifyCustomerMarketingConsentUpdateEmail = async (
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'customerEmailMarketingConsentUpdate',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      input: {
+        type: 'CustomerEmailMarketingConsentUpdateInput!',
+        value: consentInput,
       },
     },
-    `page { ${ returnAttrs } }`,
+    `customer { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -35,13 +35,13 @@ const shopifyCustomerMarketingConsentUpdateEmail = async (
 const shopifyCustomerMarketingConsentUpdateEmailApi = async (req, res) => {
   const {
     credsPath,
-    pageInput,
+    consentInput,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'pageInput', pageInput),
+    mandateParam(res, 'consentInput', consentInput),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -49,7 +49,7 @@ const shopifyCustomerMarketingConsentUpdateEmailApi = async (req, res) => {
 
   const result = await shopifyCustomerMarketingConsentUpdateEmail(
     credsPath,
-    pageInput,
+    consentInput,
     options,
   );
   respond(res, 200, result);
@@ -60,4 +60,5 @@ module.exports = {
   shopifyCustomerMarketingConsentUpdateEmailApi,
 };
 
-// curl http://localhost:8000/shopifyCustomerMarketingConsentUpdateEmail -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyCustomerMarketingConsentUpdateEmail -H 'Content-Type: application/json' -d '{ "credsPath": "au", "consentInput": { "customerId": "gid://shopify/Customer/8575963103304", "emailMarketingConsent": { "marketingState": "SUBSCRIBED", "marketingOptInLevel": "SINGLE_OPT_IN" } } }'
+// curl http://localhost:8000/shopifyCustomerMarketingConsentUpdateEmail -H 'Content-Type: application/json' -d '{ "credsPath": "au", "consentInput": { "customerId": "gid://shopify/Customer/8575963103304", "emailMarketingConsent": { "marketingState": "UNSUBSCRIBED" } } }'
