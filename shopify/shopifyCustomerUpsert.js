@@ -73,7 +73,7 @@ const shopifyCustomerUpsert = async (
 
   return {
     success: true,
-    result: customer,
+    result: shopifyCustomer,
   };
 };
 
