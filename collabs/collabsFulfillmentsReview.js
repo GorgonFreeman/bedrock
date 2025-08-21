@@ -1,4 +1,4 @@
-const { respond, mandateParam, logDeep, dateTimeFromNow, weeks } = require('../utils');
+const { respond, mandateParam, logDeep, dateTimeFromNow, weeks, Processor, askQuestion } = require('../utils');
 const { shopifyGetter } = require('../shopify/shopify.utils');
 
 const collabsFulfillmentsReview = async (
@@ -39,15 +39,34 @@ const collabsFulfillmentsReview = async (
 
       onItems: (items) => {
         fulfillmentOrders.push(...items);
-        logDeep(fulfillmentOrders);
       },
     },
   );
 
-  await getter.run();
+  const processor = new Processor(
+    fulfillmentOrders,
+    async (pile) => {
+      const fulfillmentOrder = pile.shift();
+      logDeep(fulfillmentOrder);
+      await askQuestion('?');
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+    }
+  );
 
-  logDeep(fulfillmentOrders);
-  return fulfillmentOrders;
+  getter.on('done', () => {
+    processor.canFinish = true;
+  });
+
+  const results = await Promise.all([
+    getter.run(),
+    processor.run(),
+  ]);
+
+  logDeep(results);
+  return results;
   
 };
 
