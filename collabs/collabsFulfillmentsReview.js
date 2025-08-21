@@ -17,6 +17,7 @@ const collabsFulfillmentsReview = async (
       attrs: `
         id
         orderId
+        status
         fulfillments (first: 10) {
           edges {
             node {
@@ -54,6 +55,9 @@ const collabsFulfillmentsReview = async (
     pile => pile.length === 0,
     {
       canFinish: false,
+      runOptions: {
+        verbose: false,
+      },
     },
   );
 
