@@ -1,5 +1,5 @@
 const { respond, mandateParam, logDeep, dateTimeFromNow, weeks } = require('../utils');
-const { shopifyGet } = require('../shopify/shopify.utils');
+const { shopifyGetter } = require('../shopify/shopify.utils');
 
 const collabsFulfillmentsReview = async (
   region,
@@ -8,7 +8,9 @@ const collabsFulfillmentsReview = async (
   } = {},
 ) => {
 
-  const shopifyFulfillmentOrdersResponse = await shopifyGet(
+  const fulfillmentOrders = [];
+  
+  const getter = await shopifyGetter(
     region,
     'fulfillmentOrder',
     {
@@ -34,11 +36,18 @@ const collabsFulfillmentsReview = async (
       queries: [
         `createdAt:>${ dateTimeFromNow({ minus: weeks(1), dateOnly: true }) }`,
       ],
+
+      onItems: (items) => {
+        fulfillmentOrders.push(...items);
+        logDeep(fulfillmentOrders);
+      },
     },
   );
 
-  logDeep(shopifyFulfillmentOrdersResponse);
-  return shopifyFulfillmentOrdersResponse;
+  await getter.run();
+
+  logDeep(fulfillmentOrders);
+  return fulfillmentOrders;
   
 };
 
