@@ -15,11 +15,12 @@ const shopifyCustomerUpsert = async (
     firstName,
     lastName,
     tags,
+    metafields,
 
     birthDate,
     emailConsent,
     smsConsent,
-    
+
     ...customerPayload
   },
   {
@@ -80,23 +81,24 @@ const shopifyCustomerUpsert = async (
       ...(tags && { tags }),
 
       // Custom attributes
-      ...(emailConsent && { emailMarketingConsent: {
+      ...(email && emailConsent && { emailMarketingConsent: {
         marketingOptInLevel: 'SINGLE_OPT_IN',
         marketingState: 'SUBSCRIBED',
-      } }),
+      }}),
 
-      ...(smsConsent && { smsMarketingConsent: {
+      ...(phone && smsConsent && { smsMarketingConsent: {
         marketingOptInLevel: 'SINGLE_OPT_IN',
         marketingState: 'SUBSCRIBED',
-      } }),
+      }}),
       
-      ...(birthDate && { metafields: [
-        {
+      ...((metafields || birthDate) && { metafields: [
+        ...(metafields || []),
+        ...(birthDate ? [{
           namespace: 'facts',
           key: 'birth_date',
           value: birthDate,
           type: 'date',
-        },
+        }] : []),
       ]}),
     };
 
