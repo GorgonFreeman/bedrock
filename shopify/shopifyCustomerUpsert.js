@@ -8,7 +8,12 @@ const { shopifyCustomerCreate } = require('../shopify/shopifyCustomerCreate');
 
 const shopifyCustomerUpsert = async (
   credsPath,
-  customerPayload,
+  {
+    customerId,
+    email,
+    phone,
+    ...customerPayload
+  },
   {
     apiVersion,
     returnAttrs = 'id email firstName lastName',
@@ -16,12 +21,6 @@ const shopifyCustomerUpsert = async (
 ) => {
 
   let shopifyCustomer;
-
-  const {
-    id: customerId,
-    email,
-    phone,
-  } = customerPayload;
   
   // 1. Look up customer by ID - if ID was provided but no customer found, return failure
   if (customerId) {
@@ -88,5 +87,5 @@ module.exports = {
   shopifyCustomerUpsertApi,
 };
 
-// curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { "id": "8575963103304" } }'
+// curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { "customerId": "8575963103304" } }'
 // curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { "email": "john+zodiac@whitefoxboutique.com", "firstName": "Ted", "lastName": "Cruz" } }'
