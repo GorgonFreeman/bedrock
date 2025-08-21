@@ -32,6 +32,7 @@ const collabsFulfillmentSweepV2 = async (
     const logiwaShippedGetter = await logiwaOrdersGetter({
       createdDateTime_bt: `${ new Date(shippedWindowStartDate).toISOString() },${ new Date().toISOString() }`,
       status_eq: logiwaStatusToStatusId('Shipped'),
+      limit: 400,
       onItems: (items) => {
         logiwaShippedOrders.push(...items);
       },
