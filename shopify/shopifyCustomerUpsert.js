@@ -22,7 +22,7 @@ const shopifyCustomerUpsert = async (
   
   // 1. Look up customer by ID - if ID was provided but no customer found, return failure.
   if (customerId) {
-    const customerGetResponse = await shopifyCustomerGet(credsPath, customerId);
+    const customerGetResponse = await shopifyCustomerGet(credsPath, { customerId }, { apiVersion, returnAttrs });
     const { success, results: customer } = customerGetResponse;
     if (!success) {
       return customerGetResponse;
