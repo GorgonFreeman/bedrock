@@ -36,6 +36,9 @@ const collabsFulfillmentsReview = async (
       `,
       includeClosed: true,
       sortKey: 'UPDATED_AT',
+      queries: [
+        `-status:OPEN`,
+      ],
       reverse: true,
 
       onItems: (items) => {
