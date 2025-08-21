@@ -111,11 +111,14 @@ const shopifyCustomerUpsert = async (
 
     const customerCreateResponse = await shopifyCustomerCreate(credsPath, customerCreatePayload, { apiVersion, returnAttrs });
     const { success, result } = customerCreateResponse;
-    if (!success) {
-      return customerCreateResponse;
-    }
+    
+    // if (!success) {
+    //   return customerCreateResponse;
+    // }
+    // shopifyCustomer = result;
 
-    shopifyCustomer = result;
+    // Currently nothing needs to be handled after creation, so return response directly
+    return customerCreateResponse;
   }
 
   // 4. Update anything that couldn't be included in the create call
