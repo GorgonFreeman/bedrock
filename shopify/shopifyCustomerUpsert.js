@@ -18,6 +18,10 @@ const attrs = `
   tags
   defaultEmailAddress { marketingState }
   defaultPhoneNumber { marketingState }
+  metafields (first: 5, namespace: "facts") {
+    value
+    type
+  }
 `;
 
 const shopifyCustomerUpsert = async (
