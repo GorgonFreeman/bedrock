@@ -1,15 +1,14 @@
 // Creates or updates a customer account, including marketing etc.
 // Based on shopifyCustomerUpdateDetails in pebl
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, gidToId } = require('../utils');
 const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
 const { shopifyCustomerCreate } = require('../shopify/shopifyCustomerCreate');
 const { shopifyCustomerUpdate } = require('../shopify/shopifyCustomerUpdate');
 const { shopifyCustomerMarketingConsentUpdateEmail } = require('../shopify/shopifyCustomerMarketingConsentUpdateEmail');
 const { shopifyCustomerMarketingConsentUpdateSms } = require('../shopify/shopifyCustomerMarketingConsentUpdateSms');
 
-const attrs = `
-  id 
+const attrs = `  id 
   email
   phone
   firstName 
@@ -172,22 +171,28 @@ const shopifyCustomerUpsert = async (
   console.log('Making updates');
 
   const updatePayload = {
-    id: shopifyCustomer.id,
     ...(firstNameChanged && { firstName }),
     ...(lastNameChanged && { lastName }),
     ...(phoneChanged && { phone }),
     ...(emailChanged && { email }),
   };
 
-  const customerUpdateResponse = await shopifyCustomerUpdate(credsPath, updatePayload, { apiVersion, attrs: returnAttrs });
+  const customerUpdateResponse = await shopifyCustomerUpdate(
+    credsPath,
+    gidToId(shopifyCustomer.id),
+    updatePayload, 
+    { 
+      apiVersion, 
+      attrs: returnAttrs,
+    },
+  );
   
   logDeep(customerUpdateResponse);
   return customerUpdateResponse;
 };
 
 const shopifyCustomerUpsertApi = funcApi(shopifyCustomerUpsert, { 
-  argNames: ['credsPath', 'customerPayload', 'options'],
-  // TODO: Require either identifiers to find customer or minimum for customer create
+  argNames: ['credsPath', 'customerPayload', 'options'],  // TODO: Require either identifiers to find customer or minimum for customer create
   validatorsByArg: { credsPath: Boolean, customerPayload: Boolean },
 });
 

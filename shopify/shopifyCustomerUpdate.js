@@ -7,7 +7,8 @@ const defaultAttrs = `id firstName lastName email phone`;
 
 const shopifyCustomerUpdate = async (
   credsPath,
-  customerInput,
+  customerId,
+  updatePayload,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
@@ -20,7 +21,10 @@ const shopifyCustomerUpdate = async (
     {
       input: {
         type: 'CustomerInput!',
-        value: customerInput,
+        value: {
+          id: `gid://shopify/Customer/${ customerId }`,
+          ...updatePayload,
+        },
       },
     },
     `customer { ${ returnAttrs } }`,
@@ -35,13 +39,15 @@ const shopifyCustomerUpdate = async (
 const shopifyCustomerUpdateApi = async (req, res) => {
   const {
     credsPath,
-    customerInput,
+    customerId,
+    updatePayload,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'customerInput', customerInput),
+    mandateParam(res, 'customerId', customerId),
+    mandateParam(res, 'updatePayload', updatePayload),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -49,7 +55,8 @@ const shopifyCustomerUpdateApi = async (req, res) => {
 
   const result = await shopifyCustomerUpdate(
     credsPath,
-    customerInput,
+    customerId,
+    updatePayload,
     options,
   );
   respond(res, 200, result);
@@ -60,4 +67,4 @@ module.exports = {
   shopifyCustomerUpdateApi,
 };
 
-// curl http://localhost:8000/shopifyCustomerUpdate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerInput": { ... }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyCustomerUpdate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerId": "1234567890", "updatePayload": { ... }, "options": { "returnAttrs": "id" } }'
