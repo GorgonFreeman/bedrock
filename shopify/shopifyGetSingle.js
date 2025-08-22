@@ -34,6 +34,7 @@ const shopifyGetSingle = async (
     context: {
       credsPath,
       apiVersion,
+      resultsNode: resource,
     },
     interpreter: async (response) => {
       // console.log(response);
