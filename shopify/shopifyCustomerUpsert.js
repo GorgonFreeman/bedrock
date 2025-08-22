@@ -43,7 +43,7 @@ const shopifyCustomerUpsert = async (
   } = {},
 ) => {
 
-  const fetchAttrs = `${ attrs } ${ returnAttrs }`;
+  const fetchAttrs = `${ attrs }${ returnAttrs ? ` ${ returnAttrs }` : '' }`;
   
   // Not doing anything with the rest of customerPayload for now - will expand as we go
   logDeep(customerPayload);
@@ -52,7 +52,7 @@ const shopifyCustomerUpsert = async (
   
   // 1. Look up customer by ID - if ID was provided but no customer found, return failure
   if (customerId) {
-    const customerGetResponse = await shopifyCustomerGet(credsPath, { customerId }, { apiVersion, fetchAttrs });
+    const customerGetResponse = await shopifyCustomerGet(credsPath, { customerId }, { apiVersion, attrs: fetchAttrs });
     const { success, result } = customerGetResponse;
     if (!success) {
       return customerGetResponse;
@@ -72,7 +72,7 @@ const shopifyCustomerUpsert = async (
   // 2. Look up customer by email 
   if (!shopifyCustomer) {
     if (email) {
-      const customerGetResponse = await shopifyCustomerGet(credsPath, { email }, { apiVersion, fetchAttrs });
+      const customerGetResponse = await shopifyCustomerGet(credsPath, { email }, { apiVersion, attrs: fetchAttrs });
       const { success, result } = customerGetResponse;
       if (!success) {
         return customerGetResponse;
@@ -129,7 +129,7 @@ const shopifyCustomerUpsert = async (
       ]}),
     };
 
-    const customerCreateResponse = await shopifyCustomerCreate(credsPath, customerCreatePayload, { apiVersion, fetchAttrs });
+    const customerCreateResponse = await shopifyCustomerCreate(credsPath, customerCreatePayload, { apiVersion, attrs: returnAttrs });
     
     // const { success, result } = customerCreateResponse;    
     // if (!success) {
