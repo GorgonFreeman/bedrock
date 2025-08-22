@@ -2,9 +2,22 @@
 // Based on shopifyCustomerUpdateDetails in pebl
 
 const { funcApi, logDeep } = require('../utils');
-const { shopifyMutationDo } = require('../shopify/shopify.utils');
 const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
 const { shopifyCustomerCreate } = require('../shopify/shopifyCustomerCreate');
+const { shopifyCustomerUpdate } = require('../shopify/shopifyCustomerUpdate');
+const { shopifyCustomerMarketingConsentUpdateEmail } = require('../shopify/shopifyCustomerMarketingConsentUpdateEmail');
+const { shopifyCustomerMarketingConsentUpdateSms } = require('../shopify/shopifyCustomerMarketingConsentUpdateSms');
+
+const attrs = `
+  id 
+  email
+  phone
+  firstName 
+  lastName
+  tags
+  defaultEmailAddress { marketingState }
+  defaultPhoneNumber { marketingState }
+`;
 
 const shopifyCustomerUpsert = async (
   credsPath,
@@ -22,13 +35,15 @@ const shopifyCustomerUpsert = async (
     emailConsent,
     smsConsent,
 
+    returnAttrs,
     ...customerPayload
   },
   {
     apiVersion,
-    returnAttrs = 'id email firstName lastName',
   } = {},
 ) => {
+
+  const fetchAttrs = `${ attrs } ${ returnAttrs }`;
   
   // Not doing anything with the rest of customerPayload for now - will expand as we go
   logDeep(customerPayload);
@@ -37,7 +52,7 @@ const shopifyCustomerUpsert = async (
   
   // 1. Look up customer by ID - if ID was provided but no customer found, return failure
   if (customerId) {
-    const customerGetResponse = await shopifyCustomerGet(credsPath, { customerId }, { apiVersion, returnAttrs });
+    const customerGetResponse = await shopifyCustomerGet(credsPath, { customerId }, { apiVersion, fetchAttrs });
     const { success, result } = customerGetResponse;
     if (!success) {
       return customerGetResponse;
@@ -56,7 +71,7 @@ const shopifyCustomerUpsert = async (
   // 2. Look up customer by email 
   if (!shopifyCustomer) {
     if (email) {
-      const customerGetResponse = await shopifyCustomerGet(credsPath, { email }, { apiVersion, returnAttrs });
+      const customerGetResponse = await shopifyCustomerGet(credsPath, { email }, { apiVersion, fetchAttrs });
       const { success, result } = customerGetResponse;
       if (!success) {
         return customerGetResponse;
@@ -109,7 +124,7 @@ const shopifyCustomerUpsert = async (
       ]}),
     };
 
-    const customerCreateResponse = await shopifyCustomerCreate(credsPath, customerCreatePayload, { apiVersion, returnAttrs });
+    const customerCreateResponse = await shopifyCustomerCreate(credsPath, customerCreatePayload, { apiVersion, fetchAttrs });
     const { success, result } = customerCreateResponse;
     
     // if (!success) {
@@ -120,8 +135,14 @@ const shopifyCustomerUpsert = async (
     // Currently nothing needs to be handled after creation, so return response directly
     return customerCreateResponse;
   }
+  
+  // At this point, it's definitely an update, as everything else can be handled during create
+  // 4. Figure out what if anything has changed
+  logDeep(shopifyCustomer);
+  logDeep(customerPayload);
 
-  // 4. Update anything that couldn't be included in the create call
+  // 5. Make updates
+
 
   return {
     success: true,
