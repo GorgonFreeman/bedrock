@@ -188,56 +188,53 @@ const shopifyCustomerUpsert = async (
   const emailConsentState = consentBooleanToState(emailConsent);
   const smsConsentState = consentBooleanToState(smsConsent);
 
-  const consentNeedsUpdating = (consentState, currentState) => {
-    if (consentState === 'SUBSCRIBED') {
-      return currentState !== 'SUBSCRIBED';
-    }
-
-    if (consentState === 'UNSUBSCRIBED') {
-      const unsubscribedStates = ['UNSUBSCRIBED', 'NOT_SUBSCRIBED'];
-      return !unsubscribedStates.includes(currentState);
-    }
-
-    return true;
-  };
+  // Email marketing consent
+  const emailCurrentlySubscribed = shopifyCustomer?.defaultEmailAddress?.marketingState === 'SUBSCRIBED';
   
-  let updatedEmailConsentState;
-  const emailConsentDiffers = consentNeedsUpdating(emailConsentState, shopifyCustomer?.defaultEmailAddress?.marketingState);
-  if (emailConsentDiffers) {
-    updatedEmailConsentState = consentBooleanToState(emailConsent);
+  let emailConsentRelevant = false;
+  let emailShouldBeSubscribed = emailCurrentlySubscribed;
+  const emailConsentUpdateRequested = !customNullish(emailConsent);
+
+  if (emailConsentUpdateRequested) {
+    if (emailCurrentlySubscribed !== emailConsent) {
+      emailShouldBeSubscribed = emailConsent;
+      emailConsentRelevant = true;
+    }
   }
 
-  let emailConsentRestore = false;
-
-  const currentlySubscribedEmail = shopifyCustomer?.defaultEmailAddress?.marketingState === 'SUBSCRIBED';
-  // If they are subscribed and should stay subscribed
-  // Or if they are subscribing
-  if ((currentlySubscribedEmail && !emailConsentDiffers) || emailConsent === true) {
-    emailConsentRestore = true;
-    updatedEmailConsentState = 'SUBSCRIBED';
+  if (emailRelevant) {
+    if (emailShouldBeSubscribed) {
+      emailConsentRelevant = true;
+    } else {
+      emailConsentRelevant = false;
+    }
   }
-
-  const emailConsentRelevant = emailConsentDiffers || emailConsentRestore;
 
   if (emailConsentRelevant) {
     console.log(`emailConsent ${ emailConsentState } vs ${ shopifyCustomer?.defaultEmailAddress?.marketingState }`);
   }
+
+  // SMS marketing consent
+  const smsCurrentlySubscribed = shopifyCustomer?.defaultPhoneNumber?.marketingState === 'SUBSCRIBED';
   
-  let updatedSmsConsentState;
-  const smsConsentDiffers = consentNeedsUpdating(smsConsentState, shopifyCustomer?.defaultPhoneNumber?.marketingState);
-  if (smsConsentDiffers) {
-    updatedSmsConsentState = consentBooleanToState(smsConsent);
+  let smsConsentRelevant = false;
+  let smsShouldBeSubscribed = smsCurrentlySubscribed;
+  const smsConsentUpdateRequested = !customNullish(smsConsent);
+
+  if (smsConsentUpdateRequested) {
+    if (smsCurrentlySubscribed !== smsConsent) {
+      smsShouldBeSubscribed = smsConsent;
+      smsConsentRelevant = true;
+    }
   }
 
-  let smsConsentRestore = false;
-
-  const currentlySubscribedSms = shopifyCustomer?.defaultPhoneNumber?.marketingState === 'SUBSCRIBED';
-  if ((currentlySubscribedSms && !smsConsentDiffers) || smsConsent === true) {
-    smsConsentRestore = true;
-    updatedSmsConsentState = 'SUBSCRIBED';
+  if (phoneRelevant) {
+    if (smsShouldBeSubscribed) {
+      smsConsentRelevant = true;
+    } else {
+      smsConsentRelevant = false;
+    }
   }
-
-  const smsConsentRelevant = smsConsentDiffers || smsConsentRestore;
 
   if (smsConsentRelevant) {
     console.log(`smsConsent ${ smsConsentState } vs ${ shopifyCustomer?.defaultPhoneNumber?.marketingState }`);
@@ -324,11 +321,11 @@ const shopifyCustomerUpsert = async (
   }
 
   if (emailConsentRelevant) {
-    console.log('Setting email consent to ', updatedEmailConsentState);
+    console.log('Setting email consent to ', emailShouldBeSubscribed);
     const emailConsentUpdateResponse = await shopifyCustomerMarketingConsentUpdateEmail(
       credsPath, 
       gidToId(shopifyCustomer.id), 
-      updatedEmailConsentState,
+      consentBooleanToState(emailShouldBeSubscribed),
       { 
         marketingOptInLevel: 'SINGLE_OPT_IN',
         apiVersion,
@@ -339,11 +336,11 @@ const shopifyCustomerUpsert = async (
   }
   
   if (smsConsentRelevant) {
-    console.log('Setting sms consent to ', updatedSmsConsentState);
+    console.log('Setting sms consent to ', smsShouldBeSubscribed);
     const smsConsentUpdateResponse = await shopifyCustomerMarketingConsentUpdateSms(
       credsPath, 
       gidToId(shopifyCustomer.id), 
-      updatedSmsConsentState, 
+      consentBooleanToState(smsShouldBeSubscribed), 
       { 
         marketingOptInLevel: 'SINGLE_OPT_IN',
         apiVersion,
