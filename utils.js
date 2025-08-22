@@ -265,6 +265,28 @@ const strictlyFalsey = (value) => {
   return true;
 };
 
+const customNullish = (value) => {
+  // Will identify: null, undefined, '', [], {}
+  // Not 'custom nullish': false, 0
+
+  if (value === null || value === undefined) {
+    return true;
+  }
+
+  if (value === '') {
+    return true;
+  }
+  
+  if (typeof value === 'object') {
+    // []
+    if (Array.isArray(value)) return value.length === 0;
+    // {}
+    return Object.keys(value).length === 0;
+  }
+  
+  return false;
+};
+
 // TO DO: Handle response in xApi function and provide all errors, instead of responding here
 const mandateParam = async (
   res, 
@@ -1398,7 +1420,8 @@ module.exports = {
   ifTextThenSpace,
   stripEdgesAndNodes,
   getterAsGetFunction,
-  strictlyFalsey,
+  strictlyFalsey, // TODO: Consider replacing with customNullish
+  customNullish,
   furthestNode,
   objHasAny,
   objHasAll,

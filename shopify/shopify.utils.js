@@ -2,7 +2,7 @@ require('dotenv').config();
 const { env } = process;
 const debug = env.DEBUG === 'true';
 
-const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey, logDeep, furthestNode, objHasAll } = require('../utils');
+const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey, logDeep, furthestNode, objHasAll, customNullish } = require('../utils');
 
 const shopifyRequestSetup = ({ 
   credsPath,
@@ -53,7 +53,7 @@ const shopifyClient = new CustomAxiosClient({
     const unnestedResponse = {
       ...strippedResponse,
       success: !hasErrors,
-      result: unnestedResultWithoutUserErrors || data,
+      result: !customNullish(unnestedResultWithoutUserErrors) ? unnestedResultWithoutUserErrors : data,
       ...hasErrors && {
         error: [
           ...errors?.length ? errors : [],
