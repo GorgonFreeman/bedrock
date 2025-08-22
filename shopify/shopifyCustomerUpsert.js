@@ -1,7 +1,7 @@
 // Creates or updates a customer account, including marketing etc.
 // Based on shopifyCustomerUpdateDetails in pebl
 
-const { funcApi, logDeep, gidToId, arrayStandardResponse } = require('../utils');
+const { funcApi, logDeep, gidToId, arrayStandardResponse, customNullish } = require('../utils');
 const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
 const { shopifyCustomerCreate } = require('../shopify/shopifyCustomerCreate');
 const { shopifyCustomerUpdate } = require('../shopify/shopifyCustomerUpdate');
@@ -209,17 +209,19 @@ const shopifyCustomerUpsert = async (
     ...(phoneChanged && { phone }),
     ...(emailChanged && { email }),
   };
-
-  const customerUpdateResponse = await shopifyCustomerUpdate(
-    credsPath,
-    gidToId(shopifyCustomer.id),
-    updatePayload, 
-    { 
-      apiVersion, 
-      attrs: returnAttrs,
-    },
-  );
-  updateResponses.push(customerUpdateResponse);
+  
+  if (!customNullish(updatePayload)) {
+    const customerUpdateResponse = await shopifyCustomerUpdate(
+      credsPath,
+      gidToId(shopifyCustomer.id),
+      updatePayload, 
+      { 
+        apiVersion, 
+        attrs: returnAttrs,
+      },
+    );
+    updateResponses.push(customerUpdateResponse);
+  }
 
   if (emailConsentChanged) {
     const emailConsentUpdateResponse = await shopifyCustomerMarketingConsentUpdateEmail(
