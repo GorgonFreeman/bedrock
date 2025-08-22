@@ -152,12 +152,15 @@ const shopifyCustomerUpsert = async (
   const emailChanged = email !== shopifyCustomer.email;
   
   // TODO: Check if consent automatically changes if email/phone changes
+  const consentBooleanToState = (consentBoolean) => consentBoolean ? 'SUBSCRIBED' : 'UNSUBSCRIBED';
+  const emailConsentState = consentBooleanToState(emailConsent);
+  const smsConsentState = consentBooleanToState(smsConsent);
 
-  console.log('emailConsent', emailConsent ? 'SUBSCRIBED' : 'UNSUBSCRIBED', shopifyCustomer?.defaultEmailAddress?.marketingState);
-  const emailConsentChanged = (emailConsent ? 'SUBSCRIBED' : 'UNSUBSCRIBED') !== shopifyCustomer?.defaultEmailAddress?.marketingState;
+  console.log('emailConsent', emailConsentState, shopifyCustomer?.defaultEmailAddress?.marketingState);
+  const emailConsentChanged = emailConsentState !== shopifyCustomer?.defaultEmailAddress?.marketingState;
 
-  console.log('smsConsent', smsConsent ? 'SUBSCRIBED' : 'UNSUBSCRIBED', shopifyCustomer?.defaultPhoneNumber?.marketingState);
-  const smsConsentChanged = (smsConsent ? 'SUBSCRIBED' : 'UNSUBSCRIBED') !== shopifyCustomer?.defaultPhoneNumber?.marketingState;
+  console.log('smsConsent', smsConsentState, shopifyCustomer?.defaultPhoneNumber?.marketingState);
+  const smsConsentChanged = smsConsentState !== shopifyCustomer?.defaultPhoneNumber?.marketingState;
 
   console.log(
     'changes:',
@@ -173,16 +176,14 @@ const shopifyCustomerUpsert = async (
     firstNameChanged,
     lastNameChanged,
     phoneChanged,
-    emailChanged,
-    emailConsentChanged,
+    emailChanged,    emailConsentChanged,
     smsConsentChanged,
   ].some(Boolean);
   if (!anyChanges) {
     console.log('No changes to make');
     return {
       success: true,
-      result: `No changes to make`,
-    };
+      result: `No changes to make`,    };
   }
   
   // 5. Make updates
