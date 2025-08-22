@@ -66,6 +66,7 @@ const shopifyCustomerUpsert = async (
     }
 
     shopifyCustomer = result;
+    console.log('Found customer by ID');
   }
 
   // 2. Look up customer by email 
@@ -79,7 +80,9 @@ const shopifyCustomerUpsert = async (
 
       if (result) {
         shopifyCustomer = result;
-      }      
+      }
+
+      console.log(shopifyCustomer ? 'Found customer by email' : 'No customer found by email');
     }
   }
 
@@ -87,6 +90,8 @@ const shopifyCustomerUpsert = async (
 
   // 3. If no customer found, create one
   if (!shopifyCustomer) {
+
+    console.log('Creating customer');
     
     const customerCreatePayload = {
       // Native attributes
@@ -125,8 +130,8 @@ const shopifyCustomerUpsert = async (
     };
 
     const customerCreateResponse = await shopifyCustomerCreate(credsPath, customerCreatePayload, { apiVersion, fetchAttrs });
-    const { success, result } = customerCreateResponse;
     
+    // const { success, result } = customerCreateResponse;    
     // if (!success) {
     //   return customerCreateResponse;
     // }
@@ -138,11 +143,12 @@ const shopifyCustomerUpsert = async (
   
   // At this point, it's definitely an update, as everything else can be handled during create
   // 4. Figure out what if anything has changed
+  console.log('Comparing customer fetched with requested updates');
   logDeep(shopifyCustomer);
   logDeep(customerPayload);
 
   // 5. Make updates
-
+  console.log('Making updates');
 
   return {
     success: true,
