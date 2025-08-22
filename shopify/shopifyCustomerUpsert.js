@@ -8,7 +8,8 @@ const { shopifyCustomerUpdate } = require('../shopify/shopifyCustomerUpdate');
 const { shopifyCustomerMarketingConsentUpdateEmail } = require('../shopify/shopifyCustomerMarketingConsentUpdateEmail');
 const { shopifyCustomerMarketingConsentUpdateSms } = require('../shopify/shopifyCustomerMarketingConsentUpdateSms');
 
-const attrs = `  id 
+const attrs = `
+  id 
   email
   phone
   firstName 
