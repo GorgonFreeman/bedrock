@@ -156,29 +156,29 @@ const shopifyCustomerUpsert = async (
 
   console.log('changes:');
 
-  const firstNameChanged = firstName && firstName !== shopifyCustomer.firstName;
-  if (firstNameChanged) {
+  const firstNameRelevant = firstName && firstName !== shopifyCustomer.firstName;
+  if (firstNameRelevant) {
     console.log(`firstName ${ firstName } vs ${ shopifyCustomer.firstName }`);
   }
   
-  const lastNameChanged = lastName && lastName !== shopifyCustomer.lastName;
-  if (lastNameChanged) {
+  const lastNameRelevant = lastName && lastName !== shopifyCustomer.lastName;
+  if (lastNameRelevant) {
     console.log(`lastName ${ lastName } vs ${ shopifyCustomer.lastName }`);
   }
 
-  const phoneChanged = phone && phone !== shopifyCustomer.phone;
-  if (phoneChanged) {
+  const phoneRelevant = phone && phone !== shopifyCustomer.phone;
+  if (phoneRelevant) {
     console.log(`phone ${ phone } vs ${ shopifyCustomer.phone }`);
   }
 
-  const emailChanged = email && email !== shopifyCustomer.email;
-  if (emailChanged) {
+  const emailRelevant = email && email !== shopifyCustomer.email;
+  if (emailRelevant) {
     console.log(`email ${ email } vs ${ shopifyCustomer.email }`);
   }
 
   const tagsToAdd = tags && tags.filter(tag => !shopifyCustomer.tags.includes(tag));
-  const tagsChanged = tagsToAdd?.length;
-  if (tagsChanged) {
+  const tagsRelevant = tagsToAdd?.length;
+  if (tagsRelevant) {
     console.log(`tags to add: ${ tagsToAdd.join(', ') }`);
   }
   
@@ -201,46 +201,49 @@ const shopifyCustomerUpsert = async (
     return true;
   };
 
-  let emailConsentChanged = consentNeedsUpdating(emailConsentState, shopifyCustomer?.defaultEmailAddress?.marketingState);
-  if (emailChanged) {
+  let emailConsentRelevant = consentNeedsUpdating(emailConsentState, shopifyCustomer?.defaultEmailAddress?.marketingState);
+  if (emailRelevant) {
     const currentlySubscribed = shopifyCustomer?.defaultEmailAddress?.marketingState === 'SUBSCRIBED';
-    if (currentlySubscribed && !emailConsentChanged || emailConsent === true) {
-      emailConsentChanged = true;
+    if (currentlySubscribed && !emailConsentRelevant || emailConsent === true) {
+      emailConsentRelevant = true;
     }
   }
-  if (emailConsentChanged) {
+  if (emailConsentRelevant) {
     console.log(`emailConsent ${ emailConsentState } vs ${ shopifyCustomer?.defaultEmailAddress?.marketingState }`);
   }
 
-  let smsConsentChanged = consentNeedsUpdating(smsConsentState, shopifyCustomer?.defaultPhoneNumber?.marketingState);
-  if (phoneChanged) {
+  let smsConsentRelevant = consentNeedsUpdating(smsConsentState, shopifyCustomer?.defaultPhoneNumber?.marketingState);
+  if (phoneRelevant) {
     const currentlySubscribed = shopifyCustomer?.defaultPhoneNumber?.marketingState === 'SUBSCRIBED';
-    if (currentlySubscribed && !smsConsentChanged || smsConsent === true) {
-      smsConsentChanged = true;
+    if (currentlySubscribed && !smsConsentRelevant || smsConsent === true) {
+      smsConsentRelevant = true;
     }
   }
-  if (smsConsentChanged) {
+  if (smsConsentRelevant) {
     console.log(`smsConsent ${ smsConsentState } vs ${ shopifyCustomer?.defaultPhoneNumber?.marketingState }`);
   }
 
   // Metafields
-  const dateOfBirthChanged = dateOfBirth && dateOfBirth !== shopifyCustomer?.mfDateOfBirth?.value;
-  // if (dateOfBirthChanged) {    console.log(`dateOfBirth ${ dateOfBirth } vs ${ shopifyCustomer?.mfDateOfBirth?.value }`);
+  const dateOfBirthRelevant = dateOfBirth && dateOfBirth !== shopifyCustomer?.mfDateOfBirth?.value;
+  // if (dateOfBirthRelevant) {
+    console.log(`dateOfBirth ${ dateOfBirth } vs ${ shopifyCustomer?.mfDateOfBirth?.value }`);
   // }
   
-  const genderChanged = gender && gender !== shopifyCustomer?.mfGender?.value;
-  // if (genderChanged) {
+  const genderRelevant = gender && gender !== shopifyCustomer?.mfGender?.value;
+  // if (genderRelevant) {
     console.log(`gender ${ gender } vs ${ shopifyCustomer?.mfGender?.value }`);
   // }
+
   const anyChanges = [
-    firstNameChanged,
-    lastNameChanged,
-    phoneChanged,
-    emailChanged,
-    emailConsentChanged,
-    smsConsentChanged,    tagsChanged,
-    dateOfBirthChanged,
-    genderChanged,
+    firstNameRelevant,
+    lastNameRelevant,
+    phoneRelevant,
+    emailRelevant,
+    emailConsentRelevant,
+    smsConsentRelevant,
+    tagsRelevant,
+    dateOfBirthRelevant,
+    genderRelevant,
   ].some(Boolean);
   if (!anyChanges) {
     console.log('No changes to make');
@@ -255,18 +258,18 @@ const shopifyCustomerUpsert = async (
   const updateResponses = [];
 
   const updatePayload = {
-    ...(firstNameChanged && { firstName }),
-    ...(lastNameChanged && { lastName }),
-    ...(phoneChanged && { phone }),
-    ...(emailChanged && { email }),
-    ...((dateOfBirthChanged || genderChanged) && { metafields: [
-      ...(dateOfBirthChanged ? [{
+    ...(firstNameRelevant && { firstName }),
+    ...(lastNameRelevant && { lastName }),
+    ...(phoneRelevant && { phone }),
+    ...(emailRelevant && { email }),
+    ...((dateOfBirthRelevant || genderRelevant) && { metafields: [
+      ...(dateOfBirthRelevant ? [{
         namespace: 'facts',
         key: 'date_of_birth',
         value: dateOfBirth,
         type: 'date',
       }] : []),
-      ...(genderChanged ? [{
+      ...(genderRelevant ? [{
         namespace: 'facts',
         key: 'gender',
         value: gender,
@@ -288,7 +291,7 @@ const shopifyCustomerUpsert = async (
     updateResponses.push(customerUpdateResponse);
   }
 
-  if (tagsChanged) {
+  if (tagsRelevant) {
     const tagsUpdateResponse = await shopifyTagsAdd(
       credsPath,
       shopifyCustomer.id,
@@ -298,7 +301,7 @@ const shopifyCustomerUpsert = async (
     updateResponses.push(tagsUpdateResponse);
   }
 
-  if (emailConsentChanged) {
+  if (emailConsentRelevant) {
     const emailConsentUpdateResponse = await shopifyCustomerMarketingConsentUpdateEmail(
       credsPath, 
       gidToId(shopifyCustomer.id), 
@@ -312,7 +315,7 @@ const shopifyCustomerUpsert = async (
     updateResponses.push(emailConsentUpdateResponse);
   }
   
-  if (smsConsentChanged) {
+  if (smsConsentRelevant) {
     const smsConsentUpdateResponse = await shopifyCustomerMarketingConsentUpdateSms(
       credsPath, 
       gidToId(shopifyCustomer.id), 
@@ -342,5 +345,8 @@ module.exports = {
 };
 
 // curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { "customerId": "8575963103304" } }'
-// curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { "email": "john+zodiac@whitefoxboutique.com", "firstName": "Ted", "lastName": "Cruz", "phone": "+61490789078", "smsConsent": true, "emailConsent": true, "birthDate": "1980-01-01", "tags": ["skip_welcome", "hello_there"], "gender": "Prefer not to say" } }'
-// curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { "email": "john+zodiac@whitefoxboutique.com", "emailConsent": true } }'
+// curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { "email": "john+zodiac@whitefoxboutique.com", "firstName": "Ted", "lastName": "Cruz", "phone": "+61490789078", "smsConsent": true, "emailConsent": true, "dateOfBirth": "1980-01-01", "tags": ["skip_welcome", "hello_there"], "gender": "Prefer not to say" } }'
+// curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { "email": "john+zodiac@whitefoxboutique.com", "smsConsent": true } }'
+// curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { "customerId": "9004934594632", "email": "john+zodiackiller@whitefoxboutique.com" } }'
+// curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { "customerId": "9004934594632", "dateOfBirth": "1999-10-10" } }'
+// curl http://localhost:8000/shopifyCustomerUpsert -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerPayload": { "customerId": "9004934594632", "gender": "Whatever you into, sweet thang" } }'
