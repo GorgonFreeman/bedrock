@@ -9,6 +9,7 @@ const { shopifyCustomerMarketingConsentUpdateEmail } = require('../shopify/shopi
 const { shopifyCustomerMarketingConsentUpdateSms } = require('../shopify/shopifyCustomerMarketingConsentUpdateSms');
 const { shopifyTagsAdd } = require('../shopify/shopifyTagsAdd');
 
+// TODO: Compose fetch attrs based on requested updates
 const attrs = `
   id 
   email
