@@ -187,27 +187,38 @@ const shopifyCustomerUpsert = async (
   const emailConsentState = consentBooleanToState(emailConsent);
   const smsConsentState = consentBooleanToState(smsConsent);
 
-  const emailConsentChanged = emailConsentState !== shopifyCustomer?.defaultEmailAddress?.marketingState;
+  const consentNeedsUpdating = (consentState, currentState) => {
+    if (consentState === 'SUBSCRIBED') {
+      return currentState !== 'SUBSCRIBED';
+    }
+
+    if (consentState === 'UNSUBSCRIBED') {
+      const unsubscribedStates = ['UNSUBSCRIBED', 'NOT_SUBSCRIBED'];
+      return !unsubscribedStates.includes(currentState);
+    }
+
+    return true;
+  };
+
+  const emailConsentChanged = consentNeedsUpdating(emailConsentState, shopifyCustomer?.defaultEmailAddress?.marketingState);
   if (emailConsentChanged) {
     console.log(`emailConsent ${ emailConsentState } vs ${ shopifyCustomer?.defaultEmailAddress?.marketingState }`);
   }
 
-  const smsConsentChanged = smsConsentState !== shopifyCustomer?.defaultPhoneNumber?.marketingState;
+  const smsConsentChanged = consentNeedsUpdating(smsConsentState, shopifyCustomer?.defaultPhoneNumber?.marketingState);
   if (smsConsentChanged) {
     console.log(`smsConsent ${ smsConsentState } vs ${ shopifyCustomer?.defaultPhoneNumber?.marketingState }`);
   }
 
   // Metafields
   const dateOfBirthChanged = dateOfBirth && dateOfBirth !== shopifyCustomer?.mfDateOfBirth?.value;
-  // if (dateOfBirthChanged) {
-    console.log(`dateOfBirth ${ dateOfBirth } vs ${ shopifyCustomer?.mfDateOfBirth?.value }`);
+  // if (dateOfBirthChanged) {    console.log(`dateOfBirth ${ dateOfBirth } vs ${ shopifyCustomer?.mfDateOfBirth?.value }`);
   // }
   
   const genderChanged = gender && gender !== shopifyCustomer?.mfGender?.value;
   // if (genderChanged) {
     console.log(`gender ${ gender } vs ${ shopifyCustomer?.mfGender?.value }`);
   // }
-
   const anyChanges = [
     firstNameChanged,
     lastNameChanged,
