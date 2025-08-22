@@ -44,14 +44,16 @@ const shopifyCustomerUpsert = async (
 
     returnAttrs,
     ...customerPayload
-  },  {
+  },
+  {
     apiVersion,
   } = {},
 ) => {
 
   const fetchAttrs = `${ attrs }${ returnAttrs ? ` ${ returnAttrs }` : '' }`;
   
-  // Not doing anything with the rest of customerPayload for now - will expand as we go  logDeep(customerPayload);
+  // Not doing anything with the rest of customerPayload for now - will expand as we go
+  logDeep(customerPayload);
 
   let shopifyCustomer;
   
@@ -129,7 +131,8 @@ const shopifyCustomerUpsert = async (
           namespace: 'facts',
           key: 'gender',
           value: gender,
-          type: 'single_line_text_field',        }] : []),
+          type: 'single_line_text_field',
+        }] : []),
       ]}),
     };
 
@@ -221,7 +224,8 @@ const shopifyCustomerUpsert = async (
     return {
       success: true,
       result: `No changes to make`,
-    };  }
+    };
+  }
   
   // 5. Make updates
   console.log('Making updates');
@@ -252,13 +256,15 @@ const shopifyCustomerUpsert = async (
     const customerUpdateResponse = await shopifyCustomerUpdate(
       credsPath,
       gidToId(shopifyCustomer.id),
-      updatePayload,       { 
+      updatePayload, 
+      { 
         apiVersion, 
         attrs: returnAttrs,
       },
     );
     updateResponses.push(customerUpdateResponse);
   }
+
   if (tagsChanged) {
     const tagsUpdateResponse = await shopifyTagsAdd(
       credsPath,
