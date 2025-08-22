@@ -201,12 +201,24 @@ const shopifyCustomerUpsert = async (
     return true;
   };
 
-  const emailConsentChanged = consentNeedsUpdating(emailConsentState, shopifyCustomer?.defaultEmailAddress?.marketingState);
+  let emailConsentChanged = consentNeedsUpdating(emailConsentState, shopifyCustomer?.defaultEmailAddress?.marketingState);
+  if (emailChanged) {
+    const currentlySubscribed = shopifyCustomer?.defaultEmailAddress?.marketingState === 'SUBSCRIBED';
+    if (currentlySubscribed && !emailConsentChanged || emailConsent === true) {
+      emailConsentChanged = true;
+    }
+  }
   if (emailConsentChanged) {
     console.log(`emailConsent ${ emailConsentState } vs ${ shopifyCustomer?.defaultEmailAddress?.marketingState }`);
   }
 
-  const smsConsentChanged = consentNeedsUpdating(smsConsentState, shopifyCustomer?.defaultPhoneNumber?.marketingState);
+  let smsConsentChanged = consentNeedsUpdating(smsConsentState, shopifyCustomer?.defaultPhoneNumber?.marketingState);
+  if (phoneChanged) {
+    const currentlySubscribed = shopifyCustomer?.defaultPhoneNumber?.marketingState === 'SUBSCRIBED';
+    if (currentlySubscribed && !smsConsentChanged || smsConsent === true) {
+      smsConsentChanged = true;
+    }
+  }
   if (smsConsentChanged) {
     console.log(`smsConsent ${ smsConsentState } vs ${ shopifyCustomer?.defaultPhoneNumber?.marketingState }`);
   }
@@ -226,8 +238,7 @@ const shopifyCustomerUpsert = async (
     phoneChanged,
     emailChanged,
     emailConsentChanged,
-    smsConsentChanged,
-    tagsChanged,
+    smsConsentChanged,    tagsChanged,
     dateOfBirthChanged,
     genderChanged,
   ].some(Boolean);
