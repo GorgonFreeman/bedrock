@@ -8,7 +8,7 @@ const defaultAttrs = `defaultEmailAddress { marketingState }`;
 const shopifyCustomerMarketingConsentUpdateEmail = async (
   credsPath,
   customerId,
-  marketingState, // SUBSCRIBED, UNSUBSCRIBED
+  marketingState, // SUBSCRIBED, UNSUBSCRIBED, NOT_SUBSCRIBED
   {
     apiVersion,
     returnAttrs = defaultAttrs,
@@ -80,3 +80,4 @@ module.exports = {
 
 // curl http://localhost:8000/shopifyCustomerMarketingConsentUpdateEmail -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerId": "8575963103304", "marketingState": "SUBSCRIBED" }'
 // curl http://localhost:8000/shopifyCustomerMarketingConsentUpdateEmail -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerId": "8575963103304", "marketingState": "UNSUBSCRIBED" }'
+// curl http://localhost:8000/shopifyCustomerMarketingConsentUpdateEmail -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerId": "8575963103304", "marketingState": "NOT_SUBSCRIBED" }'
