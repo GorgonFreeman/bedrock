@@ -172,6 +172,7 @@ const shopifyCustomerUpsert = async (
   console.log('Making updates');
 
   const updatePayload = {
+    id: shopifyCustomer.id,
     ...(firstNameChanged && { firstName }),
     ...(lastNameChanged && { lastName }),
     ...(phoneChanged && { phone }),

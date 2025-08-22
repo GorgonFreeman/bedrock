@@ -18,8 +18,8 @@ const shopifyCustomerUpdate = async (
     credsPath,
     'customerUpdate',
     {
-      customer: {
-        type: 'customerUpdateInput!',
+      input: {
+        type: 'CustomerInput!',
         value: customerInput,
       },
     },
