@@ -36,15 +36,6 @@ const shopifyGetSingle = async (
       apiVersion,
       resultsNode: resource,
     },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result[resource],
-        } : {},
-      };
-    },
   });
 
   logDeep(response);
