@@ -158,6 +158,15 @@ const shopifyCustomerUpsert = async (
     phoneChanged ? 'phone' : '',
     emailChanged ? 'email' : '',
   );
+
+  const anyChanges = [firstNameChanged, lastNameChanged, phoneChanged, emailChanged].some(Boolean);
+  if (!anyChanges) {
+    console.log('No changes to make');
+    return {
+      success: true,
+      result: `No changes to make`,
+    };
+  }
   
   // 5. Make updates
   console.log('Making updates');
