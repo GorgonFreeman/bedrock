@@ -200,25 +200,45 @@ const shopifyCustomerUpsert = async (
 
     return true;
   };
-
-  let emailConsentRelevant = consentNeedsUpdating(emailConsentState, shopifyCustomer?.defaultEmailAddress?.marketingState);
-  if (emailRelevant) {
-    const currentlySubscribed = shopifyCustomer?.defaultEmailAddress?.marketingState === 'SUBSCRIBED';
-    if (currentlySubscribed && !emailConsentRelevant || emailConsent === true) {
-      emailConsentRelevant = true;
-    }
+  
+  let updatedEmailConsentState;
+  const emailConsentDiffers = consentNeedsUpdating(emailConsentState, shopifyCustomer?.defaultEmailAddress?.marketingState);
+  if (emailConsentDiffers) {
+    updatedEmailConsentState = consentBooleanToState(emailConsent);
   }
+
+  let emailConsentRestore = false;
+
+  const currentlySubscribedEmail = shopifyCustomer?.defaultEmailAddress?.marketingState === 'SUBSCRIBED';
+  // If they are subscribed and should stay subscribed
+  // Or if they are subscribing
+  if ((currentlySubscribedEmail && !emailConsentDiffers) || emailConsent === true) {
+    emailConsentRestore = true;
+    updatedEmailConsentState = 'SUBSCRIBED';
+  }
+
+  const emailConsentRelevant = emailConsentDiffers || emailConsentRestore;
+
   if (emailConsentRelevant) {
     console.log(`emailConsent ${ emailConsentState } vs ${ shopifyCustomer?.defaultEmailAddress?.marketingState }`);
   }
-
-  let smsConsentRelevant = consentNeedsUpdating(smsConsentState, shopifyCustomer?.defaultPhoneNumber?.marketingState);
-  if (phoneRelevant) {
-    const currentlySubscribed = shopifyCustomer?.defaultPhoneNumber?.marketingState === 'SUBSCRIBED';
-    if (currentlySubscribed && !smsConsentRelevant || smsConsent === true) {
-      smsConsentRelevant = true;
-    }
+  
+  let updatedSmsConsentState;
+  const smsConsentDiffers = consentNeedsUpdating(smsConsentState, shopifyCustomer?.defaultPhoneNumber?.marketingState);
+  if (smsConsentDiffers) {
+    updatedSmsConsentState = consentBooleanToState(smsConsent);
   }
+
+  let smsConsentRestore = false;
+
+  const currentlySubscribedSms = shopifyCustomer?.defaultPhoneNumber?.marketingState === 'SUBSCRIBED';
+  if ((currentlySubscribedSms && !smsConsentDiffers) || smsConsent === true) {
+    smsConsentRestore = true;
+    updatedSmsConsentState = 'SUBSCRIBED';
+  }
+
+  const smsConsentRelevant = smsConsentDiffers || smsConsentRestore;
+
   if (smsConsentRelevant) {
     console.log(`smsConsent ${ smsConsentState } vs ${ shopifyCustomer?.defaultPhoneNumber?.marketingState }`);
   }
@@ -279,6 +299,7 @@ const shopifyCustomerUpsert = async (
   };
   
   if (!customNullish(updatePayload)) {
+    console.log('Updating customer', updatePayload);
     const customerUpdateResponse = await shopifyCustomerUpdate(
       credsPath,
       gidToId(shopifyCustomer.id),
@@ -292,6 +313,7 @@ const shopifyCustomerUpsert = async (
   }
 
   if (tagsRelevant) {
+    console.log(`Adding tags ${ tagsToAdd.join(', ') }`);
     const tagsUpdateResponse = await shopifyTagsAdd(
       credsPath,
       shopifyCustomer.id,
@@ -302,10 +324,11 @@ const shopifyCustomerUpsert = async (
   }
 
   if (emailConsentRelevant) {
+    console.log('Setting email consent to ', updatedEmailConsentState);
     const emailConsentUpdateResponse = await shopifyCustomerMarketingConsentUpdateEmail(
       credsPath, 
       gidToId(shopifyCustomer.id), 
-      emailConsent ? 'SUBSCRIBED' : 'UNSUBSCRIBED',
+      updatedEmailConsentState,
       { 
         marketingOptInLevel: 'SINGLE_OPT_IN',
         apiVersion,
@@ -316,10 +339,11 @@ const shopifyCustomerUpsert = async (
   }
   
   if (smsConsentRelevant) {
+    console.log('Setting sms consent to ', updatedSmsConsentState);
     const smsConsentUpdateResponse = await shopifyCustomerMarketingConsentUpdateSms(
       credsPath, 
       gidToId(shopifyCustomer.id), 
-      smsConsent ? 'SUBSCRIBED' : 'UNSUBSCRIBED', 
+      updatedSmsConsentState, 
       { 
         marketingOptInLevel: 'SINGLE_OPT_IN',
         apiVersion,
