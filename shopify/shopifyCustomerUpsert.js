@@ -146,31 +146,42 @@ const shopifyCustomerUpsert = async (
   console.log('Comparing customer fetched with requested updates');
   logDeep(shopifyCustomer);
 
-  const firstNameChanged = firstName !== shopifyCustomer.firstName;
-  const lastNameChanged = lastName !== shopifyCustomer.lastName;
-  const phoneChanged = phone !== shopifyCustomer.phone;
-  const emailChanged = email !== shopifyCustomer.email;
+  console.log('changes:');
+
+  const firstNameChanged = firstName && firstName !== shopifyCustomer.firstName;
+  if (firstNameChanged) {
+    console.log(`firstName ${ firstName } vs ${ shopifyCustomer.firstName }`);
+  }
+  
+  const lastNameChanged = lastName && lastName !== shopifyCustomer.lastName;
+  if (lastNameChanged) {
+    console.log(`lastName ${ lastName } vs ${ shopifyCustomer.lastName }`);
+  }
+
+  const phoneChanged = phone && phone !== shopifyCustomer.phone;
+  if (phoneChanged) {
+    console.log(`phone ${ phone } vs ${ shopifyCustomer.phone }`);
+  }
+
+  const emailChanged = email && email !== shopifyCustomer.email;
+  if (emailChanged) {
+    console.log(`email ${ email } vs ${ shopifyCustomer.email }`);
+  }
   
   // TODO: Check if consent automatically changes if email/phone changes
   const consentBooleanToState = (consentBoolean) => consentBoolean ? 'SUBSCRIBED' : 'UNSUBSCRIBED';
   const emailConsentState = consentBooleanToState(emailConsent);
   const smsConsentState = consentBooleanToState(smsConsent);
 
-  console.log('emailConsent', emailConsentState, shopifyCustomer?.defaultEmailAddress?.marketingState);
   const emailConsentChanged = emailConsentState !== shopifyCustomer?.defaultEmailAddress?.marketingState;
+  if (emailConsentChanged) {
+    console.log(`emailConsent ${ emailConsentState } vs ${ shopifyCustomer?.defaultEmailAddress?.marketingState }`);
+  }
 
-  console.log('smsConsent', smsConsentState, shopifyCustomer?.defaultPhoneNumber?.marketingState);
   const smsConsentChanged = smsConsentState !== shopifyCustomer?.defaultPhoneNumber?.marketingState;
-
-  console.log(
-    'changes:',
-    firstNameChanged ? `firstName ${ firstName } vs ${ shopifyCustomer.firstName }` : '',
-    lastNameChanged ? `lastName ${ lastName } vs ${ shopifyCustomer.lastName }` : '',
-    phoneChanged ? `phone ${ phone } vs ${ shopifyCustomer.phone }` : '',
-    emailChanged ? `email ${ email } vs ${ shopifyCustomer.email }` : '',
-    emailConsentChanged ? `emailConsent ${ emailConsentState } vs ${ shopifyCustomer?.defaultEmailAddress?.marketingState }` : '',
-    smsConsentChanged ? `smsConsent ${ smsConsentState } vs ${ shopifyCustomer?.defaultPhoneNumber?.marketingState }` : '',
-  );
+  if (smsConsentChanged) {
+    console.log(`smsConsent ${ smsConsentState } vs ${ shopifyCustomer?.defaultPhoneNumber?.marketingState }`);
+  }
 
   const anyChanges = [
     firstNameChanged,
