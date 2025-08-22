@@ -34,6 +34,7 @@ const shopifyClient = new CustomAxiosClient({
   },
   baseInterpreter: async (response, context) => {
     const { resultsNode } = context;
+    debug && console.log('resultsNode', resultsNode);
     
     debug && logDeep('response', response);
     debug && await askQuestion('Continue?');
