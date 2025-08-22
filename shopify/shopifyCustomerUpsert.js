@@ -164,12 +164,12 @@ const shopifyCustomerUpsert = async (
 
   console.log(
     'changes:',
-    firstNameChanged ? 'firstName' : '',
-    lastNameChanged ? 'lastName' : '',
-    phoneChanged ? 'phone' : '',
-    emailChanged ? 'email' : '',
-    emailConsentChanged ? 'emailConsent' : '',
-    smsConsentChanged ? 'smsConsent' : '',
+    firstNameChanged ? `firstName ${ firstName } vs ${ shopifyCustomer.firstName }` : '',
+    lastNameChanged ? `lastName ${ lastName } vs ${ shopifyCustomer.lastName }` : '',
+    phoneChanged ? `phone ${ phone } vs ${ shopifyCustomer.phone }` : '',
+    emailChanged ? `email ${ email } vs ${ shopifyCustomer.email }` : '',
+    emailConsentChanged ? `emailConsent ${ emailConsentState } vs ${ shopifyCustomer?.defaultEmailAddress?.marketingState }` : '',
+    smsConsentChanged ? `smsConsent ${ smsConsentState } vs ${ shopifyCustomer?.defaultPhoneNumber?.marketingState }` : '',
   );
 
   const anyChanges = [
@@ -190,8 +190,7 @@ const shopifyCustomerUpsert = async (
   console.log('Making updates');
   const updateResponses = [];
 
-  const updatePayload = {
-    ...(firstNameChanged && { firstName }),
+  const updatePayload = {    ...(firstNameChanged && { firstName }),
     ...(lastNameChanged && { lastName }),
     ...(phoneChanged && { phone }),
     ...(emailChanged && { email }),
