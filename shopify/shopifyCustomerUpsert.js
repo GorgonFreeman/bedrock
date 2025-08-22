@@ -171,10 +171,17 @@ const shopifyCustomerUpsert = async (
   // 5. Make updates
   console.log('Making updates');
 
-  return {
-    success: true,
-    result: shopifyCustomer,
+  const updatePayload = {
+    ...(firstNameChanged && { firstName }),
+    ...(lastNameChanged && { lastName }),
+    ...(phoneChanged && { phone }),
+    ...(emailChanged && { email }),
   };
+
+  const customerUpdateResponse = await shopifyCustomerUpdate(credsPath, updatePayload, { apiVersion, attrs: returnAttrs });
+  
+  logDeep(customerUpdateResponse);
+  return customerUpdateResponse;
 };
 
 const shopifyCustomerUpsertApi = funcApi(shopifyCustomerUpsert, { 
