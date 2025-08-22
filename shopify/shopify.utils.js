@@ -43,35 +43,23 @@ const shopifyClient = new CustomAxiosClient({
     debug && logDeep('strippedResponse', strippedResponse);
     debug && await askQuestion('Continue?');
 
+    const { result } = strippedResponse;
+    const { errors, data } = result || {};
+    const { [resultsNode]: unnestedResult, userErrors } = data || {};
+
     const unnestedResponse = {
       ...strippedResponse,
-      ...strippedResponse.result ? {
-        result: furthestNode(strippedResponse, 'result', 'data', resultsNode),
-      } : {},
+      success: !(errors?.length || userErrors?.length),
+      result: unnestedResult || data,
+      error: [
+        ...errors?.length ? errors : [],
+        ...userErrors?.length ? userErrors : [],
+      ],
     };
 
     debug && logDeep('unnestedResponse', unnestedResponse);
     debug && await askQuestion('Continue?');
 
-    const { result } = unnestedResponse;
-    const { errors, userErrors } = result || {};
-    
-    // console.log('unnestedResponse', unnestedResponse);
-    // console.log('errors', errors);
-    // console.log('userErrors', userErrors);
-
-    if (errors?.length || userErrors?.length) {
-      return {
-        ...unnestedResponse,
-        success: false,
-        result: null,
-        error: [
-          ...errors?.length ? [errors] : [],
-          ...userErrors?.length ? [userErrors] : [],
-        ],
-      };
-    }
-    
     return unnestedResponse;
   },
 });
