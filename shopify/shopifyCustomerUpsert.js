@@ -245,14 +245,14 @@ const shopifyCustomerUpsert = async (
 
   // Metafields
   const dateOfBirthRelevant = dateOfBirth && dateOfBirth !== shopifyCustomer?.mfDateOfBirth?.value;
-  // if (dateOfBirthRelevant) {
+  if (dateOfBirthRelevant) {
     console.log(`dateOfBirth ${ dateOfBirth } vs ${ shopifyCustomer?.mfDateOfBirth?.value }`);
-  // }
+  }
   
   const genderRelevant = gender && gender !== shopifyCustomer?.mfGender?.value;
-  // if (genderRelevant) {
+  if (genderRelevant) {
     console.log(`gender ${ gender } vs ${ shopifyCustomer?.mfGender?.value }`);
-  // }
+  }
 
   const anyChanges = [
     firstNameRelevant,
