@@ -183,7 +183,8 @@ const shopifyCustomerUpsert = async (
       success: true,
       result: `No changes to make`,
     };
-  }  
+  }
+  
   // 5. Make updates
   console.log('Making updates');
   const updateResponses = [];
