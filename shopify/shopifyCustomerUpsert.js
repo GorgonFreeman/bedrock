@@ -145,8 +145,20 @@ const shopifyCustomerUpsert = async (
   // 4. Figure out what if anything has changed
   console.log('Comparing customer fetched with requested updates');
   logDeep(shopifyCustomer);
-  logDeep(customerPayload);
 
+  const firstNameChanged = firstName !== shopifyCustomer.firstName;
+  const lastNameChanged = lastName !== shopifyCustomer.lastName;
+  const phoneChanged = phone !== shopifyCustomer.phone;
+  const emailChanged = email !== shopifyCustomer.email;
+
+  console.log(
+    'changes:',
+    firstNameChanged ? 'firstName' : '',
+    lastNameChanged ? 'lastName' : '',
+    phoneChanged ? 'phone' : '',
+    emailChanged ? 'email' : '',
+  );
+  
   // 5. Make updates
   console.log('Making updates');
 
