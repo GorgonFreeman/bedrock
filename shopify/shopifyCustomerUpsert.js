@@ -7,6 +7,7 @@ const { shopifyCustomerCreate } = require('../shopify/shopifyCustomerCreate');
 const { shopifyCustomerUpdate } = require('../shopify/shopifyCustomerUpdate');
 const { shopifyCustomerMarketingConsentUpdateEmail } = require('../shopify/shopifyCustomerMarketingConsentUpdateEmail');
 const { shopifyCustomerMarketingConsentUpdateSms } = require('../shopify/shopifyCustomerMarketingConsentUpdateSms');
+const { shopifyTagsAdd } = require('../shopify/shopifyTagsAdd');
 
 const attrs = `
   id 
@@ -167,8 +168,15 @@ const shopifyCustomerUpsert = async (
   if (emailChanged) {
     console.log(`email ${ email } vs ${ shopifyCustomer.email }`);
   }
+
+  const tagsToAdd = tags && tags.filter(tag => !shopifyCustomer.tags.includes(tag));
+  const tagsChanged = tagsToAdd?.length;
+  if (tagsChanged) {
+    console.log(`tags to add: ${ tagsToAdd.join(', ') }`);
+  }
   
   // TODO: Check if consent automatically changes if email/phone changes
+  // When changing email, consent is reset to default - restore to the value from before the change
   const consentBooleanToState = (consentBoolean) => consentBoolean ? 'SUBSCRIBED' : 'UNSUBSCRIBED';
   const emailConsentState = consentBooleanToState(emailConsent);
   const smsConsentState = consentBooleanToState(smsConsent);
@@ -190,6 +198,7 @@ const shopifyCustomerUpsert = async (
     emailChanged,
     emailConsentChanged,
     smsConsentChanged,
+    tagsChanged,
   ].some(Boolean);
   if (!anyChanges) {
     console.log('No changes to make');
@@ -221,6 +230,16 @@ const shopifyCustomerUpsert = async (
       },
     );
     updateResponses.push(customerUpdateResponse);
+  }
+
+  if (tagsChanged) {
+    const tagsUpdateResponse = await shopifyTagsAdd(
+      credsPath,
+      shopifyCustomer.id,
+      tagsToAdd,
+      { apiVersion },
+    );
+    updateResponses.push(tagsUpdateResponse);
   }
 
   if (emailConsentChanged) {
