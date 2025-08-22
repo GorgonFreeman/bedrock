@@ -18,9 +18,11 @@ const attrs = `
   tags
   defaultEmailAddress { marketingState }
   defaultPhoneNumber { marketingState }
-  metafields (first: 5, namespace: "facts") {
+  mfDateOfBirth: metafield(namespace: "facts", key: "date_of_birth") {
     value
-    type
+  }
+  mfGender: metafield(namespace: "facts", key: "gender") {
+    value
   }
 `;
 
@@ -35,23 +37,21 @@ const shopifyCustomerUpsert = async (
     tags,
     metafields,
 
-    birthDate,
+    dateOfBirth,
     gender,
     emailConsent,
     smsConsent,
 
     returnAttrs,
     ...customerPayload
-  },
-  {
+  },  {
     apiVersion,
   } = {},
 ) => {
 
   const fetchAttrs = `${ attrs }${ returnAttrs ? ` ${ returnAttrs }` : '' }`;
   
-  // Not doing anything with the rest of customerPayload for now - will expand as we go
-  logDeep(customerPayload);
+  // Not doing anything with the rest of customerPayload for now - will expand as we go  logDeep(customerPayload);
 
   let shopifyCustomer;
   
@@ -117,20 +117,19 @@ const shopifyCustomerUpsert = async (
         marketingState: 'SUBSCRIBED',
       }}),
       
-      ...((metafields || birthDate || gender) && { metafields: [
+      ...((metafields || dateOfBirth || gender) && { metafields: [
         ...(metafields || []),
-        ...(birthDate ? [{
+        ...(dateOfBirth ? [{
           namespace: 'facts',
           key: 'birth_date',
-          value: birthDate,
+          value: dateOfBirth,
           type: 'date',
         }] : []),
         ...(gender ? [{
           namespace: 'facts',
           key: 'gender',
           value: gender,
-          type: 'single_line_text_field',
-        }] : []),
+          type: 'single_line_text_field',        }] : []),
       ]}),
     };
 
@@ -195,6 +194,17 @@ const shopifyCustomerUpsert = async (
     console.log(`smsConsent ${ smsConsentState } vs ${ shopifyCustomer?.defaultPhoneNumber?.marketingState }`);
   }
 
+  // Metafields
+  const dateOfBirthChanged = dateOfBirth && dateOfBirth !== shopifyCustomer?.mfDateOfBirth?.value;
+  // if (dateOfBirthChanged) {
+    console.log(`dateOfBirth ${ dateOfBirth } vs ${ shopifyCustomer?.mfDateOfBirth?.value }`);
+  // }
+  
+  const genderChanged = gender && gender !== shopifyCustomer?.mfGender?.value;
+  // if (genderChanged) {
+    console.log(`gender ${ gender } vs ${ shopifyCustomer?.mfGender?.value }`);
+  // }
+
   const anyChanges = [
     firstNameChanged,
     lastNameChanged,
@@ -203,14 +213,15 @@ const shopifyCustomerUpsert = async (
     emailConsentChanged,
     smsConsentChanged,
     tagsChanged,
+    dateOfBirthChanged,
+    genderChanged,
   ].some(Boolean);
   if (!anyChanges) {
     console.log('No changes to make');
     return {
       success: true,
       result: `No changes to make`,
-    };
-  }
+    };  }
   
   // 5. Make updates
   console.log('Making updates');
@@ -221,21 +232,33 @@ const shopifyCustomerUpsert = async (
     ...(lastNameChanged && { lastName }),
     ...(phoneChanged && { phone }),
     ...(emailChanged && { email }),
+    ...((dateOfBirthChanged || genderChanged) && { metafields: [
+      ...(dateOfBirthChanged ? [{
+        namespace: 'facts',
+        key: 'date_of_birth',
+        value: dateOfBirth,
+        type: 'date',
+      }] : []),
+      ...(genderChanged ? [{
+        namespace: 'facts',
+        key: 'gender',
+        value: gender,
+        type: 'single_line_text_field',
+      }] : []),
+    ]}),
   };
   
   if (!customNullish(updatePayload)) {
     const customerUpdateResponse = await shopifyCustomerUpdate(
       credsPath,
       gidToId(shopifyCustomer.id),
-      updatePayload, 
-      { 
+      updatePayload,       { 
         apiVersion, 
         attrs: returnAttrs,
       },
     );
     updateResponses.push(customerUpdateResponse);
   }
-
   if (tagsChanged) {
     const tagsUpdateResponse = await shopifyTagsAdd(
       credsPath,
