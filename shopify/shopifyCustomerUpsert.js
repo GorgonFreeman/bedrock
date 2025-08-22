@@ -1,7 +1,7 @@
 // Creates or updates a customer account, including marketing etc.
 // Based on shopifyCustomerUpdateDetails in pebl
 
-const { funcApi, logDeep, gidToId } = require('../utils');
+const { funcApi, logDeep, gidToId, arrayStandardResponse } = require('../utils');
 const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
 const { shopifyCustomerCreate } = require('../shopify/shopifyCustomerCreate');
 const { shopifyCustomerUpdate } = require('../shopify/shopifyCustomerUpdate');
@@ -150,6 +150,14 @@ const shopifyCustomerUpsert = async (
   const lastNameChanged = lastName !== shopifyCustomer.lastName;
   const phoneChanged = phone !== shopifyCustomer.phone;
   const emailChanged = email !== shopifyCustomer.email;
+  
+  // TODO: Check if consent automatically changes if email/phone changes
+
+  console.log('emailConsent', emailConsent ? 'SUBSCRIBED' : 'UNSUBSCRIBED', shopifyCustomer?.defaultEmailAddress?.marketingState);
+  const emailConsentChanged = (emailConsent ? 'SUBSCRIBED' : 'UNSUBSCRIBED') !== shopifyCustomer?.defaultEmailAddress?.marketingState;
+
+  console.log('smsConsent', smsConsent ? 'SUBSCRIBED' : 'UNSUBSCRIBED', shopifyCustomer?.defaultPhoneNumber?.marketingState);
+  const smsConsentChanged = (smsConsent ? 'SUBSCRIBED' : 'UNSUBSCRIBED') !== shopifyCustomer?.defaultPhoneNumber?.marketingState;
 
   console.log(
     'changes:',
@@ -157,19 +165,28 @@ const shopifyCustomerUpsert = async (
     lastNameChanged ? 'lastName' : '',
     phoneChanged ? 'phone' : '',
     emailChanged ? 'email' : '',
+    emailConsentChanged ? 'emailConsent' : '',
+    smsConsentChanged ? 'smsConsent' : '',
   );
 
-  const anyChanges = [firstNameChanged, lastNameChanged, phoneChanged, emailChanged].some(Boolean);
+  const anyChanges = [
+    firstNameChanged,
+    lastNameChanged,
+    phoneChanged,
+    emailChanged,
+    emailConsentChanged,
+    smsConsentChanged,
+  ].some(Boolean);
   if (!anyChanges) {
     console.log('No changes to make');
     return {
       success: true,
       result: `No changes to make`,
     };
-  }
-  
+  }  
   // 5. Make updates
   console.log('Making updates');
+  const updateResponses = [];
 
   const updatePayload = {
     ...(firstNameChanged && { firstName }),
@@ -187,9 +204,39 @@ const shopifyCustomerUpsert = async (
       attrs: returnAttrs,
     },
   );
+  updateResponses.push(customerUpdateResponse);
+
+  if (emailConsentChanged) {
+    const emailConsentUpdateResponse = await shopifyCustomerMarketingConsentUpdateEmail(
+      credsPath, 
+      gidToId(shopifyCustomer.id), 
+      emailConsent ? 'SUBSCRIBED' : 'UNSUBSCRIBED',
+      { 
+        marketingOptInLevel: 'SINGLE_OPT_IN',
+        apiVersion,
+      },
+    );
+    logDeep(emailConsentUpdateResponse);
+    updateResponses.push(emailConsentUpdateResponse);
+  }
   
-  logDeep(customerUpdateResponse);
-  return customerUpdateResponse;
+  if (smsConsentChanged) {
+    const smsConsentUpdateResponse = await shopifyCustomerMarketingConsentUpdateSms(
+      credsPath, 
+      gidToId(shopifyCustomer.id), 
+      smsConsent ? 'SUBSCRIBED' : 'UNSUBSCRIBED', 
+      { 
+        marketingOptInLevel: 'SINGLE_OPT_IN',
+        apiVersion,
+      },
+    );
+    logDeep(smsConsentUpdateResponse);
+    updateResponses.push(smsConsentUpdateResponse);
+  }
+  
+  const response = arrayStandardResponse(updateResponses);
+  logDeep(response);
+  return response;
 };
 
 const shopifyCustomerUpsertApi = funcApi(shopifyCustomerUpsert, { 
