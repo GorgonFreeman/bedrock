@@ -96,6 +96,7 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
     runtime = 'nodejs20',
     allowUnauthenticated = true,
     gen2 = true,
+    keep, // TODO: Remove this and refactor .hosting.yml to allow empty configs
     
     // Custom config properties
     schedules,
