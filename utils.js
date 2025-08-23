@@ -454,7 +454,7 @@ const funcApi = (func, { argNames, validatorsByArg, requireHostedApiKey = false 
       }
     }
 
-    const response = await func(...argNames.map(argName => body[argName]));
+    const response = await func(...argNames?.map(argName => body[argName]));
     respond(res, 200, response);
   };
 };
