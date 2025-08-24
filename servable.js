@@ -176,7 +176,6 @@ module.exports = {
   bleckmannReturnsGet: require('./bleckmann/bleckmannReturnsGet').bleckmannReturnsGetApi,
   bleckmannSkuGet: require('./bleckmann/bleckmannSkuGet').bleckmannSkuGetApi,
   bleckmannSkusGet: require('./bleckmann/bleckmannSkusGet').bleckmannSkusGetApi,
-  bedrock_unlistedBootsDiscountCodeReserve: require('./bedrock_unlisted/bedrock_unlistedBootsDiscountCodeReserve').bedrock_unlistedBootsDiscountCodeReserveApi,
   bedrock_unlisted_bootsDiscountCodeReserve: require('./bedrock_unlisted/bedrock_unlisted_bootsDiscountCodeReserve').bedrock_unlisted_bootsDiscountCodeReserveApi,
   bedrock_unlisted_shopifyStaffCustomerOffboard: require('./bedrock_unlisted/bedrock_unlisted_shopifyStaffCustomerOffboard').bedrock_unlisted_shopifyStaffCustomerOffboardApi,
   bedrock_unlisted_shopifyStaffCustomerOnboard: require('./bedrock_unlisted/bedrock_unlisted_shopifyStaffCustomerOnboard').bedrock_unlisted_shopifyStaffCustomerOnboardApi,
