@@ -438,6 +438,7 @@ const funcApi = (
     requireHostedApiKey = false, 
     allowCrossOrigin = false, 
     allowOrigins = '*', // If supplying, supply an array
+    allowMethods = ['GET', 'POST'],
     allowHeaders = [],
   } = {},
 ) => {
@@ -454,14 +455,15 @@ const funcApi = (
 
       if (allowOrigins === '*') {
         res.setHeader('Access-Control-Allow-Origin', '*');
-      } else if (allowOrigins.includes(req.headers.origin)) {
+      } else if (allowOrigins?.includes(req.headers.origin)) {
         res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
       } else {
         respond(res, 403, { error: 'Origin not allowed' });
         return;
       }
 
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+      res.setHeader('Access-Control-Allow-Methods', allowMethods.join(', '));
+
       const allowedHeaders = [
         'Content-Type',
         ...allowHeaders,
