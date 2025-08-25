@@ -1479,6 +1479,11 @@ const standardRequestVerifiers = {
   verifyHashSecuredRequest,
 };
 
+const parseBoolean = (value) => {
+  // https://stackoverflow.com/a/18355136
+  return (value == 'false') != Boolean(value);
+};
+
 module.exports = {
 
   // Really core
@@ -1528,6 +1533,7 @@ module.exports = {
   arraySortByProp,
   interactiveChooseOption,
   standardRequestVerifiers,
+  parseBoolean,
   
   // Classes
   CustomAxiosClient,
