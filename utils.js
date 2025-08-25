@@ -1432,6 +1432,45 @@ const checkHostedApiKey = async (req, res) => {
   return true;
 };
 
+const verifyHashSecuredRequest = async (req, res) => {
+
+  if (!HOSTED) {
+    return true;
+  }
+
+  const { PRIVATE_KEY } = process.env;
+
+  if (!PRIVATE_KEY) {
+    throw new Error(`verifyHashSecuredRequest: No private key found`);
+  }
+
+  const { 
+    'x-wf-token': vToken,
+    'x-wf-value': vValue,
+  } = req?.headers;
+  // console.log(vToken, vValue);
+
+  if (!(vToken && vValue)) {
+    console.log('Rejecting: Token or value missing');
+    respond(res, 403, { message: 'Invalid credentials - please submit the form again from the site.' });
+    return false;
+  }
+
+  const hash = crypto.createHmac('sha256', PRIVATE_KEY).update(vValue).digest('hex');
+  // console.log(hash);
+
+  // If the hashes match, the request is legit - do the thing
+  const hashValid = hash === vToken;
+
+  if (!hashValid) {
+    console.log('Rejecting: Hash mismatch');
+    respond(res, 403, { message: 'Invalid credentials - please submit the form again from the site.' });
+    return false;
+  }
+
+  return true; 
+};
+
 module.exports = {
 
   // Really core
@@ -1481,6 +1520,7 @@ module.exports = {
   arraySortByProp,
   interactiveChooseOption,
   checkHostedApiKey,
+  verifyHashSecuredRequest,
   
   // Classes
   CustomAxiosClient,
