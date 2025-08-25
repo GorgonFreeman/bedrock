@@ -44,6 +44,9 @@ const shopifyCustomerUpsert = async (
     smsConsent,
     stateAwareTags = [],
 
+    // Overly specific business logic - omit for general use
+    skipWelcomeJourney = false,
+
     returnAttrs,
     ...customerPayload
   },
@@ -106,6 +109,10 @@ const shopifyCustomerUpsert = async (
 
     if (stateAwareTags?.length) {
       tags.push(...stateAwareTags.map(tag => `created_${ tag }`));
+    }
+
+    if (skipWelcomeJourney) {
+      tags.push('skip_welcome');
     }
     
     const customerCreatePayload = {
