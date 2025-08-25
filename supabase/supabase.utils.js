@@ -76,7 +76,7 @@ const supabaseRowDelete = async (
 
     console.log(`🗑️  Deleting row with conditions:`, deleteConfig.conditions);
     
-    let query = supabase.from(tableName).delete();
+    let query = client.from(tableName).delete();
     
     Object.entries(deleteConfig.conditions).forEach(([field, value]) => {
       query = query.eq(field, value);
@@ -87,7 +87,7 @@ const supabaseRowDelete = async (
     // Single field deletion
     console.log(`🗑️  Deleting row where ${deleteConfig.field} = ${deleteConfig.value}`);
     
-    queryResponse = await supabase
+    queryResponse = await client
       .from(tableName)
       .delete()
       .eq(deleteConfig.field, deleteConfig.value);
