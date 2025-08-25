@@ -208,24 +208,14 @@ const shopifyCustomerUpsert = async (
 
   // Email marketing consent
   const emailCurrentlySubscribed = shopifyCustomer?.defaultEmailAddress?.marketingState === 'SUBSCRIBED';
+  const emailShouldBeSubscribed = !customNullish(emailConsent) ? emailConsent : emailCurrentlySubscribed;
   
   let emailConsentRelevant = false;
-  let emailShouldBeSubscribed = emailCurrentlySubscribed;
-  const emailConsentUpdateRequested = !customNullish(emailConsent);
-
-  if (emailConsentUpdateRequested) {
-    if (emailCurrentlySubscribed !== emailConsent) {
-      emailShouldBeSubscribed = emailConsent;
-      emailConsentRelevant = true;
-    }
-  }
-
-  if (emailRelevant) {
-    if (emailShouldBeSubscribed) {
-      emailConsentRelevant = true;
-    } else {
-      emailConsentRelevant = false;
-    }
+  if (
+    (emailRelevant && emailShouldBeSubscribed) 
+    || (!emailRelevant && (emailCurrentlySubscribed !== emailShouldBeSubscribed))
+  ) {
+    emailConsentRelevant = true;
   }
 
   if (emailConsentRelevant) {
@@ -234,24 +224,14 @@ const shopifyCustomerUpsert = async (
 
   // SMS marketing consent
   const smsCurrentlySubscribed = shopifyCustomer?.defaultPhoneNumber?.marketingState === 'SUBSCRIBED';
+  const smsShouldBeSubscribed = !customNullish(smsConsent) ? smsConsent : smsCurrentlySubscribed;
   
   let smsConsentRelevant = false;
-  let smsShouldBeSubscribed = smsCurrentlySubscribed;
-  const smsConsentUpdateRequested = !customNullish(smsConsent);
-
-  if (smsConsentUpdateRequested) {
-    if (smsCurrentlySubscribed !== smsConsent) {
-      smsShouldBeSubscribed = smsConsent;
-      smsConsentRelevant = true;
-    }
-  }
-
-  if (phoneRelevant) {
-    if (smsShouldBeSubscribed) {
-      smsConsentRelevant = true;
-    } else {
-      smsConsentRelevant = false;
-    }
+  if (
+    (phoneRelevant && smsShouldBeSubscribed) 
+    || (!phoneRelevant && (smsCurrentlySubscribed !== smsShouldBeSubscribed))
+  ) {
+    smsConsentRelevant = true;
   }
 
   if (smsConsentRelevant) {
