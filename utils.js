@@ -5,6 +5,7 @@ const readline = require('readline');
 const axios = require('axios');
 const { EventEmitter } = require('events');
 const { HOSTED } = require('./constants');
+const crypto = require('crypto');
 
 const { env } = process;
 const debug = env.DEBUG === 'true';
