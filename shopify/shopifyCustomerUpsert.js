@@ -262,7 +262,7 @@ const shopifyCustomerUpsert = async (
     console.log(`gender ${ gender } vs ${ shopifyCustomer?.mfGender?.value }`);
   }
 
-  const miscMetafieldsToUpdate = metafields?.some(mf => {
+  const miscMetafieldsToUpdate = metafields?.filter(mf => {
     const { namespace, key, value: requestedValue } = mf;
     const currentValue = shopifyCustomer?.[`mf_${ namespace }_${ key }`]?.value;
     return currentValue !== requestedValue;
