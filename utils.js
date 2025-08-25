@@ -305,7 +305,7 @@ const mandateParam = async (
   }
 
   console.error(`Param '${ paramName }' not ${ validator ? 'valid' : 'provided' }`);
-  respond(res, 400, { error: `Please provide a ${ validator ? 'valid ' : '' }value for '${ paramName }'` });
+  respond(res, 400, { success: false, error: [`Please provide a ${ validator ? 'valid ' : '' }value for '${ paramName }'`] });
   return false;
 };
 
