@@ -52,7 +52,9 @@ const shopifyCustomerUpsert = async (
   } = {},
 ) => {
 
-  const fetchAttrs = `${ attrs }${ returnAttrs ? ` ${ returnAttrs }` : '' }`;
+  const submittedMetafieldAttrs = metafields?.map(metafield => `mf_${ metafield.namespace }_${ metafield.key }: metafield(namespace: "${ metafield.namespace }", key: "${ metafield.key }") { value }`);
+
+  const fetchAttrs = `${ attrs }${ submittedMetafieldAttrs ? ` ${ submittedMetafieldAttrs }` : '' }${ returnAttrs ? ` ${ returnAttrs }` : '' }`;
   
   // Not doing anything with the rest of customerPayload for now - will expand as we go
   logDeep(customerPayload);
@@ -260,6 +262,16 @@ const shopifyCustomerUpsert = async (
     console.log(`gender ${ gender } vs ${ shopifyCustomer?.mfGender?.value }`);
   }
 
+  const miscMetafieldsToUpdate = metafields?.some(mf => {
+    const { namespace, key, value: requestedValue } = mf;
+    const currentValue = shopifyCustomer?.[`mf_${ namespace }_${ key }`]?.value;
+    return currentValue !== requestedValue;
+  });
+  const miscMetafieldsRelevant = miscMetafieldsToUpdate?.length;
+  if (miscMetafieldsToUpdate?.length) {
+    console.log(`metafields to update: ${ miscMetafieldsToUpdate.map(mf => `${ mf.namespace }/${ mf.key }`).join(', ') }`);
+  }
+
   const anyChanges = [
     firstNameRelevant,
     lastNameRelevant,
@@ -270,6 +282,7 @@ const shopifyCustomerUpsert = async (
     tagsRelevant,
     dateOfBirthRelevant,
     genderRelevant,
+    miscMetafieldsRelevant,
   ].some(Boolean);
   if (!anyChanges) {
     console.log('No changes to make');
@@ -288,7 +301,7 @@ const shopifyCustomerUpsert = async (
     ...(lastNameRelevant && { lastName }),
     ...(phoneRelevant && { phone }),
     ...(emailRelevant && { email }),
-    ...((dateOfBirthRelevant || genderRelevant) && { metafields: [
+    ...((dateOfBirthRelevant || genderRelevant || miscMetafieldsRelevant) && { metafields: [
       ...(dateOfBirthRelevant ? [{
         namespace: 'facts',
         key: 'date_of_birth',
@@ -301,6 +314,7 @@ const shopifyCustomerUpsert = async (
         value: gender,
         type: 'single_line_text_field',
       }] : []),
+      ...(miscMetafieldsRelevant ? miscMetafieldsToUpdate : []),
     ]}),
   };
   
