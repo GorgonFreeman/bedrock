@@ -10,6 +10,7 @@ module.exports = {
   supabaseRowGet: require('./supabase/supabase.utils').supabaseRowGetApi,
   supabaseRowDelete: require('./supabase/supabase.utils').supabaseRowDeleteApi,
   supabaseRowInsert: require('./supabase/supabase.utils').supabaseRowInsertApi,
+  supabaseRowUpdate: require('./supabase/supabase.utils').supabaseRowUpdateApi,
   supabaseTableGet: require('./supabase/supabase.utils').supabaseTableGetApi,
   supabaseTableGetAll: require('./supabase/supabase.utils').supabaseTableGetAllApi,
   supabaseRpc: require('./supabase/supabase.utils').supabaseRpcApi,

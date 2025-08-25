@@ -111,6 +111,23 @@ const supabaseRowInsert = async (
   return supabaseInterpreter(response);
 };
 
+const supabaseRowUpdate = async (
+  credsPath, 
+  tableName,
+  match,
+  updatePayload,
+) => {
+  const client = getSupabaseClient(credsPath);
+
+  const response = await client
+    .from(tableName)
+    .update(updatePayload)
+    .match(match)
+  ;
+
+  return supabaseInterpreter(response);
+};
+
 const supabaseTableGet = async (
   credsPath,
   tableName,
@@ -199,6 +216,11 @@ module.exports = {
     argNames: ['credsPath', 'tableName', 'rowObject'],
     validatorsByArg: { credsPath: Boolean, tableName: Boolean, rowObject: Boolean },
   }),
+  supabaseRowUpdate,
+  supabaseRowUpdateApi: funcApi(supabaseRowUpdate, { 
+    argNames: ['credsPath', 'tableName', 'match', 'updatePayload'],
+    validatorsByArg: { credsPath: Boolean, tableName: Boolean, match: Boolean, updatePayload: Boolean },
+  }),
   supabaseTableGet,
   supabaseTableGetApi: funcApi(supabaseTableGet, { 
     argNames: ['credsPath', 'tableName'],
@@ -219,3 +241,4 @@ module.exports = {
 // curl localhost:8000/supabaseRowGet -H "Content-Type: application/json" -d '{ "credsPath": "foxtron", "tableName": "catalogue_sync_products", "rowField": "handle", "rowValue": "asking-for-more-cap-black" }'
 // curl localhost:8000/supabaseTableGetAll -H "Content-Type: application/json" -d '{ "credsPath": "foxtron", "tableName": "catalogue_sync_products", "options": { "orderBy": "handle" } }'
 // curl localhost:8000/supabaseRpc -H "Content-Type: application/json" -d '{ "credsPath": "bestie_bonus", "rpcName": "reserve_code", "options": { "rpcArgs": { "allocatedto": "john@whitefoxboutique.com" }, "useMaybeSingle": true } }'
+// curl localhost:8000/supabaseRowUpdate -H "Content-Type: application/json" -d '{ "credsPath": "bestie_bonus", "tableName": "codes", "match": { "code": "BB-B8H79M3RXV" }, "updatePayload": { "allocated": 1234 } }'
