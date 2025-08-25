@@ -313,7 +313,7 @@ const shopifyCustomerUpsert = async (
       updatePayload, 
       { 
         apiVersion, 
-        attrs: returnAttrs,
+        returnAttrs: fetchAttrs,
       },
     );
     updateResponses.customerUpdate = customerUpdateResponse;
