@@ -12,6 +12,7 @@ module.exports = {
   supabaseRowInsert: require('./supabase/supabase.utils').supabaseRowInsertApi,
   supabaseTableGet: require('./supabase/supabase.utils').supabaseTableGetApi,
   supabaseTableGetAll: require('./supabase/supabase.utils').supabaseTableGetAllApi,
+  supabaseRpc: require('./supabase/supabase.utils').supabaseRpcApi,
   starshipitAddressCreate: require('./starshipit/starshipitAddressCreate').starshipitAddressCreateApi,
   starshipitAddressDelete: require('./starshipit/starshipitAddressDelete').starshipitAddressDeleteApi,
   starshipitAddressUpdate: require('./starshipit/starshipitAddressUpdate').starshipitAddressUpdateApi,

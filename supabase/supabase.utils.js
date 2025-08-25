@@ -160,6 +160,20 @@ const supabaseTableGetAll = async (
   };
 };
 
+// https://supabase.com/docs/reference/javascript/rpc
+const supabaseRpc = async (
+  credsPath,
+  rpcName,
+  {
+    rpcArgs,
+    rpcOptions,
+  } = {},
+) => {
+  const client = getSupabaseClient(credsPath);
+  const response = await client.rpc(rpcName, rpcArgs, rpcOptions);
+  return supabaseInterpreter(response);
+};
+
 module.exports = {
   getSupabaseClient,
   supabaseRowGet,
@@ -186,6 +200,11 @@ module.exports = {
   supabaseTableGetAllApi: funcApi(supabaseTableGetAll, { 
     argNames: ['credsPath', 'tableName', 'options'],
     validatorsByArg: { credsPath: Boolean, tableName: Boolean },
+  }),
+  supabaseRpc,
+  supabaseRpcApi: funcApi(supabaseRpc, { 
+    argNames: ['credsPath', 'rpcName', 'options'],
+    validatorsByArg: { credsPath: Boolean, rpcName: Boolean },
   }),
 };
 
