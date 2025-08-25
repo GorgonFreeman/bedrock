@@ -34,7 +34,7 @@ const supabaseInterpreter = (response) => {
 
   return {
     success: true,
-    results: data,
+    result: data,
   };
 };
 
@@ -156,7 +156,7 @@ const supabaseTableGetAll = async (
   // console.log(rows);
   return {
     success: true,
-    results: rows,
+    result: rows,
   };
 };
 
