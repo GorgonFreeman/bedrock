@@ -209,13 +209,9 @@ const shopifyCustomerUpsert = async (
   // Email marketing consent
   const emailCurrentlySubscribed = shopifyCustomer?.defaultEmailAddress?.marketingState === 'SUBSCRIBED';
   const emailShouldBeSubscribed = !customNullish(emailConsent) ? emailConsent : emailCurrentlySubscribed;
-  
   let emailConsentRelevant = false;
-  if (
-    (emailRelevant && emailShouldBeSubscribed) 
-    || (!emailRelevant && (emailCurrentlySubscribed !== emailShouldBeSubscribed))
-  ) {
-    emailConsentRelevant = true;
+  if (!customNullish(emailConsent)) {
+    emailConsentRelevant = emailConsent !== emailCurrentlySubscribed;
   }
 
   if (emailConsentRelevant) {
@@ -225,13 +221,9 @@ const shopifyCustomerUpsert = async (
   // SMS marketing consent
   const smsCurrentlySubscribed = shopifyCustomer?.defaultPhoneNumber?.marketingState === 'SUBSCRIBED';
   const smsShouldBeSubscribed = !customNullish(smsConsent) ? smsConsent : smsCurrentlySubscribed;
-  
   let smsConsentRelevant = false;
-  if (
-    (phoneRelevant && smsShouldBeSubscribed) 
-    || (!phoneRelevant && (smsCurrentlySubscribed !== smsShouldBeSubscribed))
-  ) {
-    smsConsentRelevant = true;
+  if (!customNullish(smsConsent)) {
+    smsConsentRelevant = smsConsent !== smsCurrentlySubscribed;
   }
 
   if (smsConsentRelevant) {
@@ -317,6 +309,20 @@ const shopifyCustomerUpsert = async (
       },
     );
     updateResponses.customerUpdate = customerUpdateResponse;
+
+    const { success, result } = customerUpdateResponse;
+    if (!success) {
+      return customerUpdateResponse;
+    }
+
+    const updatedEmailSubscribed = result?.defaultEmailAddress?.marketingState === 'SUBSCRIBED';
+    const updatedSmsSubscribed = result?.defaultPhoneNumber?.marketingState === 'SUBSCRIBED';
+    if (updatedEmailSubscribed !== emailShouldBeSubscribed) {
+      emailConsentRelevant = true;
+    }
+    if (updatedSmsSubscribed !== smsShouldBeSubscribed) {
+      smsConsentRelevant = true;
+    }
   }
 
   if (tagsRelevant) {
