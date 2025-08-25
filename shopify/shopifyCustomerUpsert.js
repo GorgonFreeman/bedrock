@@ -331,7 +331,7 @@ const shopifyCustomerUpsert = async (
   }
 
   if (emailConsentRelevant) {
-    console.log('Setting email consent to ', emailShouldBeSubscribed);
+    console.log('Setting email consent to', emailShouldBeSubscribed);
     const emailConsentUpdateResponse = await shopifyCustomerMarketingConsentUpdateEmail(
       credsPath, 
       gidToId(shopifyCustomer.id), 
@@ -346,7 +346,7 @@ const shopifyCustomerUpsert = async (
   }
   
   if (smsConsentRelevant) {
-    console.log('Setting sms consent to ', smsShouldBeSubscribed);
+    console.log('Setting sms consent to', smsShouldBeSubscribed);
     const smsConsentUpdateResponse = await shopifyCustomerMarketingConsentUpdateSms(
       credsPath, 
       gidToId(shopifyCustomer.id), 
