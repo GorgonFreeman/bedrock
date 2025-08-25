@@ -430,7 +430,16 @@ const objSatisfies = (obj, validators) => {
   return validators.every(validator => validator(obj));
 };
 
-const funcApi = (func, { argNames, validatorsByArg, requireHostedApiKey = false, allowCrossOrigin = false, allowHeaders = [] } = {}) => {
+const funcApi = (
+  func, 
+  { 
+    argNames, 
+    validatorsByArg, 
+    requireHostedApiKey = false, 
+    allowCrossOrigin = false, 
+    allowHeaders = [],
+  } = {},
+) => {
   return async (req, res) => {
 
     if (requireHostedApiKey && HOSTED) {
