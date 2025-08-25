@@ -442,6 +442,7 @@ const funcApi = (
     allowMethods = ['GET', 'POST'],
     allowHeaders = [],
     requestVerifiers = [],
+    bodyModifiers = [],
   } = {},
 ) => {
   return async (req, res) => {
@@ -483,7 +484,11 @@ const funcApi = (
       }
     }
 
-    const { body } = req;
+    let { body } = req;
+
+    for (const bodyModifier of bodyModifiers) {
+      body = await bodyModifier(body, req);
+    }
 
     if (argNames && validatorsByArg) {
       const paramsValid = await Promise.all(
