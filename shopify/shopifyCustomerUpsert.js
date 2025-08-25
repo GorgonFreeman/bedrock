@@ -301,7 +301,7 @@ const shopifyCustomerUpsert = async (
   
   // 5. Make updates
   console.log('Making updates');
-  const updateResponses = [];
+  const updateResponses = {};
 
   const updatePayload = {
     ...(firstNameRelevant && { firstName }),
@@ -336,7 +336,7 @@ const shopifyCustomerUpsert = async (
         attrs: returnAttrs,
       },
     );
-    updateResponses.push(customerUpdateResponse);
+    updateResponses.customerUpdate = customerUpdateResponse;
   }
 
   if (tagsRelevant) {
@@ -347,7 +347,7 @@ const shopifyCustomerUpsert = async (
       tagsToAdd,
       { apiVersion },
     );
-    updateResponses.push(tagsUpdateResponse);
+    updateResponses.tagsUpdate = tagsUpdateResponse;
   }
 
   if (emailConsentRelevant) {
@@ -362,7 +362,7 @@ const shopifyCustomerUpsert = async (
       },
     );
     logDeep(emailConsentUpdateResponse);
-    updateResponses.push(emailConsentUpdateResponse);
+    updateResponses.emailConsentUpdate = emailConsentUpdateResponse;
   }
   
   if (smsConsentRelevant) {
@@ -377,10 +377,13 @@ const shopifyCustomerUpsert = async (
       },
     );
     logDeep(smsConsentUpdateResponse);
-    updateResponses.push(smsConsentUpdateResponse);
+    updateResponses.smsConsentUpdate = smsConsentUpdateResponse;
   }
   
-  const response = arrayStandardResponse(updateResponses, { flatten: true });
+  const response = {
+    ...arrayStandardResponse(Object.values(updateResponses), { flatten: true }),
+    ...{ result: updateResponses },
+  };
   logDeep(response);
   return response;
 };
