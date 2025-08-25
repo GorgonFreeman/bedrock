@@ -430,13 +430,30 @@ const objSatisfies = (obj, validators) => {
   return validators.every(validator => validator(obj));
 };
 
-const funcApi = (func, { argNames, validatorsByArg, requireHostedApiKey = false } = {}) => {
+const funcApi = (func, { argNames, validatorsByArg, requireHostedApiKey = false, allowCrossOrigin = false, allowHeaders = [] } = {}) => {
   return async (req, res) => {
 
     if (requireHostedApiKey && HOSTED) {
       const authorised = await checkHostedApiKey(req, res);
       if (!authorised) {
         return;
+      }
+    }
+
+    if (allowCrossOrigin) {
+      // Set CORS headers to allow requests from any origin
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+      const allowedHeaders = [
+        'Content-Type',
+        ...allowHeaders,
+      ];
+      res.setHeader('Access-Control-Allow-Headers', allowedHeaders.join(', '));
+
+      // Handle preflight requests (OPTIONS)
+      if (req.method === 'OPTIONS') {
+        respond(res, 204);
+        return true;
       }
     }
 
