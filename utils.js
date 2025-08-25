@@ -493,7 +493,7 @@ const funcApi = (
     if (argNames && validatorsByArg) {
       const paramsValid = await Promise.all(
         Object.entries(validatorsByArg).map(([argName, validator]) => {
-          return mandateParam(res, argName, body[argName], validator);
+          return mandateParam(res, argName, body[argName], { validator });
         })
       );
       
