@@ -420,11 +420,11 @@ const furthestNode = (obj, ...nodes) => {
 };
 
 const objHasAny = (obj, propsArr) => {
-  return propsArr.some(prop => !strictlyFalsey(obj[prop]));
+  return propsArr.some(prop => !customNullish(obj[prop]));
 };
 
 const objHasAll = (obj, propsArr) => {
-  return propsArr.every(prop => !strictlyFalsey(obj[prop]));
+  return propsArr.every(prop => !customNullish(obj[prop]));
 };
 
 const objSatisfies = (obj, validators) => {
