@@ -9,6 +9,7 @@
     "dev": "(trap 'kill 0' SIGINT; node _build_scripts/runScriptsOnFileSave & nodemon server)",
     "serve": "(trap 'kill 0' SIGINT; node _build_scripts/runScriptsOnFileSave & PORT=8100 node server)",
     "host": "node _deploy_scripts/deployFromHostingYml",
+    "tunnel": "ngrok http 8000",
     "say_hi": "echo 'hi'"
   },
   "author": "",
