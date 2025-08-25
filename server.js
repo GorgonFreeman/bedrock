@@ -49,7 +49,7 @@ const createServer = () => {
       
       respond(res, 500, {
         success: false,
-        errors: [errorToReadable(err)],
+        error: [errorToReadable(err)],
       });
 
     }

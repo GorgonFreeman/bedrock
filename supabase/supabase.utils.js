@@ -28,7 +28,7 @@ const supabaseInterpreter = (response) => {
   if (error) {
     return {
       success: false,
-      errors: [error],
+      error: [error],
     };
   }
 

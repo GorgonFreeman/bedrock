@@ -322,7 +322,7 @@ const arrayStandardResponse = (responses, { flatten = false } = {}) => {
     success: responses.every(r => r?.success),
     ...!strictlyFalsey(results?.length) && { result: flatten ? results.flat() : results },
     ...!strictlyFalsey(results?.length) && { resultsCount: results.length },
-    ...!strictlyFalsey(errors?.length) && { errors: flatten ? errors.flat() : errors }, 
+    ...!strictlyFalsey(errors?.length) && { error: flatten ? errors.flat() : errors }, 
   };
 };
 
