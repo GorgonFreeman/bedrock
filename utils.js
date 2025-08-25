@@ -440,6 +440,7 @@ const funcApi = (
     allowOrigins = '*', // If supplying, supply an array
     allowMethods = ['GET', 'POST'],
     allowHeaders = [],
+    requestVerifiers = [],
   } = {},
 ) => {
   return async (req, res) => {
@@ -447,6 +448,13 @@ const funcApi = (
     if (requireHostedApiKey && HOSTED) {
       const authorised = await checkHostedApiKey(req, res);
       if (!authorised) {
+        return;
+      }
+    }
+    
+    for (const requestVerifier of requestVerifiers) {
+      const verified = await requestVerifier(req, res);
+      if (!verified) {
         return;
       }
     }
