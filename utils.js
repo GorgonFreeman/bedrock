@@ -446,10 +446,7 @@ const funcApi = (
   return async (req, res) => {
 
     if (requireHostedApiKey && HOSTED) {
-      const authorised = await checkHostedApiKey(req, res);
-      if (!authorised) {
-        return;
-      }
+      requestVerifiers.unshift(checkHostedApiKey);
     }
     
     for (const requestVerifier of requestVerifiers) {
