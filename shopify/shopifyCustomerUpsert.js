@@ -35,13 +35,14 @@ const shopifyCustomerUpsert = async (
     phone,
     firstName,
     lastName,
-    tags,
+    tags = [],
     metafields,
 
     dateOfBirth,
     gender,
     emailConsent,
     smsConsent,
+    stateAwareTags = [],
 
     returnAttrs,
     ...customerPayload
@@ -100,6 +101,10 @@ const shopifyCustomerUpsert = async (
   if (!shopifyCustomer) {
 
     console.log('Creating customer');
+
+    if (stateAwareTags?.length) {
+      tags.push(...stateAwareTags.map(tag => `created_${ tag }`));
+    }
     
     const customerCreatePayload = {
       // Native attributes
@@ -107,7 +112,7 @@ const shopifyCustomerUpsert = async (
       ...(phone && { phone }),
       ...(firstName && { firstName }),
       ...(lastName && { lastName }),
-      ...(tags && { tags }),
+      ...(tags?.length && { tags }),
 
       // Custom attributes
       ...(email && emailConsent && { emailMarketingConsent: {
@@ -154,6 +159,10 @@ const shopifyCustomerUpsert = async (
   console.log('Comparing customer fetched with requested updates');
   logDeep(shopifyCustomer);
 
+  if (stateAwareTags?.length) {
+    tags.push(...stateAwareTags.map(tag => `updated_${ tag }`));
+  }
+
   console.log('changes:');
 
   const firstNameRelevant = firstName && firstName !== shopifyCustomer.firstName;
@@ -176,7 +185,7 @@ const shopifyCustomerUpsert = async (
     console.log(`email ${ email } vs ${ shopifyCustomer.email }`);
   }
 
-  const tagsToAdd = tags && tags.filter(tag => !shopifyCustomer.tags.includes(tag));
+  const tagsToAdd = tags.filter(tag => !shopifyCustomer.tags.includes(tag));
   const tagsRelevant = tagsToAdd?.length;
   if (tagsRelevant) {
     console.log(`tags to add: ${ tagsToAdd.join(', ') }`);
