@@ -1471,6 +1471,11 @@ const verifyHashSecuredRequest = async (req, res) => {
   return true; 
 };
 
+const standardRequestVerifiers = {
+  checkHostedApiKey,
+  verifyHashSecuredRequest,
+};
+
 module.exports = {
 
   // Really core
@@ -1519,8 +1524,7 @@ module.exports = {
   arrayUnique,
   arraySortByProp,
   interactiveChooseOption,
-  checkHostedApiKey,
-  verifyHashSecuredRequest,
+  standardRequestVerifiers,
   
   // Classes
   CustomAxiosClient,
