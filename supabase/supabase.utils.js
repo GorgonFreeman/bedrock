@@ -167,10 +167,18 @@ const supabaseRpc = async (
   {
     rpcArgs,
     rpcOptions,
+
+    useMaybeSingle = false,
   } = {},
 ) => {
   const client = getSupabaseClient(credsPath);
-  const response = await client.rpc(rpcName, rpcArgs, rpcOptions);
+  let query = client.rpc(rpcName, rpcArgs, rpcOptions);
+  
+  if (useMaybeSingle) {
+    query = query.maybeSingle();
+  }
+  
+  const response = await query;
   return supabaseInterpreter(response);
 };
 
@@ -210,4 +218,4 @@ module.exports = {
 
 // curl localhost:8000/supabaseRowGet -H "Content-Type: application/json" -d '{ "credsPath": "foxtron", "tableName": "catalogue_sync_products", "rowField": "handle", "rowValue": "asking-for-more-cap-black" }'
 // curl localhost:8000/supabaseTableGetAll -H "Content-Type: application/json" -d '{ "credsPath": "foxtron", "tableName": "catalogue_sync_products", "options": { "orderBy": "handle" } }'
-// curl localhost:8000/supabaseRpc -H "Content-Type: application/json" -d '{ "credsPath": "bestie_bonus", "rpcName": "reserve_code", "options": { "rpcArgs": { "allocatedto": "john@whitefoxboutique.com" } } }'
+// curl localhost:8000/supabaseRpc -H "Content-Type: application/json" -d '{ "credsPath": "bestie_bonus", "rpcName": "reserve_code", "options": { "rpcArgs": { "allocatedto": "john@whitefoxboutique.com" }, "useMaybeSingle": true } }'
