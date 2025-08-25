@@ -359,7 +359,7 @@ const shopifyCustomerUpsert = async (
     updateResponses.push(smsConsentUpdateResponse);
   }
   
-  const response = arrayStandardResponse(updateResponses);
+  const response = arrayStandardResponse(updateResponses, { flatten: true });
   logDeep(response);
   return response;
 };
