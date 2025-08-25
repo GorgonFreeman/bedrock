@@ -446,17 +446,6 @@ const funcApi = (
 ) => {
   return async (req, res) => {
 
-    if (requireHostedApiKey && HOSTED) {
-      requestVerifiers.unshift(checkHostedApiKey);
-    }
-    
-    for (const requestVerifier of requestVerifiers) {
-      const verified = await requestVerifier(req, res);
-      if (!verified) {
-        return;
-      }
-    }
-
     if (allowCrossOrigin) {
 
       if (allowOrigins === '*') {
@@ -479,6 +468,17 @@ const funcApi = (
       // Handle preflight requests (OPTIONS)
       if (req.method === 'OPTIONS') {
         respond(res, 204);
+        return;
+      }
+    }
+
+    if (requireHostedApiKey && HOSTED) {
+      requestVerifiers.unshift(checkHostedApiKey);
+    }
+    
+    for (const requestVerifier of requestVerifiers) {
+      const verified = await requestVerifier(req, res);
+      if (!verified) {
         return;
       }
     }
