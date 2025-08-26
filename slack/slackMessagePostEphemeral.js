@@ -1,11 +1,19 @@
 // https://docs.slack.dev/reference/methods/chat.postephemeral
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, objHasAny } = require('../utils');
 const { slackClient } = require('../slack/slack.utils');
 
 const slackMessagePostEphemeral = async (
-  channelId,
-  timestamp,
+  {
+    channelName,
+    channelId,
+  },
+  {
+    text,
+    blocks,
+    markdownText,
+  },
+  userId,
   {
     credsPath,
   } = {},
@@ -26,10 +34,11 @@ const slackMessagePostEphemeral = async (
 };
 
 const slackMessagePostEphemeralApi = funcApi(slackMessagePostEphemeral, {
-  argNames: ['channelId', 'timestamp', 'options'],
+  argNames: ['channelIdentifier', 'messagePayload', 'userId', 'options'],
   validatorsByArg: {
-    channelId: Boolean,
-    timestamp: Boolean,
+    channelIdentifier: p => objHasAny(p, ['channelName', 'channelId']),
+    messagePayload: p => objHasAny(p, ['text', 'blocks', 'markdownText']),
+    userId: Boolean,
   },
 });
 
@@ -38,4 +47,4 @@ module.exports = {
   slackMessagePostEphemeralApi,
 };
 
-// curl localhost:8000/slackMessagePostEphemeral -H "Content-Type: application/json" -d '{ "channelId": "C06GAG30145", "timestamp": "1756218276.372199" }'
+// curl localhost:8000/slackMessagePostEphemeral -H "Content-Type: application/json" -d '{ "channelIdentifier": { "channelName": "#hidden_testing" }, "messagePayload": { "text": "new number, who dis?" }, "userId": "U06GAG30145" }'
