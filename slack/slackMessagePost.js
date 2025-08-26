@@ -1,6 +1,7 @@
 // https://docs.slack.dev/reference/methods/chat.postmessage
 
-const { funcApi, objHasAny, credsByPath, CustomAxiosClient, logDeep } = require('../utils');
+const { funcApi, objHasAny, logDeep } = require('../utils');
+const { slackClient } = require('../slack/slack.utils');
 
 const slackMessagePost = async (
   channel,
@@ -14,30 +15,6 @@ const slackMessagePost = async (
   } = {},
 ) => {
   
-  const slackRequestSetup = ({ credsPath } = {}) => {
-    const creds = credsByPath(['slack', credsPath]);
-    const { 
-      BASE_URL,
-      BOT_TOKEN,
-    } = creds;
-  
-    const headers = {
-      'Authorization': `Bearer ${ BOT_TOKEN }`,
-    };
-  
-    return {
-      baseUrl: BASE_URL,
-      headers,
-    };
-  };
-
-  const slackClient = new CustomAxiosClient({
-    preparer: slackRequestSetup,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-  
   const response = await slackClient.fetch({
     url: '/chat.postMessage',
     method: 'post',
@@ -48,7 +25,6 @@ const slackMessagePost = async (
       ...markdownText && { markdown_text: markdownText },
     },
   });
-  
   logDeep(response);
   return response;
 };
