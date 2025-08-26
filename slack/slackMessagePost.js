@@ -1,3 +1,5 @@
+// https://docs.slack.dev/reference/methods/chat.postmessage
+
 const { respond, mandateParam } = require('../utils');
 
 const slackMessagePost = async (
