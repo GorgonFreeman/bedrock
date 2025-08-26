@@ -24,6 +24,9 @@ const slackMessagePost = async (
       ...blocks && { blocks },
       ...markdownText && { markdown_text: markdownText },
     },
+    context: {
+      credsPath,
+    },
   });
   logDeep(response);
   return response;
