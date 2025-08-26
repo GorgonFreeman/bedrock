@@ -1,9 +1,14 @@
 // https://docs.slack.dev/reference/methods/chat.postmessage
 
-const { respond, mandateParam } = require('../utils');
+const { funcApi, objHasAny } = require('../utils');
 
 const slackMessagePost = async (
-  arg,
+  channel,
+  {
+    text,
+    blocks,
+    markdownText,
+  },
   {
     option,
   } = {},
@@ -16,25 +21,13 @@ const slackMessagePost = async (
   
 };
 
-const slackMessagePostApi = async (req, res) => {
-  const { 
-    arg,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await slackMessagePost(
-    arg,
-    options,
-  );
-  respond(res, 200, result);
-};
+const slackMessagePostApi = funcApi(slackMessagePost, {
+  argNames: ['channel', 'messagePayload', 'options'],
+  validatorsByArg: {
+    channel: Boolean,
+    messagePayload: p => objHasAny(p, ['text', 'blocks', 'markdownText']),
+  },
+});
 
 module.exports = {
   slackMessagePost,
