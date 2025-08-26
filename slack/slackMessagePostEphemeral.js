@@ -47,4 +47,4 @@ module.exports = {
   slackMessagePostEphemeralApi,
 };
 
-// curl localhost:8000/slackMessagePostEphemeral -H "Content-Type: application/json" -d '{ "channelIdentifier": { "channelName": "#hidden_testing" }, "messagePayload": { "text": "new number, who dis?" }, "userId": "U06GAG30145" }'
+// curl localhost:8000/slackMessagePostEphemeral -H "Content-Type: application/json" -d '{ "channelIdentifier": { "channelName": "#hidden_testing" }, "messagePayload": { "text": "new number, who dis?" }, "userId": "U0374MR2ZRB" }'
