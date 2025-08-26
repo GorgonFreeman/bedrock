@@ -4,7 +4,10 @@ const { funcApi, objHasAny, logDeep } = require('../utils');
 const { slackClient } = require('../slack/slack.utils');
 
 const slackMessagePost = async (
-  channel,
+  {
+    channelName,
+    channelId,
+  },
   {
     text,
     blocks,
@@ -19,7 +22,7 @@ const slackMessagePost = async (
     url: '/chat.postMessage',
     method: 'post',
     body: {
-      channel,
+      channel: channelId || channelName,
       ...text && { text },
       ...blocks && { blocks },
       ...markdownText && { markdown_text: markdownText },
@@ -33,9 +36,9 @@ const slackMessagePost = async (
 };
 
 const slackMessagePostApi = funcApi(slackMessagePost, {
-  argNames: ['channel', 'messagePayload', 'options'],
+  argNames: ['channelIdentifier', 'messagePayload', 'options'],
   validatorsByArg: {
-    channel: Boolean,
+    channelIdentifier: p => objHasAny(p, ['channelName', 'channelId']),
     messagePayload: p => objHasAny(p, ['text', 'blocks', 'markdownText']),
   },
 });
@@ -45,4 +48,4 @@ module.exports = {
   slackMessagePostApi,
 };
 
-// curl localhost:8000/slackMessagePost -H "Content-Type: application/json" -d '{ "channel": "#hidden_testing", "messagePayload": { "text": "new number, who dis?" } }'
+// curl localhost:8000/slackMessagePost -H "Content-Type: application/json" -d '{ "channelIdentifier": { "channelName": "#hidden_testing" }, "messagePayload": { "text": "new number, who dis?" } }'
