@@ -50,6 +50,7 @@ const slackClient = new CustomAxiosClient({
 
 const slackGetter = async (
   url,
+  resultsNode,
   {
     credsPath,
     params,
@@ -71,8 +72,16 @@ const slackGetter = async (
         await askQuestion('paginator?');
       },
       digester: async (response) => {
-        logDeep(response);
-        await askQuestion('digester?');
+        // logDeep(response);
+        // await askQuestion('digester?');
+
+        const { success, result } = response;
+        if (!success) { // Return if failed
+          return null; 
+        }
+
+        const items = result?.[resultsNode];
+        return items;
       },
       client: slackClient,
       clientArgs: {
