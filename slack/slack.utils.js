@@ -26,6 +26,26 @@ const slackClient = new CustomAxiosClient({
   headers: {
     'Content-Type': 'application/json',
   },
+  baseInterpreter: (response) => {
+    const { success, result } = response;
+    if (!success) { // Return if failed
+      return response;
+    }
+
+    const { ok, ...rest } = result;
+    
+    if (!ok) {
+      return {
+        success: false,
+        error: [rest],
+      };
+    }
+
+    return {
+      success: true,
+      result: rest,
+    };
+  },
 });
 
 const slackGetter = async (
