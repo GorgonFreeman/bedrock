@@ -123,6 +123,7 @@ const supabaseRowUpdate = async (
     .from(tableName)
     .update(updatePayload)
     .match(match)
+    .select()
   ;
 
   return supabaseInterpreter(response);
