@@ -25,6 +25,7 @@ module.exports = {
   starshipitTrackingGet: require('./starshipit/starshipitTrackingGet').starshipitTrackingGetApi,
   slackMessageDelete: require('./slack/slackMessageDelete').slackMessageDeleteApi,
   slackMessagePost: require('./slack/slackMessagePost').slackMessagePostApi,
+  slackMessagePostEphemeral: require('./slack/slackMessagePostEphemeral').slackMessagePostEphemeralApi,
   shopifyCustomerCreate: require('./shopify/shopifyCustomerCreate').shopifyCustomerCreateApi,
   shopifyCustomerDelete: require('./shopify/shopifyCustomerDelete').shopifyCustomerDeleteApi,
   shopifyCustomerGet: require('./shopify/shopifyCustomerGet').shopifyCustomerGetApi,
