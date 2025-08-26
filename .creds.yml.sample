@@ -78,5 +78,6 @@ supabase:
     API_KEY: __________________________
 
 slack:
+  BASE_URL: https://slack.com/api
   BOT_TOKEN: xoxb-_____________________
   SIGNING_SECRET: _____________________
