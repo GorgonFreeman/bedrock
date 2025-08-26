@@ -34,4 +34,4 @@ module.exports = {
   slackMessagePostApi,
 };
 
-// curl localhost:8000/slackMessagePost -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/slackMessagePost -H "Content-Type: application/json" -d '{ "channel": "#hidden_testing", "messagePayload": { "text": "new number, who dis?" } }'
