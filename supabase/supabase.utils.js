@@ -82,7 +82,7 @@ const supabaseRowDelete = async (
       query = query.eq(field, value);
     });
     
-    queryResponse = await query;
+    queryResponse = await query.select();
   } else if (deleteConfig.field && deleteConfig.value !== undefined) {
     // Single field deletion
     console.log(`🗑️  Deleting row where ${deleteConfig.field} = ${deleteConfig.value}`);
@@ -90,7 +90,8 @@ const supabaseRowDelete = async (
     queryResponse = await client
       .from(tableName)
       .delete()
-      .eq(deleteConfig.field, deleteConfig.value);
+      .eq(deleteConfig.field, deleteConfig.value)
+      .select();
   } else {
     throw new Error('deleteConfig must have either { field, value } or { conditions }');
   }
@@ -107,6 +108,7 @@ const supabaseRowInsert = async (
   const response = await client
     .from(tableName)
     .insert(rowObject)
+    .select()
   ;
   return supabaseInterpreter(response);
 };
