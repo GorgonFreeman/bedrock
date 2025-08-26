@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient } = require('../utils');
+const { credsByPath, CustomAxiosClient, logDeep, askQuestion, Getter, getterAsGetFunction } = require('../utils');
 
 const slackRequestSetup = ({ credsPath } = {}) => {
   const creds = credsByPath(['slack', credsPath]);
@@ -28,6 +28,48 @@ const slackClient = new CustomAxiosClient({
   },
 });
 
+const slackGetter = async (
+  url,
+  {
+    credsPath,
+    params,
+    perPage, // Not supplying perPage results in Slack attempting to return the entire results - but we may get an error.
+    ...getterOptions
+  } = {},
+) => {
+  return new Getter(
+    {
+      url,
+      payload: {
+        params: {
+          ...params,
+          ...(perPage ? { limit: perPage } : {}),
+        },
+      },
+      paginator: async (customAxiosPayload, response, { lastPageResultsCount }) => {
+        logDeep(customAxiosPayload, response, lastPageResultsCount);
+        await askQuestion('paginator?');
+      },
+      digester: async (response) => {
+        logDeep(response);
+        await askQuestion('digester?');
+      },
+      client: slackClient,
+      clientArgs: {
+        context: {
+          credsPath,
+        },
+      },
+
+      ...getterOptions
+    },
+  );
+};
+
+const slackGet = getterAsGetFunction(slackGetter);
+
 module.exports = {
   slackClient,
+  slackGetter,
+  slackGet,
 };
