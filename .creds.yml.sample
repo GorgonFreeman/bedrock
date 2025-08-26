@@ -76,3 +76,7 @@ supabase:
   project:
     BASE_URL: https://_____.supabase.co
     API_KEY: __________________________
+
+slack:
+  BOT_TOKEN: xoxb-_____________________
+  SIGNING_SECRET: _____________________
