@@ -4,7 +4,7 @@ const { funcApi, logDeep } = require('../utils');
 const { slackClient } = require('../slack/slack.utils');
 
 const slackMessageDelete = async (
-  channel,
+  channelId,
   timestamp,
   {
     credsPath,
@@ -14,7 +14,7 @@ const slackMessageDelete = async (
     url: '/chat.delete',
     method: 'post',
     body: {
-      channel,
+      channel: channelId,
       ts: timestamp,
     },
     context: {
@@ -26,9 +26,9 @@ const slackMessageDelete = async (
 };
 
 const slackMessageDeleteApi = funcApi(slackMessageDelete, {
-  argNames: ['channel', 'timestamp', 'options'],
+  argNames: ['channelId', 'timestamp', 'options'],
   validatorsByArg: {
-    channel: Boolean,
+    channelId: Boolean,
     timestamp: Boolean,
   },
 });
@@ -38,4 +38,4 @@ module.exports = {
   slackMessageDeleteApi,
 };
 
-// curl localhost:8000/slackMessageDelete -H "Content-Type: application/json" -d '{ "channel": "#hidden_testing", "timestamp": "1756218276.372199" }'
+// curl localhost:8000/slackMessageDelete -H "Content-Type: application/json" -d '{ "channelId": "C06GAG30145", "timestamp": "1756218276.372199" }'
