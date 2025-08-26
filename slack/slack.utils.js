@@ -16,7 +16,8 @@ const slackRequestSetup = ({ credsPath } = {}) => {
   } = creds;
 
   const headers = {
-    'Authorization': `Bearer ${ BOT_TOKEN }`,  };
+    'Authorization': `Bearer ${ BOT_TOKEN }`,
+  };
 
   return {
     baseUrl: BASE_URL,
