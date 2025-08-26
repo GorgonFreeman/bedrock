@@ -1,6 +1,6 @@
 // https://docs.slack.dev/reference/methods/chat.postmessage
 
-const { funcApi, objHasAny } = require('../utils');
+const { funcApi, objHasAny, credsByPath, customAxios } = require('../utils');
 
 const slackMessagePost = async (
   channel,
@@ -10,14 +10,17 @@ const slackMessagePost = async (
     markdownText,
   },
   {
-    option,
+    credsPath,
   } = {},
 ) => {
 
-  return { 
-    arg, 
-    option,
-  };
+  const creds = credsByPath(['slack', credsPath]);
+  const { 
+    BASE_URL,
+    BOT_TOKEN,
+    SIGNING_SECRET,
+  } = creds;
+ 
   
 };
 
