@@ -1,38 +1,35 @@
-const { respond, mandateParam } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
+const { slackClient } = require('../slack/slack.utils');
 
 const slackMessageDelete = async (
-  arg,
+  channel,
+  timestamp,
   {
-    option,
+    credsPath,
   } = {},
 ) => {
-
-  return { 
-    arg, 
-    option,
-  };
-  
+  const response = await slackClient.fetch({
+    url: '/chat.delete',
+    method: 'post',
+    body: {
+      channel,
+      ts: timestamp,
+    },
+    context: {
+      credsPath,
+    },
+  });
+  logDeep(response);
+  return response;
 };
 
-const slackMessageDeleteApi = async (req, res) => {
-  const { 
-    arg,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await slackMessageDelete(
-    arg,
-    options,
-  );
-  respond(res, 200, result);
-};
+const slackMessageDeleteApi = funcApi(slackMessageDelete, {
+  argNames: ['channel', 'timestamp', 'options'],
+  validatorsByArg: {
+    channel: Boolean,
+    timestamp: Boolean,
+  },
+});
 
 module.exports = {
   slackMessageDelete,
