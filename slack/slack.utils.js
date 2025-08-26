@@ -67,9 +67,40 @@ const slackGetter = async (
           ...(perPage ? { limit: perPage } : {}),
         },
       },
-      paginator: async (customAxiosPayload, response, { lastPageResultsCount }) => {
-        logDeep(customAxiosPayload, response, lastPageResultsCount);
-        await askQuestion('paginator?');
+      paginator: async (customAxiosPayload, response, additionalPaginationData) => {
+        // logDeep(customAxiosPayload, response, additionalPaginationData);
+        // await askQuestion('paginator?');
+
+        const { success, result } = response;
+        if (!success) { // Return if failed
+          return [true, null]; 
+        }
+        
+        // 1. Extract necessary pagination info
+
+        const { 
+          response_metadata: responseMetadata,
+        } = result;
+
+        const {
+          next_cursor: nextCursor,
+        } = responseMetadata;
+
+        // 2. Supplement payload with next pagination info
+
+        const paginatedPayload = {
+          ...customAxiosPayload,
+          params: {
+            ...customAxiosPayload?.params,
+            cursor: nextCursor,
+          },
+        };
+        
+        // 3. Logic to determine done
+
+        const done = !nextCursor;
+
+        return [done, paginatedPayload];
       },
       digester: async (response) => {
         // logDeep(response);
