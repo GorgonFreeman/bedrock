@@ -19,11 +19,14 @@ const slackMessagePostEphemeral = async (
   } = {},
 ) => {
   const response = await slackClient.fetch({
-    url: '/chat.delete',
+    url: '/chat.postEphemeral',
     method: 'post',
     body: {
-      channel: channelId,
-      ts: timestamp,
+      channel: channelName || channelId,
+      user: userId,
+      ...(text ? { text } : {}),
+      ...(blocks ? { blocks } : {}),
+      ...(markdownText ? { markdown_text: markdownText } : {}),
     },
     context: {
       credsPath,
