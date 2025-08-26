@@ -6,6 +6,7 @@ const { slackGet } = require('../slack/slack.utils');
 const slackUsersGet = async (
   {
     credsPath,
+    ...options
   } = {},
 ) => {
   const response = await slackGet(
@@ -13,6 +14,7 @@ const slackUsersGet = async (
     'members',
     {
       credsPath,
+      ...options,
     },
   );
   logDeep(response);
