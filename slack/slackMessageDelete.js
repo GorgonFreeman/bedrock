@@ -1,3 +1,5 @@
+// https://docs.slack.dev/reference/methods/chat.delete/
+
 const { funcApi, logDeep } = require('../utils');
 const { slackClient } = require('../slack/slack.utils');
 
