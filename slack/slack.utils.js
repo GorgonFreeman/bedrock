@@ -1,5 +1,13 @@
 const { credsByPath, CustomAxiosClient, logDeep, askQuestion, Getter, getterAsGetFunction } = require('../utils');
 
+const slackChannelNameToId = (channelName, { credsPath } = {}) => {
+  // Remove hash from beginning of channel name if present
+  channelName = channelName.replace(/^#/, '');
+  const creds = credsByPath(['slack', credsPath]);
+  const { CHANNEL_IDS } = creds;
+  return CHANNEL_IDS[channelName];
+};
+
 const slackRequestSetup = ({ credsPath } = {}) => {
   const creds = credsByPath(['slack', credsPath]);
   const { 
@@ -8,8 +16,7 @@ const slackRequestSetup = ({ credsPath } = {}) => {
   } = creds;
 
   const headers = {
-    'Authorization': `Bearer ${ BOT_TOKEN }`,
-  };
+    'Authorization': `Bearer ${ BOT_TOKEN }`,  };
 
   return {
     baseUrl: BASE_URL,
@@ -132,4 +139,5 @@ module.exports = {
   slackClient,
   slackGetter,
   slackGet,
+  slackChannelNameToId,
 };
