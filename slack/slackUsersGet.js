@@ -31,3 +31,4 @@ module.exports = {
 };
 
 // curl localhost:8000/slackUsersGet
+// curl localhost:8000/slackUsersGet -H "Content-Type: application/json" -d '{ "options": { "perPage": 10 } }'
