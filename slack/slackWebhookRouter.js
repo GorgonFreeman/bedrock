@@ -18,7 +18,7 @@ const slackWebhookRouterApi = async (req, res) => {
     console.log('Received payload - handling as interactivity step');
 
     const payload = JSON.parse(body.payload);
-    logDeep('payload', payload);
+    // logDeep('payload', payload);
 
     const { team } = payload;
     const { domain: teamDomain } = team;

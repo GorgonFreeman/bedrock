@@ -1,12 +1,13 @@
 const { respond, logDeep } = require('../utils');
 
 const slackInteractiveTest = async (req, res) => {
-  logDeep('slackInteractiveTest', req.body);
+  console.log('slackInteractiveTest');
 
   const { body } = req;
   
-  // Payload - in an interactive step
   if (body?.payload) {
+    console.log(`Received payload - handling as interactive step`);
+
     const payload = JSON.parse(body.payload);
     logDeep('payload', payload);
 
@@ -14,14 +15,18 @@ const slackInteractiveTest = async (req, res) => {
       state, 
       actions, 
     } = payload;
+    const userAnswer = state?.values?.answer_input?.answer_text?.value;
 
-    return respond(res, 200, { 
+    const response = { 
       replace_original: true,
-      text: `Thanks! You said: *${ state?.values?.cheese_input?.cheese_text_input?.value }* 🧀`,
-    });
+      text: `You answered "${ userAnswer }"`,
+    };
+    logDeep(response);
+    return respond(res, 200, response);
   }
   
-  // No payload - initiated, e.g. through slash command
+  console.log(`No payload - initiation, e.g. slash command`);
+  
   const initialBlocks = [
     {
       type: 'section',
@@ -32,10 +37,10 @@ const slackInteractiveTest = async (req, res) => {
     },
     {
       type: 'input',
-      block_id: 'cheese_input',
+      block_id: 'answer_input',
       element: {
         type: 'plain_text_input',
-        action_id: 'cheese_text_input',
+        action_id: 'answer_text',
         placeholder: {
           type: 'plain_text',
           text: 'Enter your favorite cheese here...',
