@@ -104,7 +104,10 @@ const slackInteractiveTestMulti = async (req, res) => {
       toppings = Array.from(toppingsSet);
       
       let newBlocks = currentBlocks;
-      if (!toppingsBlock) {
+      if (toppings.length === 0) {
+        // Remove toppings block if no toppings
+        newBlocks = newBlocks.filter(block => block.block_id !== 'toppingsState');
+      } else if (!toppingsBlock) {
         const newToppingsBlock = {
           type: 'section',
           block_id: 'toppingsState',
