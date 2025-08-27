@@ -85,7 +85,7 @@ const slackInteractiveTestMulti = async (req, res) => {
   // TODO: Derive toppings from posted message, and use it as persistent state
   const currentBlocks = payload.message.blocks;
   const toppingsBlock = currentBlocks.find(block => block.block_id === 'toppingsState');
-  const toppings = toppingsBlock?.text?.text?.split(', ') || [];
+  let toppings = toppingsBlock?.text?.text?.split(', ') || [];
 
   let response;
 
@@ -94,7 +94,14 @@ const slackInteractiveTestMulti = async (req, res) => {
     case `${ ACTION_NAME }:topping_select`:
 
       const chosenTopping = action.selected_option.value;
-      toppings.push(chosenTopping);
+
+      const toppingsSet = new Set(toppings);
+      
+      toppingsSet.has(chosenTopping) 
+        ? toppingsSet.delete(chosenTopping) 
+        : toppingsSet.add(chosenTopping);
+
+      toppings = Array.from(toppingsSet);
       
       let newBlocks = currentBlocks;
       if (!toppingsBlock) {
@@ -126,7 +133,7 @@ const slackInteractiveTestMulti = async (req, res) => {
     case `${ ACTION_NAME }:done`:
       response = {
         replace_original: 'true',
-        text: toppings?.length ? `Ok, one pizza with ${ toppings.join(', ') }: :pizza:` : `Weird but ok: :flatbread:`,
+        text: toppings.length ? `Ok, one pizza with ${ toppings.join(', ') }: :pizza:` : `Weird but ok: :flatbread:`,
       };
       break;
     default:
