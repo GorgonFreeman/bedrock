@@ -1,9 +1,67 @@
 const { respond, logDeep, customAxios } = require('../utils');
 
+const ACTION_NAME = 'pizza';
+
 const slackInteractiveTestMulti = async (req, res) => {
   console.log('slackInteractiveTestMulti');
 
   const { body } = req;
+
+  if (!body?.payload) {
+    console.log(`Initiation, e.g. slash command`);
+
+    const pizzaToppings = ['pepperoni', 'mushrooms', 'olives', 'anchovies', 'capsicum', 'pineapple', 'artichoke', 'eggplant', 'sundried tomato', 'onion', 'garlic', 'jalapeno', 'bacon'];
+
+    const initialBlocks = [
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: "We getting pizza. :yum: What do you want on it?",
+        },
+        accessory: {
+          type: 'static_select',
+          action_id: `${ ACTION_NAME }:topping_select`,
+          options: pizzaToppings.map(topping => ({
+            text: {
+              type: 'plain_text',
+              text: topping,
+            },
+            value: topping,
+          })),
+        },
+      },
+      {
+        type: 'actions',
+        elements: [
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'Cancel',
+            },
+            value: 'cancel',
+            action_id: `${ ACTION_NAME }:cancel`,
+          },
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'Submit',
+            },
+            value: 'submit',
+            action_id: `${ ACTION_NAME }:submit`,
+            style: 'primary',
+          },
+        ],
+      },
+    ];
+
+    return respond(res, 200, {
+      response_type: 'in_channel',
+      blocks: initialBlocks,
+    });
+  }
   
   if (body?.payload) {
     console.log(`Received payload - handling as interactive step`);
@@ -50,63 +108,6 @@ const slackInteractiveTestMulti = async (req, res) => {
       body: response,
     });
   }
-  
-  console.log(`No payload - initiation, e.g. slash command`);
-  
-  const initialBlocks = [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: "What's your favourite cheese?",
-      },
-    },
-    {
-      type: 'input',
-      block_id: 'answer_input',
-      element: {
-        type: 'plain_text_input',
-        action_id: 'answer_text',
-        placeholder: {
-          type: 'plain_text',
-          text: 'Enter your favorite cheese here...',
-        },
-      },
-      label: {
-        type: 'plain_text',
-        text: 'Your Answer',
-      },
-    },
-    {
-      type: 'actions',
-      elements: [
-        {
-          type: 'button',
-          text: {
-            type: 'plain_text',
-            text: 'Cancel',
-          },
-          value: 'cancel',
-          action_id: 'test:cancel',
-        },
-        {
-          type: 'button',
-          text: {
-            type: 'plain_text',
-            text: 'Submit',
-          },
-          value: 'submit',
-          action_id: 'test:submit',
-          style: 'primary',
-        },
-      ],
-    },
-  ];
-
-  return respond(res, 200, {
-    response_type: 'in_channel',
-    blocks: initialBlocks,
-  });
 };
 
 module.exports = slackInteractiveTestMulti;
