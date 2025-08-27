@@ -122,7 +122,7 @@ const slackInteractiveTestMulti = async (req, res) => {
         delete_original: 'true',
       };
       break;
-    case `${ ACTION_NAME }:submit`:
+    case `${ ACTION_NAME }:done`:
       response = {
         replace_original: 'true',
         text: toppings?.length ? `Ok, one pizza with ${ toppings.join(', ') }: :pizza:` : `Weird but ok: :flatbread:`,
