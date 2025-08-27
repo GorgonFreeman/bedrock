@@ -2,12 +2,13 @@ const { respond, logDeep, customAxios } = require('../utils');
 
 const slackInteractiveTest = async (req, res) => {
   console.log('slackInteractiveTest');
-  respond(res, 200); // Acknowledgement
 
   const { body } = req;
   
   if (body?.payload) {
     console.log(`Received payload - handling as interactive step`);
+
+    respond(res, 200); // Acknowledgement - we'll provide the next step to the response_url later
 
     const payload = JSON.parse(body.payload);
     logDeep('payload', payload);
