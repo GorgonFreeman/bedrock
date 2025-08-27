@@ -1,7 +1,8 @@
-const { respond, logDeep } = require('../utils');
+const { respond, logDeep, customAxios } = require('../utils');
 
 const slackInteractiveTest = async (req, res) => {
   console.log('slackInteractiveTest');
+  respond(res, 200); // Acknowledgement
 
   const { body } = req;
   
@@ -12,6 +13,7 @@ const slackInteractiveTest = async (req, res) => {
     logDeep('payload', payload);
 
     const { 
+      response_url: responseUrl,
       state, 
       actions, 
     } = payload;
@@ -21,8 +23,11 @@ const slackInteractiveTest = async (req, res) => {
       replace_original: true,
       text: `You answered "${ userAnswer }"`,
     };
-    logDeep(response);
-    return respond(res, 200, response);
+    logDeep('response', response);
+    return customAxios(responseUrl, {
+      method: 'post',
+      body: response,
+    });
   }
   
   console.log(`No payload - initiation, e.g. slash command`);
