@@ -47,10 +47,10 @@ const slackInteractiveTestMulti = async (req, res) => {
             type: 'button',
             text: {
               type: 'plain_text',
-              text: 'Submit',
+              text: `I'm done`,
             },
-            value: 'submit',
-            action_id: `${ ACTION_NAME }:submit`,
+            value: 'done',
+            action_id: `${ ACTION_NAME }:done`,
             style: 'primary',
           },
         ],
@@ -63,51 +63,62 @@ const slackInteractiveTestMulti = async (req, res) => {
     });
   }
   
-  if (body?.payload) {
-    console.log(`Received payload - handling as interactive step`);
+  console.log(`Received payload - handling as interactive step`);
 
-    respond(res, 200); // Acknowledgement - we'll provide the next step to the response_url later
+  respond(res, 200); // Acknowledgement - we'll provide the next step to the response_url later
 
-    const payload = JSON.parse(body.payload);
-    logDeep('payload', payload);
+  const payload = JSON.parse(body.payload);
+  logDeep('payload', payload);
 
-    const { 
-      response_url: responseUrl,
-      state, 
-      actions, 
-    } = payload;
+  const { 
+    response_url: responseUrl,
+    state, 
+    actions, 
+  } = payload;
 
-    const action = actions?.[0];
-    const { value: actionValue } = action;
+  const action = actions?.[0];
+  const { 
+    action_id: actionId,
+    value: actionValue,
+  } = action;
 
-    if (!actionValue) {
-      throw new Error('No action value');
-    }
+  // TODO: Derive toppings from posted message, and use it as persistent state
+  const toppings = [];
 
-    if (actionValue === 'cancel') {
-      const response = {
+  let response;
+
+  switch (actionId) {
+    case `${ ACTION_NAME }:topping_select`:
+
+      const chosenTopping = action.selected_option.value;
+      toppings.push(chosenTopping);
+
+      response = {
+        replace_original: 'true',
+        text: `Ok, ${ toppings.join(', ') }`,
+      };
+
+      break;
+    case `${ ACTION_NAME }:cancel`:
+      response = {
         delete_original: 'true',
       };
-      return customAxios(responseUrl, {
-        method: 'post',
-        body: response,
-      });
-    }
-
-    // actionValue 'submit'
-    const userAnswer = state?.values?.answer_input?.answer_text?.value;
-
-    const response = { 
-      replace_original: 'true',
-      text: `I like ${ userAnswer } too!`,
-    };
-
-    logDeep('response', response);
-    return customAxios(responseUrl, {
-      method: 'post',
-      body: response,
-    });
+      break;
+    case `${ ACTION_NAME }:submit`:
+      response = {
+        replace_original: 'true',
+        text: `Hmm...I can't remember what you said you wanted on it.`,
+      };
+      break;
+    default:
+      throw new Error(`Unknown actionId: ${ actionId }`);
   }
+
+  logDeep('response', response);
+  return customAxios(responseUrl, {
+    method: 'post',
+    body: response,
+  });
 };
 
 module.exports = slackInteractiveTestMulti;
