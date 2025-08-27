@@ -18,12 +18,32 @@ const slackInteractiveTest = async (req, res) => {
       state, 
       actions, 
     } = payload;
+
+    const action = actions?.[0];
+    const { value: actionValue } = action;
+
+    if (!actionValue) {
+      throw new Error('No action value');
+    }
+
+    if (actionValue === 'cancel') {
+      const response = {
+        delete_original: 'true',
+      };
+      return customAxios(responseUrl, {
+        method: 'post',
+        body: response,
+      });
+    }
+
+    // actionValue 'submit'
     const userAnswer = state?.values?.answer_input?.answer_text?.value;
 
     const response = { 
       replace_original: 'true',
       text: `You answered "${ userAnswer }"`,
     };
+
     logDeep('response', response);
     return customAxios(responseUrl, {
       method: 'post',
@@ -60,6 +80,15 @@ const slackInteractiveTest = async (req, res) => {
     {
       type: 'actions',
       elements: [
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Cancel',
+          },
+          value: 'cancel',
+          action_id: 'test:cancel',
+        },
         {
           type: 'button',
           text: {
