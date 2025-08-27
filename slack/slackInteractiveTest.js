@@ -41,7 +41,7 @@ const slackInteractiveTest = async (req, res) => {
 
     const response = { 
       replace_original: 'true',
-      text: `You answered "${ userAnswer }"`,
+      text: `I like ${ userAnswer } too!`,
     };
 
     logDeep('response', response);
