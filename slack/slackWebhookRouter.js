@@ -1,8 +1,8 @@
 const { respond, logDeep } = require('../utils');
 const { TEAM_DOMAIN_TO_CREDSPATH } = require('../slack/slack.constants');
 
-const slashCommandRegistry = {
-  test: require('../slack/slackInteractiveTest'),
+const slashCommandToFunc = {
+  '/test': require('../slack/slackInteractiveTest'),
 };
 
 const slackWebhookRouterApi = async (req, res) => {
@@ -15,12 +15,14 @@ const slackWebhookRouterApi = async (req, res) => {
     command,
   } = req.body;
   const credsPath = TEAM_DOMAIN_TO_CREDSPATH[teamDomain];
+  console.log(teamDomain, credsPath);
 
-  if (!credsPath) {
+  if (credsPath === null) { // '' is a valid return for base path
     return respond(res, 400, { error: `No creds path found for team domain` });
   }
 
-  const interactivityFunc = slashCommandRegistry[command];
+  const interactivityFunc = slashCommandToFunc[command];
+  console.log('interactivityFunc', interactivityFunc);
 
   if (!interactivityFunc) {
     return respond(res, 400, { error: `No function found for command "${ command }"` });
