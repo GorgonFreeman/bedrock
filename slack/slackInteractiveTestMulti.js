@@ -125,7 +125,7 @@ const slackInteractiveTestMulti = async (req, res) => {
     case `${ ACTION_NAME }:submit`:
       response = {
         replace_original: 'true',
-        text: `Hmm...I can't remember what you said you wanted on it.`,
+        text: `Ok, one pizza with ${ toppings.join(', ') }: :pizza:`,
       };
       break;
     default:
