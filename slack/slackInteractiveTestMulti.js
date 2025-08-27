@@ -83,7 +83,9 @@ const slackInteractiveTestMulti = async (req, res) => {
   } = action;
 
   // TODO: Derive toppings from posted message, and use it as persistent state
-  const toppings = [];
+  const currentBlocks = payload.message.blocks;
+  const toppingsBlock = currentBlocks.find(block => block.block_id === 'toppingsState');
+  const toppings = toppingsBlock?.text?.text?.split(', ') || [];
 
   let response;
 
@@ -93,10 +95,25 @@ const slackInteractiveTestMulti = async (req, res) => {
 
       const chosenTopping = action.selected_option.value;
       toppings.push(chosenTopping);
+      
+      let newBlocks = currentBlocks;
+      if (!toppingsBlock) {
+        const newToppingsBlock = {
+          type: 'section',
+          block_id: 'toppingsState',
+          text: {
+            type: 'mrkdwn',
+            text: toppings.join(', '),
+          },
+        };
+        newBlocks.splice(1, 0, newToppingsBlock);
+      } else {
+        newBlocks.find(block => block.block_id === 'toppingsState').text.text = toppings.join(', ');
+      }
 
       response = {
         replace_original: 'true',
-        text: `Ok, ${ toppings.join(', ') }`,
+        blocks: newBlocks,
       };
 
       break;
