@@ -20,7 +20,7 @@ const slackInteractiveTest = async (req, res) => {
     const userAnswer = state?.values?.answer_input?.answer_text?.value;
 
     const response = { 
-      replace_original: true,
+      replace_original: 'true',
       text: `You answered "${ userAnswer }"`,
     };
     logDeep('response', response);
