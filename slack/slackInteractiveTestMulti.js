@@ -10,7 +10,7 @@ const slackInteractiveTestMulti = async (req, res) => {
   if (!body?.payload) {
     console.log(`Initiation, e.g. slash command`);
 
-    const pizzaToppings = ['pepperoni', 'mushrooms', 'olives', 'anchovies', 'capsicum', 'pineapple', 'artichoke', 'eggplant', 'sundried tomato', 'onion', 'garlic', 'jalapeno', 'bacon'];
+    const pizzaToppings = ['cheese', 'pepperoni', 'mushrooms', 'olives', 'anchovies', 'capsicum', 'pineapple', 'artichoke', 'eggplant', 'sundried tomato', 'onion', 'garlic', 'jalapeno', 'bacon'];
 
     const initialBlocks = [
       {
@@ -136,7 +136,16 @@ const slackInteractiveTestMulti = async (req, res) => {
     case `${ ACTION_NAME }:done`:
       response = {
         replace_original: 'true',
-        text: toppings.length ? `Ok, one pizza with ${ toppings.join(', ') }: :pizza:` : `Weird but ok: :flatbread:`,
+        text: toppings.length 
+          ? !toppings.includes('cheese')
+            ? `Sorry, they wouldn't do one without cheese, said it was against the rules.`
+            : toppings.includes('pineapple')
+              ? `Yeah, I don't get why it's controversial, pineapple really sets off a pizza. Here you go: :pizza:` 
+              : ['pepperoni', 'bacon', 'anchovies'].every(t => !toppings.includes(t))
+                ? `Oh...this doesn't look vegetarian... :pizza:` 
+                : `Ok, one pizza with ${ toppings.join(', ') }: :pizza:`
+          : `Weird but ok: :flatbread:`
+        ,
       };
       break;
     default:
