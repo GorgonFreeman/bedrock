@@ -88,6 +88,7 @@ const slackInteractiveTestMulti = async (req, res) => {
   let response;
 
   switch (actionId) {
+    // TODO: Consider having user submit topping and using state, rather than recording toppings on change
     case `${ ACTION_NAME }:topping_select`:
 
       const chosenTopping = action.selected_option.value;
