@@ -1,6 +1,10 @@
 const { respond, logDeep } = require('../utils');
 const { TEAM_DOMAIN_TO_CREDSPATH } = require('../slack/slack.constants');
 
+const slashCommandRegistry = {
+  test: require('../slack/slackInteractiveTest'),
+};
+
 const slackWebhookRouterApi = async (req, res) => {
   // TODO: Verify request is from Slack
 
@@ -16,7 +20,12 @@ const slackWebhookRouterApi = async (req, res) => {
     return respond(res, 400, { error: `No creds path found for team domain` });
   }
 
-  const interactivityFunc = require(`../slack/routed/${ command }`);
+  const interactivityFunc = slashCommandRegistry[command];
+
+  if (!interactivityFunc) {
+    return respond(res, 400, { error: `No function found for command "${ command }"` });
+  }
+
   return interactivityFunc(req, res);
 };
 

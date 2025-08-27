@@ -1,4 +1,4 @@
-const { respond } = require('../../utils');
+const { respond } = require('../utils');
 
 const slackInteractiveTest = async (req, res) => {
   logDeep('slackInteractiveTest', req.body);
