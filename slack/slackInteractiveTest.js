@@ -45,7 +45,7 @@ const slackInteractiveTest = async (req, res) => {
                 text: 'Submit'
               },
               value: 'submit_cheese',
-              action_id: 'submit_cheese_btn',
+              action_id: '/test_cheese_submit',
               style: 'primary'
             }
           ]
