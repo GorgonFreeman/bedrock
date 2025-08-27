@@ -1,5 +1,6 @@
 const Busboy = require('busboy');
 const qs = require('qs');
+const stringToType = require('string-to-type');
 
 const errorToReadable = (err) => {
   const {
