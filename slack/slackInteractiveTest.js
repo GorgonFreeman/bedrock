@@ -15,7 +15,10 @@ const slackInteractiveTest = async (req, res) => {
       actions, 
     } = payload;
 
-    return respond(res, 200, { state });
+    return respond(res, 200, { 
+      replace_original: true,
+      text: `Thanks! You said: *${ state?.values?.cheese_input?.cheese_text_input?.value }* 🧀`,
+    });
   }
   
   // No payload - initiated, e.g. through slash command
