@@ -267,7 +267,9 @@ const shopifyCustomerUpsert = async (
     console.log('No changes to make');
     return {
       success: true,
-      result: `No changes to make`,
+      code: 204, // Means no changes
+      message: 'No changes to make',
+      result: shopifyCustomer,
     };
   }
   
