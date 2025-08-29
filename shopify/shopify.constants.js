@@ -4,5 +4,6 @@ module.exports = {
     'whitefoxboutique.com.au': 'au',
     'whitefoxboutique.com': 'us',
     'whitefoxboutique.co.uk': 'uk',
+    'white-fox-boutique-develop.myshopify.com': 'develop',
   },
 };
