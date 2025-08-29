@@ -1,4 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
+const { HOSTED } = require('../constants');
 const { credsByPath, funcApi } = require('../utils');
 
 const SUPABASE_INSTANCES = new Map();
@@ -74,7 +75,7 @@ const supabaseRowDelete = async (
       throw new Error('conditions must be an object with field-value pairs');
     }
 
-    console.log(`🗑️  Deleting row with conditions:`, deleteConfig.conditions);
+    !HOSTED && console.log(`🗑️  Deleting row with conditions:`, deleteConfig.conditions);
     
     let query = client.from(tableName).delete();
     
@@ -85,7 +86,7 @@ const supabaseRowDelete = async (
     queryResponse = await query.select();
   } else if (deleteConfig.field && deleteConfig.value !== undefined) {
     // Single field deletion
-    console.log(`🗑️  Deleting row where ${deleteConfig.field} = ${deleteConfig.value}`);
+    !HOSTED && console.log(`🗑️  Deleting row where ${deleteConfig.field} = ${deleteConfig.value}`);
     
     queryResponse = await client
       .from(tableName)
@@ -170,7 +171,7 @@ const supabaseTableGetAll = async (
     
     rows.push(...data);
     rowsFetched += PAGE_SIZE;
-    console.log(`${ rows.length } / ${ rowsCount }`);
+    !HOSTED && console.log(`${ rows.length } / ${ rowsCount }`);
   }
 
   // console.log(rows);

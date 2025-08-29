@@ -1,6 +1,7 @@
 // Creates or updates a customer account, including marketing etc.
 // Based on shopifyCustomerUpdateDetails in pebl
 
+const { HOSTED } = require('../constants');
 const { funcApi, logDeep, gidToId, arrayStandardResponse, customNullish } = require('../utils');
 const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
 const { shopifyCustomerCreate } = require('../shopify/shopifyCustomerCreate');
@@ -60,7 +61,7 @@ const shopifyCustomerUpsert = async (
   const fetchAttrs = `${ attrs }${ submittedMetafieldAttrs ? ` ${ submittedMetafieldAttrs }` : '' }${ returnAttrs ? ` ${ returnAttrs }` : '' }`;
   
   // Not doing anything with the rest of customerPayload for now - will expand as we go
-  logDeep(customerPayload);
+  !HOSTED && logDeep(customerPayload);
 
   let shopifyCustomer;
   
@@ -80,7 +81,7 @@ const shopifyCustomerUpsert = async (
     }
 
     shopifyCustomer = result;
-    console.log('Found customer by ID');
+    !HOSTED && console.log('Found customer by ID');
   }
 
   // 2. Look up customer by email 
@@ -96,7 +97,7 @@ const shopifyCustomerUpsert = async (
         shopifyCustomer = result;
       }
 
-      console.log(shopifyCustomer ? 'Found customer by email' : 'No customer found by email');
+      !HOSTED && console.log(shopifyCustomer ? 'Found customer by email' : 'No customer found by email');
     }
   }
 
@@ -105,7 +106,7 @@ const shopifyCustomerUpsert = async (
   // 3. If no customer found, create one
   if (!shopifyCustomer) {
 
-    console.log('Creating customer');
+    !HOSTED && console.log('Creating customer');
 
     if (stateAwareTags?.length) {
       tags.push(...stateAwareTags.map(tag => `created_${ tag }`));
@@ -165,39 +166,39 @@ const shopifyCustomerUpsert = async (
   
   // At this point, it's definitely an update, as everything else can be handled during create
   // 4. Figure out what if anything has changed
-  console.log('Comparing customer fetched with requested updates');
-  logDeep(shopifyCustomer);
+  !HOSTED && console.log('Comparing customer fetched with requested updates');
+  !HOSTED && logDeep(shopifyCustomer);
 
   if (stateAwareTags?.length) {
     tags.push(...stateAwareTags.map(tag => `updated_${ tag }`));
   }
 
-  console.log('changes:');
+  !HOSTED && console.log('changes:');
 
   const firstNameRelevant = firstName && firstName !== shopifyCustomer.firstName;
   if (firstNameRelevant) {
-    console.log(`firstName ${ firstName } vs ${ shopifyCustomer.firstName }`);
+    !HOSTED && console.log(`firstName ${ firstName } vs ${ shopifyCustomer.firstName }`);
   }
   
   const lastNameRelevant = lastName && lastName !== shopifyCustomer.lastName;
   if (lastNameRelevant) {
-    console.log(`lastName ${ lastName } vs ${ shopifyCustomer.lastName }`);
+    !HOSTED && console.log(`lastName ${ lastName } vs ${ shopifyCustomer.lastName }`);
   }
 
   const phoneRelevant = phone && phone !== shopifyCustomer.phone;
   if (phoneRelevant) {
-    console.log(`phone ${ phone } vs ${ shopifyCustomer.phone }`);
+    !HOSTED && console.log(`phone ${ phone } vs ${ shopifyCustomer.phone }`);
   }
 
   const emailRelevant = email && email !== shopifyCustomer.email;
   if (emailRelevant) {
-    console.log(`email ${ email } vs ${ shopifyCustomer.email }`);
+    !HOSTED && console.log(`email ${ email } vs ${ shopifyCustomer.email }`);
   }
 
   const tagsToAdd = tags.filter(tag => !shopifyCustomer.tags.includes(tag));
   const tagsRelevant = tagsToAdd?.length;
   if (tagsRelevant) {
-    console.log(`tags to add: ${ tagsToAdd.join(', ') }`);
+    !HOSTED && console.log(`tags to add: ${ tagsToAdd.join(', ') }`);
   }
   
   // TODO: Check if consent automatically changes if email/phone changes
@@ -215,7 +216,7 @@ const shopifyCustomerUpsert = async (
   }
 
   if (emailConsentRelevant) {
-    console.log(`emailConsent ${ emailConsentState } vs ${ shopifyCustomer?.defaultEmailAddress?.marketingState }`);
+    !HOSTED && console.log(`emailConsent ${ emailConsentState } vs ${ shopifyCustomer?.defaultEmailAddress?.marketingState }`);
   }
 
   // SMS marketing consent
@@ -227,18 +228,18 @@ const shopifyCustomerUpsert = async (
   }
 
   if (smsConsentRelevant) {
-    console.log(`smsConsent ${ smsConsentState } vs ${ shopifyCustomer?.defaultPhoneNumber?.marketingState }`);
+    !HOSTED && console.log(`smsConsent ${ smsConsentState } vs ${ shopifyCustomer?.defaultPhoneNumber?.marketingState }`);
   }
 
   // Metafields
   const dateOfBirthRelevant = dateOfBirth && dateOfBirth !== shopifyCustomer?.mfDateOfBirth?.value;
   if (dateOfBirthRelevant) {
-    console.log(`dateOfBirth ${ dateOfBirth } vs ${ shopifyCustomer?.mfDateOfBirth?.value }`);
+    !HOSTED && console.log(`dateOfBirth ${ dateOfBirth } vs ${ shopifyCustomer?.mfDateOfBirth?.value }`);
   }
   
   const genderRelevant = gender && gender !== shopifyCustomer?.mfGender?.value;
   if (genderRelevant) {
-    console.log(`gender ${ gender } vs ${ shopifyCustomer?.mfGender?.value }`);
+    !HOSTED && console.log(`gender ${ gender } vs ${ shopifyCustomer?.mfGender?.value }`);
   }
 
   const miscMetafieldsToUpdate = metafields?.filter(mf => {
@@ -248,7 +249,7 @@ const shopifyCustomerUpsert = async (
   });
   const miscMetafieldsRelevant = miscMetafieldsToUpdate?.length;
   if (miscMetafieldsToUpdate?.length) {
-    console.log(`metafields to update: ${ miscMetafieldsToUpdate.map(mf => `${ mf.namespace }/${ mf.key }`).join(', ') }`);
+    !HOSTED && console.log(`metafields to update: ${ miscMetafieldsToUpdate.map(mf => `${ mf.namespace }/${ mf.key }`).join(', ') }`);
   }
 
   const anyChanges = [
@@ -274,7 +275,7 @@ const shopifyCustomerUpsert = async (
   }
   
   // 5. Make updates
-  console.log('Making updates');
+  !HOSTED && console.log('Making updates');
   const updateResponses = {};
 
   const updatePayload = {
@@ -300,7 +301,7 @@ const shopifyCustomerUpsert = async (
   };
   
   if (!customNullish(updatePayload)) {
-    console.log('Updating customer', updatePayload);
+    !HOSTED && console.log('Updating customer', updatePayload);
     const customerUpdateResponse = await shopifyCustomerUpdate(
       credsPath,
       gidToId(shopifyCustomer.id),
@@ -328,7 +329,7 @@ const shopifyCustomerUpsert = async (
   }
 
   if (tagsRelevant) {
-    console.log(`Adding tags ${ tagsToAdd.join(', ') }`);
+    !HOSTED && console.log(`Adding tags ${ tagsToAdd.join(', ') }`);
     const tagsUpdateResponse = await shopifyTagsAdd(
       credsPath,
       shopifyCustomer.id,
@@ -339,7 +340,7 @@ const shopifyCustomerUpsert = async (
   }
 
   if (emailConsentRelevant) {
-    console.log('Setting email consent to', emailShouldBeSubscribed);
+    !HOSTED && console.log('Setting email consent to', emailShouldBeSubscribed);
     const emailConsentUpdateResponse = await shopifyCustomerMarketingConsentUpdateEmail(
       credsPath, 
       gidToId(shopifyCustomer.id), 
@@ -349,12 +350,12 @@ const shopifyCustomerUpsert = async (
         apiVersion,
       },
     );
-    logDeep(emailConsentUpdateResponse);
+    !HOSTED && logDeep(emailConsentUpdateResponse);
     updateResponses.emailConsentUpdate = emailConsentUpdateResponse;
   }
   
   if (smsConsentRelevant) {
-    console.log('Setting sms consent to', smsShouldBeSubscribed);
+    !HOSTED && console.log('Setting sms consent to', smsShouldBeSubscribed);
     const smsConsentUpdateResponse = await shopifyCustomerMarketingConsentUpdateSms(
       credsPath, 
       gidToId(shopifyCustomer.id), 
@@ -364,7 +365,7 @@ const shopifyCustomerUpsert = async (
         apiVersion,
       },
     );
-    logDeep(smsConsentUpdateResponse);
+    !HOSTED && logDeep(smsConsentUpdateResponse);
     updateResponses.smsConsentUpdate = smsConsentUpdateResponse;
   }
   
@@ -375,7 +376,7 @@ const shopifyCustomerUpsert = async (
       previousData: shopifyCustomer,
     }},
   };
-  logDeep(response);
+  !HOSTED && logDeep(response);
   return response;
 };
 
