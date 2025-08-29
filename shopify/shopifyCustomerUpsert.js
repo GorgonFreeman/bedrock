@@ -370,7 +370,10 @@ const shopifyCustomerUpsert = async (
   
   const response = {
     ...arrayStandardResponse(Object.values(updateResponses), { flatten: true }),
-    ...{ result: updateResponses },
+    ...{ result: {
+      ...updateResponses,
+      previousData: shopifyCustomer,
+    }},
   };
   logDeep(response);
   return response;
