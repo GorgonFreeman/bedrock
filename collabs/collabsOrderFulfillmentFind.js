@@ -1,11 +1,13 @@
 const {
   REGIONS_LOGIWA,
+  REGIONS_STARSHIPIT,
 } = require('../constants');
 
 const { funcApi, logDeep } = require('../utils');
 
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
+const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 
 const collabsOrderFulfillmentFind = async (
   region,
@@ -16,7 +18,8 @@ const collabsOrderFulfillmentFind = async (
 ) => {
 
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
-  const anyRelevant = [logiwaRelevant].some(Boolean);
+  const starshipitRelevant = REGIONS_STARSHIPIT.includes(region);
+  const anyRelevant = [logiwaRelevant, starshipitRelevant].some(Boolean);
   if (!anyRelevant) {
     return {
       success: false,
@@ -25,7 +28,7 @@ const collabsOrderFulfillmentFind = async (
   }
 
   const shopifyOrderResponse = await shopifyOrderGet(region, { orderId }, {
-    attrs: 'id name fulfillable',
+    attrs: 'id name fulfillable shippingLine { title }',
   });
 
   if (!shopifyOrderResponse.success) {
@@ -35,7 +38,9 @@ const collabsOrderFulfillmentFind = async (
   const { 
     name: orderName,
     fulfillable,
+    shippingLine,
   } = shopifyOrderResponse.result;
+  const shippingMethod = shippingLine?.title;
 
   if (!fulfillable) {
     return {
@@ -105,6 +110,66 @@ const collabsOrderFulfillmentFind = async (
     // TODO: Consider notifying customer
     return await shopifyOrderFulfill(region, { orderId }, fulfillPayload);
   }
+
+  if (starshipitRelevant) {
+    if (!shippingMethod) {
+      return {
+        success: false,
+        error: ['No shipping method'],
+      };
+    }
+
+    const starshipitAccount = shopifyRegionToStarshipitAccount(region, shippingMethod);
+    const starshipitOrderResponse = await starshipitOrderGet({ orderId, account: starshipitAccount });
+    const { success, result: starshipitOrder } = starshipitOrderResponse;
+    if (!success) {
+      return starshipitOrderResponse;
+    }
+
+    if (!starshipitOrder) {
+      return {
+        success: false,
+        error: ['No order found in Starshipit'],
+      };
+    }
+
+    const { 
+      status,
+      tracking_number: trackingNumber,
+      tracking_url: trackingUrl,
+    } = starshipitOrder || {};
+    
+    // TODO: Consider using 'manifested'
+    if (
+      starshipitOrder 
+      && status
+    ) {
+
+      if (['Unshipped', 'Printed', 'Saved'].includes(status)) {
+        return {
+          success: false,
+          error: [`Order is not shipped: ${ status }`],
+        };
+      }
+
+      // console.log(3, starshipitOrder);
+      // await askQuestion('?');
+
+      const fulfillPayload = {
+        originAddress: {
+          // Starshipit, therefore AU
+          countryCode: 'AU',
+        },
+        trackingInfo: {
+          number: trackingNumber,
+          url: trackingUrl,
+        },
+      };
+
+      // TODO: Consider notifying customer
+      return await shopifyOrderFulfill(region, { orderId }, fulfillPayload);
+    }
+  }
   
   const response = {
     success: false,
@@ -127,4 +192,4 @@ module.exports = {
   collabsOrderFulfillmentFindApi,
 };
 
-// curl localhost:8000/collabsOrderFulfillmentFind -H "Content-Type: application/json" -d '{ "region": "us", "orderId": "5979642789948" }'
+// curl localhost:8000/collabsOrderFulfillmentFind -H "Content-Type: application/json" -d '{ "region": "au", "orderId": "7096032297032" }'
