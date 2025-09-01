@@ -27,6 +27,7 @@ const bleckmannPickticketGetSingle = async (
   }
 
   /* pickticketReference */
+  // TODO: Check if pickticketReference was provided, for JS imports that don't get validated in the API wrapper
   const response = await bleckmannPickticketsGet({
     credsPath,
     reference: pickticketReference,
