@@ -213,4 +213,4 @@ module.exports = {
   collabsOrderFulfillmentFindApi,
 };
 
-// curl localhost:8000/collabsOrderFulfillmentFind -H "Content-Type: application/json" -d '{ "region": "uk", "orderId": "11914730078581" }'
+// curl localhost:8000/collabsOrderFulfillmentFind -H "Content-Type: application/json" -d '{ "region": "uk", "orderId": "12093091774837" }'
