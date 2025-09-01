@@ -1,4 +1,4 @@
-const { credsByPath, CustomAxiosClient, logDeep, Getter, getterAsGetFunction, askQuestion } = require('../utils');
+const { credsByPath, CustomAxiosClient, logDeep, Getter, getterAsGetFunction, askQuestion, furthestNode } = require('../utils');
 const { MAX_PER_PAGE } = require('../bleckmann/bleckmann.constants');
 
 const bleckmannRequestSetup = ({ credsPath } = {}) => {
@@ -26,9 +26,10 @@ const bleckmannClient = new CustomAxiosClient({
   preparer: bleckmannRequestSetup,
   baseInterpreter: (response, context) => {
     const { resultsNode } = context;
+
     return {
       ...response,
-      ...response?.result && { result: response.result?.[resultsNode] },
+      ...response?.result && { result: furthestNode(response.result, resultsNode) },
     };
   },
 });
