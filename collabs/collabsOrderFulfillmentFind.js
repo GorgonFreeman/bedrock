@@ -4,7 +4,7 @@ const {
   REGIONS_BLECKMANN,
 } = require('../constants');
 
-const { funcApi, logDeep, askQuestion } = require('../utils');
+const { funcApi, logDeep, askQuestion, arrayStandardResponse } = require('../utils');
 
 const { shopifyFulfillmentLineItemsFromExternalLineItems } = require('../shopify/shopify.utils');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
@@ -235,6 +235,8 @@ const collabsOrderFulfillmentFind = async (
     logDeep(parcels);
     await askQuestion('?');
 
+    const fulfillResponses = [];
+
     for (const parcel of parcels) {
       const {
         trackingNumber,
@@ -250,21 +252,25 @@ const collabsOrderFulfillmentFind = async (
       const fulfillPayloadLineItems = shopifyFulfillmentLineItemsFromExternalLineItems(lines, shippableLineItems, { 
         extSkuProp: 'skuId',
       });
-      logDeep(fulfillPayloadLineItems);
-      await askQuestion('?');
+
+      const fulfillPayload = {
+        originAddress: {
+          // Bleckmann, therefore UK
+          countryCode: 'UK',
+        },
+        trackingInfo: {
+          number: trackingNumber,
+          url: trackingUrl,
+        },
+        lineItemsByFulfillmentOrder: fulfillPayloadLineItems,
+      };
+
+      const fulfillResponse = await shopifyOrderFulfill(region, { orderId }, fulfillPayload);
+
+      fulfillResponses.push(fulfillResponse);
     }
 
-    // const fulfillPayload = {
-    //   originAddress: {
-    //     // Bleckmann, therefore UK
-    //     countryCode: 'UK',
-    //   },
-    //   trackingInfo: {
-    //     number: parcels[0].trackingNumber,
-    //   },
-    // };
-
-    // return await shopifyOrderFulfill(region, { orderId }, fulfillPayload);
+    return arrayStandardResponse(fulfillResponses);
   }
   
   const response = {
