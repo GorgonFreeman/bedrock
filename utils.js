@@ -1333,15 +1333,11 @@ const standardInterpreters = {
       };
     }
 
-    parsedResult = result?.[0]
-      ? result?.[0]
-      : null;
+    parsedResult = result?.[0];
 
     return {
       ...response,
-      ...(parsedResult ? {
-        result: parsedResult,
-      } : {}),
+      result: parsedResult,
     };
   },
 };
