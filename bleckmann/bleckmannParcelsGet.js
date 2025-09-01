@@ -4,6 +4,7 @@ const { respond, mandateParam, logDeep } = require('../utils');
 const { bleckmannGet } = require('../bleckmann/bleckmann.utils');
 
 const bleckmannParcelsGet = async (
+  pickticketId,
   {
     credsPath,
     skip,
@@ -14,7 +15,7 @@ const bleckmannParcelsGet = async (
 ) => {
 
   const response = await bleckmannGet(
-    '/warehousing/picktickets/${ pickticketId }/parcels',
+    `/warehousing/picktickets/${ pickticketId }/parcels`,
     {
       credsPath,
       params: {
