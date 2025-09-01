@@ -1,6 +1,6 @@
 // https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/PICKTICKET/getParcels
 
-const { respond, mandateParam, logDeep, customNullish } = require('../utils');
+const { respond, mandateParam, logDeep, customNullish, objHasAny } = require('../utils');
 const { bleckmannClient } = require('../bleckmann/bleckmann.utils');
 const { bleckmannPickticketGet } = require('../bleckmann/bleckmannPickticketGet');
 
