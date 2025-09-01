@@ -181,6 +181,13 @@ const collabsOrderFulfillmentFind = async (
       return bleckmannOrderResponse;
     }
 
+    if (!bleckmannOrder) {
+      return {
+        success: false,
+        error: ['No order found in Bleckmann'],
+      };
+    }
+
     logDeep(bleckmannOrder);
     await askQuestion('?');
   }
