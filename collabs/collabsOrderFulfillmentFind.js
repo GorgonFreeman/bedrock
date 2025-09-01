@@ -1,13 +1,15 @@
 const {
   REGIONS_LOGIWA,
   REGIONS_STARSHIPIT,
+  REGIONS_BLECKMANN,
 } = require('../constants');
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, askQuestion } = require('../utils');
 
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
 const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
+const { bleckmannPickticketGet } = require('../bleckmann/bleckmannPickticketGet');
 
 const collabsOrderFulfillmentFind = async (
   region,
@@ -19,7 +21,8 @@ const collabsOrderFulfillmentFind = async (
 
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
   const starshipitRelevant = REGIONS_STARSHIPIT.includes(region);
-  const anyRelevant = [logiwaRelevant, starshipitRelevant].some(Boolean);
+  const bleckmannRelevant = REGIONS_BLECKMANN.includes(region);
+  const anyRelevant = [logiwaRelevant, starshipitRelevant, bleckmannRelevant].some(Boolean);
   if (!anyRelevant) {
     return {
       success: false,
@@ -63,7 +66,6 @@ const collabsOrderFulfillmentFind = async (
       shipmentOrderStatusName,
       shipmentOrderStatusId,
     } = logiwaOrder;
-
     let trackingNumber = currentTrackingNumber;
     if (!trackingNumber && trackingNumbers?.length === 1) {
       trackingNumber = trackingNumbers[0];
@@ -170,6 +172,17 @@ const collabsOrderFulfillmentFind = async (
       return await shopifyOrderFulfill(region, { orderId }, fulfillPayload);
     }
   }
+
+  if (bleckmannRelevant) {
+    const bleckmannOrderResponse = await bleckmannPickticketGet({ pickticketReference: orderId });
+    const { success, result: bleckmannOrder } = bleckmannOrderResponse;
+    if (!success) {
+      return bleckmannOrderResponse;
+    }
+
+    logDeep(bleckmannOrder);
+    await askQuestion('?');
+  }
   
   const response = {
     success: false,
@@ -192,4 +205,4 @@ module.exports = {
   collabsOrderFulfillmentFindApi,
 };
 
-// curl localhost:8000/collabsOrderFulfillmentFind -H "Content-Type: application/json" -d '{ "region": "au", "orderId": "7096032297032" }'
+// curl localhost:8000/collabsOrderFulfillmentFind -H "Content-Type: application/json" -d '{ "region": "uk", "orderId": "11914730078581" }'
