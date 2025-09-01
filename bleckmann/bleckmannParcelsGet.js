@@ -55,4 +55,5 @@ module.exports = {
   bleckmannParcelsGetApi,
 };
 
-// curl localhost:8000/bleckmannParcelsGet -H "Content-Type: application/json" -d '{ "pickticketId": ... }'
+// curl localhost:8000/bleckmannParcelsGet -H "Content-Type: application/json" -d '{ "pickticketId": "13075396002165" }'
+// curl localhost:8000/bleckmannParcelsGet -H "Content-Type: application/json" -d '{ "pickticketId": "13073972003189", "options": { "perPage": 100 } }'
