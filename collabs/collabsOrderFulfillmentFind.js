@@ -32,7 +32,7 @@ const collabsOrderFulfillmentFind = async (
   }
 
   const shopifyOrderResponse = await shopifyOrderGet(region, { orderId }, {
-    attrs: 'id name fulfillable shippingLine { title } lineItems (first: 100) { id sku quantity requiresShipping }',
+    attrs: 'id name fulfillable shippingLine { title } lineItems (first: 100) { id sku unfulfilledQuantity requiresShipping }',
   });
 
   if (!shopifyOrderResponse.success) {
