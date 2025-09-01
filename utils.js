@@ -1486,6 +1486,13 @@ const parseBoolean = (value) => {
   return (value == 'false') != Boolean(value);
 };
 
+const objToArray = (obj, { keyProp = 'key', valueProp = 'value' } = {}) => {
+  return Object.entries(obj).map(([key, value]) => ({
+    [keyProp]: key,
+    [valueProp]: value,
+  }));
+};
+
 module.exports = {
 
   // Really core
@@ -1536,6 +1543,7 @@ module.exports = {
   interactiveChooseOption,
   standardRequestVerifiers,
   parseBoolean,
+  objToArray,
   
   // Classes
   CustomAxiosClient,

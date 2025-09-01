@@ -2,7 +2,7 @@ require('dotenv').config();
 const { env } = process;
 const debug = env.DEBUG === 'true';
 
-const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey, logDeep, furthestNode, objHasAll, customNullish } = require('../utils');
+const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey, logDeep, furthestNode, objHasAll, customNullish, objToArray } = require('../utils');
 
 const shopifyRequestSetup = ({ 
   credsPath,
@@ -314,7 +314,7 @@ const shopifyFulfillmentLineItemsFromExternalLineItems = (externalLineItems, sho
   shopifyQuantityProp = 'unfulfilledQuantity',
 } = {}) => {
   
-  const fulfillmentLineItemsPayload = {};
+  const fulfillmentLineItemsObject = {};
 
   for (const externalLineItem of externalLineItems) {
 
@@ -332,10 +332,10 @@ const shopifyFulfillmentLineItemsFromExternalLineItems = (externalLineItems, sho
 
       if (extSku === sku) {
 
-        fulfillmentLineItemsPayload[shopifyLineItemGid] = fulfillmentLineItemsPayload[shopifyLineItemGid] || 0;
+        fulfillmentLineItemsObject[shopifyLineItemGid] = fulfillmentLineItemsObject[shopifyLineItemGid] || 0;
 
         const deductibleQuantity = Math.min(shopifyQuantity, extQuantity);
-        fulfillmentLineItemsPayload[shopifyLineItemGid] += deductibleQuantity;
+        fulfillmentLineItemsObject[shopifyLineItemGid] += deductibleQuantity;
         shopifyLineItem[shopifyQuantityProp] -= deductibleQuantity;
         
         // If no more of this item to mark as fulfilled, stop iterating over Shopify line items
@@ -348,6 +348,8 @@ const shopifyFulfillmentLineItemsFromExternalLineItems = (externalLineItems, sho
       }
     }
   }
+
+  const fulfillmentLineItemsPayload = objToArray(fulfillmentLineItemsObject, { keyProp: 'id', valueProp: 'quantity' });
 
   logDeep(fulfillmentLineItemsPayload);
   return fulfillmentLineItemsPayload;
