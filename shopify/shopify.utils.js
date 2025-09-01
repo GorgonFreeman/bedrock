@@ -306,9 +306,52 @@ const shopifyMutationDo = async (
   return response;
 };
 
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/fulfillmentCreateV2#arguments-fulfillment.fields.lineItemsByFulfillmentOrder.fulfillmentOrderLineItems
+const shopifyFulfillmentLineItemsFromExternalLineItems = (externalLineItems, shopifyLineItems, { skuProp = 'sku', quantityProp = 'quantity' } = {}) => {
+  
+  const fulfillmentLineItemsPayload = {};
+
+  for (const externalLineItem of externalLineItems) {
+
+    let {
+      [skuProp]: extSku,
+      [quantityProp]: extQuantity,
+    } = externalLineItem;
+
+    for (const shopifyLineItem of shopifyLineItems.filter(i => i.unfulfilledQuantity >= 0)) {
+      const {
+        id: shopifyLineItemGid,
+        sku,
+        unfulfilledQuantity,
+      } = shopifyLineItem;
+
+      if (extSku === sku) {
+
+        fulfillmentLineItemsPayload[shopifyLineItemGid] = fulfillmentLineItemsPayload[shopifyLineItemGid] || 0;
+
+        const deductibleQuantity = Math.min(unfulfilledQuantity, extQuantity);
+        fulfillmentLineItemsPayload[shopifyLineItemGid] += deductibleQuantity;
+        shopifyLineItem.unfulfilledQuantity -= deductibleQuantity;
+        
+        // If no more of this item to mark as fulfilled, stop iterating over Shopify line items
+        // Implicitly keep deducting from more line items if not
+        extQuantity -= deductibleQuantity;
+        if (extQuantity === 0) {
+          break;
+        }
+
+      }
+    }
+  }
+
+  logDeep(fulfillmentLineItemsPayload);
+  return fulfillmentLineItemsPayload;
+};
+
 module.exports = {
   shopifyClient,
   shopifyGetter,
   shopifyGet,
   shopifyMutationDo,
+  shopifyFulfillmentLineItemsFromExternalLineItems,
 };
