@@ -108,14 +108,14 @@ const shopifyOrderFulfill = async (
 
     const { lineItems } = fulfillmentOrder;
 
-    const shippableLineItems = lineItems?.filter(lineItem => lineItem?.requiresShipping === true);
-
-    if (shippableLineItems.length >= 100) {
+    if (lineItems.length >= 100) {
       return {
         success: false,
-        error: ['Order could have >100 shippable line items, so this function is not equipped to handle it'],
+        error: ['Order could have >100 line items, so this function is not equipped to handle it'],
       };
     }
+
+    const shippableLineItems = lineItems?.filter(lineItem => lineItem?.requiresShipping === true);
 
     fulfillPayloadLineItems = shopifyFulfillmentLineItemsFromExternalLineItems(externalLineItems, shippableLineItems, { 
       extSkuProp: 'skuId',
