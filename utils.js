@@ -594,6 +594,7 @@ class CustomAxiosClient {
     
     verbose,
     interpreter,
+    interpretErrors = false,
     
     /* Things to expect in context:
       - credsPath
@@ -731,7 +732,7 @@ class CustomAxiosClient {
         
         // If customAxios gives a failure, it's nothing to do with user errors or data, it's because something has gone technically wrong. Return it as-is.
         // Actually, we need to pass these through for failed auth for example.
-        if (!response?.success) {
+        if (!response?.success && !interpretErrors) {
           if (!response?.error || response?.error?.some(err => ![401].includes(err?.status))) {
             verbose && console.log('client response failed');
             return response;

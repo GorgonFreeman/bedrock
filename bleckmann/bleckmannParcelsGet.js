@@ -40,6 +40,7 @@ const bleckmannParcelsGet = async (
       credsPath,
       resultsNode: 'data',
     },
+    interpretErrors: true,
     interpreter: (response) => {
       const { success, error } = response;
 
@@ -48,7 +49,7 @@ const bleckmannParcelsGet = async (
       }
       
       // Treat a 404 as a success with no parcels, if that's the only error we got.
-      if (error?.every(err => err?.data?.includes('No record found for the specified pickticketId'))) {
+      if (error?.every(err => err?.data?.message?.includes('No record found for the specified pickticketId'))) {
         return {
           success: true,
           result: [],
