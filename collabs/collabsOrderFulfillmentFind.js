@@ -45,12 +45,12 @@ const collabsOrderFulfillmentFind = async (
   } = shopifyOrderResponse.result;
   const shippingMethod = shippingLine?.title;
 
-  if (!fulfillable) {
-    return {
-      success: false,
-      message: 'Order is not fulfillable',
-    };
-  }
+  // if (!fulfillable) {
+  //   return {
+  //     success: false,
+  //     message: 'Order is not fulfillable',
+  //   };
+  // }
 
   if (logiwaRelevant) {
     const logiwaOrderResponse = await logiwaOrderGet({ orderCode: orderName });
