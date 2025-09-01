@@ -1,4 +1,4 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/fulfillmentCreateV2
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/fulfillmentCreate
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
@@ -23,10 +23,10 @@ const shopifyFulfillmentOrderFulfill = async (
 
   const response = await shopifyMutationDo(
     credsPath,
-    'fulfillmentCreateV2',
+    'fulfillmentCreate',
     {
       fulfillment: {
-        type: 'FulfillmentCreateV2Input!',
+        type: 'FulfillmentInput!',
         value: {
           ...notifyCustomer && { notifyCustomer },
           ...originAddress && { originAddress },
