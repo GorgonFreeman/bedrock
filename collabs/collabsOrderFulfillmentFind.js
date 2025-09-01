@@ -10,6 +10,7 @@ const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
 const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 const { bleckmannPickticketGet } = require('../bleckmann/bleckmannPickticketGet');
+const { bleckmannParcelsGet } = require('../bleckmann/bleckmannParcelsGet');
 
 const collabsOrderFulfillmentFind = async (
   region,
@@ -188,8 +189,35 @@ const collabsOrderFulfillmentFind = async (
       };
     }
 
-    logDeep(bleckmannOrder);
+    const { 
+      status,
+    } = bleckmannOrder;
+
+    if (status !== 'SHIPPED') {
+      logDeep(bleckmannOrder);
+      await askQuestion('?');
+    }
+
+    const parcelsResponse = await bleckmannParcelsGet({ pickticketId: bleckmannOrder.pickticketId }, { includeDetails: true });
+    const { success, result: parcels } = parcelsResponse;
+    if (!success) {
+      return parcelsResponse;
+    }
+
+    logDeep(parcels);
     await askQuestion('?');
+
+    // const fulfillPayload = {
+    //   originAddress: {
+    //     // Bleckmann, therefore UK
+    //     countryCode: 'UK',
+    //   },
+    //   trackingInfo: {
+    //     number: parcels[0].trackingNumber,
+    //   },
+    // };
+
+    // return await shopifyOrderFulfill(region, { orderId }, fulfillPayload);
   }
   
   const response = {
@@ -213,4 +241,4 @@ module.exports = {
   collabsOrderFulfillmentFindApi,
 };
 
-// curl localhost:8000/collabsOrderFulfillmentFind -H "Content-Type: application/json" -d '{ "region": "uk", "orderId": "12093091774837" }'
+// curl localhost:8000/collabsOrderFulfillmentFind -H "Content-Type: application/json" -d '{ "region": "uk", "orderId": "12145428431221" }'
