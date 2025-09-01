@@ -40,6 +40,23 @@ const bleckmannParcelsGet = async (
       credsPath,
       resultsNode: 'data',
     },
+    interpreter: (response) => {
+      const { success, error } = response;
+
+      if (success) {
+        return response;
+      }
+      
+      // Treat a 404 as a success with no parcels, if that's the only error we got.
+      if (error?.every(err => err?.data?.includes('No record found for the specified pickticketId'))) {
+        return {
+          success: true,
+          result: [],
+        };
+      }
+
+      return response;
+    },
   });
 
   logDeep(response);
@@ -72,4 +89,4 @@ module.exports = {
 };
 
 // curl localhost:8000/bleckmannParcelsGet -H "Content-Type: application/json" -d '{ "pickticketIdentifier": { "pickticketId": "13075396002165" } }'
-// curl localhost:8000/bleckmannParcelsGet -H "Content-Type: application/json" -d '{ "pickticketIdentifier": { "pickticketReference": "12145428431221" } }'
+// curl localhost:8000/bleckmannParcelsGet -H "Content-Type: application/json" -d '{ "pickticketIdentifier": { "pickticketReference": "12093091774837" } }'
