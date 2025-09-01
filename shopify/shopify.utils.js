@@ -307,31 +307,36 @@ const shopifyMutationDo = async (
 };
 
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/fulfillmentCreateV2#arguments-fulfillment.fields.lineItemsByFulfillmentOrder.fulfillmentOrderLineItems
-const shopifyFulfillmentLineItemsFromExternalLineItems = (externalLineItems, shopifyLineItems, { skuProp = 'sku', quantityProp = 'quantity' } = {}) => {
+const shopifyFulfillmentLineItemsFromExternalLineItems = (externalLineItems, shopifyLineItems, { 
+  extSkuProp = 'sku', 
+  extQuantityProp = 'quantity',
+  shopifySkuProp = 'sku',
+  shopifyQuantityProp = 'unfulfilledQuantity',
+} = {}) => {
   
   const fulfillmentLineItemsPayload = {};
 
   for (const externalLineItem of externalLineItems) {
 
     let {
-      [skuProp]: extSku,
-      [quantityProp]: extQuantity,
+      [extSkuProp]: extSku,
+      [extQuantityProp]: extQuantity,
     } = externalLineItem;
 
-    for (const shopifyLineItem of shopifyLineItems.filter(i => i.unfulfilledQuantity >= 0)) {
+    for (const shopifyLineItem of shopifyLineItems.filter(i => i[shopifyQuantityProp] >= 0)) {
       const {
         id: shopifyLineItemGid,
-        sku,
-        unfulfilledQuantity,
+        [shopifySkuProp]: sku,
+        [shopifyQuantityProp]: shopifyQuantity,
       } = shopifyLineItem;
 
       if (extSku === sku) {
 
         fulfillmentLineItemsPayload[shopifyLineItemGid] = fulfillmentLineItemsPayload[shopifyLineItemGid] || 0;
 
-        const deductibleQuantity = Math.min(unfulfilledQuantity, extQuantity);
+        const deductibleQuantity = Math.min(shopifyQuantity, extQuantity);
         fulfillmentLineItemsPayload[shopifyLineItemGid] += deductibleQuantity;
-        shopifyLineItem.unfulfilledQuantity -= deductibleQuantity;
+        shopifyLineItem[shopifyQuantityProp] -= deductibleQuantity;
         
         // If no more of this item to mark as fulfilled, stop iterating over Shopify line items
         // Implicitly keep deducting from more line items if not

@@ -247,7 +247,9 @@ const collabsOrderFulfillmentFind = async (
         throw new Error(`No tracking number on a Bleckmann parcel`);
       }
 
-      const fulfillPayloadLineItems = shopifyFulfillmentLineItemsFromExternalLineItems(lines, shippableLineItems, { skuProp: 'skuId' });
+      const fulfillPayloadLineItems = shopifyFulfillmentLineItemsFromExternalLineItems(lines, shippableLineItems, { 
+        extSkuProp: 'skuId',
+      });
       logDeep(fulfillPayloadLineItems);
       await askQuestion('?');
     }
