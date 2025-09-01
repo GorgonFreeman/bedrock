@@ -31,9 +31,26 @@ const collabsOrderFulfillmentFind = async (
     };
   }
 
-  const shopifyOrderResponse = await shopifyOrderGet(region, { orderId }, {
-    attrs: 'id name fulfillable shippingLine { title } lineItems (first: 100) { id sku unfulfilledQuantity requiresShipping }',
-  });
+  const shopifyOrderAttrs = `
+    id 
+    name 
+    fulfillable 
+    shippingLine { 
+      title 
+    } 
+    lineItems (first: 100) { 
+      edges {
+        node {
+          id 
+          sku
+          unfulfilledQuantity 
+          requiresShipping 
+        }
+      }
+    }
+  `;
+
+  const shopifyOrderResponse = await shopifyOrderGet(region, { orderId }, { attrs: shopifyOrderAttrs });
 
   if (!shopifyOrderResponse.success) {
     return shopifyOrderResponse;
