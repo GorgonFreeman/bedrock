@@ -6,6 +6,7 @@ const {
 
 const { funcApi, logDeep, askQuestion } = require('../utils');
 
+const { shopifyFulfillmentLineItemsFromExternalLineItems } = require('../shopify/shopify.utils');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
 const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
@@ -233,6 +234,23 @@ const collabsOrderFulfillmentFind = async (
 
     logDeep(parcels);
     await askQuestion('?');
+
+    for (const parcel of parcels) {
+      const {
+        trackingNumber,
+        trackingUrl,
+        lines,
+      } = parcel;
+      
+      if (!trackingNumber) {
+        logDeep(parcel);
+        throw new Error(`No tracking number on a Bleckmann parcel`);
+      }
+
+      const fulfillPayloadLineItems = shopifyFulfillmentLineItemsFromExternalLineItems(lines, shippableLineItems, { skuProp: 'skuId' });
+      logDeep(fulfillPayloadLineItems);
+      await askQuestion('?');
+    }
 
     // const fulfillPayload = {
     //   originAddress: {
