@@ -1,7 +1,7 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/fulfillmentCreateV2
 
 const { respond, mandateParam, logDeep, askQuestion } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+const { shopifyClient, shopifyFulfillmentLineItemsFromExternalLineItems } = require('../shopify/shopify.utils');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 
 const shopifyOrderFulfill = async (
@@ -13,6 +13,8 @@ const shopifyOrderFulfill = async (
     notifyCustomer, // true or false
     originAddress, // { countryCode, ... }
     trackingInfo, // { number, company, url }
+
+    externalLineItems,
   } = {},
 ) => {
 
@@ -27,6 +29,18 @@ const shopifyOrderFulfill = async (
         node {
           id
           requestStatus
+          ${ externalLineItems ? `
+            lineItems (first: 100) {
+              edges {
+                node {
+                  id
+                  sku
+                  remainingQuantity
+                  requiresShipping
+                }
+              }
+            }
+          ` : '' }
         }
       }
     }
@@ -89,14 +103,35 @@ const shopifyOrderFulfill = async (
     }
   `;
 
+  let fulfillPayloadLineItems;
+  if (externalLineItems) {
+
+    const { lineItems } = fulfillmentOrder;
+
+    const shippableLineItems = lineItems?.filter(lineItem => lineItem?.requiresShipping === true);
+
+    if (shippableLineItems.length >= 100) {
+      return {
+        success: false,
+        error: ['Order could have >100 shippable line items, so this function is not equipped to handle it'],
+      };
+    }
+
+    fulfillPayloadLineItems = shopifyFulfillmentLineItemsFromExternalLineItems(externalLineItems, shippableLineItems, { 
+      extSkuProp: 'skuId',
+      shopifyQuantityProp: 'remainingQuantity', 
+    });
+  }
+
   const variables = {
     fulfillment: {
-      lineItemsByFulfillmentOrder: [{
-        fulfillmentOrderId: fulfillmentOrderGid,
-      }],
       ...notifyCustomer && { notifyCustomer },
       ...originAddress && { originAddress },
       ...trackingInfo && { trackingInfo },
+      ...fulfillPayloadLineItems && { lineItemsByFulfillmentOrder: [{
+        fulfillmentOrderId: fulfillmentOrderGid,
+        fulfillmentOrderLineItems: fulfillPayloadLineItems,
+      }] },
     },
   };
 

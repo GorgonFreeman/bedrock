@@ -6,7 +6,6 @@ const {
 
 const { funcApi, logDeep, askQuestion, arrayStandardResponse } = require('../utils');
 
-const { shopifyFulfillmentLineItemsFromExternalLineItems } = require('../shopify/shopify.utils');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
 const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
@@ -38,16 +37,6 @@ const collabsOrderFulfillmentFind = async (
     fulfillable 
     shippingLine { 
       title 
-    } 
-    lineItems (first: 100) { 
-      edges {
-        node {
-          id 
-          sku
-          unfulfilledQuantity 
-          requiresShipping 
-        }
-      }
     }
   `;
 
@@ -61,18 +50,8 @@ const collabsOrderFulfillmentFind = async (
     name: orderName,
     fulfillable,
     shippingLine,
-    lineItems,
   } = shopifyOrderResponse.result;
   const shippingMethod = shippingLine?.title;
-
-  const shippableLineItems = lineItems?.filter(lineItem => lineItem?.requiresShipping === true);
-
-  if (shippableLineItems.length >= 100) {
-    return {
-      success: false,
-      error: ['Order could have >100 shippable line items, so this function is not equipped to handle it'],
-    };
-  }
 
   // if (!fulfillable) {
   //   return {
@@ -249,10 +228,6 @@ const collabsOrderFulfillmentFind = async (
         throw new Error(`No tracking number on a Bleckmann parcel`);
       }
 
-      const fulfillPayloadLineItems = shopifyFulfillmentLineItemsFromExternalLineItems(lines, shippableLineItems, { 
-        extSkuProp: 'skuId',
-      });
-
       const fulfillPayload = {
         originAddress: {
           // Bleckmann, therefore UK
@@ -262,7 +237,7 @@ const collabsOrderFulfillmentFind = async (
           number: trackingNumber,
           url: trackingUrl,
         },
-        lineItemsByFulfillmentOrder: fulfillPayloadLineItems,
+        externalLineItems: lines,
       };
 
       const fulfillResponse = await shopifyOrderFulfill(region, { orderId }, fulfillPayload);
