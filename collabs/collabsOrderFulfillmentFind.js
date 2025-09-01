@@ -199,8 +199,8 @@ const collabsOrderFulfillmentFind = async (
     }
 
     const parcelsResponse = await bleckmannParcelsGet({ pickticketId: bleckmannOrder.pickticketId }, { includeDetails: true });
-    const { success, result: parcels } = parcelsResponse;
-    if (!success) {
+    const { success: parcelsSuccess, result: parcels } = parcelsResponse;
+    if (!parcelsSuccess) {
       return parcelsResponse;
     }
 
