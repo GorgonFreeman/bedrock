@@ -32,7 +32,7 @@ const collabsOrderFulfillmentFind = async (
   }
 
   const shopifyOrderResponse = await shopifyOrderGet(region, { orderId }, {
-    attrs: 'id name fulfillable shippingLine { title }',
+    attrs: 'id name fulfillable shippingLine { title } lineItems (first: 100) { id sku quantity requiresShipping }',
   });
 
   if (!shopifyOrderResponse.success) {
@@ -43,8 +43,18 @@ const collabsOrderFulfillmentFind = async (
     name: orderName,
     fulfillable,
     shippingLine,
+    lineItems,
   } = shopifyOrderResponse.result;
   const shippingMethod = shippingLine?.title;
+
+  const shippableLineItems = lineItems?.filter(lineItem => !lineItem.requiresShipping);
+
+  if (shippableLineItems.length >= 100) {
+    return {
+      success: false,
+      error: ['Order could have >100 shippable line items, so this function is not equipped to handle it'],
+    };
+  }
 
   // if (!fulfillable) {
   //   return {
