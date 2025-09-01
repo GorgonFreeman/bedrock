@@ -365,6 +365,11 @@ const stripEdgesAndNodes = (input) => {
   if (isObject(input)) {
     const transformed = transformGraphqlObject(input);
     
+    // If transformGraphqlObject returned an array, handle it as an array
+    if (Array.isArray(transformed)) {
+      return transformed.map(stripEdgesAndNodes);
+    }
+    
     // Recursively transform all properties
     const result = {};
     for (const [key, value] of Object.entries(transformed)) {
