@@ -65,7 +65,7 @@ const collabsOrderFulfillmentFind = async (
   } = shopifyOrderResponse.result;
   const shippingMethod = shippingLine?.title;
 
-  const shippableLineItems = lineItems?.filter(lineItem => !lineItem.requiresShipping);
+  const shippableLineItems = lineItems?.filter(lineItem => lineItem?.requiresShipping === true);
 
   if (shippableLineItems.length >= 100) {
     return {
