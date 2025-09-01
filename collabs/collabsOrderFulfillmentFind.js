@@ -66,6 +66,7 @@ const collabsOrderFulfillmentFind = async (
       shipmentOrderStatusName,
       shipmentOrderStatusId,
     } = logiwaOrder;
+
     let trackingNumber = currentTrackingNumber;
     if (!trackingNumber && trackingNumbers?.length === 1) {
       trackingNumber = trackingNumbers[0];
