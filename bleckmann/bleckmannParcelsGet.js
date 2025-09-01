@@ -90,4 +90,4 @@ module.exports = {
 };
 
 // curl localhost:8000/bleckmannParcelsGet -H "Content-Type: application/json" -d '{ "pickticketIdentifier": { "pickticketId": "13075396002165" } }'
-// curl localhost:8000/bleckmannParcelsGet -H "Content-Type: application/json" -d '{ "pickticketIdentifier": { "pickticketReference": "12093091774837" } }'
+// curl localhost:8000/bleckmannParcelsGet -H "Content-Type: application/json" -d '{ "pickticketIdentifier": { "pickticketReference": "12145428431221" }, "options": { "includeDetails": true } }'
