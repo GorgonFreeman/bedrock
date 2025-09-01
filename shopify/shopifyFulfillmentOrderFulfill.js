@@ -1,29 +1,44 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/fulfillmentCreateV2
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `id displayStatus`;
 
 const shopifyFulfillmentOrderFulfill = async (
   credsPath,
-  pageInput,
+  fulfillmentOrderId,
   {
     apiVersion,
+
+    notifyCustomer, // true or false
+    originAddress, // { countryCode, ... }
+    trackingInfo, // { number, company, url }
+
+    externalLineItems,
+
     returnAttrs = defaultAttrs,
   } = {},
 ) => {
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'fulfillmentCreateV2',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      fulfillment: {
+        type: 'FulfillmentCreateV2Input!',
+        value: {
+          ...notifyCustomer && { notifyCustomer },
+          ...originAddress && { originAddress },
+          ...trackingInfo && { trackingInfo },
+          // ...fulfillPayloadLineItems && { lineItemsByFulfillmentOrder: [{
+          //   fulfillmentOrderId: fulfillmentOrderGid,
+          //   fulfillmentOrderLineItems: fulfillPayloadLineItems,
+          // }] },
+        },
       },
     },
-    `page { ${ returnAttrs } }`,
+    `fulfillment { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -35,13 +50,13 @@ const shopifyFulfillmentOrderFulfill = async (
 const shopifyFulfillmentOrderFulfillApi = async (req, res) => {
   const {
     credsPath,
-    pageInput,
+    fulfillmentOrderId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'pageInput', pageInput),
+    mandateParam(res, 'fulfillmentOrderId', fulfillmentOrderId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -49,7 +64,7 @@ const shopifyFulfillmentOrderFulfillApi = async (req, res) => {
 
   const result = await shopifyFulfillmentOrderFulfill(
     credsPath,
-    pageInput,
+    fulfillmentOrderId,
     options,
   );
   respond(res, 200, result);
@@ -60,4 +75,4 @@ module.exports = {
   shopifyFulfillmentOrderFulfillApi,
 };
 
-// curl http://localhost:8000/shopifyFulfillmentOrderFulfill -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyFulfillmentOrderFulfill -H 'Content-Type: application/json' -d '{ "credsPath": "au", "fulfillmentOrderId": "13073972003189" }'
