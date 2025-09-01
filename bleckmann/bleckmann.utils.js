@@ -24,6 +24,13 @@ const { baseUrl } = commonCreds;
 const bleckmannClient = new CustomAxiosClient({
   baseUrl,
   preparer: bleckmannRequestSetup,
+  baseInterpreter: (response, context) => {
+    const { resultsNode } = context;
+    return {
+      ...response,
+      ...response?.result && { result: response.result?.[resultsNode] },
+    };
+  },
 });
 
 const bleckmannGetter = async (

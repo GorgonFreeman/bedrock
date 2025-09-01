@@ -1,31 +1,27 @@
 // https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/PICKTICKET/getParcels
 
-const { respond, mandateParam, logDeep } = require('../utils');
-const { bleckmannGet } = require('../bleckmann/bleckmann.utils');
+const { respond, mandateParam, logDeep, customNullish } = require('../utils');
+const { bleckmannClient } = require('../bleckmann/bleckmann.utils');
 
 const bleckmannParcelsGet = async (
   pickticketId,
   {
     credsPath,
-    skip,
-    perPage,
     includeDetails,
-    ...getterOptions
   } = {},
 ) => {
 
-  const response = await bleckmannGet(
-    `/warehousing/picktickets/${ pickticketId }/parcels`,
-    {
-      credsPath,
-      params: {
-        ...(skip && { skip }),
-        ...(includeDetails && { includeDetails }),
-      },
-      ...(perPage && { perPage }),
-      ...getterOptions,
+  const response = await bleckmannClient.fetch({
+    url: `/warehousing/picktickets/${ pickticketId }/parcels`,
+    params: {
+      ...(!customNullish(includeDetails) && { includeDetails }),
     },
-  );
+    context: {
+      credsPath,
+      resultsNode: 'data',
+    },
+  });
+
   logDeep(response);
   return response;
 };
