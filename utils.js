@@ -1493,6 +1493,10 @@ const objToArray = (obj, { keyProp = 'key', valueProp = 'value' } = {}) => {
   }));
 };
 
+const randomNumber = (min, max) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
 module.exports = {
 
   // Really core
@@ -1544,6 +1548,7 @@ module.exports = {
   standardRequestVerifiers,
   parseBoolean,
   objToArray,
+  randomNumber,
   
   // Classes
   CustomAxiosClient,
