@@ -1,7 +1,8 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/fulfillmentCreate
 
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, askQuestion } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
+const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 
 const defaultAttrs = `id displayStatus`;
 
@@ -21,6 +22,74 @@ const shopifyFulfillmentOrderFulfill = async (
   } = {},
 ) => {
 
+  const fulfillmentOrderAttrs = `
+    id
+    lineItems (first: 100) {
+      edges {
+        node {
+          id
+          sku
+          remainingQuantity
+          requiresShipping
+        }
+      }
+    }
+  `;
+
+  const fulfillmentOrderResponse = await shopifyGetSingle(
+    credsPath, 
+    'fulfillmentOrder', 
+    fulfillmentOrderId, 
+    { 
+      apiVersion, 
+      attrs: fulfillmentOrderAttrs,
+    },
+  );
+
+  const { success: fulfillmentOrderSuccess, result: fulfillmentOrder } = fulfillmentOrderResponse;
+
+  if (!fulfillmentOrderSuccess) {
+    return fulfillmentOrderResponse;
+  }
+
+  const { lineItems } = fulfillmentOrder;
+
+  if (lineItems.length >= 100) {
+    return {
+      success: false,
+      error: ['Order could have >100 line items, so this function is not equipped to handle it'],
+    };
+  }
+
+  const shippableLineItems = lineItems?.filter(lineItem => lineItem?.requiresShipping === true);
+
+  if (!shippableLineItems?.length) {
+    return {
+      success: false,
+      error: [`Order has no shippable line items`],
+    };
+  }
+
+  // If no external line items, fulfill all line items
+  let fulfillPayloadLineItems;
+
+  if (externalLineItems) {
+    fulfillPayloadLineItems = shopifyFulfillmentLineItemsFromExternalLineItems(externalLineItems, lineItems, { 
+      extSkuProp: 'skuId',
+      shopifyQuantityProp: 'quantity',
+    });
+  } else {
+    fulfillPayloadLineItems = lineItems.map(li => {
+      return {
+        id: li.id,
+        quantity: li.remainingQuantity,
+      };
+    });
+  }
+
+  logDeep(fulfillPayloadLineItems);
+  await askQuestion('?');
+
   const response = await shopifyMutationDo(
     credsPath,
     'fulfillmentCreate',
@@ -31,10 +100,10 @@ const shopifyFulfillmentOrderFulfill = async (
           ...notifyCustomer && { notifyCustomer },
           ...originAddress && { originAddress },
           ...trackingInfo && { trackingInfo },
-          // ...fulfillPayloadLineItems && { lineItemsByFulfillmentOrder: [{
-          //   fulfillmentOrderId: fulfillmentOrderGid,
-          //   fulfillmentOrderLineItems: fulfillPayloadLineItems,
-          // }] },
+          ...fulfillPayloadLineItems && { lineItemsByFulfillmentOrder: [{
+            fulfillmentOrderId: fulfillmentOrderGid,
+            fulfillmentOrderLineItems: fulfillPayloadLineItems,
+          }] },
         },
       },
     },
