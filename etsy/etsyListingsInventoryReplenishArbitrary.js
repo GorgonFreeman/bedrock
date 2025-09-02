@@ -47,12 +47,8 @@ const etsyListingsInventoryReplenishArbitrary = async (
         })),
       })),
     };
-    logDeep(inventoryUpdatePayload);
-    await askQuestion('?');
 
     const response = await etsyListingInventoryUpdate(listingId, inventoryUpdatePayload, { credsPath });
-    logDeep(response);
-    await askQuestion('?');
     responses.push(response);
   }
 
