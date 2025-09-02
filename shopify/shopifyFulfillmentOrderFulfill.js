@@ -24,6 +24,7 @@ const shopifyFulfillmentOrderFulfill = async (
 
   const fulfillmentOrderAttrs = `
     id
+    status
     lineItems (first: 100) {
       edges {
         node {
@@ -52,7 +53,12 @@ const shopifyFulfillmentOrderFulfill = async (
     return fulfillmentOrderResponse;
   }
 
-  const { lineItems } = fulfillmentOrder;
+  const { 
+    status,
+    lineItems,
+  } = fulfillmentOrder;
+
+  // TODO: Return based on status
 
   if (lineItems.length >= 100) {
     return {
