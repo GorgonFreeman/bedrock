@@ -40,8 +40,15 @@ const etsyListingsInventoryReplenishArbitrary = async (
     const inventoryUpdatePayload = {
       products: products.map(({ offerings }) => {
         return {
-          offerings: offerings.map(offering => {
+          offerings: offerings.map(({ price, is_enabled, readiness_state_id }) => {
+
+            const { amount, divisor } = price;
+            const priceFloat = amount / divisor;
+
             return {
+              price: priceFloat,
+              is_enabled,
+              readiness_state_id,
               quantity: randomNumber(replenishToMin, replenishToMax),
             };
           }),
