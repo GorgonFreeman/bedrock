@@ -1,4 +1,4 @@
-const { funcApi, logDeep, randomNumber, arrayStandardResponse } = require('../utils');
+const { funcApi, logDeep, randomNumber, askQuestion, arrayStandardResponse } = require('../utils');
 const { etsyShopListingsGet } = require('../etsy/etsyShopListingsGet');
 const { etsyListingInventoryUpdate } = require('../etsy/etsyListingInventoryUpdate');
 
@@ -30,14 +30,28 @@ const etsyListingsInventoryReplenishArbitrary = async (
 
   const responses = [];
   for (const listing of eligibleListings) {
+
+    const { 
+      listing_id: listingId, 
+      inventory,
+    } = listing;
+    const { products } = inventory;
+
     const inventoryUpdatePayload = {
-      products: listing.inventory.products.map(({ offerings }) => { offerings.map(o => {
+      products: products.map(({ offerings }) => {
         return {
-          quantity: randomNumber(replenishToMin, replenishToMax),
-        };
-      }) }),
-    }
-    const response = await etsyListingInventoryUpdate(listing.id, inventoryUpdatePayload, { credsPath });
+          offerings: offerings.map(offering => {
+            return {
+              quantity: randomNumber(replenishToMin, replenishToMax),
+            };
+          }),
+        }
+      }),
+    };
+    logDeep(inventoryUpdatePayload);
+    await askQuestion('?');
+
+    const response = await etsyListingInventoryUpdate(listingId, inventoryUpdatePayload, { credsPath });
     logDeep(response);
     await askQuestion('?');
     responses.push(response);
