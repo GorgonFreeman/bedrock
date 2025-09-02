@@ -1,41 +1,21 @@
-const { respond, mandateParam, logDeep } = require('../utils');
-const { etsyClient } = require('../etsy/etsy.utils');
+const { funcApi, logDeep } = require('../utils');
 
 const etsyListingsInventoryReplenishArbitrary = async (
-  arg,
   {
+    eligibleStockMax = 0,
+    replenishToMax = 10,
+    replenishToMin = 5,
     credsPath,
   } = {},
 ) => {
-  const response = await etsyClient.fetch({ 
-    url: `/application/things/${ arg }`,
-    context: {
-      credsPath,
-    },
-  });
+  const response = true;
   logDeep(response);
   return response;
 };
 
-const etsyListingsInventoryReplenishArbitraryApi = async (req, res) => {
-  const { 
-    arg,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await etsyListingsInventoryReplenishArbitrary(
-    arg,
-    options,
-  );
-  respond(res, 200, result);
-};
+const etsyListingsInventoryReplenishArbitraryApi = funcApi(etsyListingsInventoryReplenishArbitrary, {
+  argNames: ['options'],
+});
 
 module.exports = {
   etsyListingsInventoryReplenishArbitrary,
