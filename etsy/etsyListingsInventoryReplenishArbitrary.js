@@ -38,22 +38,14 @@ const etsyListingsInventoryReplenishArbitrary = async (
     const { products } = inventory;
 
     const inventoryUpdatePayload = {
-      products: products.map(({ offerings }) => {
-        return {
-          offerings: offerings.map(({ price, is_enabled, readiness_state_id }) => {
-
-            const { amount, divisor } = price;
-            const priceFloat = amount / divisor;
-
-            return {
-              price: priceFloat,
-              is_enabled,
-              readiness_state_id,
-              quantity: randomNumber(replenishToMin, replenishToMax),
-            };
-          }),
-        }
-      }),
+      products: products.map(({ offerings }) => ({
+        offerings: offerings.map(({ price: { amount, divisor }, is_enabled, readiness_state_id }) => ({
+          price: amount / divisor,
+          is_enabled,
+          readiness_state_id,
+          quantity: randomNumber(replenishToMin, replenishToMax),
+        })),
+      })),
     };
     logDeep(inventoryUpdatePayload);
     await askQuestion('?');
