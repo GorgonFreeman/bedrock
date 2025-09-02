@@ -186,3 +186,14 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
     }
   }
 }
+
+/*
+  Deploy everything:
+  npm run host all
+
+  Deploy a single function:
+  npm run host function
+
+  Deploy a group of functions:
+  npm run host group
+*/
