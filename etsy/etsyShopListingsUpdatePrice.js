@@ -1,45 +1,26 @@
-const { respond, mandateParam, logDeep } = require('../utils');
-const { etsyClient } = require('../etsy/etsy.utils');
+const { funcApi, logDeep } = require('../utils');
+const { etsyShopListingsGet } = require('../etsy/etsyShopListingsGet');
+const { etsyListingInventoryUpdate } = require('../etsy/etsyListingInventoryUpdate');
 
 const etsyShopListingsUpdatePrice = async (
-  arg,
+  priceDecimal,
   {
     credsPath,
   } = {},
 ) => {
-  const response = await etsyClient.fetch({ 
-    url: `/application/things/${ arg }`,
-    context: {
-      credsPath,
-    },
-  });
+  const response = true;
   logDeep(response);
   return response;
 };
 
-const etsyShopListingsUpdatePriceApi = async (req, res) => {
-  const { 
-    arg,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await etsyShopListingsUpdatePrice(
-    arg,
-    options,
-  );
-  respond(res, 200, result);
-};
+const etsyShopListingsUpdatePriceApi = funcApi(etsyShopListingsUpdatePrice,  {
+  argNames: ['priceDecimal', 'options'],
+  validatorsByArg: { priceDecimal: Boolean },
+});
 
 module.exports = {
   etsyShopListingsUpdatePrice,
   etsyShopListingsUpdatePriceApi,
 };
 
-// curl localhost:8000/etsyShopListingsUpdatePrice
+// curl localhost:8000/etsyShopListingsUpdatePrice -H "Content-Type: application/json" -d '{ "priceDecimal": 50.00 }'
