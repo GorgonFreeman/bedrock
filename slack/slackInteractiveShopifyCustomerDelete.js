@@ -123,7 +123,7 @@ const slackInteractiveShopifyCustomerDelete = async (req, res) => {
     console.log(`Initiation, e.g. slash command`);
 
     return respond(res, 200, {
-      response_type: 'in_channel',
+      response_type: 'ephemeral',
       blocks: initialBlocks,
     });
   }
@@ -149,10 +149,12 @@ const slackInteractiveShopifyCustomerDelete = async (req, res) => {
 
   let response;
 
+  let customerEmail;
+
   switch (actionId) {
     case `${ ACTION_NAME }:fetch_customer`:
       
-      const customerEmail = state?.values?.email_input_field[`${ ACTION_NAME }:email_input`]?.value;
+      customerEmail = state?.values?.email_input_field[`${ ACTION_NAME }:email_input`]?.value;
 
       if (!customerEmail) {
         throw new Error('No email provided');
@@ -176,30 +178,34 @@ const slackInteractiveShopifyCustomerDelete = async (req, res) => {
 
       if (Object.keys(regionalCustomer).length === 0) {
         response = {
+          response_type: 'ephemeral',
           replace_original: 'true',
           text: `No customer found for email: ${ customerEmail }`,
         };
         break;
       }
 
-      const customerCards = {
-        type: 'section',
-        fields: Object.entries(regionalCustomer).map(([region, customer]) => {
-          return {
+      const customerCards = [];
+      Object.entries(regionalCustomer).forEach(([region, customer]) => {
+        customerCards.push({
+          type: 'section',
+          text: {
             type: 'mrkdwn',
-            text: `*${ region.toUpperCase() }*: ${ customer.displayName }\n:email: ${ customer.email }\n:phone: ${ customer.phone }\nCreated: ${ customer.createdAt }\n`,
-          };
-        }),
-      };
+            text: `*${ region.toUpperCase() }*: ${ customer.displayName }\n:email: ${ customer.email }\n:phone: ${ customer.phone }\nCreated: ${ customer.createdAt.split('T')[0] }\n`,
+          },
+        });
+        customerCards.push(dividerBlock);
+      });
 
       const phase2Blocks = [
         headerBlock,
         dividerBlock,
-        customerCards,
+        ...customerCards,
         deleteActionBlock,
       ]
 
       response = {
+        response_type: 'ephemeral',
         replace_original: 'true',
         blocks: phase2Blocks,
       };
@@ -208,13 +214,36 @@ const slackInteractiveShopifyCustomerDelete = async (req, res) => {
     case `${ ACTION_NAME }:cancel`:
 
       response = {
+        response_type: 'ephemeral',
         replace_original: 'true',
         text: `No problem!`,
       };
 
       break;
+    case `${ ACTION_NAME }:delete_customer`:
+
+      if (!customerEmail) {
+        response = {
+          response_type: 'ephemeral',
+          replace_original: 'true',
+          text: `Customer email not found!`,
+        };
+        break;
+      }
+
+      response = {
+        response_type: 'ephemeral',
+        replace_original: 'true',
+        text: `Customer ${ customerEmail } deleted from all Shopify stores (not yet implemented)`,
+      };
+
+      break;
     default:
-      throw new Error(`Unknown action: ${ actionId }`);
+      response = {
+        response_type: 'ephemeral',
+        replace_original: 'true',
+        text: `Errored: Unknown action: ${ actionId }`,
+      };
   }
 
   logDeep('response', response);
