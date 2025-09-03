@@ -12,61 +12,115 @@ const slackInteractiveShopifyCustomerDelete = async (req, res) => {
 
   const { body } = req;
 
-  if (!body?.payload) {
-    console.log(`Initiation, e.g. slash command`);
+  // Generate initial blocks modularly
+  const dividerBlock = {
+    type: 'divider',
+  };
 
-    const initialBlocks = [
+  const headerBlock = {
+    type: 'header',
+    text: {
+      type: 'plain_text',
+      text: 'Customer Data Delete',
+      emoji: true,
+    },
+  };
+
+  const emailInputBlock = {
+    type: 'input',
+    block_id: `email_input_field`,
+    element: {
+      type: 'plain_text_input',
+      action_id: `${ ACTION_NAME }:email_input`,
+    },
+    label: {
+      type: 'plain_text',
+      text: 'Customer email address:',
+      emoji: true,
+    },
+  };
+
+  const fetchActionBlock = {
+    type: 'actions',
+    elements: [
       {
-        type: 'header',
+        "type": "button",
         text: {
           type: 'plain_text',
-          text: 'Customer Data Delete',
+          text: 'Cancel',
           emoji: true,
         },
+        value: 'cancel',
+        action_id: `${ ACTION_NAME }:cancel`,
       },
       {
-        type: 'divider',
-      },
-      {
-        type: 'input',
-        block_id: `email_input_field`,
-        element: {
-          type: 'plain_text_input',
-          action_id: `${ ACTION_NAME }:email_input`,
-        },
-        label: {
+        type: 'button',
+        text: {
           type: 'plain_text',
-          text: 'Customer email address:',
+          text: 'Find Customer',
           emoji: true,
         },
+        value: 'fetch_customer',
+        action_id: `${ ACTION_NAME }:fetch_customer`,
+        style: 'primary',
+      },
+    ],
+  };
+
+  const deleteActionBlock = {
+    type: 'actions',
+    elements: [
+      {
+        "type": "button",
+        text: {
+          type: 'plain_text',
+          text: 'Cancel',
+          emoji: true,
+        },
+        value: 'cancel',
+        action_id: `${ ACTION_NAME }:cancel`,
       },
       {
-        type: 'actions',
-        elements: [
-          {
-            "type": "button",
-            text: {
-              type: 'plain_text',
-              text: 'Cancel',
-              emoji: true,
-            },
-            value: 'cancel',
-            action_id: `${ ACTION_NAME }:cancel`,
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Delete Customer',
+          emoji: true,
+        },
+        value: 'delete_customer',
+        action_id: `${ ACTION_NAME }:delete_customer`,
+        style: 'danger',
+        confirm: {
+          title: {
+            type: 'plain_text',
+            text: 'Are you sure?',
           },
-          {
-            type: 'button',
-            text: {
-              type: 'plain_text',
-              text: 'Find Customer',
-              emoji: true,
-            },
-            value: 'fetch_customer',
-            action_id: `${ ACTION_NAME }:fetch_customer`,
-            style: 'primary',
+          text: {
+            type: 'mrkdwn',
+            text: 'This will delete the customer data from all Shopify stores',
           },
-        ],
+          confirm: {
+            type: 'plain_text',
+            text: 'Do it!',
+          },
+          deny: {
+            type: 'plain_text',
+            text: 'Nope, I\'ve changed my mind',
+          },
+        },
       },
-    ];
+    ],
+  };
+
+  const initialBlocks = [
+    headerBlock,
+    dividerBlock,
+    emailInputBlock,
+    fetchActionBlock,
+  ];
+
+  if (!body?.payload) {
+    console.log(`Initiation, e.g. slash command`);
 
     return respond(res, 200, {
       response_type: 'in_channel',
@@ -93,8 +147,6 @@ const slackInteractiveShopifyCustomerDelete = async (req, res) => {
     value: actionValue,
   } = action;
 
-  const currentBlocks = payload.message.blocks;
-
   let response;
 
   switch (actionId) {
@@ -115,29 +167,41 @@ const slackInteractiveShopifyCustomerDelete = async (req, res) => {
         {
           attrs: 'id displayName email phone createdAt'
         });
-        if (customer || customer?.success) {
+        if (customer && customer?.success && customer?.result) {
           regionalCustomer[region] = customer.result;
         }
       }));
 
       logDeep('regionalCustomer', regionalCustomer);
 
-      let newBlocks = currentBlocks;
+      if (Object.keys(regionalCustomer).length === 0) {
+        response = {
+          replace_original: 'true',
+          text: `No customer found for email: ${ customerEmail }`,
+        };
+        break;
+      }
+
       const customerCards = {
         type: 'section',
         fields: Object.entries(regionalCustomer).map(([region, customer]) => {
           return {
             type: 'mrkdwn',
-            text: `*${ region }*: ${ customer.displayName } ${ customer.email } ${ customer.phone } ${ customer.createdAt }`,
+            text: `*${ region.toUpperCase() }*: ${ customer.displayName }\n:email: ${ customer.email }\n:phone: ${ customer.phone }\nCreated: ${ customer.createdAt }\n`,
           };
         }),
       };
 
-      newBlocks.splice(1, 0, customerCards);
+      const phase2Blocks = [
+        headerBlock,
+        dividerBlock,
+        customerCards,
+        deleteActionBlock,
+      ]
 
       response = {
         replace_original: 'true',
-        blocks: newBlocks,
+        blocks: phase2Blocks,
       };
 
       break;
