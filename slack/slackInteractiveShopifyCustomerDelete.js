@@ -1,5 +1,9 @@
 const { respond, logDeep, customAxios } = require('../utils');
 
+const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
+
+const { REGIONS_WF } = require('../shopify/shopify.constants');
+
 const ACTION_NAME = 'customer_delete';
 
 const slackInteractiveShopifyCustomerDelete = async (req, res) => {
@@ -89,13 +93,52 @@ const slackInteractiveShopifyCustomerDelete = async (req, res) => {
     value: actionValue,
   } = action;
 
+  const currentBlocks = payload.message.blocks;
+
   let response;
 
   switch (actionId) {
     case `${ ACTION_NAME }:fetch_customer`:
       
       const customerEmail = state?.values?.email_input_field[`${ ACTION_NAME }:email_input`]?.value;
-      logDeep('customerEmail', customerEmail);
+
+      if (!customerEmail) {
+        throw new Error('No email provided');
+      }
+
+      let regionalCustomer = {};
+
+      await Promise.all(REGIONS_WF.map(async (region) => {
+        const customer = await shopifyCustomerGet(region, {
+          email: customerEmail,
+        },
+        {
+          attrs: 'id displayName email phone createdAt'
+        });
+        if (customer || customer?.success) {
+          regionalCustomer[region] = customer.result;
+        }
+      }));
+
+      logDeep('regionalCustomer', regionalCustomer);
+
+      let newBlocks = currentBlocks;
+      const customerCards = {
+        type: 'section',
+        fields: Object.entries(regionalCustomer).map(([region, customer]) => {
+          return {
+            type: 'mrkdwn',
+            text: `*${ region }*: ${ customer.displayName } ${ customer.email } ${ customer.phone } ${ customer.createdAt }`,
+          };
+        }),
+      };
+
+      newBlocks.splice(1, 0, customerCards);
+
+      response = {
+        replace_original: 'true',
+        blocks: newBlocks,
+      };
 
       break;
     case `${ ACTION_NAME }:cancel`:
