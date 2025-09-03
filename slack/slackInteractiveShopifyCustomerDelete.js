@@ -25,7 +25,7 @@ const slackInteractiveShopifyCustomerDelete = async (req, res) => {
       },
       {
         type: 'input',
-        block_id: `${ ACTION_NAME }:email_input_field`,
+        block_id: `email_input_field`,
         element: {
           type: 'plain_text_input',
           action_id: `${ ACTION_NAME }:email_input`,
@@ -89,26 +89,22 @@ const slackInteractiveShopifyCustomerDelete = async (req, res) => {
     value: actionValue,
   } = action;
 
-  let customerEmail = '';
-
   let response;
 
   switch (actionId) {
-    case `${ ACTION_NAME }:email_input`:
-      customerEmail = state?.values?.email_input?.email_text?.value;
-
-      logDeep('customerEmail', customerEmail);
-      break;
     case `${ ACTION_NAME }:fetch_customer`:
       
-      logDeep('state', state);
+      const customerEmail = state?.values?.email_input_field[`${ ACTION_NAME }:email_input`]?.value;
+      logDeep('customerEmail', customerEmail);
 
       break;
     case `${ ACTION_NAME }:cancel`:
+
       response = {
         replace_original: 'true',
         text: `No problem!`,
       };
+
       break;
     default:
       throw new Error(`Unknown action: ${ actionId }`);
