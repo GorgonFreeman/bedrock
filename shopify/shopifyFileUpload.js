@@ -38,6 +38,7 @@ const shopifyFileUpload = async (
     {
       apiVersion,
       fileSize: fileSize.toString(),
+      httpMethod: 'POST',
     },
   );
 
