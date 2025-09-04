@@ -1,4 +1,4 @@
-const fs = require('fs').promises;
+const { promises: fsPromises, ...fs } = require('fs');
 const path = require('path');
 const mime = require('mime-types');
 const { funcApi, logDeep, customAxios } = require('../utils');
@@ -25,7 +25,7 @@ const shopifyFileUpload = async (
   }
 
   // 3. Check the file size
-  const fileStats = await fs.stat(filepath);
+  const fileStats = await fsPromises.stat(filepath);
   logDeep(fileStats);
   const { size: fileSize } = fileStats;
 
