@@ -60,4 +60,4 @@ module.exports = {
   shopifyFileCreateApi,
 };
 
-// curl http://localhost:8000/shopifyFileCreate ...
+// curl http://localhost:8000/shopifyFileCreate -H "Content-Type: application/json" -d '{ "credsPath": "au", "fileInput": { "originalSource": "https://upload.wikimedia.org/wikipedia/en/5/5f/Original_Doge_meme.jpg" } }'
