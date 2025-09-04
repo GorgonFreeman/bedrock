@@ -56,4 +56,4 @@ module.exports = {
   shopifyFilesUploadFromFolderApi,
 };
 
-// curl localhost:8000/shopifyFilesUploadFromFolder -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyFilesUploadFromFolder -H "Content-Type: application/json" -d '{ "regions": ["au"], "folderPath": "/Users/armstrong/Desktop/nanobots" }'
