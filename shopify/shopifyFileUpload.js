@@ -1,7 +1,7 @@
 const { promises: fsPromises, ...fs } = require('fs');
 const path = require('path');
 const mime = require('mime-types');
-const { funcApi, logDeep, customAxios } = require('../utils');
+const { funcApi, logDeep, customAxios, convertObjectToFormData } = require('../utils');
 const { shopifyStagedUploadCreate } = require('../shopify/shopifyStagedUploadCreate');
 const { shopifyFileCreate } = require('../shopify/shopifyFileCreate');
 
@@ -67,7 +67,7 @@ const shopifyFileUpload = async (
 
   const file = fs.createReadStream(filepath);
 
-  const formData = formDataFromObject(parametersAsObject);
+  const formData = convertObjectToFormData(parametersAsObject);
   formData.append('file', file);
 
   const fileUploadResponse = await customAxios('post', url, formData);

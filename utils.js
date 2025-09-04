@@ -1497,6 +1497,22 @@ const randomNumber = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
+const convertFormDataToObject = (formData) => {
+  const object = {};
+  formData.forEach((value, key) => {
+    object[key] = value;
+  });
+  return object;
+};
+
+const convertObjectToFormData = (object) => {
+  const formData = new FormData();
+  Object.entries(object).forEach(([key, value]) => {
+    formData.append(key, value);
+  });
+  return formData;
+};
+
 module.exports = {
 
   // Really core
@@ -1549,6 +1565,8 @@ module.exports = {
   parseBoolean,
   objToArray,
   randomNumber,
+  convertFormDataToObject,
+  convertObjectToFormData,
   
   // Classes
   CustomAxiosClient,
