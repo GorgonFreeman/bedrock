@@ -57,7 +57,7 @@ const shopifyFileUpload = async (
     };
   }
   
-  const { url, resourceUrl, parameters } = stagedTargets?.[0];
+  const { url, resourceUrl, parameters } = stagedTarget;
   
   // 5. Upload file to staged upload url
   const parametersAsObject = Object.fromEntries(parameters.map(p => {
