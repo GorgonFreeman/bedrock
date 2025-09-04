@@ -89,23 +89,30 @@ const shopifyFileUpload = async (
     return fileUploadResponse;
   }
 
-  // Parse XML response
-  let parsedFileUploadResult = fileUploadResult;
-  if (typeof fileUploadResult === 'string') {
-    try {
-      parsedFileUploadResult = await xml2jsParser.parseStringPromise(fileUploadResult);
-    } catch (error) {
-      console.warn('error parsing fileUploadResult XML', error, fileUploadResult);
-    }
-  }
+  // // Parse XML response
+  // let parsedFileUploadResult = fileUploadResult;
+  // if (typeof fileUploadResult === 'string') {
+  //   try {
+  //     parsedFileUploadResult = await xml2jsParser.parseStringPromise(fileUploadResult);
+  //   } catch (error) {
+  //     console.warn('error parsing fileUploadResult XML', error, fileUploadResult);
+  //   }
+  // }
 
-  const response = {
-    ...fileUploadResponse,
-    result: parsedFileUploadResult,
-  };
+  const fileCreateResponse = await shopifyFileCreate(
+    credsPath,
+    {
+      filename,
+      originalSource: resourceUrl,
+      // TODO: Consider adding more options
+    },
+    {
+      apiVersion,
+    },
+  );
 
-  logDeep(response);
-  return response;
+  logDeep(fileCreateResponse);
+  return fileCreateResponse;
 };
 
 const shopifyFileUploadApi = funcApi(shopifyFileUpload, {
