@@ -1,69 +1,59 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, gidToId } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
+const { shopifyCustomerGet } = require('./shopifyCustomerGet');
+const { shopifyCustomerDelete } = require('./shopifyCustomerDelete');
+const { shopifyCustomerDataErasureRequest } = require('./shopifyCustomerDataErasureRequest');
+
+const { REGIONS_WF } = require('../constants');
 
 const shopifyCustomerDeleteAll = async (
-  credsPath,
-  arg,
+  customerEmail,
   {
     apiVersion,
-    option,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
+  let results = {};
+
+  await Promise.all(REGIONS_WF.map(async (region) => {
+
+    let result = {};
+
+    const customer = await shopifyCustomerGet(region, { email: customerEmail }, { apiVersion });
+    logDeep('customer', customer);
+    const customerId = customer?.result?.id ? gidToId(customer.result.id) : null;
+    if (!customerId) {
+      return;
     }
-  `;
 
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
+    const deleteResult = await shopifyCustomerDelete(region, customerId, { apiVersion });
+    result.deleteResult = deleteResult;
 
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
-      apiVersion,
-    },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
+    const dataErasureResult = await shopifyCustomerDataErasureRequest(region, customerId, { apiVersion });
+    result.dataErasureResult = dataErasureResult;
 
-  logDeep(response);
-  return response;
+    results[region] = result;
+  }));
+
+  return results;
 };
 
 const shopifyCustomerDeleteAllApi = async (req, res) => {
-  const { 
-    credsPath,
-    arg,
+  const {
+    customerEmail,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
-    mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'customerEmail', customerEmail),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
   }
 
   const result = await shopifyCustomerDeleteAll(
-    credsPath,
-    arg,
+    customerEmail,
     options,
   );
   respond(res, 200, result);
@@ -74,4 +64,4 @@ module.exports = {
   shopifyCustomerDeleteAllApi,
 };
 
-// curl localhost:8000/shopifyCustomerDeleteAll -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyCustomerDeleteAll -H "Content-Type: application/json" -d '{ "customerEmail": "" }'
