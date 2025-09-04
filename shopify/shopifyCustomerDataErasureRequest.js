@@ -13,14 +13,14 @@ const shopifyCustomerDataErasureRequest = async (
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'customerRequestDataErasure',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      customerId: {
+        type: 'ID!',
+        value: `gid://shopify/Customer/${ customerId }`,
       },
     },
-    `page { ${ returnAttrs } }`,
+    `customerId`,
     { 
       apiVersion,
     },
@@ -32,13 +32,13 @@ const shopifyCustomerDataErasureRequest = async (
 const shopifyCustomerDataErasureRequestApi = async (req, res) => {
   const {
     credsPath,
-    pageInput,
+    customerId,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'pageInput', pageInput),
+    mandateParam(res, 'customerId', customerId),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -46,7 +46,7 @@ const shopifyCustomerDataErasureRequestApi = async (req, res) => {
 
   const result = await shopifyCustomerDataErasureRequest(
     credsPath,
-    pageInput,
+    customerId,
     options,
   );
   respond(res, 200, result);
@@ -57,4 +57,4 @@ module.exports = {
   shopifyCustomerDataErasureRequestApi,
 };
 
-// curl http://localhost:8000/shopifyCustomerDataErasureRequest -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyCustomerDataErasureRequest -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerId": 8765433348168 }'
