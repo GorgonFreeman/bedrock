@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 const mime = require('mime-types');
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, customAxios } = require('../utils');
 const { shopifyStagedUploadCreate } = require('../shopify/shopifyStagedUploadCreate');
 const { shopifyFileCreate } = require('../shopify/shopifyFileCreate');
 
@@ -40,9 +40,40 @@ const shopifyFileUpload = async (
       fileSize: fileSize.toString(),
     },
   );
-  logDeep(stagedUploadResponse); 
 
-  const response = true;
+  const { success: stagedUploadSuccess, result: stagedUploadResult } = stagedUploadResponse;
+  if (!stagedUploadSuccess) {
+    return stagedUploadResponse;
+  }
+
+  const { stagedTargets } = stagedUploadResult;
+  const stagedTarget = stagedTargets?.[0];
+
+  if (!stagedTarget) {
+    logDeep(stagedUploadResponse);
+    return {
+      success: false,
+      error: ['No staged target found'],
+    };
+  }
+  
+  const { url, resourceUrl, parameters } = stagedTargets?.[0];
+  
+  // 5. Upload file to staged upload url
+  const parametersAsObject = Object.fromEntries(parameters.map(p => {
+    const { name, value } = p;
+    return [name, value];
+  }));
+
+  const file = fs.createReadStream(filepath);
+
+  const formData = formDataFromObject(parametersAsObject);
+  formData.append('file', file);
+
+  const fileUploadResponse = await customAxios('post', url, formData);
+  logDeep(fileUploadResponse);
+
+  const response = fileUploadResponse;
 
   logDeep(response);
   return response;
