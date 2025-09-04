@@ -1,29 +1,44 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/stageduploadscreate
 
-const { respond, mandateParam, logDeep } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `url resourceUrl parameters { name value }`;
 
 const shopifyStagedUploadCreate = async (
   credsPath,
-  pageInput,
+  resource,
+  filename,
+  mimeType,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
+
+    fileSize,
+    httpMethod,
   } = {},
 ) => {
 
+  const mutationName = 'stagedUploadsCreate';
+
+  const mutationVariables = {
+    input: {
+      type: '[StagedUploadInput!]!',
+      value: [{
+        resource,
+        filename,
+        mimeType,
+        ...(fileSize && { fileSize }),
+        ...(httpMethod && { httpMethod }),
+      }],
+    },
+  };
+
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
-    {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
-      },
-    },
-    `page { ${ returnAttrs } }`,
+    mutationName,
+    mutationVariables,
+    `stagedTargets { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -32,32 +47,19 @@ const shopifyStagedUploadCreate = async (
   return response;
 };
 
-const shopifyStagedUploadCreateApi = async (req, res) => {
-  const {
-    credsPath,
-    pageInput,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'pageInput', pageInput),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await shopifyStagedUploadCreate(
-    credsPath,
-    pageInput,
-    options,
-  );
-  respond(res, 200, result);
-};
+const shopifyStagedUploadCreateApi = funcApi(shopifyStagedUploadCreate, {
+  args: ['credsPath', 'resource', 'filename', 'mimeType', 'options'],
+  validatorsByArg: {
+    credsPath: Boolean,
+    resource: Boolean,
+    filename: Boolean,
+    mimeType: Boolean,
+  },
+});
 
 module.exports = {
   shopifyStagedUploadCreate,
   shopifyStagedUploadCreateApi,
 };
 
-// curl http://localhost:8000/shopifyStagedUploadCreate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyStagedUploadCreate -H "Content-Type: application/json" -d '{ "credsPath": "au", "resource": "FILE", "filename": "deepfried_shrek.jpg", "mimeType": "image/jpeg" }'
