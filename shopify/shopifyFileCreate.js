@@ -1,29 +1,44 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/filecreate
 
-const { respond, mandateParam, logDeep } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `id fileStatus`;
 
 const shopifyFileCreate = async (
   credsPath,
-  pageInput,
+  {
+    filename,
+    originalSource,
+    contentType,
+    alt,
+    duplicateResolutionMode,
+  },
   {
     apiVersion,
     returnAttrs = defaultAttrs,
   } = {},
 ) => {
 
+  const mutationName = 'fileCreate';
+  const mutationVariables = {
+    files: {
+      type: '[FileCreateInput!]!',
+      value: [{
+        ...(filename && { filename }),
+        originalSource,
+        ...(contentType && { contentType }),
+        ...(alt && { alt }),
+        ...(duplicateResolutionMode && { duplicateResolutionMode }),
+      }],
+    },
+  };
+
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
-    {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
-      },
-    },
-    `page { ${ returnAttrs } }`,
+    mutationName,
+    mutationVariables,
+    `files { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -32,32 +47,17 @@ const shopifyFileCreate = async (
   return response;
 };
 
-const shopifyFileCreateApi = async (req, res) => {
-  const {
-    credsPath,
-    pageInput,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'pageInput', pageInput),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await shopifyFileCreate(
-    credsPath,
-    pageInput,
-    options,
-  );
-  respond(res, 200, result);
-};
+const shopifyFileCreateApi = funcApi(shopifyFileCreate, {
+  argNames: ['credsPath', 'fileInput', 'options'],
+  validatorsByArg: {
+    credsPath: Boolean,
+    fileInput: p => p?.originalSource, // Only required field as far as I can tell
+  },
+});
 
 module.exports = {
   shopifyFileCreate,
   shopifyFileCreateApi,
 };
 
-// curl http://localhost:8000/shopifyFileCreate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyFileCreate ...
