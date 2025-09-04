@@ -1,9 +1,16 @@
 const { promises: fsPromises, ...fs } = require('fs');
 const path = require('path');
 const mime = require('mime-types');
+const xml2js = require('xml2js');
 const { funcApi, logDeep, customAxios, convertObjectToFormData } = require('../utils');
 const { shopifyStagedUploadCreate } = require('../shopify/shopifyStagedUploadCreate');
 const { shopifyFileCreate } = require('../shopify/shopifyFileCreate');
+
+const xml2jsParser = new xml2js.Parser({
+  explicitArray: false,
+  mergeAttrs: true,
+  ignoreAttrs: true,
+});
 
 const shopifyFileUpload = async (
   credsPath,
@@ -77,7 +84,25 @@ const shopifyFileUpload = async (
   });
   logDeep(fileUploadResponse);
 
-  const response = fileUploadResponse;
+  const { success: fileUploadSuccess, result: fileUploadResult } = fileUploadResponse;
+  if (!fileUploadSuccess) {
+    return fileUploadResponse;
+  }
+
+  // Parse XML response
+  let parsedFileUploadResult = fileUploadResult;
+  if (typeof fileUploadResult === 'string') {
+    try {
+      parsedFileUploadResult = await xml2jsParser.parseStringPromise(fileUploadResult);
+    } catch (error) {
+      console.warn('error parsing fileUploadResult XML', error, fileUploadResult);
+    }
+  }
+
+  const response = {
+    ...fileUploadResponse,
+    result: parsedFileUploadResult,
+  };
 
   logDeep(response);
   return response;
