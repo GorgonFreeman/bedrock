@@ -1,14 +1,11 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
-
 const shopifyFilesUploadFromFolder = async (
-  credsPath,
-  arg,
+  regions,
+  folderPath,
   {
     apiVersion,
-    option,
   } = {},
 ) => {
 
@@ -46,28 +43,13 @@ const shopifyFilesUploadFromFolder = async (
   return response;
 };
 
-const shopifyFilesUploadFromFolderApi = async (req, res) => {
-  const { 
-    credsPath,
-    arg,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await shopifyFilesUploadFromFolder(
-    credsPath,
-    arg,
-    options,
-  );
-  respond(res, 200, result);
-};
+const shopifyFilesUploadFromFolderApi = funcApi(shopifyFilesUploadFromFolder, {
+  argNames: ['regions', 'folderPath', 'options'],
+  validatorsByArg: {
+    regions: Array.isArray,
+    folderPath: Boolean,
+  },
+});
 
 module.exports = {
   shopifyFilesUploadFromFolder,
