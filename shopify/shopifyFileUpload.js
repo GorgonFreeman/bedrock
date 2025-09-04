@@ -70,7 +70,10 @@ const shopifyFileUpload = async (
   const formData = convertObjectToFormData(parametersAsObject);
   formData.append('file', file);
 
-  const fileUploadResponse = await customAxios('post', url, formData);
+  const fileUploadResponse = await customAxios(url, {
+    method: 'post',
+    body: formData,
+  });
   logDeep(fileUploadResponse);
 
   const response = fileUploadResponse;
