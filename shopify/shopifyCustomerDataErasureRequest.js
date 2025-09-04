@@ -3,14 +3,11 @@
 const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
-
 const shopifyCustomerDataErasureRequest = async (
   credsPath,
-  pageInput,
+  customerId,
   {
-    apiVersion,
-    returnAttrs = defaultAttrs,
+    apiVersion = '2025-07',
   } = {},
 ) => {
 

@@ -29,6 +29,7 @@ module.exports = {
   slackUsersGet: require('./slack/slackUsersGet').slackUsersGetApi,
   slackWebhookRouter: require('./slack/slackWebhookRouter').slackWebhookRouterApi,
   shopifyCustomerCreate: require('./shopify/shopifyCustomerCreate').shopifyCustomerCreateApi,
+  shopifyCustomerDataErasureRequest: require('./shopify/shopifyCustomerDataErasureRequest').shopifyCustomerDataErasureRequestApi,
   shopifyCustomerDelete: require('./shopify/shopifyCustomerDelete').shopifyCustomerDeleteApi,
   shopifyCustomerGet: require('./shopify/shopifyCustomerGet').shopifyCustomerGetApi,
   shopifyCustomerMarketingConsentUpdateEmail: require('./shopify/shopifyCustomerMarketingConsentUpdateEmail').shopifyCustomerMarketingConsentUpdateEmailApi,
