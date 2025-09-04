@@ -1,6 +1,7 @@
-const { respond, logDeep, customAxios } = require('../utils');
+const { respond, logDeep, customAxios, gidToId } = require('../utils');
 
 const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
+const { shopifyCustomerDelete } = require('../shopify/shopifyCustomerDelete');
 
 const { REGIONS_WF } = require('../shopify/shopify.constants');
 
@@ -233,10 +234,34 @@ const slackInteractiveShopifyCustomerDelete = async (req, res) => {
         break;
       }
 
+      let deleteResults = [];
+
+      await Promise.all(REGIONS_WF.map(async (region) => {
+
+        const customer = await shopifyCustomerGet(region, {
+          email: customerEmail,
+        });
+
+        if (customer && customer?.success && customer?.result) {
+          const result = await shopifyCustomerDelete(region, gidToId(customer.result.id));
+          deleteResults.push(result);
+        }
+      }));
+
+      if (deleteResults.some(result => result?.success === false)) {
+        response = {
+          response_type: 'ephemeral',
+          replace_original: 'true',
+          text: `Error deleting customer ${ customerEmail } from all Shopify stores. Please check the logs.`,
+        };
+        logDeep('deleteResults', deleteResults);
+        break;
+      }
+
       response = {
         response_type: 'ephemeral',
         replace_original: 'true',
-        text: `Customer ${ customerEmail } deleted from all Shopify stores (not yet implemented)`,
+        text: `Customer ${ customerEmail } deleted from all Shopify stores.`,
       };
 
       break;
