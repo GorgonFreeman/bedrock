@@ -1,4 +1,5 @@
 const fs = require('fs').promises;
+const mime = require('mime-types');
 const { funcApi, logDeep } = require('../utils');
 const { shopifyStagedUploadCreate } = require('../shopify/shopifyStagedUploadCreate');
 const { shopifyFileCreate } = require('../shopify/shopifyFileCreate');
@@ -15,7 +16,12 @@ const shopifyFileUpload = async (
 
   // 1. Get the file from the local system
   const file = await fs.readFile(filepath);
-  logDeep(file);
+  
+  // 2. Check the MIME type
+  const mimeType = mime.lookup(filepath);
+  if (!mimeType) {
+    throw new Error(`No MIME type for ${ filepath }`);
+  }
 
   const response = true;
 
@@ -23,8 +29,7 @@ const shopifyFileUpload = async (
   return response;
 };
 
-const shopifyFileUploadApi = funcApi(shopifyFileUpload, {
-  argNames: ['credsPath', 'filepath', 'resource', 'options'],
+const shopifyFileUploadApi = funcApi(shopifyFileUpload, {  argNames: ['credsPath', 'filepath', 'resource', 'options'],
   validatorsByArg: {
     credsPath: Boolean,
     filepath: Boolean,
