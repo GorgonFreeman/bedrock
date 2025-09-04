@@ -1,14 +1,14 @@
-const { respond, mandateParam, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
-
-const defaultAttrs = `id`;
+const { funcApi, logDeep } = require('../utils');
+const { shopifyStagedUploadCreate } = require('../shopify/shopifyStagedUploadCreate');
+const { shopifyFileCreate } = require('../shopify/shopifyFileCreate');
 
 const shopifyFileUpload = async (
   credsPath,
-  arg,
+  filepath,
+  resource,
   {
     apiVersion,
-    option,
+    returnAttrs,
   } = {},
 ) => {
 
@@ -46,32 +46,18 @@ const shopifyFileUpload = async (
   return response;
 };
 
-const shopifyFileUploadApi = async (req, res) => {
-  const { 
-    credsPath,
-    arg,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await shopifyFileUpload(
-    credsPath,
-    arg,
-    options,
-  );
-  respond(res, 200, result);
-};
+const shopifyFileUploadApi = funcApi(shopifyFileUpload, {
+  argNames: ['credsPath', 'filepath', 'resource', 'options'],
+  validatorsByArg: {
+    credsPath: Boolean,
+    filepath: Boolean,
+    resource: Boolean,
+  },
+});
 
 module.exports = {
   shopifyFileUpload,
   shopifyFileUploadApi,
 };
 
-// curl localhost:8000/shopifyFileUpload -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyFileUpload -H "Content-Type: application/json" -d '{ "credsPath": "au", "filepath": "/Users/darthvader/Downloads/lightsaber_warranty.pdf", "resource": "FILE" }'
