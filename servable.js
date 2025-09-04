@@ -38,6 +38,7 @@ module.exports = {
   shopifyCustomerUpsert: require('./shopify/shopifyCustomerUpsert').shopifyCustomerUpsertApi,
   shopifyDiscountClassTagsReport: require('./shopify/shopifyDiscountClassTagsReport').shopifyDiscountClassTagsReportApi,
   shopifyFileCreate: require('./shopify/shopifyFileCreate').shopifyFileCreateApi,
+  shopifyFileUpload: require('./shopify/shopifyFileUpload').shopifyFileUploadApi,
   shopifyFulfillmentOrderFulfill: require('./shopify/shopifyFulfillmentOrderFulfill').shopifyFulfillmentOrderFulfillApi,
   shopifyGetSingle: require('./shopify/shopifyGetSingle').shopifyGetSingleApi,
   shopifyOrderFulfill: require('./shopify/shopifyOrderFulfill').shopifyOrderFulfillApi,
