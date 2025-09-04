@@ -23,6 +23,11 @@ const shopifyFileUpload = async (
     throw new Error(`No MIME type for ${ filepath }`);
   }
 
+  // 3. Check the file size
+  const fileStats = await fs.stat(filepath);
+  logDeep(fileStats);
+  const { size: fileSize } = fileStats;
+
   const response = true;
 
   logDeep(response);
