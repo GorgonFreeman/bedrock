@@ -130,4 +130,4 @@ module.exports = {
   shopifyFileUploadApi,
 };
 
-// curl localhost:8000/shopifyFileUpload -H "Content-Type: application/json" -d '{ "credsPath": "au", "filepath": "/Users/darthvader/Downloads/lightsaber_warranty.pdf", "resource": "FILE" }'
+// curl localhost:8000/shopifyFileUpload -H "Content-Type: application/json" -d '{ "credsPath": "au", "filepath": "/Users/johnmartin/Downloads/MOBILE 2/bb_bg_m.jpg", "resource": "IMAGE" }'
