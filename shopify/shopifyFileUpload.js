@@ -1,4 +1,5 @@
 const fs = require('fs').promises;
+const path = require('path');
 const mime = require('mime-types');
 const { funcApi, logDeep } = require('../utils');
 const { shopifyStagedUploadCreate } = require('../shopify/shopifyStagedUploadCreate');
@@ -14,8 +15,8 @@ const shopifyFileUpload = async (
   } = {},
 ) => {
 
-  // 1. Get the file from the local system
-  const file = await fs.readFile(filepath);
+  // 1. Get the filename from the local system
+  const filename = path.basename(filepath);
   
   // 2. Check the MIME type
   const mimeType = mime.lookup(filepath);
@@ -27,6 +28,19 @@ const shopifyFileUpload = async (
   const fileStats = await fs.stat(filepath);
   logDeep(fileStats);
   const { size: fileSize } = fileStats;
+
+  // 4. Create staged upload url
+  const stagedUploadResponse = await shopifyStagedUploadCreate(
+    credsPath,
+    resource,
+    filename,
+    mimeType,
+    {
+      apiVersion,
+      fileSize: fileSize.toString(),
+    },
+  );
+  logDeep(stagedUploadResponse); 
 
   const response = true;
 
