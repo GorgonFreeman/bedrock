@@ -98,7 +98,8 @@ const shopifyFileUpload = async (
   //     console.warn('error parsing fileUploadResult XML', error, fileUploadResult);
   //   }
   // }
-
+  
+  // 6. Create file in Shopify using resourceUrl from staged upload
   const fileCreateResponse = await shopifyFileCreate(
     credsPath,
     {
