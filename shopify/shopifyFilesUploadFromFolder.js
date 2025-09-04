@@ -3,6 +3,8 @@ const path = require('path');
 const { funcApi, logDeep, arrayStandardResponse } = require('../utils');
 const { shopifyFileUpload } = require('../shopify/shopifyFileUpload');
 
+const { REGIONS_WF } = require('../constants');
+
 // Map file extensions to Shopify resource types
 const getResourceType = (filename) => {
   const extension = path.extname(filename).toLowerCase();
@@ -43,9 +45,9 @@ const getResourceType = (filename) => {
 };
 
 const shopifyFilesUploadFromFolder = async (
-  regions,
   folderPath,
   {
+    regions = REGIONS_WF,
     apiVersion,
   } = {},
 ) => {
@@ -96,9 +98,8 @@ const shopifyFilesUploadFromFolder = async (
 };
 
 const shopifyFilesUploadFromFolderApi = funcApi(shopifyFilesUploadFromFolder, {
-  argNames: ['regions', 'folderPath', 'options'],
+  argNames: ['folderPath', 'options'],
   validatorsByArg: {
-    regions: Array.isArray,
     folderPath: Boolean,
   },
 });
@@ -108,4 +109,4 @@ module.exports = {
   shopifyFilesUploadFromFolderApi,
 };
 
-// curl localhost:8000/shopifyFilesUploadFromFolder -H "Content-Type: application/json" -d '{ "regions": ["au"], "folderPath": "/Users/armstrong/Desktop/nanobots" }'
+// curl localhost:8000/shopifyFilesUploadFromFolder -H "Content-Type: application/json" -d '{ "folderPath": "/Users/armstrong/Desktop/nanobots" }'
