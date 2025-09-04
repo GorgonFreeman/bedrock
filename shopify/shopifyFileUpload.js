@@ -83,7 +83,8 @@ const shopifyFileUpload = async (
   return response;
 };
 
-const shopifyFileUploadApi = funcApi(shopifyFileUpload, {  argNames: ['credsPath', 'filepath', 'resource', 'options'],
+const shopifyFileUploadApi = funcApi(shopifyFileUpload, {
+  argNames: ['credsPath', 'filepath', 'resource', 'options'],
   validatorsByArg: {
     credsPath: Boolean,
     filepath: Boolean,
