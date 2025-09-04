@@ -1,6 +1,6 @@
 const { promises: fs } = require('fs');
 const path = require('path');
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, arrayStandardResponse } = require('../utils');
 const { shopifyFileUpload } = require('../shopify/shopifyFileUpload');
 
 // Map file extensions to Shopify resource types
@@ -50,79 +50,49 @@ const shopifyFilesUploadFromFolder = async (
   } = {},
 ) => {
 
-  try {
-    // Read all files from the folder
-    const files = await fs.readdir(folderPath);
-    logDeep('files', files);
-
-    const results = [];
-
-    // For each file in the folder
-    for (const file of files) {
-      const filePath = path.join(folderPath, file);
-      
-      // Check if it's a file (not a directory)
-      const stats = await fs.stat(filePath);
-      if (!stats.isFile()) {
-        continue;
-      }
-
-      // Determine resource type based on file extension
-      const resource = getResourceType(file);
-      logDeep('uploading file', { file, resource });
-
-      // Upload to each store in regions
-      for (const region of regions) {
-        try {
-          const uploadResult = await shopifyFileUpload(
-            region,
-            filePath,
-            resource,
-            {
-              apiVersion,
-            },
-          );
-          
-          results.push({
-            file,
-            region,
-            resource,
-            success: uploadResult.success,
-            result: uploadResult.result,
-            error: uploadResult.error,
-          });
-          
-          logDeep(`upload result for ${ file } to ${ region }`, uploadResult);
-        } catch (error) {
-          results.push({
-            file,
-            region,
-            resource,
-            success: false,
-            error: error.message,
-          });
-          
-          logDeep(`upload error for ${ file } to ${ region }`, error);
-        }
-      }
+  // Read all files from the folder
+  const allItems = await fs.readdir(folderPath);
+  
+  // Filter out non-files (directories, symlinks, etc.)
+  const files = [];
+  for (const item of allItems) {
+    const itemPath = path.join(folderPath, item);
+    const stats = await fs.stat(itemPath);
+    if (stats.isFile()) {
+      files.push(item);
     }
-
-    const response = {
-      success: true,
-      results,
-    };
-
-    logDeep(response);
-    return response;
-  } catch (error) {
-    const response = {
-      success: false,
-      error: error.message,
-    };
-    
-    logDeep(response);
-    return response;
   }
+
+  logDeep('files', files?.length);
+
+  const responses = [];
+
+  // For each file in the folder
+  for (const file of files) {
+
+    const filePath = path.join(folderPath, file);
+
+    // Determine resource type based on file extension
+    const resource = getResourceType(file);
+
+    // Upload to each store in regions
+    for (const region of regions) {
+      const uploadResponse = await shopifyFileUpload(
+        region,
+        filePath,
+        resource,
+        {
+          apiVersion,
+        },
+      );
+      
+      responses.push(uploadResponse);
+    }
+  }
+
+  const response = arrayStandardResponse(responses);
+  logDeep(response);
+  return response;
 };
 
 const shopifyFilesUploadFromFolderApi = funcApi(shopifyFilesUploadFromFolder, {
