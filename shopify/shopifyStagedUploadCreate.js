@@ -48,7 +48,7 @@ const shopifyStagedUploadCreate = async (
 };
 
 const shopifyStagedUploadCreateApi = funcApi(shopifyStagedUploadCreate, {
-  args: ['credsPath', 'resource', 'filename', 'mimeType', 'options'],
+  argNames: ['credsPath', 'resource', 'filename', 'mimeType', 'options'],
   validatorsByArg: {
     credsPath: Boolean,
     resource: Boolean,
