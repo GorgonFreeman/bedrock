@@ -36,7 +36,15 @@ const shopifyCustomerDeleteAll = async (
     results[region] = result;
   }));
 
-  return results;
+  let success = true;
+  if (results.some(result => result?.success === false)) {
+    success = false;
+  }
+
+  return {
+    success,
+    results,
+  };
 };
 
 const shopifyCustomerDeleteAllApi = async (req, res) => {
