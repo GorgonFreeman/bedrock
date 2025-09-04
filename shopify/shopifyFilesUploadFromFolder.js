@@ -55,9 +55,14 @@ const shopifyFilesUploadFromFolder = async (
   // Read all files from the folder
   const allItems = await fs.readdir(folderPath);
   
-  // Filter out non-files (directories, symlinks, etc.)
+  // Filter out non-files (directories, symlinks, etc.) and system files
   const files = [];
   for (const item of allItems) {
+    // Skip system files like .DS_Store
+    if (item.startsWith('.')) {
+      continue;
+    }
+    
     const itemPath = path.join(folderPath, item);
     const stats = await fs.stat(itemPath);
     if (stats.isFile()) {
