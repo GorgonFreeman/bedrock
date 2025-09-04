@@ -3,7 +3,7 @@
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id fileStatus`;
+const defaultAttrs = `id fileStatus fileErrors { code details message }`;
 
 const shopifyFileCreate = async (
   credsPath,
