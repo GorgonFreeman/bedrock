@@ -94,6 +94,7 @@ const shopifyFilesUploadFromFolder = async (
       );
       
       responses.push(uploadResponse);
+      console.log(`${ responses.length }/${ files.length }`);
     }
   }
 
