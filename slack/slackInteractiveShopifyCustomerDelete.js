@@ -67,7 +67,7 @@ const slackInteractiveShopifyCustomerDelete = async (req, res) => {
     ],
   };
 
-  const deleteActionBlock = {
+  const deleteActionBlock = (customerEmail) => ({
     type: 'actions',
     elements: [
       {
@@ -87,7 +87,7 @@ const slackInteractiveShopifyCustomerDelete = async (req, res) => {
           text: 'Delete Customer',
           emoji: true,
         },
-        value: 'delete_customer',
+        value: `delete_customer:${ customerEmail }`,
         action_id: `${ ACTION_NAME }:delete_customer`,
         style: 'danger',
         confirm: {
@@ -110,7 +110,7 @@ const slackInteractiveShopifyCustomerDelete = async (req, res) => {
         },
       },
     ],
-  };
+  });
 
   const initialBlocks = [
     headerBlock,
@@ -201,7 +201,7 @@ const slackInteractiveShopifyCustomerDelete = async (req, res) => {
         headerBlock,
         dividerBlock,
         ...customerCards,
-        deleteActionBlock,
+        deleteActionBlock(customerEmail),
       ]
 
       response = {
@@ -221,6 +221,8 @@ const slackInteractiveShopifyCustomerDelete = async (req, res) => {
 
       break;
     case `${ ACTION_NAME }:delete_customer`:
+
+      customerEmail = actions[0]?.value.split(':').pop();
 
       if (!customerEmail) {
         response = {
