@@ -48,6 +48,7 @@ module.exports = {
   shopifyPageCreate: require('./shopify/shopifyPageCreate').shopifyPageCreateApi,
   shopifyPageDelete: require('./shopify/shopifyPageDelete').shopifyPageDeleteApi,
   shopifyPageGet: require('./shopify/shopifyPageGet').shopifyPageGetApi,
+  shopifyPagePropagate: require('./shopify/shopifyPagePropagate').shopifyPagePropagateApi,
   shopifyPageUpdate: require('./shopify/shopifyPageUpdate').shopifyPageUpdateApi,
   shopifyPagesGet: require('./shopify/shopifyPagesGet').shopifyPagesGetApi,
   shopifyProductCreate: require('./shopify/shopifyProductCreate').shopifyProductCreateApi,
