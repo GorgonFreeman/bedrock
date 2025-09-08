@@ -22,6 +22,24 @@ const shopifyPagePropagate = async (
   } = {},
 ) => {
 
+  const shopifyPageResponse = await shopifyPageGet(
+    fromCredsPath,
+    pageId,
+    {
+      apiVersion,
+      attrs,
+    },
+  );
+
+  logDeep('shopifyPageResponse', shopifyPageResponse);
+
+  const { success: pageGetSuccess, result: pageGetResult } = shopifyPageResponse;
+  if (!pageGetSuccess) {
+    return shopifyPageResponse;
+  }
+  
+  logDeep('pageGetResult', pageGetResult);
+
   const response = true;
   logDeep(response);
   return response;
