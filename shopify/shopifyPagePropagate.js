@@ -87,8 +87,8 @@ const shopifyPagePropagateApi = funcApi(shopifyPagePropagate, {
   argNames: ['fromCredsPath', 'toCredsPaths', 'pageIdentifier'],
   validatorsByArg: {
     fromCredsPath: Boolean,
-    toCredsPaths: Boolean,
-    pageIdentifier: p => objHasAny(p, ['pageId', 'pageHandle']),
+    toCredsPaths: Array.isArray,
+    pageIdentifier: p => p?.length ? p.every(pi => objHasAny(pi, ['pageId', 'pageHandle'])) : objHasAny(p, ['pageId', 'pageHandle']),
   },
 });
 
