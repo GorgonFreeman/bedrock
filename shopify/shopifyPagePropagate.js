@@ -1,4 +1,4 @@
-const { funcApi, logDeep, objHasAny } = require('../utils');
+const { funcApi, logDeep, objHasAny, arrayStandardResponse, actionMultipleOrSingle } = require('../utils');
 const { shopifyPageGet } = require('../shopify/shopifyPageGet');
 const { shopifyPageCreate } = require('../shopify/shopifyPageCreate');
 
@@ -10,7 +10,7 @@ const attrs = `
   title
 `;
 
-const shopifyPagePropagate = async (
+const shopifyPagePropagateSingle = async (
   fromCredsPath,
   toCredsPaths,
   {
@@ -31,16 +31,54 @@ const shopifyPagePropagate = async (
     },
   );
 
-  logDeep('shopifyPageResponse', shopifyPageResponse);
-
   const { success: pageGetSuccess, result: pageGetResult } = shopifyPageResponse;
   if (!pageGetSuccess) {
     return shopifyPageResponse;
   }
-  
-  logDeep('pageGetResult', pageGetResult);
 
-  const response = true;
+  const pageCreatePayload = {
+    ...pageGetResult,
+  };
+
+  const pageCreateResponses = [];
+  for (const toCredsPath of toCredsPaths) {
+    const pageCreateResponse = await shopifyPageCreate(
+      toCredsPath,
+      pageCreatePayload,
+      {
+        apiVersion,
+        returnAttrs: attrs,
+      },
+    );
+    pageCreateResponses.push(pageCreateResponse);
+  }
+
+  const response = arrayStandardResponse(pageCreateResponses);
+  logDeep(response);
+  return response;
+};
+
+const shopifyPagePropagate = async (
+  fromCredsPath,
+  toCredsPaths,
+  pageIdentifier,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    pageIdentifier,
+    shopifyPagePropagateSingle,
+    (pageIdentifier) => ({
+      args: [fromCredsPath, toCredsPaths, pageIdentifier],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+  
   logDeep(response);
   return response;
 };
@@ -60,3 +98,4 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyPagePropagate -H "Content-Type: application/json" -d '{ "fromCredsPath": "au", "toCredsPaths": ["us"], "pageIdentifier": { "pageId": "89503039560" } }'
+// curl localhost:8000/shopifyPagePropagate -H "Content-Type: application/json" -d '{ "fromCredsPath": "au", "toCredsPaths": ["us"], "pageIdentifier": [{ "pageId": "89503039560" }, { "pageId": "89531646024" }] }'
