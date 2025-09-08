@@ -2,7 +2,13 @@ const { funcApi, logDeep, objHasAny } = require('../utils');
 const { shopifyPageGet } = require('../shopify/shopifyPageGet');
 const { shopifyPageCreate } = require('../shopify/shopifyPageCreate');
 
-const defaultAttrs = `id`;
+const attrs = `
+  body
+  handle
+  isPublished
+  templateSuffix
+  title
+`;
 
 const shopifyPagePropagate = async (
   fromCredsPath,
