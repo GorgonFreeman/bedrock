@@ -1,77 +1,38 @@
-const { respond, mandateParam, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+const { funcApi, logDeep, objHasAny } = require('../utils');
+const { shopifyPageGet } = require('../shopify/shopifyPageGet');
+const { shopifyPageCreate } = require('../shopify/shopifyPageCreate');
 
 const defaultAttrs = `id`;
 
 const shopifyPagePropagate = async (
-  credsPath,
-  arg,
+  fromCredsPath,
+  toCredsPaths,
+  {
+    pageId,
+    pageHandle,
+  },
   {
     apiVersion,
-    option,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
-      apiVersion,
-    },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
-
+  const response = true;
   logDeep(response);
   return response;
 };
 
-const shopifyPagePropagateApi = async (req, res) => {
-  const { 
-    credsPath,
-    arg,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await shopifyPagePropagate(
-    credsPath,
-    arg,
-    options,
-  );
-  respond(res, 200, result);
-};
+const shopifyPagePropagateApi = funcApi(shopifyPagePropagate, {
+  argNames: ['fromCredsPath', 'toCredsPaths', 'pageIdentifier'],
+  validatorsByArg: {
+    fromCredsPath: Boolean,
+    toCredsPaths: Boolean,
+    pageIdentifier: p => objHasAny(p, ['pageId', 'pageHandle']),
+  },
+});
 
 module.exports = {
   shopifyPagePropagate,
   shopifyPagePropagateApi,
 };
 
-// curl localhost:8000/shopifyPagePropagate -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyPagePropagate -H "Content-Type: application/json" -d '{ "fromCredsPath": "au", "toCredsPaths": ["us"], "pageIdentifier": { "pageId": "89503039560" } }'
