@@ -152,7 +152,7 @@ const shopifyCustomerUpsert = async (
       ]}),
     };
 
-    const customerCreateResponse = await shopifyCustomerCreate(credsPath, customerCreatePayload, { apiVersion, attrs: returnAttrs });
+    const customerCreateResponse = await shopifyCustomerCreate(credsPath, customerCreatePayload, { apiVersion, returnAttrs });
     
     // const { success, result } = customerCreateResponse;    
     // if (!success) {
