@@ -1,22 +1,16 @@
 const { funcApi, logDeep, objHasAny } = require('../utils');
+const { shopifyThemeGet } = require('../shopify/shopifyThemeGet');
 
 const shopifyThemeFilePropagate = async (
   fromRegion,
   toRegions,
-  {
-    themeName,
-    chooseTheme,
-  }, // doesn't support themeId
+  themeIdentifier,
   filePath,
   {
     apiVersion,
+    toThemesIdentifiers,
   } = {},
 ) => {
-
-  const themeIdentifier = {
-    themeName,
-    chooseTheme,
-  };
 
   const fromThemeResponse = await shopifyThemeGet(
     fromRegion, 
