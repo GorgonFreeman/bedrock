@@ -1,14 +1,36 @@
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, objHasAny } = require('../utils');
 
 const shopifyThemeFilePropagate = async (
   fromRegion,
   toRegions,
-  themeIdentifier,
+  {
+    themeName,
+    chooseTheme,
+  }, // doesn't support themeId
   filePath,
   {
     apiVersion,
   } = {},
 ) => {
+
+  const themeIdentifier = {
+    themeName,
+    chooseTheme,
+  };
+
+  const fromThemeResponse = await shopifyThemeGet(
+    fromRegion, 
+    themeIdentifier, 
+    {
+      apiVersion,
+    },
+  );
+  const { success: fromThemeSuccess, result: fromThemeResult } = fromThemeResponse;
+  if (!fromThemeSuccess) {
+    return fromThemeResponse;
+  }
+
+  logDeep(fromThemeResult);
 
   const response = true;
   logDeep(response);
@@ -21,7 +43,7 @@ const shopifyThemeFilePropagateApi = funcApi(shopifyThemeFilePropagate, {
   validatorsByArg: {
     fromRegion: Boolean,
     toRegions: Array.isArray,
-    themeIdentifier: Boolean,
+    themeIdentifier: p => objHasAny(p, ['themeName', 'chooseTheme']),
     filePath: Boolean,
   },
 });
