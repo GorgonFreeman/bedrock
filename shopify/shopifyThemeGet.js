@@ -21,6 +21,7 @@ const shopifyThemeGet = async (
     'theme',
     themeId,
     {
+      gidType: 'OnlineStoreTheme',
       apiVersion,
       attrs,
     },
@@ -43,4 +44,4 @@ module.exports = {
   shopifyThemeGetApi,
 };
 
-// curl localhost:8000/shopifyThemeGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "themeIdentifier": { "themeId": "6979774283848" } }'
+// curl localhost:8000/shopifyThemeGet -H "Content-Type: application/json" -d '{ "credsPath": "us", "themeIdentifier": { "themeId": "142724202556" } }'
