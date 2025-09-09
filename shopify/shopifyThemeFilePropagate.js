@@ -1,77 +1,34 @@
-const { respond, mandateParam, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
-
-const defaultAttrs = `id`;
+const { funcApi, logDeep } = require('../utils');
 
 const shopifyThemeFilePropagate = async (
-  credsPath,
-  arg,
+  fromRegion,
+  toRegions,
+  themeIdentifier,
+  filePath,
   {
     apiVersion,
-    option,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
-      apiVersion,
-    },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
-
+  const response = true;
   logDeep(response);
   return response;
+
 };
 
-const shopifyThemeFilePropagateApi = async (req, res) => {
-  const { 
-    credsPath,
-    arg,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await shopifyThemeFilePropagate(
-    credsPath,
-    arg,
-    options,
-  );
-  respond(res, 200, result);
-};
+const shopifyThemeFilePropagateApi = funcApi(shopifyThemeFilePropagate, {
+  argNames: ['fromRegion', 'toRegions', 'themeIdentifier', 'filePath'],
+  validatorsByArg: {
+    fromRegion: Boolean,
+    toRegions: Array.isArray,
+    themeIdentifier: Boolean,
+    filePath: Boolean,
+  },
+});
 
 module.exports = {
   shopifyThemeFilePropagate,
   shopifyThemeFilePropagateApi,
 };
 
-// curl localhost:8000/shopifyThemeFilePropagate -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyThemeFilePropagate -H "Content-Type: application/json" -d '{ "fromRegion": "au", "toRegions": ["us", "uk"], "themeIdentifier": { "chooseTheme": true }, "filePath": "templates/page.sign_up_beauty.json" }'
