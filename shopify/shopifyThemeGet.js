@@ -1,46 +1,30 @@
-const { respond, mandateParam, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/theme
 
-const defaultAttrs = `id`;
+const { respond, mandateParam, logDeep } = require('../utils');
+const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
+
+const defaultAttrs = `id name role`;
 
 const shopifyThemeGet = async (
   credsPath,
-  arg,
   {
+    themeId,
+  },
+  {
+    attrs = defaultAttrs,
     apiVersion,
-    option,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
+  const response = await shopifyGetSingle(
+    credsPath,
+    'theme',
+    themeId,
+    {
       apiVersion,
+      attrs,
     },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
+  );
 
   logDeep(response);
   return response;
@@ -49,13 +33,13 @@ const shopifyThemeGet = async (
 const shopifyThemeGetApi = async (req, res) => {
   const { 
     credsPath,
-    arg,
+    themeIdentifier,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
+    mandateParam(res, 'themeIdentifier', themeIdentifier),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -63,7 +47,7 @@ const shopifyThemeGetApi = async (req, res) => {
 
   const result = await shopifyThemeGet(
     credsPath,
-    arg,
+    themeIdentifier,
     options,
   );
   respond(res, 200, result);
@@ -74,4 +58,4 @@ module.exports = {
   shopifyThemeGetApi,
 };
 
-// curl localhost:8000/shopifyThemeGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyThemeGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "themeIdentifier": { "themeId": "6979774283848" } }'
