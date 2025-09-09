@@ -164,7 +164,7 @@ const shopifyGetter = async (
     ...savedSearchId ? ['$savedSearchId: ID,'] : [],
     ...sortKey ? [`$sortKey: ${ Resource }SortKeys,`] : [],
     ...roles ? [`$roles: [${ Resource }Role!],`] : [],
-    ...names ? [`$names: [String],`] : [],
+    ...names ? [`$names: [String!],`] : [],
     ...constraintStatus ? ['$constraintStatus: MetafieldDefinitionConstraintStatus,'] : [],
     ...constraintSubtype ? ['$constraintSubtype: MetafieldDefinitionConstraintSubtypeIdentifier,'] : [],
     ...namespace ? ['$namespace: String,'] : [],
