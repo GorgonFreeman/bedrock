@@ -1,6 +1,6 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/queries/theme
 
-const { respond, mandateParam, logDeep } = require('../utils');
+const { logDeep, funcApi } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 
 const defaultAttrs = `id name role`;
@@ -30,28 +30,13 @@ const shopifyThemeGet = async (
   return response;
 };
 
-const shopifyThemeGetApi = async (req, res) => {
-  const { 
-    credsPath,
-    themeIdentifier,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'themeIdentifier', themeIdentifier),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await shopifyThemeGet(
-    credsPath,
-    themeIdentifier,
-    options,
-  );
-  respond(res, 200, result);
-};
+const shopifyThemeGetApi = funcApi(shopifyThemeGet, {
+  argNames: ['credsPath', 'themeIdentifier', 'options'],
+  validatorsByArg: {
+    credsPath: Boolean,
+    themeIdentifier: Boolean,
+  },
+});
 
 module.exports = {
   shopifyThemeGet,
