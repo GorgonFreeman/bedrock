@@ -198,4 +198,5 @@ module.exports = {
   bedrock_unlisted_bootsFormProcess: require('./bedrock_unlisted/bedrock_unlisted_bootsFormProcess').bedrock_unlisted_bootsFormProcessApi,
   bedrock_unlisted_shopifyStaffCustomerOffboard: require('./bedrock_unlisted/bedrock_unlisted_shopifyStaffCustomerOffboard').bedrock_unlisted_shopifyStaffCustomerOffboardApi,
   bedrock_unlisted_shopifyStaffCustomerOnboard: require('./bedrock_unlisted/bedrock_unlisted_shopifyStaffCustomerOnboard').bedrock_unlisted_shopifyStaffCustomerOnboardApi,
+  bedrock_unlisted_slackErrorPost: require('./bedrock_unlisted/bedrock_unlisted_slackErrorPost').bedrock_unlisted_slackErrorPostApi,
 };
