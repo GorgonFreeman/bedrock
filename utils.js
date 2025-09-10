@@ -449,7 +449,7 @@ const funcApi = (
     requestVerifiers = [],
     bodyModifiers = [],
 
-    reportErrors = false,
+    errorReporter,
     errorFilters = [], // Array of functions that take errors and return booleans - at least one error must pass for reporting to fire.
   } = {},
 ) => {
@@ -513,7 +513,7 @@ const funcApi = (
     const response = await func(...argNames?.length ? argNames.map(argName => body[argName]) : []);
     
     const { success, error } = response;
-    if (reportErrors && !success) {
+    if (errorReporter && !success) {
 
       let reportableErrors = Array.isArray(error) ? error : [error];
       for (const errorFilter of errorFilters) {
@@ -526,7 +526,9 @@ const funcApi = (
           reportableErrors, 
           body,
         }); // log function setup for replicating or later fixes
-        // Report in Slack if hosted
+        
+        // TODO: Consider waiting for response
+        errorReporter(reportableErrors);
       }
     }
 
