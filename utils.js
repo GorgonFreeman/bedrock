@@ -521,6 +521,11 @@ const funcApi = (
       }
       
       if (reportableErrors?.length) {
+        logDeep({
+          message: 'Reporting errors:', 
+          reportableErrors, 
+          body,
+        }); // log function setup for replicating or later fixes
         // Report in Slack if hosted
       }
     }
