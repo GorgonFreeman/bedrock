@@ -11,6 +11,7 @@ const {
   HOSTED,
 } = require('../constants');
 const { shopifyRegionToStarshipitAccount } = require('../mappings');
+const { bedrock_unlisted_slackErrorPost } = require('../bedrock_unlisted/bedrock_unlisted_slackErrorPost');
 
 const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
 const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
@@ -301,7 +302,7 @@ const collabsFulfillmentSweep = async (
   const bleckmannPrefetchProcessorMaker = (piles, processorOptions = {}) => new Processor(
     piles.in,
     async (pile) => {
-      const order = pile.shift();
+      const order = pile.shift();  
 
       const bleckmannOrder = bleckmannShippedOrders?.find(o => o.reference === gidToId(order.id));
 
@@ -685,7 +686,7 @@ const collabsFulfillmentSweep = async (
   };
 };
 
-const collabsFulfillmentSweepApi = funcApi(collabsFulfillmentSweep, { argNames: ['options'], requireHostedApiKey: true });
+const collabsFulfillmentSweepApi = funcApi(collabsFulfillmentSweep, { argNames: ['options'], requireHostedApiKey: true, errorReporter: bedrock_unlisted_slackErrorPost });
 
 module.exports = {
   collabsFulfillmentSweep,
