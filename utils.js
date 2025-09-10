@@ -448,6 +448,9 @@ const funcApi = (
     allowHeaders = [],
     requestVerifiers = [],
     bodyModifiers = [],
+
+    reportErrors = false,
+    errorFilters = [], // Array of functions that take errors and return booleans - at least one error must pass for reporting to fire.
   } = {},
 ) => {
   return async (req, res) => {
@@ -508,6 +511,20 @@ const funcApi = (
     }
 
     const response = await func(...argNames?.length ? argNames.map(argName => body[argName]) : []);
+    
+    const { success, error } = response;
+    if (reportErrors && !success) {
+
+      let reportableErrors = Array.isArray(error) ? error : [error];
+      for (const errorFilter of errorFilters) {
+        reportableErrors = reportableErrors.filter(error => errorFilter(error));
+      }
+      
+      if (reportableErrors?.length) {
+        // Report in Slack if hosted
+      }
+    }
+
     respond(res, 200, response);
   };
 };
