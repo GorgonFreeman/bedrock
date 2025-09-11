@@ -332,7 +332,7 @@ const ifTextThenSpace = (text) => {
   } catch(err) {
     // console.warn(err);
   }
-  return text;
+  return '';
 };
 
 const isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -1016,7 +1016,7 @@ class Getter extends EventEmitter {
         }
       }
       
-      verbose && console.log(`${ ifTextThenSpace(this.logFlavourText) || '' }${ resultsCount } +${ items.length }`);
+      verbose && console.log(`${ ifTextThenSpace(this.logFlavourText) }${ resultsCount } +${ items.length }`);
       this.emit('items', items);
       
       if (!paginator) {
@@ -1197,7 +1197,7 @@ class Processor extends EventEmitter {
       completedCount++;
       
       const pileSize = this.getPileSize();
-      verbose && console.log(`${ ifTextThenSpace(this.logFlavourText) || '' }${ completedCount }/${ typeof initialSize === 'number' && initialSize > 0 ? `${ initialSize } > ` : '' }${ typeof pileSize === 'number' ? `${ pileSize }` : '?' }`);
+      verbose && console.log(`${ ifTextThenSpace(this.logFlavourText) }${ completedCount }/${ typeof initialSize === 'number' && initialSize > 0 ? `${ initialSize } > ` : '' }${ typeof pileSize === 'number' ? `${ pileSize }` : '?' }`);
     };
     
     while (!finished) {
@@ -1208,7 +1208,7 @@ class Processor extends EventEmitter {
         
         // If interval, wait for all results to be in
         if (this.canFinish &&interval && (startedCount !== completedCount)) {
-          verbose && console.log(`${ ifTextThenSpace(this.logFlavourText) || '' }waiting for all operations to complete`);
+          verbose && console.log(`${ ifTextThenSpace(this.logFlavourText) }waiting for all operations to complete`);
           await wait(1000);
           continue;
         }
@@ -1218,7 +1218,7 @@ class Processor extends EventEmitter {
           break;
         }
         
-        verbose && console.log(`${ ifTextThenSpace(this.logFlavourText) || '' }waiting for permission to finish`);
+        verbose && console.log(`${ ifTextThenSpace(this.logFlavourText) }waiting for permission to finish`);
         await wait(1000);
         continue;
       }
@@ -1226,7 +1226,7 @@ class Processor extends EventEmitter {
       const requestsInFlight = startedCount - completedCount;
       // console.log('requestsInFlight', requestsInFlight);
       if (requestsInFlight >= this.maxInFlightRequests) {
-        verbose && console.log(`${ ifTextThenSpace(this.logFlavourText) || '' }hitting max in flight requests, waiting for some to complete`);
+        verbose && console.log(`${ ifTextThenSpace(this.logFlavourText) }hitting max in flight requests, waiting for some to complete`);
         await wait(3000);
         continue;
       }
@@ -1245,7 +1245,7 @@ class Processor extends EventEmitter {
       await executeAction();
     }
     
-    verbose && console.log(`${ ifTextThenSpace(this.logFlavourText) || '' }finished`);
+    verbose && console.log(`${ ifTextThenSpace(this.logFlavourText) }finished`);
     this.emit('done');
     return results;
   }
