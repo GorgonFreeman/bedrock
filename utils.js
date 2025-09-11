@@ -450,6 +450,7 @@ const funcApi = (
     bodyModifiers = [],
 
     errorReporter,
+    errorReporterPayload = {},
     errorFilters = [], // Array of functions that take errors and return booleans - at least one error must pass for reporting to fire.
   } = {},
 ) => {
@@ -526,9 +527,11 @@ const funcApi = (
           reportableErrors, 
           body,
         }); // log function setup for replicating or later fixes
+
+        const { args: errorReporterArgs = [], options: errorReporterOptions = {} } = errorReporterPayload;
         
         // TODO: Consider waiting for response
-        errorReporter(reportableErrors);
+        errorReporter(reportableErrors, ...errorReporterArgs, errorReporterOptions);
       }
     }
 
