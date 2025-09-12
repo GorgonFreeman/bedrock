@@ -86,8 +86,8 @@ slack:
 
 salesforce:
   BASE_URL: https://[instance].salesforce.com/services/data/v58.0
-  CONSUMER_KEY: _______________________
-  CONSUMER_SECRET: ____________________
-  USERNAME: ___________________________
-  PASSWORD: ___________________________
-  SECURITY_TOKEN: _____________________
+  CONSUMER_KEY: _______________________  # Setup > App Manager > [Your Connected App] > View > Consumer Key
+  CONSUMER_SECRET: ____________________  # Setup > App Manager > [Your Connected App] > View > Consumer Secret
+  USERNAME: ___________________________  # Your Salesforce username (email)
+  PASSWORD: ___________________________  # Your Salesforce password
+  SECURITY_TOKEN: _____________________  # Setup > My Personal Information > Reset My Security Token > Email Me My Security Token
