@@ -83,3 +83,11 @@ slack:
   SIGNING_SECRET: _____________________
   CHANNEL_IDS:
     hidden_testing: C06GAG30145
+
+salesforce:
+  BASE_URL: https://[instance].salesforce.com/services/data/v58.0
+  CONSUMER_KEY: _______________________
+  CONSUMER_SECRET: ____________________
+  USERNAME: ___________________________
+  PASSWORD: ___________________________
+  SECURITY_TOKEN: _____________________
