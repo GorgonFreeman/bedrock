@@ -56,6 +56,7 @@ module.exports = {
   shopifyProductGet: require('./shopify/shopifyProductGet').shopifyProductGetApi,
   shopifyProductUpdate: require('./shopify/shopifyProductUpdate').shopifyProductUpdateApi,
   shopifyProductsGet: require('./shopify/shopifyProductsGet').shopifyProductsGetApi,
+  shopifySegmentsGet: require('./shopify/shopifySegmentsGet').shopifySegmentsGetApi,
   shopifyStagedUploadCreate: require('./shopify/shopifyStagedUploadCreate').shopifyStagedUploadCreateApi,
   shopifyStoreCreditAccountCredit: require('./shopify/shopifyStoreCreditAccountCredit').shopifyStoreCreditAccountCreditApi,
   shopifyStoreCreditAccountDebit: require('./shopify/shopifyStoreCreditAccountDebit').shopifyStoreCreditAccountDebitApi,
