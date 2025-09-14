@@ -22,6 +22,14 @@ const etsyListingVariationsEnsure = async (
     const existingVariations = listing.inventory.products.flatMap(product => product.property_values.filter(property_value => property_value.property_name === variationName)).flatMap(property_value => property_value.values);
     logDeep(existingVariations);
     await askQuestion('?');
+
+    const missingVariations = variationOptions.filter(variation => !existingVariations.includes(variation));
+    logDeep(missingVariations);
+    await askQuestion('?');
+
+    if (!missingVariations?.length) {
+      continue;
+    }
   }
 
   const response = {
