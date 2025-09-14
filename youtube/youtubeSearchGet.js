@@ -1,6 +1,6 @@
 // https://developers.google.com/youtube/v3/docs/search/list
 
-const { respond, mandateParam, logDeep, customAxios, credsByPath } = require('../utils');
+const { funcApi, logDeep, customAxios, credsByPath } = require('../utils');
 
 const youtubeSearchGet = async (
   query,
@@ -33,25 +33,12 @@ const youtubeSearchGet = async (
   return response;
 };
 
-const youtubeSearchGetApi = async (req, res) => {
-  const { 
-    query,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'query', query),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await youtubeSearchGet(
-    query,
-    options,
-  );
-  respond(res, 200, result);
-};
+const youtubeSearchGetApi = funcApi(youtubeSearchGet, {
+  argNames: ['query', 'options'],
+  validatorsByArg: {
+    query: Boolean,
+  },
+});
 
 module.exports = {
   youtubeSearchGet,
