@@ -47,7 +47,7 @@ const etsyListingVariationsEnsure = async (
     logDeep(modelProduct);
     // await askQuestion('?');
 
-    const propertyId = modelProduct.property_values.find(property_value => property_value.property_name === variationName)?.property_id;
+    const propertyId = modelProduct.property_values.find(property_value => property_value.property_name === variationName)?.property_id || 513;
 
     const productToSubmittable = (product) => {
       const { 
