@@ -1,5 +1,13 @@
 module.exports = {
+  youtubeActivitiesGet: require('./youtube/youtubeActivitiesGet').youtubeActivitiesGetApi,
+  youtubeCaptionsGet: require('./youtube/youtubeCaptionsGet').youtubeCaptionsGetApi,
+  youtubeChannelsGet: require('./youtube/youtubeChannelsGet').youtubeChannelsGetApi,
+  youtubeCommentsGet: require('./youtube/youtubeCommentsGet').youtubeCommentsGetApi,
+  youtubePlaylistItemsGet: require('./youtube/youtubePlaylistItemsGet').youtubePlaylistItemsGetApi,
   youtubeSearchGet: require('./youtube/youtubeSearchGet').youtubeSearchGetApi,
+  youtubeSubscriptionsGet: require('./youtube/youtubeSubscriptionsGet').youtubeSubscriptionsGetApi,
+  youtubeVideoCategoriesGet: require('./youtube/youtubeVideoCategoriesGet').youtubeVideoCategoriesGetApi,
+  youtubeVideosGet: require('./youtube/youtubeVideosGet').youtubeVideosGetApi,
   yotpoCustomerAnniversaryGet: require('./yotpo/yotpoCustomerAnniversaryGet').yotpoCustomerAnniversaryGetApi,
   yotpoCustomerGet: require('./yotpo/yotpoCustomerGet').yotpoCustomerGetApi,
   yotpoCustomerPointsAdjust: require('./yotpo/yotpoCustomerPointsAdjust').yotpoCustomerPointsAdjustApi,
