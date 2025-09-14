@@ -52,6 +52,7 @@ const etsyListingVariationsEnsure = async (
         product_id: discardA, 
         is_deleted: discardB, 
         offerings,
+        property_values: propertyValues,
         ...productSubmittable
       } = product;
 
@@ -59,9 +60,22 @@ const etsyListingVariationsEnsure = async (
         ...productSubmittable,
         offerings: offerings.map(({ 
           offering_id: discardC, 
-          is_deleted: discardD, 
+          is_deleted: discardD,
+          price: offeringPrice, 
           ...offeringSubmittable
-        }) => offeringSubmittable),
+        }) => {
+          const { amount, divisor } = offeringPrice;
+          const priceDecimal = amount / divisor;
+
+          return {
+            ...offeringSubmittable,
+            price: priceDecimal,
+          };
+        }),
+        property_values: propertyValues.map(({ 
+          scale_name: discardE, 
+          ...propertyValueSubmittable
+        }) => propertyValueSubmittable),
       };
     };
 
