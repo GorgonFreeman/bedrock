@@ -47,6 +47,8 @@ const etsyListingVariationsEnsure = async (
     logDeep(modelProduct);
     await askQuestion('?');
 
+    const propertyId = modelProduct.property_values.find(property_value => property_value.property_name === variationName)?.property_id;
+
     const productToSubmittable = (product) => {
       const { 
         product_id: discardA, 
@@ -85,7 +87,7 @@ const etsyListingVariationsEnsure = async (
         ...missingVariations.map(variation => ({
           ...productToSubmittable(modelProduct),
           property_values: [{
-            property_id: null,
+            property_id: propertyId,
             property_name: variationName,
             value_ids: [],
             values: [variation]
