@@ -90,7 +90,7 @@ const etsyListingVariationsEnsure = async (
             property_id: propertyId,
             property_name: variationName,
             value_ids: [],
-            values: [variation]
+            values: [variation],
           }],
         })),
       ],
