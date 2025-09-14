@@ -1,6 +1,7 @@
 // https://developers.google.com/youtube/v3/docs/search/list
 
-const { funcApi, logDeep, customAxios, credsByPath } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
+const { youtubeClient } = require('./youtube.utils');
 
 const youtubeSearchGet = async (
   query,
@@ -11,22 +12,21 @@ const youtubeSearchGet = async (
     type = 'video',
   } = {},
 ) => {
-  const creds = credsByPath(['youtube', credsPath]);
-  const { BASE_URL, API_KEY } = creds;
-  
-  const url = `${ BASE_URL }/search`;
+  const url = '/search';
   const params = {
     part: 'snippet',
     q: query,
     maxResults,
     order,
     type,
-    key: API_KEY,
   };
 
-  const response = await customAxios(url, {
-    method: 'get',
+  const response = await youtubeClient.fetch({
+    url,
     params,
+    context: {
+      credsPath,
+    },
   });
   
   logDeep(response);
@@ -45,4 +45,4 @@ module.exports = {
   youtubeSearchGetApi,
 };
 
-// curl localhost:8000/youtubeSearchGet -H "Content-Type: application/json" -d '{ "query": "openai" }'
+// curl localhost:8000/youtubeSearchGet -H "Content-Type: application/json" -d '{ "query": "How to make portal fluid" }'
