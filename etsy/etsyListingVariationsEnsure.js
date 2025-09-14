@@ -46,13 +46,26 @@ const etsyListingVariationsEnsure = async (
     logDeep(modelProduct);
     await askQuestion('?');
 
-    const { product_id, is_deleted, ...modelProductSubmittable } = modelProduct;
+    const { product_id: modelProductId, is_deleted: modelProductIsDeleted, ...modelProductSubmittable } = modelProduct;
+    const modelOffering = modelProduct.offerings?.[0];
+    const { offering_id: modelOfferingId, is_deleted: modelOfferingIsDeleted, ...modelOfferingSubmittable } = modelOffering;
+
+    if (!modelOffering) {
+      return {
+        success: false,
+        error: ['No model offering found'],
+      };
+    }
+
+    logDeep(modelOffering);
+    await askQuestion('?');
 
     const listingInventoryUpdatePayload = {
       products: [
         ...listing.inventory.products,
         ...missingVariations.map(variation => ({
           ...modelProductSubmittable,
+          offerings: [modelOfferingSubmittable],
           property_values: [{
             property_id: null,
             property_name: variationName,
