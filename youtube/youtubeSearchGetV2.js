@@ -25,7 +25,7 @@ const youtubeSearchGetV2 = async (
     url,
     params,
     context: {
-      credsPath: credsPath || 'default',
+      credsPath,
     },
   });
   
