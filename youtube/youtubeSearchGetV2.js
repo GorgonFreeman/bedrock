@@ -44,3 +44,5 @@ module.exports = {
   youtubeSearchGetV2,
   youtubeSearchGetV2Api,
 };
+
+// curl localhost:8000/youtubeSearchGetV2 -H "Content-Type: application/json" -d '{ "query": "machine learning" }'
