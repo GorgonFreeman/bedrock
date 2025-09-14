@@ -90,4 +90,10 @@ salesforce:
   CONSUMER_SECRET: ____________________  # Setup > App Manager > [Your Connected App] > View > Consumer Secret
   USERNAME: ___________________________  # Your Salesforce username (email)
   PASSWORD: ___________________________  # Your Salesforce password
-  SECURITY_TOKEN: _____________________  # Setup > My Personal Information > Reset My Security Token > Email Me My Security Token
+  SECURITY_TOKEN: _____________________  # Setup > My Personal Information > Reset My Security Token
+
+youtube:
+  BASE_URL: https://www.googleapis.com/youtube/v3
+  API_KEY: ____________________________  # Google Cloud Console > APIs & Services > Credentials > Create Credentials > API Key
+  CLIENT_ID: __________________________  # Google Cloud Console > APIs & Services > Credentials > Create Credentials > OAuth client ID
+  CLIENT_SECRET: ______________________  # Google Cloud Console > APIs & Services > Credentials > Create Credentials > OAuth client ID > Email Me My Security Token
