@@ -46,11 +46,13 @@ const etsyListingVariationsEnsure = async (
     logDeep(modelProduct);
     await askQuestion('?');
 
+    const { product_id, is_deleted, ...modelProductSubmittable } = modelProduct;
+
     const listingInventoryUpdatePayload = {
       products: [
         ...listing.inventory.products,
         ...missingVariations.map(variation => ({
-          ...modelProduct,
+          ...modelProductSubmittable,
           property_values: [{
             property_id: null,
             property_name: variationName,
