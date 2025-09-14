@@ -1,5 +1,6 @@
 module.exports = {
   youtubeSearchGet: require('./youtube/youtubeSearchGet').youtubeSearchGetApi,
+  youtubeSearchGetV2: require('./youtube/youtubeSearchGetV2').youtubeSearchGetV2Api,
   yotpoCustomerAnniversaryGet: require('./yotpo/yotpoCustomerAnniversaryGet').yotpoCustomerAnniversaryGetApi,
   yotpoCustomerGet: require('./yotpo/yotpoCustomerGet').yotpoCustomerGetApi,
   yotpoCustomerPointsAdjust: require('./yotpo/yotpoCustomerPointsAdjust').yotpoCustomerPointsAdjustApi,
