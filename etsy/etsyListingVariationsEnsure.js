@@ -17,7 +17,7 @@ const etsyListingVariationsEnsure = async (
   }
 
   logDeep(listings);
-  await askQuestion('?');
+  // await askQuestion('?');
 
   const responses = [];
 
@@ -30,10 +30,10 @@ const etsyListingVariationsEnsure = async (
     }
 
     logDeep(existingVariations);
-    await askQuestion('?');
+    // await askQuestion('?');
 
     logDeep(missingVariations);
-    await askQuestion('?');
+    // await askQuestion('?');
 
     const modelProduct = listing.inventory.products?.[0];
     const modelOffering = modelProduct?.offerings?.[0];
@@ -45,7 +45,7 @@ const etsyListingVariationsEnsure = async (
     }
 
     logDeep(modelProduct);
-    await askQuestion('?');
+    // await askQuestion('?');
 
     const propertyId = modelProduct.property_values.find(property_value => property_value.property_name === variationName)?.property_id;
 
@@ -96,11 +96,11 @@ const etsyListingVariationsEnsure = async (
       ],
     };
     logDeep(listingInventoryUpdatePayload);
-    await askQuestion('?');
+    // await askQuestion('?');
 
     const response = await etsyListingInventoryUpdate(listing.listing_id, listingInventoryUpdatePayload, { credsPath });
     logDeep(response);
-    await askQuestion('?');
+    // await askQuestion('?');
     responses.push(response);
   }
 
