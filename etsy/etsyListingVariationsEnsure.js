@@ -20,16 +20,17 @@ const etsyListingVariationsEnsure = async (
 
   for (const listing of listings) {
     const existingVariations = listing.inventory.products.flatMap(product => product.property_values.filter(property_value => property_value.property_name === variationName)).flatMap(property_value => property_value.values);
-    logDeep(existingVariations);
-    await askQuestion('?');
-
     const missingVariations = variationOptions.filter(variation => !existingVariations.includes(variation));
-    logDeep(missingVariations);
-    await askQuestion('?');
 
     if (!missingVariations?.length) {
       continue;
     }
+
+    logDeep(existingVariations);
+    await askQuestion('?');
+
+    logDeep(missingVariations);
+    await askQuestion('?');
   }
 
   const response = {
