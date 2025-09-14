@@ -1,5 +1,6 @@
 const { logDeep, funcApi, askQuestion } = require('../utils');
 const { etsyShopListingsGet } = require('../etsy/etsyShopListingsGet');
+const { etsyListingInventoryUpdate } = require('../etsy/etsyListingInventoryUpdate');
 
 const etsyListingVariationsEnsure = async (
   variationName,
@@ -18,6 +19,8 @@ const etsyListingVariationsEnsure = async (
   logDeep(listings);
   await askQuestion('?');
 
+  const responses = [];
+
   for (const listing of listings) {
     const existingVariations = listing.inventory.products.flatMap(product => product.property_values.filter(property_value => property_value.property_name === variationName)).flatMap(property_value => property_value.values);
     const missingVariations = variationOptions.filter(variation => !existingVariations.includes(variation));
@@ -31,13 +34,42 @@ const etsyListingVariationsEnsure = async (
 
     logDeep(missingVariations);
     await askQuestion('?');
+
+    const modelProduct = listing.inventory.products?.[0];
+    if (!modelProduct) {
+      return {
+        success: false,
+        error: ['No model product found'],
+      };
+    }
+
+    logDeep(modelProduct);
+    await askQuestion('?');
+
+    const listingInventoryUpdatePayload = {
+      products: [
+        ...listing.inventory.products,
+        ...missingVariations.map(variation => ({
+          ...modelProduct,
+          property_values: [{
+            property_id: null,
+            property_name: variationName,
+            value_ids: [],
+            values: [variation]
+          }],
+        })),
+      ],
+    };
+    logDeep(listingInventoryUpdatePayload);
+    await askQuestion('?');
+
+    const response = await etsyListingInventoryUpdate(listing.listing_id, listingInventoryUpdatePayload, { credsPath });
+    logDeep(response);
+    await askQuestion('?');
+    responses.push(response);
   }
 
-  const response = {
-    variationName,
-    variationOptions,
-    credsPath,
-  };
+  const response = arrayStandardResponse(responses);
   logDeep(response);
   return response;
 };
