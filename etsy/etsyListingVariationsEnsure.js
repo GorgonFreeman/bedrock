@@ -18,6 +18,12 @@ const etsyListingVariationsEnsure = async (
   logDeep(listings);
   await askQuestion('?');
 
+  for (const listing of listings) {
+    const existingVariations = listing.inventory.products.flatMap(product => product.property_values.filter(property_value => property_value.property_name === variationName)).flatMap(property_value => property_value.values);
+    logDeep(existingVariations);
+    await askQuestion('?');
+  }
+
   const response = {
     variationName,
     variationOptions,
