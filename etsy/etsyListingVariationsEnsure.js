@@ -1,4 +1,5 @@
-const { logDeep, funcApi } = require('../utils');
+const { logDeep, funcApi, askQuestion } = require('../utils');
+const { etsyShopListingsGet } = require('../etsy/etsyShopListingsGet');
 
 const etsyListingVariationsEnsure = async (
   variationName,
@@ -7,6 +8,16 @@ const etsyListingVariationsEnsure = async (
     credsPath,
   } = {},
 ) => {
+
+  const listingsResponse = await etsyShopListingsGet({ credsPath, includes: ['Inventory'] });
+  const { success: listingsSuccess, result: listings } = listingsResponse;
+  if (!listingsSuccess) {
+    return listingsResponse;
+  }
+
+  logDeep(listings);
+  await askQuestion('?');
+
   const response = {
     variationName,
     variationOptions,
