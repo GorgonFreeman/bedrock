@@ -36,36 +36,40 @@ const etsyListingVariationsEnsure = async (
     await askQuestion('?');
 
     const modelProduct = listing.inventory.products?.[0];
-    if (!modelProduct) {
+    const modelOffering = modelProduct?.offerings?.[0];
+    if (!modelProduct || !modelOffering) {
       return {
         success: false,
-        error: ['No model product found'],
+        error: ['No model product/offering found'],
       };
     }
 
     logDeep(modelProduct);
     await askQuestion('?');
 
-    const { product_id: modelProductId, is_deleted: modelProductIsDeleted, ...modelProductSubmittable } = modelProduct;
-    const modelOffering = modelProduct.offerings?.[0];
-    const { offering_id: modelOfferingId, is_deleted: modelOfferingIsDeleted, ...modelOfferingSubmittable } = modelOffering;
+    const productToSubmittable = (product) => {
+      const { 
+        product_id: discardA, 
+        is_deleted: discardB, 
+        offerings,
+        ...productSubmittable
+      } = product;
 
-    if (!modelOffering) {
       return {
-        success: false,
-        error: ['No model offering found'],
+        ...productSubmittable,
+        offerings: offerings.map(({ 
+          offering_id: discardC, 
+          is_deleted: discardD, 
+          ...offeringSubmittable
+        }) => offeringSubmittable),
       };
-    }
-
-    logDeep(modelOffering);
-    await askQuestion('?');
+    };
 
     const listingInventoryUpdatePayload = {
       products: [
-        ...listing.inventory.products,
+        ...listing.inventory.products.map(productToSubmittable),
         ...missingVariations.map(variation => ({
-          ...modelProductSubmittable,
-          offerings: [modelOfferingSubmittable],
+          ...productToSubmittable(modelProduct),
           property_values: [{
             property_id: null,
             property_name: variationName,
