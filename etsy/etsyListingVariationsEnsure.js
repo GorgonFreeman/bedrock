@@ -83,7 +83,7 @@ const etsyListingVariationsEnsure = async (
 
     const listingInventoryUpdatePayload = {
       products: [
-        ...listing.inventory.products.map(productToSubmittable),
+        ...listing.inventory.products.filter(product => product.property_values.find(property_value => property_value.property_name === variationName)).map(productToSubmittable),
         ...missingVariations.map(variation => ({
           ...productToSubmittable(modelProduct),
           property_values: [{
