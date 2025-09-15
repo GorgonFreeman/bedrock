@@ -1540,6 +1540,16 @@ const convertObjectToFormData = (object) => {
   return formData;
 };
 
+const handleize = (str) => {
+  return str
+    .toLowerCase()
+    .replace(/'/g, '')            // remove apostrophes
+    .replace(/[^a-z0-9]+/g, '-')  // replace everything non-alphanumeric with "-"
+    .replace(/^-+|-+$/g, '')      // trim leading/trailing hyphens
+    .replace(/-+/g, '-')          // collapse multiple hyphens
+  ;
+};
+
 module.exports = {
 
   // Really core
@@ -1594,6 +1604,7 @@ module.exports = {
   randomNumber,
   convertFormDataToObject,
   convertObjectToFormData,
+  handleize,
   
   // Classes
   CustomAxiosClient,
