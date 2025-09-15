@@ -8,6 +8,7 @@ const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
 const shopifyCustomerStoreCreditAuditReport = async (
   {
     credsPaths = REGIONS_WF,
+    storeCreditThreshold = 2000, // This amount is in AUD, but may also be used as USD or GBP if conversion rates are unavailable
     apiVersion,
     exempt = true,
   } = {},
@@ -17,11 +18,13 @@ const shopifyCustomerStoreCreditAuditReport = async (
   const exemptTag = 'store_credit_exempt';
   let totalExemptCount = 0;
 
+  const customersWithExcessStoreCredit = {};
   const regionalResult = {};
   
   // Process each region
   for (const credsPath of credsPaths) {
-    const customersWithExcessStoreCredit = [];
+
+    const regionalCustomersWithExcessStoreCredit = [];
     
     // 1. Get region-specific conversion rates from Shopify
     const conversionRatesResult = await shopifyConversionRatesGetStored(credsPath);
@@ -42,7 +45,7 @@ const shopifyCustomerStoreCreditAuditReport = async (
       };
       continue;
     }
-    logDeep(`Conversion rates for ${ credsPath }:`, conversionRates);
+    // logDeep(`Conversion rates for ${ credsPath }:`, conversionRates);
 
     // 2. Get customers from segmentMembersGet
     const segmentMembersResult = await shopifyCustomerSegmentMembersGet(credsPath, customerSegmentName);
@@ -95,13 +98,41 @@ const shopifyCustomerStoreCreditAuditReport = async (
 
         // Calculate amount to try and covert to AUD
         const [ calculatedAmount, calculatedCurrencyCode ] = convertCurrencies(credsPath, amount, currencyCode, conversionRates);
-        console.log(`${ emailAddress }: ${ amount } ${ currencyCode } -> ${ calculatedAmount } ${ calculatedCurrencyCode }`);
+        
+        if (calculatedAmount >= storeCreditThreshold) {
+          regionalCustomersWithExcessStoreCredit.push({
+            region: credsPath,
+            customerId,
+            customerEmail,
+            customerDisplayName,
+            storeCreditAccountBalance: balance,
+            calculatedAmount,
+            calculatedCurrencyCode,
+          });
+        }
       }
     }
+    customersWithExcessStoreCredit[credsPath] = regionalCustomersWithExcessStoreCredit;
   }
+
+  for ( const [credsPath, customers] of Object.entries(customersWithExcessStoreCredit) ) {
+    if (customers.length === 0) {
+      regionalResult[credsPath] = {
+        success: true,
+        result: [`No customers with excess store credit found for ${ credsPath }`],
+      };
+      continue;
+    }
+
+    for (const customer of customers) {
+      logDeep('customer', customer);
+    }
+  }
+
   return ;
 };
 
+// Function to convert currencies
 const convertCurrencies = (credsPath,amount, currencyCode, conversionRates) => {
   const amountFloat = parseFloat(amount);
 
