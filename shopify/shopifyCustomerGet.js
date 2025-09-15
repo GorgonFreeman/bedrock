@@ -57,7 +57,7 @@ const shopifyCustomerGet = async (
       },
     });
     
-    logDeep(response);
+    // logDeep(response);
     return response;
   }
 
@@ -71,7 +71,7 @@ const shopifyCustomerGet = async (
     },
   );
 
-  logDeep(response);
+  // logDeep(response);
   return response;
 };
 

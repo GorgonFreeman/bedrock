@@ -118,7 +118,6 @@ const shopifyCustomerSegmentMembersGet = async (
     },
   });
 
-  logDeep(customerSegmentMembersResult);
   return customerSegmentMembersResult;
 };
 
