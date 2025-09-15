@@ -6,4 +6,6 @@ module.exports = {
     'whitefoxboutique.co.uk': 'uk',
     'white-fox-boutique-develop.myshopify.com': 'develop',
   },
+  MAX_TAG_LENGTH: 255,
+  MAX_TAG_LENGTH_FOR_ORDERS: 40,
 };
