@@ -1,7 +1,8 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, wait, gidToId } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 const { shopifySegmentsGet } = require('../shopify/shopifySegmentsGet');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
+const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 
 const defaultAttrs = `id firstName lastName defaultEmailAddress { emailAddress }`;
 
@@ -65,8 +66,60 @@ const shopifyCustomerSegmentMembersGet = async (
       error: [`Segment members query id not found`],
     };
   }
-  logDeep(segmentMembersQueryId);
-  return segmentMembersQueryId;
+
+  // Poll and wait for the query to be done
+  let segmentMembersQueryDone = false;
+  while (!segmentMembersQueryDone) {
+    const segmentMembersQuery = await shopifyGetSingle(credsPath, 'customerSegmentMembersQuery', gidToId(segmentMembersQueryId), { attrs: 'id currentCount done', subKey: 'id' });
+    const { currentCount, done } = segmentMembersQuery.result;
+    segmentMembersQueryDone = done;
+    console.log(`Segment members query | Current count: ${ currentCount } | Done: ${ done }`);
+    await wait(1000);
+  }
+
+  // Fetch the segment members
+  const method = 'post';
+  const query = `
+    query GetCustomerSegmentMembers ($first: Int!, $queryId: ID!) {
+      customerSegmentMembers (first: $first, queryId: $queryId) {
+        edges {
+          node {
+            ${ attrs }
+          }
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }
+  `;
+  const variables = {
+    first,
+    queryId: segmentMembersQueryId,
+  };
+  const customerSegmentMembersResult = await shopifyClient.fetch({
+    method,
+    body: {
+      query,
+      variables,
+    },
+    context: {
+      credsPath,
+      apiVersion,
+    },
+    interpreter: async (response) => {
+      return {
+        ...response,
+        ...response.result ? {
+          result: response.result.customerSegmentMembers,
+        } : {},
+      };
+    },
+  });
+
+  logDeep(customerSegmentMembersResult);
+  return customerSegmentMembersResult;
 };
 
 const shopifyCustomerSegmentMembersGetApi = async (req, res) => {
