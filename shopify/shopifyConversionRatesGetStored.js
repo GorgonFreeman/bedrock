@@ -21,8 +21,26 @@ const shopifyConversionRatesGetStored = async (
     }
   );
 
-  logDeep(response);
-  return response;
+  if (!response.success) {
+    console.log(`Error getting conversion rates for ${ credsPath }: ${ response.error }`);
+    return {
+      success: false,
+      error: ['Conversion rates fetch failed'],
+    };
+  }
+
+  const conversionRates = JSON.parse(response.result.value) || {};
+  if (!conversionRates) {
+    console.log(`Error parsing conversion rates for ${ credsPath }`);
+    return {
+      success: false,
+      error: ['Conversion rates parse failed'],
+    };
+  }
+  return {
+    success: true,
+    result: conversionRates,
+  };
 };
 
 const shopifyConversionRatesGetStoredApi = async (req, res) => {
