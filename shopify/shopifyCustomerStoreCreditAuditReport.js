@@ -1,9 +1,11 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, gidToId } = require('../utils');
 
 const { REGIONS_WF } = require('./shopify.constants');
 const { shopifyConversionRatesGetStored } = require('../shopify/shopifyConversionRatesGetStored');
 const { shopifyCustomerSegmentMembersGet } = require('../shopify/shopifyCustomerSegmentMembersGet');
 const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
+
+const { slackInteractiveStoreCreditReportInitiator } = require('../slack/slackInteractiveStoreCreditReport');
 
 const shopifyCustomerStoreCreditAuditReport = async (
   {
@@ -98,11 +100,12 @@ const shopifyCustomerStoreCreditAuditReport = async (
 
         // Calculate amount to try and covert to AUD
         const [ calculatedAmount, calculatedCurrencyCode ] = convertCurrencies(credsPath, amount, currencyCode, conversionRates);
+        console.log(`${ emailAddress }: ${ amount } ${ currencyCode } -> ${ calculatedAmount } ${ calculatedCurrencyCode }`);
         
         if (calculatedAmount >= storeCreditThreshold) {
           regionalCustomersWithExcessStoreCredit.push({
             region: credsPath,
-            customerId,
+            customerId: gidToId(customerId),
             customerEmail,
             customerDisplayName,
             storeCreditAccountBalance: balance,
@@ -126,8 +129,12 @@ const shopifyCustomerStoreCreditAuditReport = async (
 
     for (const customer of customers) {
       logDeep('customer', customer);
+      await slackInteractiveStoreCreditReportInitiator(credsPath, customer);
     }
   }
+
+  logDeep('totalExemptCount', totalExemptCount);
+  logDeep('regionalResult', regionalResult);
 
   return ;
 };
