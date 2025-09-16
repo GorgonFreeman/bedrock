@@ -13,14 +13,26 @@ const getAdminUrl = (credsPath) => {
   return `https://admin.shopify.com/store/${ STORE_URL }`;
 }
 
-const customerDetailsBlock = (credsPath, customer) => {
+const customerNameBlock = (credsPath, customer) => {
   const adminUrl = getAdminUrl(credsPath);
   const customerUrl = `${ adminUrl }/customers/${ customer.customerId }`;
   return {
     "type": "section",
+    "block_id": "customerNameBlock",
     "text": {
       "type": "mrkdwn",
-      "text": `<${ customerUrl }|${ customer.customerDisplayName }> \n:credit_card: : ${ customer.calculatedCurrencyCode } ${ customer.calculatedAmount }`
+      "text": `<${ customerUrl }|${ customer.customerDisplayName }>`
+    }
+  }
+}
+
+const customerStoreCreditBlock = (credsPath, customer) => {
+  return {
+    "type": "section",
+    "block_id": "customerStoreCreditBlock",
+    "text": {
+      "type": "mrkdwn",
+      "text": `:credit_card: on ${ credsPath.toUpperCase() } : ${ customer.calculatedCurrencyCode } ${ customer.calculatedAmount }`
     }
   }
 }
@@ -35,7 +47,7 @@ const actionBlock = (credsPath, customer) => {
           "type": "plain_text",
           "text": "Exempt 1 Week",
         },
-        "value": `exempt_1_week:${ credsPath }:${ customer.customerId }`,
+        "value": `exempt_1_week:${ credsPath }`,
         "action_id": `${ ACTION_NAME }:exempt_1_week`
       },
       {
@@ -44,7 +56,7 @@ const actionBlock = (credsPath, customer) => {
           "type": "plain_text",
           "text": "Exempt Forever",
         },
-        "value": `exempt_forever:${ credsPath }:${ customer.customerId }`,
+        "value": `exempt_forever:${ credsPath }`,
         "action_id": `${ ACTION_NAME }:exempt_forever`
       },
       {
@@ -53,7 +65,7 @@ const actionBlock = (credsPath, customer) => {
           "type": "plain_text",
           "text": "Dismiss",
         },
-        "value": `dismiss:${ credsPath }:${ customer.customerId }`,
+        "value": `dismiss:${ credsPath }`,
         "action_id": `${ ACTION_NAME }:dismiss`
       }
     ]
@@ -62,13 +74,110 @@ const actionBlock = (credsPath, customer) => {
 
 const initialBlocks = (credsPath, customer) => {
   return [
-    customerDetailsBlock(credsPath, customer),
+    customerNameBlock(credsPath, customer),
+    customerStoreCreditBlock(credsPath, customer),
     actionBlock(credsPath, customer),
   ]
 };
 
+const successBlock = (message) => {
+  return {
+    "type": "section",
+    "text": {
+      "type": "mrkdwn",
+      "text": `${ message }`,
+    }
+  }
+}
+
+const dismissedBlock = (message) => {
+  return {
+    "type": "section",
+    "text": {
+      "type": "mrkdwn",
+      "text": `~${ message }~`,
+    }
+  }
+}
+
 const slackInteractiveStoreCreditReport = async (req, res) => {
   console.log('slackInteractiveStoreCreditReport');
+
+  const { body } = req;
+
+  respond(res, 200); // Acknowledgement - we'll provide the next step to the response_url later
+
+  const payload = JSON.parse(body.payload);
+  const { 
+    response_url: responseUrl,
+    state, 
+    actions, 
+  } = payload;
+
+  const action = actions?.[0];
+  logDeep('action', action);
+  const { 
+    action_id: actionId,
+    value: actionValue,
+  } = action;
+
+  const currentBlocks = payload.message.blocks;
+  const customerNameBlock = currentBlocks.find(block => block.block_id === 'customerNameBlock');
+  const customerNameText = customerNameBlock.text.text;
+  const customerStoreCreditBlock = currentBlocks.find(block => block.block_id === 'customerStoreCreditBlock');
+  const customerStoreCreditText = customerStoreCreditBlock.text.text;
+  const credsPath = actionValue.split(':')[1];
+
+  let response;
+
+  switch (actionId) {
+    case `${ ACTION_NAME }:exempt_1_week`:
+
+      // TODO: Implement exempt_1_week
+
+      response = {
+        response_type: 'in_channel',
+        replace_original: 'true',
+        blocks: [
+          successBlock(`${ credsPath.toUpperCase() } | ${ customerNameText } | ${ customerStoreCreditText } | Exempted for 1 week`),
+        ],
+      }
+      break;
+    case `${ ACTION_NAME }:exempt_forever`:
+
+      // TODO: Implement exempt_forever
+
+      response = {
+        response_type: 'in_channel',
+        replace_original: 'true',
+        blocks: [
+          successBlock(`${ credsPath.toUpperCase() } | ${ customerNameText } | ${ customerStoreCreditText } | Exempted forever`),
+        ],
+      }
+      break;
+    case `${ ACTION_NAME }:dismiss`:
+      response = {
+        response_type: 'in_channel',
+        replace_original: 'true',
+        blocks: [
+          dismissedBlock(`${ credsPath.toUpperCase() } | ${ customerNameText } | ${ customerStoreCreditText } | Dismissed`),
+        ],
+      }
+      break;
+    default:
+      response = {
+        response_type: 'in_channel',
+        replace_original: 'true',
+        text: `${ credsPath.toUpperCase() } | ${ customerNameText } | ${ customerStoreCreditText } | Unknown action: ${ actionId }`,
+      }
+      break;
+  }
+
+  logDeep('response', response);
+  return customAxios(responseUrl, {
+    method: 'post',
+    body: response,
+  });
 };
 
 const slackInteractiveStoreCreditReportInitiator = async (credsPath, customer) => {
