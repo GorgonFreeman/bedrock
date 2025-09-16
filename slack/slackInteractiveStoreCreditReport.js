@@ -3,35 +3,13 @@
 const { funcApi, logDeep } = require('../utils');
 const { slackClient } = require('../slack/slack.utils');
 
-const slackInteractiveStoreCreditReport = async (
-  channelId,
-  timestamp,
-  {
-    credsPath,
-  } = {},
-) => {
-  const response = await slackClient.fetch({
-    url: '/chat.delete',
-    method: 'post',
-    body: {
-      channel: channelId,
-      ts: timestamp,
-    },
-    context: {
-      credsPath,
-    },
-  });
-  logDeep(response);
-  return response;
+const slackInteractiveStoreCreditReport = async (req, res) => {
+  console.log('slackInteractiveStoreCreditReport');
 };
 
-const slackInteractiveStoreCreditReportApi = funcApi(slackInteractiveStoreCreditReport, {
-  argNames: ['channelId', 'timestamp', 'options'],
-  validatorsByArg: {
-    channelId: Boolean,
-    timestamp: Boolean,
-  },
-});
+const slackInteractiveStoreCreditReportInitiator = async (req, res) => {
+  console.log('slackInteractiveStoreCreditReportInitiator');
+};
 
 module.exports = {
   slackInteractiveStoreCreditReport,
