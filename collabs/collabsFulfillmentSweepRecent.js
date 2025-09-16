@@ -15,7 +15,7 @@ const { peoplevoxDateFormatter } = require('../peoplevox/peoplevox.utils');
 const { logiwaOrdersGet } = require('../logiwa/logiwaOrdersGet');
 const { logiwaStatusToStatusId } = require('../logiwa/logiwa.utils');
 
-
+const { bleckmannPickticketsGet } = require('../bleckmann/bleckmannPickticketsGet');
 
 const collabsFulfillmentSweepRecent = async (
   {
@@ -63,7 +63,21 @@ const collabsFulfillmentSweepRecent = async (
   };
 
   const bleckmannGetRecent = async () => {
+    const bleckmannShippedOrdersResponse = await bleckmannPickticketsGet({
+      createdFrom: `${ recentWindowStartDate }T00:00:00Z`,
+      status: 'SHIPPED',
+    });
 
+    const {
+      success: bleckmannShippedOrdersSuccess,
+      result: bleckmannShippedOrders,
+    } = bleckmannShippedOrdersResponse;
+
+    if (!bleckmannShippedOrdersSuccess) {
+      return bleckmannShippedOrdersResponse;
+    }
+
+    return bleckmannShippedOrders;
   };
 
   const starshipitGetRecent = async () => {
