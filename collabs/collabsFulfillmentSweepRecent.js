@@ -179,8 +179,8 @@ const collabsFulfillmentSweepRecent = async (
       starshipitRecentDispatches, 
       async (pile) => {
         const dispatch = pile.shift();
-        logDeep(dispatch);
-        await askQuestion('?');
+        // logDeep(dispatch);
+        // await askQuestion('?');
       }, 
       pile => pile.length === 0, 
       {
@@ -201,8 +201,8 @@ const collabsFulfillmentSweepRecent = async (
       logiwaRecentDispatches, 
       async (pile) => {
         const dispatch = pile.shift();
-        logDeep(dispatch);
-        await askQuestion('?');
+        // logDeep(dispatch);
+        // await askQuestion('?');
       }, 
       pile => pile.length === 0, 
       {
@@ -224,8 +224,8 @@ const collabsFulfillmentSweepRecent = async (
       bleckmannRecentDispatches, 
       async (pile) => {
         const dispatch = pile.shift();
-        logDeep(dispatch);
-        await askQuestion('?');
+        // logDeep(dispatch);
+        // await askQuestion('?');
       }, 
       pile => pile.length === 0, 
       {
