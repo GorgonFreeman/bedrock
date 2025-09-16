@@ -1,42 +1,29 @@
-const { respond, mandateParam } = require('../utils');
+const { funcApi } = require('../utils');
 
 const collabsFulfillmentSweepRecent = async (
-  arg,
+  regions,
   {
     option,
   } = {},
 ) => {
 
   return { 
-    arg, 
+    regions, 
     option,
   };
   
 };
 
-const collabsFulfillmentSweepRecentApi = async (req, res) => {
-  const { 
-    arg,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await collabsFulfillmentSweepRecent(
-    arg,
-    options,
-  );
-  respond(res, 200, result);
-};
+const collabsFulfillmentSweepRecentApi = funcApi(collabsFulfillmentSweepRecent, {
+  argNames: ['regions', 'options'],
+  validatorsByArg: {
+    regions: Array.isArray,
+  },
+});
 
 module.exports = {
   collabsFulfillmentSweepRecent,
   collabsFulfillmentSweepRecentApi,
 };
 
-// curl localhost:8000/collabsFulfillmentSweepRecent -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/collabsFulfillmentSweepRecent -H "Content-Type: application/json" -d '{ "regions": ["au", "us"] }'
