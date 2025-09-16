@@ -1,24 +1,22 @@
 const { funcApi } = require('../utils');
+const {
+  REGIONS_ALL,
+} = require('../constants');
 
 const collabsFulfillmentSweepRecent = async (
-  regions,
   {
-    option,
+    regions = REGIONS_ALL,
   } = {},
 ) => {
 
   return { 
     regions, 
-    option,
   };
   
 };
 
 const collabsFulfillmentSweepRecentApi = funcApi(collabsFulfillmentSweepRecent, {
-  argNames: ['regions', 'options'],
-  validatorsByArg: {
-    regions: Array.isArray,
-  },
+  argNames: ['options'],
 });
 
 module.exports = {
@@ -26,4 +24,4 @@ module.exports = {
   collabsFulfillmentSweepRecentApi,
 };
 
-// curl localhost:8000/collabsFulfillmentSweepRecent -H "Content-Type: application/json" -d '{ "regions": ["au", "us"] }'
+// curl localhost:8000/collabsFulfillmentSweepRecent -H "Content-Type: application/json" -d '{ "options": { "regions": ["au", "us"] } }'
