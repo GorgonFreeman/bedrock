@@ -114,6 +114,8 @@ const collabsFulfillmentSweepRecent = async (
     shopifyOrderFulfill: [],
   };
 
+  let fulfillerCanFinish = 0;
+
   logDeep(peoplevoxRecentDispatches);
   await askQuestion('?');
   
@@ -163,6 +165,12 @@ const collabsFulfillmentSweepRecent = async (
         // runOptions: {
         //   interval: 20,
         // },
+        onDone: () => {
+          fulfillerCanFinish++;
+          if (fulfillerCanFinish >= (processors.length - 1)) {
+            shopifyOrderFulfillProcessor.canFinish = true;
+          }
+        },
       },
     );
     processors.push(peoplevoxProcessor);
@@ -238,6 +246,23 @@ const collabsFulfillmentSweepRecent = async (
   }
 
   */
+
+  const shopifyOrderFulfillProcessor = new Processor(
+    piles.shopifyOrderFulfill,
+    async (pile) => {
+      const [region, orderId, options] = pile.shift();
+      await shopifyOrderFulfill(region, orderId, options);
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+      runOptions: {
+        interval: 20,
+      },
+    },
+  );
+
+  processors.push(shopifyOrderFulfillProcessor);
 
   const results = await Promise.all(processors.map(p => p.run()));
 
