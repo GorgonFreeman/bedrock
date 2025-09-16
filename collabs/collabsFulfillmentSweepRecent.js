@@ -28,7 +28,7 @@ const collabsFulfillmentSweepRecent = async (
 
   const peoplevoxGetRecent = async () => {
     const peoplevoxRecentDispatchesResponse = await peoplevoxReportGet('Despatch summary', { 
-      columns: ['Salesorder number', 'Carrier', 'Tracking number', 'Despatch date'], 
+      columns: ['Salesorder number', 'Carrier', 'Tracking number', 'Despatch date', 'Channel name', 'Site reference'], 
       searchClause: `([Despatch date] >= ${ peoplevoxDateFormatter(recentWindowStartDate) })`, 
     });
 
@@ -123,6 +123,8 @@ const collabsFulfillmentSweepRecent = async (
 
       const {
         'Tracking number': trackingNumber,
+        'Salesorder number': orderId,
+        'Channel name': channelName,
       } = dispatch;
 
       if (!trackingNumber) {
@@ -143,12 +145,12 @@ const collabsFulfillmentSweepRecent = async (
       await askQuestion('?');
 
       piles.shopifyOrderFulfill.push([
-        // region,
-        // orderId,
-        // options: {
-        //   notifyCustomer: true,
-        //   ...fulfillPayload,
-        // },
+        channelName === 'BADDEST' ? 'baddest' : 'au',
+        orderId,
+        {
+          notifyCustomer: true,
+          ...fulfillPayload,
+        },
       ]);
     };
 
