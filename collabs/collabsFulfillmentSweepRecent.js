@@ -141,9 +141,6 @@ const collabsFulfillmentSweepRecent = async (
         },
       };
 
-      logDeep(dispatch, fulfillPayload);
-      await askQuestion('?');
-
       piles.shopifyOrderFulfill.push([
         channelName === 'BADDEST' ? 'baddest' : 'au',
         orderId,
