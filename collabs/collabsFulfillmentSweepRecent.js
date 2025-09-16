@@ -240,7 +240,8 @@ const collabsFulfillmentSweepRecent = async (
 
   const results = await Promise.all(processors.map(p => p.run()));
 
-  logDeep(results);
+  logDeep(piles.shopifyOrderFulfill);
+
   return {
     success: true, 
     result: results,
