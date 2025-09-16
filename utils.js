@@ -328,7 +328,7 @@ const arrayStandardResponse = (responses, { flatten = false } = {}) => {
 
 const ifTextThenSpace = (text) => {
   try {
-    return text ? `${ text } ` : text;
+    return text ? `${ text } ` : '';
   } catch(err) {
     // console.warn(err);
   }
