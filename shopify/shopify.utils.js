@@ -355,10 +355,17 @@ const shopifyFulfillmentLineItemsFromExternalLineItems = (externalLineItems, sho
   return fulfillmentLineItemsPayload;
 };
 
+const shopifyAdminUrlGet = (credsPath) => {
+  const shopifyCreds = credsByPath(['shopify', credsPath]);
+  const { STORE_URL } = shopifyCreds;
+  return `https://admin.shopify.com/store/${ STORE_URL }`;
+}
+
 module.exports = {
   shopifyClient,
   shopifyGetter,
   shopifyGet,
   shopifyMutationDo,
   shopifyFulfillmentLineItemsFromExternalLineItems,
+  shopifyAdminUrlGet,
 };

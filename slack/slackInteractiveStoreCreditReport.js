@@ -1,6 +1,7 @@
 // https://docs.slack.dev/reference/methods/chat.delete
 
 const { respond, logDeep, customAxios, credsByPath, dateTimeFromNow, days } = require('../utils');
+const { shopifyAdminUrlGet } = require('../shopify/shopify.utils');
 
 const { slackMessagePost } = require('../slack/slackMessagePost');
 
@@ -13,14 +14,8 @@ const EXEMPT_TAG = 'store_credit_exempt';
 const EXEMPT_1_WEEK_TAG_PREFIX = 'store_credit_exempt_until:';
 const EXEMPT_FOREVER_TAG = 'store_credit_exempt_forever';
 
-const getAdminUrl = (credsPath) => {
-  const shopifyCreds = credsByPath(['shopify', credsPath]);
-  const { STORE_URL } = shopifyCreds;
-  return `https://admin.shopify.com/store/${ STORE_URL }`;
-}
-
 const customerNameBlock = (credsPath, customer) => {
-  const adminUrl = getAdminUrl(credsPath);
+  const adminUrl = shopifyAdminUrlGet(credsPath);
   const customerUrl = `${ adminUrl }/customers/${ customer.customerId }`;
   return {
     "type": "section",
