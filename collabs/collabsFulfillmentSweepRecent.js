@@ -109,6 +109,8 @@ const collabsFulfillmentSweepRecent = async (
     ...(bleckmannRelevant ? [bleckmannGetRecent()] : [false]),
   ]);
 
+  const fulfillers = [];
+
   logDeep(peoplevoxRecentDispatches);
   await askQuestion('?');
   
@@ -128,6 +130,7 @@ const collabsFulfillmentSweepRecent = async (
         },
       },
     );
+    fulfillers.push(peoplevoxFulfiller);
   }
 
   logDeep(starshipitRecentDispatches);
@@ -149,6 +152,7 @@ const collabsFulfillmentSweepRecent = async (
         },
       },
     );
+    fulfillers.push(starshipitFulfiller);
   }
 
   logDeep(logiwaRecentDispatches);
@@ -170,6 +174,7 @@ const collabsFulfillmentSweepRecent = async (
         },
       },
     );
+    fulfillers.push(logiwaFulfiller);
   }
 
 
@@ -192,17 +197,13 @@ const collabsFulfillmentSweepRecent = async (
         },
       },
     );
+    fulfillers.push(bleckmannFulfiller);
   }
 
-  const results = await Promise.all([
-    peoplevoxFulfiller.run(),
-    starshipitFulfiller.run(),
-    logiwaFulfiller.run(),
-    bleckmannFulfiller.run(),
-  ]);
+  const results = await Promise.all(fulfillers.map(f => f.run()));
 
   logDeep(results);
-  return { 
+  return {
     success: true, 
     result: results,
   };
