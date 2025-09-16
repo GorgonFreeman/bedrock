@@ -1,6 +1,6 @@
 // Action fulfillments for any recently fulfilled orders. Purely platform > Shopify.
 
-const { funcApi, dateTimeFromNow, days, logDeep, askQuestion } = require('../utils');
+const { funcApi, dateTimeFromNow, days, logDeep, askQuestion, Processor } = require('../utils');
 const {
   REGIONS_ALL,
   REGIONS_PVX,
@@ -111,17 +111,101 @@ const collabsFulfillmentSweepRecent = async (
 
   logDeep(peoplevoxRecentDispatches);
   await askQuestion('?');
+  
+  if (peoplevoxRecentDispatches) {
+    const peoplevoxFulfiller = new Processor(
+      peoplevoxRecentDispatches, 
+      async (pile) => {
+        const dispatch = pile.shift();
+        logDeep(dispatch);
+        await askQuestion('?');
+      }, 
+      pile => pile.length === 0, 
+      {
+        // canFinish: true,
+        runOptions: {
+          interval: 20,
+        },
+      },
+    );
+  }
+
   logDeep(starshipitRecentDispatches);
   await askQuestion('?');
+
+  if (starshipitRecentDispatches) {
+    const starshipitFulfiller = new Processor(
+      starshipitRecentDispatches, 
+      async (pile) => {
+        const dispatch = pile.shift();
+        logDeep(dispatch);
+        await askQuestion('?');
+      }, 
+      pile => pile.length === 0, 
+      {
+        // canFinish: true,
+        runOptions: {
+          interval: 20,
+        },
+      },
+    );
+  }
+
   logDeep(logiwaRecentDispatches);
   await askQuestion('?');
+
+  if (logiwaRecentDispatches) {
+    const logiwaFulfiller = new Processor(
+      logiwaRecentDispatches, 
+      async (pile) => {
+        const dispatch = pile.shift();
+        logDeep(dispatch);
+        await askQuestion('?');
+      }, 
+      pile => pile.length === 0, 
+      {
+        // canFinish: true,
+        runOptions: {
+          interval: 20,
+        },
+      },
+    );
+  }
+
+
   logDeep(bleckmannRecentDispatches);
   await askQuestion('?');
 
+  if (bleckmannRecentDispatches) {
+    const bleckmannFulfiller = new Processor(
+      bleckmannRecentDispatches, 
+      async (pile) => {
+        const dispatch = pile.shift();
+        logDeep(dispatch);
+        await askQuestion('?');
+      }, 
+      pile => pile.length === 0, 
+      {
+        // canFinish: true,
+        runOptions: {
+          interval: 20,
+        },
+      },
+    );
+  }
+
+  const results = await Promise.all([
+    peoplevoxFulfiller.run(),
+    starshipitFulfiller.run(),
+    logiwaFulfiller.run(),
+    bleckmannFulfiller.run(),
+  ]);
+
+  logDeep(results);
   return { 
-    regions, 
+    success: true, 
+    result: results,
   };
-  
 };
 
 const collabsFulfillmentSweepRecentApi = funcApi(collabsFulfillmentSweepRecent, {
