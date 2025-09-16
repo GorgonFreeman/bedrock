@@ -165,12 +165,6 @@ const collabsFulfillmentSweepRecent = async (
         // runOptions: {
         //   interval: 20,
         // },
-        onDone: () => {
-          fulfillerCanFinish++;
-          if (fulfillerCanFinish >= (processors.length - 1)) {
-            shopifyOrderFulfillProcessor.canFinish = true;
-          }
-        },
       },
     );
     processors.push(peoplevoxProcessor);
@@ -261,6 +255,21 @@ const collabsFulfillmentSweepRecent = async (
       },
     },
   );
+  
+  /* 
+    Before adding the fulfiller to the array of processors, 
+    allow the fulfiller to finish when all the non-fulfilling processors have finished.
+  */
+  const nonFulfillingProcessorsCount = processors.length;
+  const allowFulfillerToFinish = () => {
+    fulfillerCanFinish++;
+    if (fulfillerCanFinish >= nonFulfillingProcessorsCount) {
+      shopifyOrderFulfillProcessor.canFinish = true;
+    }
+  };
+  for (const processor of processors) {
+    processor.on('done', allowFulfillerToFinish);
+  }
 
   processors.push(shopifyOrderFulfillProcessor);
 
