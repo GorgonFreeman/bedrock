@@ -12,6 +12,11 @@ const {
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 const { peoplevoxDateFormatter } = require('../peoplevox/peoplevox.utils');
 
+const { logiwaOrdersGet } = require('../logiwa/logiwaOrdersGet');
+const { logiwaStatusToStatusId } = require('../logiwa/logiwa.utils');
+
+
+
 const collabsFulfillmentSweepRecent = async (
   {
     regions = REGIONS_ALL,
@@ -40,7 +45,21 @@ const collabsFulfillmentSweepRecent = async (
   };
 
   const logiwaGetRecent = async () => {
-    
+    const logiwaRecentShippedOrdersResponse = await logiwaOrdersGet({
+      createdDateTime_bt: `${ new Date(recentWindowStartDate).toISOString() },${ new Date().toISOString() }`,
+      status_eq: logiwaStatusToStatusId('Shipped'),
+    });
+
+    const {
+      success: logiwaRecentShippedOrdersSuccess,
+      result: logiwaRecentShippedOrders,
+    } = logiwaRecentShippedOrdersResponse;
+
+    if (!logiwaRecentShippedOrdersSuccess) {
+      return logiwaRecentShippedOrdersResponse;
+    }
+
+    return logiwaRecentShippedOrders;
   };
 
   const bleckmannGetRecent = async () => {
@@ -100,4 +119,5 @@ module.exports = {
   collabsFulfillmentSweepRecentApi,
 };
 
+// curl localhost:8000/collabsFulfillmentSweepRecent
 // curl localhost:8000/collabsFulfillmentSweepRecent -H "Content-Type: application/json" -d '{ "options": { "regions": ["au"] } }'
