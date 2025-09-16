@@ -1,11 +1,17 @@
 // https://docs.slack.dev/reference/methods/chat.delete
 
-const { respond, logDeep, customAxios, credsByPath } = require('../utils');
+const { respond, logDeep, customAxios, credsByPath, dateTimeFromNow, days } = require('../utils');
 
 const { slackMessagePost } = require('../slack/slackMessagePost');
 
+const { shopifyTagsAdd } = require('../shopify/shopifyTagsAdd');
+
 const ACTION_NAME = 'store_credit_report';
 const SLACK_CHANNEL_NAME = 'foxtron_testing';
+
+const EXEMPT_TAG = 'store_credit_exempt';
+const EXEMPT_1_WEEK_TAG_PREFIX = 'store_credit_exempt_until:';
+const EXEMPT_FOREVER_TAG = 'store_credit_exempt_forever';
 
 const getAdminUrl = (credsPath) => {
   const shopifyCreds = credsByPath(['shopify', credsPath]);
@@ -47,7 +53,7 @@ const actionBlock = (credsPath, customer) => {
           "type": "plain_text",
           "text": "Exempt 1 Week",
         },
-        "value": `exempt_1_week:${ credsPath }`,
+        "value": `exempt_1_week:${ credsPath }:${ customer.customerId }`,
         "action_id": `${ ACTION_NAME }:exempt_1_week`
       },
       {
@@ -56,7 +62,7 @@ const actionBlock = (credsPath, customer) => {
           "type": "plain_text",
           "text": "Exempt Forever",
         },
-        "value": `exempt_forever:${ credsPath }`,
+        "value": `exempt_forever:${ credsPath }:${ customer.customerId }`,
         "action_id": `${ ACTION_NAME }:exempt_forever`
       },
       {
@@ -65,7 +71,7 @@ const actionBlock = (credsPath, customer) => {
           "type": "plain_text",
           "text": "Dismiss",
         },
-        "value": `dismiss:${ credsPath }`,
+        "value": `dismiss:${ credsPath }:${ customer.customerId }`,
         "action_id": `${ ACTION_NAME }:dismiss`
       }
     ]
@@ -86,6 +92,16 @@ const successBlock = (message) => {
     "text": {
       "type": "mrkdwn",
       "text": `${ message }`,
+    }
+  }
+}
+
+const errorBlock = (message) => {
+  return {
+    "type": "section",
+    "text": {
+      "type": "mrkdwn",
+      "text": `:red_circle: ${ message }`,
     }
   }
 }
@@ -127,6 +143,7 @@ const slackInteractiveStoreCreditReport = async (req, res) => {
   const customerStoreCreditBlock = currentBlocks.find(block => block.block_id === 'customerStoreCreditBlock');
   const customerStoreCreditText = customerStoreCreditBlock.text.text;
   const credsPath = actionValue.split(':')[1];
+  const customerId = actionValue.split(':')[2];
 
   let response;
 
@@ -134,6 +151,18 @@ const slackInteractiveStoreCreditReport = async (req, res) => {
     case `${ ACTION_NAME }:exempt_1_week`:
 
       // TODO: Implement exempt_1_week
+      const exemptUntil = dateTimeFromNow({ plus: days(7), dateOnly: true });
+      const tagAddResponse = await shopifyTagsAdd(credsPath, [ `gid://shopify/Customer/${ customerId }` ], [EXEMPT_TAG, `${ EXEMPT_1_WEEK_TAG_PREFIX }${ exemptUntil }`]);
+      if (!tagAddResponse.success) {
+        response = {
+          response_type: 'in_channel',
+          replace_original: 'true',
+          blocks: [
+            errorBlock(`${ credsPath.toUpperCase() } | ${ customerNameText } | ${ customerStoreCreditText } | Error adding exempt tags`),
+          ],
+        }
+        break;
+      }
 
       response = {
         response_type: 'in_channel',
@@ -145,7 +174,17 @@ const slackInteractiveStoreCreditReport = async (req, res) => {
       break;
     case `${ ACTION_NAME }:exempt_forever`:
 
-      // TODO: Implement exempt_forever
+      const tagAddResponse2 = await shopifyTagsAdd(credsPath, [ `gid://shopify/Customer/${ customerId }` ], [EXEMPT_TAG, EXEMPT_FOREVER_TAG]);
+      if (!tagAddResponse2.success) {
+        response = {
+          response_type: 'in_channel',
+          replace_original: 'true',
+          blocks: [
+            errorBlock(`${ credsPath.toUpperCase() } | ${ customerNameText } | ${ customerStoreCreditText } | Error adding exempt tags`),
+          ],
+        }
+        break;
+      }
 
       response = {
         response_type: 'in_channel',
