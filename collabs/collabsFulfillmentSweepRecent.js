@@ -171,6 +171,8 @@ const collabsFulfillmentSweepRecent = async (
     processors.push(peoplevoxProcessor);
   }
 
+  /*
+
   logDeep(starshipitRecentDispatches);
   await askQuestion('?');
 
@@ -237,6 +239,8 @@ const collabsFulfillmentSweepRecent = async (
     );
     processors.push(bleckmannProcessor);
   }
+
+  */
 
   const results = await Promise.all(processors.map(p => p.run()));
 
