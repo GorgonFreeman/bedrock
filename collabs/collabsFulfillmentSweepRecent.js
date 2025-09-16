@@ -109,18 +109,54 @@ const collabsFulfillmentSweepRecent = async (
     ...(bleckmannRelevant ? [bleckmannGetRecent()] : [false]),
   ]);
 
-  const fulfillers = [];
+  const processors = [];
+  const piles = {
+    shopifyOrderFulfill: [],
+  };
 
   logDeep(peoplevoxRecentDispatches);
   await askQuestion('?');
   
   if (peoplevoxRecentDispatches) {
-    const peoplevoxFulfiller = new Processor(
+
+    const peoplevoxHandleDispatch = async (dispatch) => {
+
+      const {
+        'Tracking number': trackingNumber,
+      } = dispatch;
+
+      if (!trackingNumber) {
+        return;
+      }
+
+      const fulfillPayload = {
+        originAddress: {
+          // Peoplevox, therefore AU
+          countryCode: 'AU',
+        },
+        trackingInfo: {
+          number: trackingNumber,
+        },
+      };
+
+      logDeep(dispatch, fulfillPayload);
+      await askQuestion('?');
+
+      piles.shopifyOrderFulfill.push([
+        // region,
+        // orderId,
+        // options: {
+        //   notifyCustomer: true,
+        //   ...fulfillPayload,
+        // },
+      ]);
+    };
+
+    const peoplevoxProcessor = new Processor(
       peoplevoxRecentDispatches, 
       async (pile) => {
         const dispatch = pile.shift();
-        logDeep(dispatch);
-        await askQuestion('?');
+        await peoplevoxHandleDispatch(dispatch);
       }, 
       pile => pile.length === 0, 
       {
@@ -130,14 +166,14 @@ const collabsFulfillmentSweepRecent = async (
         },
       },
     );
-    fulfillers.push(peoplevoxFulfiller);
+    processors.push(peoplevoxProcessor);
   }
 
   logDeep(starshipitRecentDispatches);
   await askQuestion('?');
 
   if (starshipitRecentDispatches) {
-    const starshipitFulfiller = new Processor(
+    const starshipitProcessor = new Processor(
       starshipitRecentDispatches, 
       async (pile) => {
         const dispatch = pile.shift();
@@ -152,14 +188,14 @@ const collabsFulfillmentSweepRecent = async (
         },
       },
     );
-    fulfillers.push(starshipitFulfiller);
+    processors.push(starshipitProcessor);
   }
 
   logDeep(logiwaRecentDispatches);
   await askQuestion('?');
 
   if (logiwaRecentDispatches) {
-    const logiwaFulfiller = new Processor(
+    const logiwaProcessor = new Processor(
       logiwaRecentDispatches, 
       async (pile) => {
         const dispatch = pile.shift();
@@ -174,7 +210,7 @@ const collabsFulfillmentSweepRecent = async (
         },
       },
     );
-    fulfillers.push(logiwaFulfiller);
+    processors.push(logiwaProcessor);
   }
 
 
@@ -182,7 +218,7 @@ const collabsFulfillmentSweepRecent = async (
   await askQuestion('?');
 
   if (bleckmannRecentDispatches) {
-    const bleckmannFulfiller = new Processor(
+    const bleckmannProcessor = new Processor(
       bleckmannRecentDispatches, 
       async (pile) => {
         const dispatch = pile.shift();
@@ -197,10 +233,10 @@ const collabsFulfillmentSweepRecent = async (
         },
       },
     );
-    fulfillers.push(bleckmannFulfiller);
+    processors.push(bleckmannProcessor);
   }
 
-  const results = await Promise.all(fulfillers.map(f => f.run()));
+  const results = await Promise.all(processors.map(p => p.run()));
 
   logDeep(results);
   return {
