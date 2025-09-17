@@ -305,7 +305,7 @@ const collabsFulfillmentSweepRecent = async (
 
       const bleckmannParcelsResponse = await bleckmannParcelsGet({ pickticketId: fulfillmentOrderId }, { includeDetails: true });
       const { success: parcelsSuccess, result: parcels } = bleckmannParcelsResponse;
-      if (!parcelsSuccess) {
+      if (!parcelsSuccess || !parcels?.length) {
         piles.errors.push(bleckmannParcelsResponse);
         return;
       }
@@ -320,6 +320,11 @@ const collabsFulfillmentSweepRecent = async (
           carrierName,
           lines,
         } = parcel;
+
+        if (!trackingNumber) {
+          piles.disqualified.push(parcel);
+          continue;
+        }
 
         piles.shopifyFulfillmentOrderFulfill.push([
           'uk', // Bleckmann, therefore UK
