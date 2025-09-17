@@ -62,7 +62,7 @@ const shopifyOrderFulfill = async (
 
   const fulfillmentOrders = fulfillmentsResponse.result.fulfillmentOrders;
 
-  if (fulfillmentOrders.length > 1) {
+  if (fulfillmentOrders?.length > 1) {
     return {
       success: false,
       error: [{
