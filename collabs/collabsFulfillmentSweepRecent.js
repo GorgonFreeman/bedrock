@@ -114,6 +114,7 @@ const collabsFulfillmentSweepRecent = async (
   const processors = [];
   const piles = {
     shopifyOrderFulfill: [],
+    disqualified: [],
     results: [],
   };
 
@@ -197,16 +198,83 @@ const collabsFulfillmentSweepRecent = async (
     processors.push(starshipitProcessor);
   }
 
+  */
+
   logDeep(logiwaRecentDispatches);
   await askQuestion('?');
 
   if (logiwaRecentDispatches) {
+
+    const logiwaOrderDecider = async (logiwaOrder) => {
+  
+      const {
+        currentTrackingNumber,
+        trackingNumbers,
+        products,
+        shipmentOrderStatusName,
+        shipmentOrderStatusId,
+      } = logiwaOrder;
+  
+      let trackingNumber = currentTrackingNumber;
+      if (!trackingNumber && trackingNumbers?.length === 1) {
+        trackingNumber = trackingNumbers[0];
+      }
+  
+      const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
+  
+      const knownBadStatuses = [
+        'Open', 
+        'Cancelled', 
+        'Shortage', 
+        'Ready to Pick', 
+        'Picking Started', 
+        'Ready to Pack', 
+        'On Hold',
+      ];
+      const knownGoodStatuses = [
+        'Shipped',
+      ];
+
+      if (![...knownGoodStatuses, ...knownBadStatuses].includes(shipmentOrderStatusName)) {
+        console.log(shipmentOrderStatusId, shipmentOrderStatusName);
+        await askQuestion('Unknown status - please resolve in the code. This order will be skipped for this run.');
+        return;
+      }
+      
+      if (!knownGoodStatuses.includes(shipmentOrderStatusName)) {  
+        piles.disqualified.push(logiwaOrder);
+        return;
+      }
+  
+      if (!trackingNumber || !allShipped) {
+        piles.disqualified.push(logiwaOrder);
+        return;
+      }
+  
+      const fulfillPayload = {
+        originAddress: {
+          // Logiwa, therefore US
+          countryCode: 'US',
+        },
+        trackingInfo: {
+          number: trackingNumber,
+        },
+      };
+
+      logDeep(logiwaOrder);
+      await askQuestion('?');
+  
+      piles.resolved.push({
+        // ...order, // logiwaOrder doesn't have all the required info. Consider allowing shopifyOrderFulfill to use something it does have.
+        fulfillPayload,
+      });
+    };
+
     const logiwaProcessor = new Processor(
       logiwaRecentDispatches, 
       async (pile) => {
         const dispatch = pile.shift();
-        // logDeep(dispatch);
-        // await askQuestion('?');
+        await logiwaOrderDecider(dispatch);
       }, 
       pile => pile.length === 0, 
       {
@@ -219,6 +287,7 @@ const collabsFulfillmentSweepRecent = async (
     processors.push(logiwaProcessor);
   }
 
+  /*
 
   logDeep(bleckmannRecentDispatches);
   await askQuestion('?');
