@@ -1,7 +1,7 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/fulfillmentCreate
 
 const { respond, mandateParam, logDeep, askQuestion } = require('../utils');
-const { shopifyMutationDo } = require('../shopify/shopify.utils');
+const { shopifyMutationDo, shopifyFulfillmentLineItemsFromExternalLineItems } = require('../shopify/shopify.utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 
 const defaultAttrs = `id displayStatus`;
