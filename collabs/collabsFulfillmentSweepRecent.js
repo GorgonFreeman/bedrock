@@ -393,9 +393,9 @@ const collabsFulfillmentSweepRecent = async (
     {
       canFinish: false,
       maxInFlightRequests: 0,
-      runOptions: {
-        interval: 20,
-      },
+      // runOptions: {
+      //   interval: 20,
+      // },
     },
   );
   
