@@ -281,9 +281,9 @@ const collabsFulfillmentSweepRecent = async (
       pile => pile.length === 0, 
       {
         // canFinish: true,
-        runOptions: {
-          interval: 20,
-        },
+        // runOptions: {
+        //   interval: 20,
+        // },
       },
     );
     processors.push(logiwaProcessor);
