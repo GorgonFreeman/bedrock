@@ -18,6 +18,7 @@ const { logiwaStatusToStatusId } = require('../logiwa/logiwa.utils');
 const { bleckmannPickticketsGet } = require('../bleckmann/bleckmannPickticketsGet');
 
 const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
+const { shopifyFulfillmentOrderFulfill } = require('../shopify/shopifyFulfillmentOrderFulfill');
 
 const collabsFulfillmentSweepRecent = async (
   {
@@ -114,11 +115,10 @@ const collabsFulfillmentSweepRecent = async (
   const processors = [];
   const piles = {
     shopifyOrderFulfill: [],
+    shopifyFulfillmentOrderFulfill: [],
     disqualified: [],
     results: [],
   };
-
-  let fulfillerCanFinish = 0;
   
   if (peoplevoxRecentDispatches) {
 
@@ -329,23 +329,44 @@ const collabsFulfillmentSweepRecent = async (
       },
     },
   );
+
+  const shopifyFulfillmentOrderFulfillProcessor = new Processor(
+    piles.shopifyFulfillmentOrderFulfill,
+    async (pile) => {
+      const args = pile.shift();
+      const result = await shopifyFulfillmentOrderFulfill(...args);
+      piles.results.push(result);
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+      maxInFlightRequests: 0,
+      runOptions: {
+        interval: 20,
+      },
+    },
+  );
   
   /* 
     Before adding the fulfiller to the array of processors, 
     allow the fulfiller to finish when all the non-fulfilling processors have finished.
   */
+  let processorsFinished = 0;
   const nonFulfillingProcessorsCount = processors.length;
-  const allowFulfillerToFinish = () => {
-    fulfillerCanFinish++;
-    if (fulfillerCanFinish >= nonFulfillingProcessorsCount) {
+  const recordProcessorFinished = () => {
+    processorsFinished++;
+    const fulfillersCanFinish = processorsFinished >= nonFulfillingProcessorsCount;
+    if (fulfillersCanFinish) {
       shopifyOrderFulfillProcessor.canFinish = true;
+      shopifyFulfillmentOrderFulfillProcessor.canFinish = true;
     }
   };
   for (const processor of processors) {
-    processor.on('done', allowFulfillerToFinish);
+    processor.on('done', recordProcessorFinished);
   }
 
   processors.push(shopifyOrderFulfillProcessor);
+  processors.push(shopifyFulfillmentOrderFulfillProcessor);
 
   await Promise.all(processors.map(p => p.run()));
 
