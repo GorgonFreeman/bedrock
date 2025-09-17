@@ -17,6 +17,7 @@ const shopifyFulfillmentOrderFulfill = async (
     trackingInfo, // { number, company, url }
 
     externalLineItems,
+    externalLineItemsConfig, // the options param of shopifyFulfillmentLineItemsFromExternalLineItems
 
     returnAttrs = defaultAttrs,
   } = {},
@@ -80,10 +81,7 @@ const shopifyFulfillmentOrderFulfill = async (
   let fulfillPayloadLineItems;
 
   if (externalLineItems) {
-    fulfillPayloadLineItems = shopifyFulfillmentLineItemsFromExternalLineItems(externalLineItems, lineItems, { 
-      extSkuProp: 'skuId',
-      shopifyQuantityProp: 'quantity',
-    });
+    fulfillPayloadLineItems = shopifyFulfillmentLineItemsFromExternalLineItems(externalLineItems, lineItems, externalLineItemsConfig);
   } else {
     fulfillPayloadLineItems = lineItems.map(li => {
       return {

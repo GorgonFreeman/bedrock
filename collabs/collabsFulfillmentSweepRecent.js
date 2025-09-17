@@ -326,6 +326,10 @@ const collabsFulfillmentSweepRecent = async (
           fulfillmentOrderId,
           {
             externalLineItems: lines,
+            externalLineItemsConfig: {
+              extSkuProp: 'skuId',
+              shopifyQuantityProp: 'quantity',
+            },
 
             notifyCustomer: true,
 
