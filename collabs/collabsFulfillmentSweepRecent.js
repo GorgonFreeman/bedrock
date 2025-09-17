@@ -429,14 +429,15 @@ const collabsFulfillmentSweepRecent = async (
   logDeep({
     ...Object.fromEntries(Object.entries(piles).map(([key, value]) => [key, value.length])),
   });
-  console.log(`Fulfilled ${ piles.results.filter(r => r.success).length } orders`);
+  const successfulResults = piles.results.filter(r => r.success);
+  logDeep('successfulResults', successfulResults);
+  console.log(`Fulfilled ${ successfulResults.length } orders`);
 
   return {
     success: true, 
     result: piles,
   };
 };
-
 const collabsFulfillmentSweepRecentApi = funcApi(collabsFulfillmentSweepRecent, {
   argNames: ['options'],
 });
