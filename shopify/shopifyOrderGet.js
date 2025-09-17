@@ -102,3 +102,16 @@ module.exports = {
 // curl localhost:8000/shopifyOrderGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "orderIdentifier": { "orderId": "7015155466312" } }'
 // curl localhost:8000/shopifyOrderGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "orderIdentifier": { "orderName": "#AUS5492283" } }'
 // curl localhost:8000/shopifyOrderGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "orderIdentifier": [{ "orderId": "7015155466312" }, { "orderName": "#AUS5492283" }] }'
+/*
+curl localhost:8001/shopifyOrderGet \
+  -H "Content-Type: application/json" \
+  -d '{
+    "credsPath": "uk",
+    "orderIdentifier": {
+      "orderId": "12200859009397"
+    },
+    "options": {
+      "attrs": "id name fulfillmentOrders (first: 10) { edges { node { id requestStatus } } }"
+    }
+  }'
+*/
