@@ -389,10 +389,7 @@ const collabsFulfillmentSweepRecent = async (
     async (pile) => {
       const args = pile.shift();
       logDeep('args', args);
-      await askQuestion('?');
       const result = await shopifyFulfillmentOrderFulfill(...args);
-      logDeep('result', result);
-      await askQuestion('?');
       piles.results.push(result);
     },
     pile => pile.length === 0,
