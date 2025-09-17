@@ -264,7 +264,7 @@ const collabsFulfillmentSweepRecent = async (
       logDeep(logiwaOrder);
       await askQuestion('?');
   
-      piles.resolved.push([
+      piles.shopifyOrderFulfill.push([
         'us', // Logiwa, therefore US
         { orderName },
         {
