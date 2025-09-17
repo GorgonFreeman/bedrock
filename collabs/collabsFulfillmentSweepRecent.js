@@ -16,7 +16,7 @@ const { logiwaOrdersGet } = require('../logiwa/logiwaOrdersGet');
 const { logiwaStatusToStatusId } = require('../logiwa/logiwa.utils');
 
 const { bleckmannPickticketsGet } = require('../bleckmann/bleckmannPickticketsGet');
-const { bleckmannPickticketGet } = require('../bleckmann/bleckmannPickticketGet');
+const { bleckmannParcelsGet } = require('../bleckmann/bleckmannParcelsGet');
 
 const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
 const { shopifyFulfillmentOrderFulfill } = require('../shopify/shopifyFulfillmentOrderFulfill');
@@ -303,14 +303,14 @@ const collabsFulfillmentSweepRecent = async (
         pickticketId: fulfillmentOrderId,
       } = dispatch;
 
-      const bleckmannPickticketResponse = await bleckmannPickticketGet({ pickticketId: fulfillmentOrderId });
-      const { success: pickticketSuccess, result: pickticket } = bleckmannPickticketResponse;
-      if (!pickticketSuccess || !pickticket) {
-        piles.errors.push(bleckmannPickticketResponse);
+      const bleckmannParcelsResponse = await bleckmannParcelsGet({ pickticketId: fulfillmentOrderId });
+      const { success: parcelsSuccess, result: parcels } = bleckmannParcelsResponse;
+      if (!parcelsSuccess) {
+        piles.errors.push(bleckmannParcelsResponse);
         return;
       }
 
-      logDeep('pickticket', pickticket);
+      logDeep('parcels', parcels);
       await askQuestion('?');
 
       piles.shopifyFulfillmentOrderFulfill.push([
