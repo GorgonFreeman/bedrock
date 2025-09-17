@@ -351,7 +351,11 @@ const collabsFulfillmentSweepRecent = async (
 
   await Promise.all(processors.map(p => p.run()));
 
-  logDeep(piles);
+  // logDeep(piles);
+  logDeep({
+    ...Object.fromEntries(Object.entries(piles).map(([key, value]) => [key, value.length])),
+  });
+  console.log(`Fulfilled ${ piles.results.filter(r => r.success).length } orders`);
 
   return {
     success: true, 
