@@ -56,11 +56,23 @@ const shopifyOrderFulfill = async (
   );
   logDeep(fulfillmentsResponse);
 
-  if (!fulfillmentsResponse?.success) {
+  const {
+    success: fulfillmentsSuccess,
+    result: fulfillments,
+  } = fulfillmentsResponse;
+
+  if (!fulfillmentsSuccess) {
     return fulfillmentsResponse;
   }
 
-  const fulfillmentOrders = fulfillmentsResponse.result.fulfillmentOrders;
+  const fulfillmentOrders = fulfillments?.fulfillmentOrders;
+  
+  if (!fulfillmentOrders?.length) {
+    return {
+      success: false,
+      error: ['No fulfillment orders found'],
+    };
+  }
 
   if (fulfillmentOrders?.length > 1) {
     return {
