@@ -295,12 +295,16 @@ const collabsFulfillmentSweepRecent = async (
     logDeep('bleckmannRecentDispatches', bleckmannRecentDispatches?.[0], bleckmannRecentDispatches?.length);
     await askQuestion('?');
 
+    const bleckmannDispatchDecider = async (dispatch) => {
+      logDeep(dispatch);
+      await askQuestion('?');
+    };
+
     const bleckmannProcessor = new Processor(
       bleckmannRecentDispatches, 
       async (pile) => {
         const dispatch = pile.shift();
-        logDeep(dispatch);
-        await askQuestion('?');
+        await bleckmannDispatchDecider(dispatch);
       }, 
       pile => pile.length === 0, 
       {
