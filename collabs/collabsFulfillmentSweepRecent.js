@@ -250,6 +250,7 @@ const collabsFulfillmentSweepRecent = async (
     pile => pile.length === 0,
     {
       canFinish: false,
+      maxInFlightRequests: 0,
       runOptions: {
         interval: 20,
       },

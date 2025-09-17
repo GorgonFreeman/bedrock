@@ -1225,13 +1225,15 @@ class Processor extends EventEmitter {
         await wait(1000);
         continue;
       }
-
-      const requestsInFlight = startedCount - completedCount;
-      // console.log('requestsInFlight', requestsInFlight);
-      if (requestsInFlight >= this.maxInFlightRequests) {
-        verbose && console.log(`${ ifTextThenSpace(this.logFlavourText) }hitting max in flight requests, waiting for some to complete`);
-        await wait(3000);
-        continue;
+      
+      if (this.maxInFlightRequests) {
+        const requestsInFlight = startedCount - completedCount;
+        // console.log('requestsInFlight', requestsInFlight);
+        if (requestsInFlight >= this.maxInFlightRequests) {
+          verbose && console.log(`${ ifTextThenSpace(this.logFlavourText) }hitting max in flight requests, waiting for some to complete`);
+          await wait(3000);
+          continue;
+        }
       }
       
       startedCount++;
