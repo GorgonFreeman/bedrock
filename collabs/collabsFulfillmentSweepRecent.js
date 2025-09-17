@@ -119,11 +119,11 @@ const collabsFulfillmentSweepRecent = async (
   };
 
   let fulfillerCanFinish = 0;
-
-  logDeep(peoplevoxRecentDispatches);
-  await askQuestion('?');
   
   if (peoplevoxRecentDispatches) {
+
+    logDeep('peoplevoxRecentDispatches', peoplevoxRecentDispatches?.[0], peoplevoxRecentDispatches?.length);
+    await askQuestion('?');
 
     const peoplevoxHandleDispatch = async (dispatch) => {
 
@@ -176,10 +176,11 @@ const collabsFulfillmentSweepRecent = async (
 
   /*
 
-  logDeep(starshipitRecentDispatches);
-  await askQuestion('?');
-
   if (starshipitRecentDispatches) {
+
+    logDeep('starshipitRecentDispatches', starshipitRecentDispatches?.[0], starshipitRecentDispatches?.length);
+    await askQuestion('?');
+
     const starshipitProcessor = new Processor(
       starshipitRecentDispatches, 
       async (pile) => {
@@ -200,10 +201,10 @@ const collabsFulfillmentSweepRecent = async (
 
   */
 
-  logDeep(logiwaRecentDispatches);
-  await askQuestion('?');
-
   if (logiwaRecentDispatches) {
+
+    logDeep('logiwaRecentDispatches', logiwaRecentDispatches?.[0], logiwaRecentDispatches?.length);
+    await askQuestion('?');
 
     const logiwaOrderDecider = async (logiwaOrder) => {
   
@@ -289,31 +290,28 @@ const collabsFulfillmentSweepRecent = async (
     processors.push(logiwaProcessor);
   }
 
-  /*
-
-  logDeep(bleckmannRecentDispatches);
-  await askQuestion('?');
-
   if (bleckmannRecentDispatches) {
+
+    logDeep('bleckmannRecentDispatches', bleckmannRecentDispatches?.[0], bleckmannRecentDispatches?.length);
+    await askQuestion('?');
+
     const bleckmannProcessor = new Processor(
       bleckmannRecentDispatches, 
       async (pile) => {
         const dispatch = pile.shift();
-        // logDeep(dispatch);
-        // await askQuestion('?');
+        logDeep(dispatch);
+        await askQuestion('?');
       }, 
       pile => pile.length === 0, 
       {
         // canFinish: true,
-        runOptions: {
-          interval: 20,
-        },
+        // runOptions: {
+        //   interval: 20,
+        // },
       },
     );
     processors.push(bleckmannProcessor);
   }
-
-  */
 
   const shopifyOrderFulfillProcessor = new Processor(
     piles.shopifyOrderFulfill,
@@ -375,3 +373,4 @@ module.exports = {
 // curl localhost:8000/collabsFulfillmentSweepRecent
 // curl localhost:8000/collabsFulfillmentSweepRecent -H "Content-Type: application/json" -d '{ "options": { "regions": ["au", "baddest"] } }'
 // curl localhost:8000/collabsFulfillmentSweepRecent -H "Content-Type: application/json" -d '{ "options": { "regions": ["us"] } }'
+// curl localhost:8000/collabsFulfillmentSweepRecent -H "Content-Type: application/json" -d '{ "options": { "regions": ["uk"] } }'
