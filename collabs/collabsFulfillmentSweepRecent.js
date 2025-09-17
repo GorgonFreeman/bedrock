@@ -260,9 +260,6 @@ const collabsFulfillmentSweepRecent = async (
           number: trackingNumber,
         },
       };
-
-      logDeep(logiwaOrder);
-      await askQuestion('?');
   
       piles.shopifyOrderFulfill.push([
         'us', // Logiwa, therefore US
