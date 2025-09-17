@@ -16,6 +16,7 @@ const { logiwaOrdersGet } = require('../logiwa/logiwaOrdersGet');
 const { logiwaStatusToStatusId } = require('../logiwa/logiwa.utils');
 
 const { bleckmannPickticketsGet } = require('../bleckmann/bleckmannPickticketsGet');
+const { bleckmannPickticketGet } = require('../bleckmann/bleckmannPickticketGet');
 
 const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
 const { shopifyFulfillmentOrderFulfill } = require('../shopify/shopifyFulfillmentOrderFulfill');
@@ -117,6 +118,7 @@ const collabsFulfillmentSweepRecent = async (
     shopifyOrderFulfill: [],
     shopifyFulfillmentOrderFulfill: [],
     disqualified: [],
+    errors: [],
     results: [],
   };
   
@@ -300,6 +302,16 @@ const collabsFulfillmentSweepRecent = async (
         reference: orderId,
         pickticketId: fulfillmentOrderId,
       } = dispatch;
+
+      const bleckmannPickticketResponse = await bleckmannPickticketGet({ pickticketId: fulfillmentOrderId });
+      const { success: pickticketSuccess, result: pickticket } = bleckmannPickticketResponse;
+      if (!pickticketSuccess || !pickticket) {
+        piles.errors.push(bleckmannPickticketResponse);
+        return;
+      }
+
+      logDeep('pickticket', pickticket);
+      await askQuestion('?');
 
       piles.shopifyFulfillmentOrderFulfill.push([
         'uk', // Bleckmann, therefore UK
