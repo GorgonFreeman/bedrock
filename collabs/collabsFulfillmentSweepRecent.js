@@ -303,7 +303,7 @@ const collabsFulfillmentSweepRecent = async (
         pickticketId: fulfillmentOrderId,
       } = dispatch;
 
-      const bleckmannParcelsResponse = await bleckmannParcelsGet({ pickticketId: fulfillmentOrderId });
+      const bleckmannParcelsResponse = await bleckmannParcelsGet({ pickticketId: fulfillmentOrderId }, { includeDetails: true });
       const { success: parcelsSuccess, result: parcels } = bleckmannParcelsResponse;
       if (!parcelsSuccess) {
         piles.errors.push(bleckmannParcelsResponse);
@@ -313,20 +313,35 @@ const collabsFulfillmentSweepRecent = async (
       logDeep('parcels', parcels);
       await askQuestion('?');
 
-      piles.shopifyFulfillmentOrderFulfill.push([
-        'uk', // Bleckmann, therefore UK
-        fulfillmentOrderId,
-        {
-          notifyCustomer: true,
-          originAddress: {
-            // Bleckmann, therefore UK
-            countryCode: 'UK',
+      for (const parcel of parcels) {
+        const {
+          trackingNumber,
+          trackingUrl,
+          carrierName,
+          lines,
+        } = parcel;
+
+        piles.shopifyFulfillmentOrderFulfill.push([
+          'uk', // Bleckmann, therefore UK
+          fulfillmentOrderId,
+          {
+            externalLineItems: lines,
+
+            notifyCustomer: true,
+
+            originAddress: {
+              // Bleckmann, therefore UK
+              countryCode: 'UK',
+            },
+
+            trackingInfo: {
+              number: trackingNumber,
+              url: trackingUrl,
+              company: carrierName,
+            },
           },
-          trackingInfo: {
-            number: trackingNumber,
-          },
-        },
-      ]);
+        ]);
+      }
     };
 
     const bleckmannProcessor = new Processor(
