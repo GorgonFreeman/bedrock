@@ -17,6 +17,8 @@ const { logiwaStatusToStatusId } = require('../logiwa/logiwa.utils');
 
 const { bleckmannPickticketsGet } = require('../bleckmann/bleckmannPickticketsGet');
 
+const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
+
 const collabsFulfillmentSweepRecent = async (
   {
     regions = REGIONS_ALL,
