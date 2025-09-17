@@ -373,5 +373,5 @@ module.exports = {
 };
 
 // curl localhost:8000/collabsFulfillmentSweepRecent
-// curl localhost:8000/collabsFulfillmentSweepRecent -H "Content-Type: application/json" -d '{ "options": { "regions": ["au"] } }'
+// curl localhost:8000/collabsFulfillmentSweepRecent -H "Content-Type: application/json" -d '{ "options": { "regions": ["au", "baddest"] } }'
 // curl localhost:8000/collabsFulfillmentSweepRecent -H "Content-Type: application/json" -d '{ "options": { "regions": ["us"] } }'
