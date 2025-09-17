@@ -55,6 +55,7 @@ const shopifyFulfillmentOrderFulfill = async (
   }
 
   const { 
+    id: fulfillmentOrderGid,
     status,
     lineItems,
   } = fulfillmentOrder;
