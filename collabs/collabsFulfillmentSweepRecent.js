@@ -296,8 +296,25 @@ const collabsFulfillmentSweepRecent = async (
     await askQuestion('?');
 
     const bleckmannDispatchDecider = async (dispatch) => {
-      logDeep(dispatch);
-      await askQuestion('?');
+      const {
+        reference: orderId,
+        pickticketId: fulfillmentOrderId,
+      } = dispatch;
+
+      piles.shopifyFulfillmentOrderFulfill.push([
+        'uk', // Bleckmann, therefore UK
+        fulfillmentOrderId,
+        {
+          notifyCustomer: true,
+          originAddress: {
+            // Bleckmann, therefore UK
+            countryCode: 'UK',
+          },
+          trackingInfo: {
+            number: trackingNumber,
+          },
+        },
+      ]);
     };
 
     const bleckmannProcessor = new Processor(
