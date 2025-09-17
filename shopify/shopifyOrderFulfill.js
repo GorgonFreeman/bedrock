@@ -6,7 +6,7 @@ const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 
 const shopifyOrderFulfill = async (
   credsPath,
-  orderId,
+  orderIdentifier,
   {
     apiVersion,
 
@@ -48,7 +48,7 @@ const shopifyOrderFulfill = async (
 
   const fulfillmentsResponse = await shopifyOrderGet(
     credsPath, 
-    { orderId }, 
+    orderIdentifier, 
     {
       apiVersion,
       attrs: fulfillmentOrderAttrs,
@@ -159,13 +159,13 @@ const shopifyOrderFulfill = async (
 const shopifyOrderFulfillApi = async (req, res) => {
   const { 
     credsPath,
-    orderId,
+    orderIdentifier,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'orderId', orderId),
+    mandateParam(res, 'orderIdentifier', orderIdentifier, p => objHasAny(p, ['orderId', 'orderName'])),
   ]);
   if (paramsValid.some(valid => valid === false)) {
     return;
@@ -173,7 +173,7 @@ const shopifyOrderFulfillApi = async (req, res) => {
 
   const result = await shopifyOrderFulfill(
     credsPath,
-    orderId,
+    orderIdentifier,
     options,
   );
   respond(res, 200, result);
@@ -189,7 +189,7 @@ module.exports = {
     -H "Content-Type: application/json" \
     -d '{ 
       "credsPath": "au", 
-      "orderId": "6993917280328", 
+      "orderIdentifier": { "orderId": "6993917280328" }, 
       "options": { 
         "notifyCustomer": false, 
         "originAddress": { 

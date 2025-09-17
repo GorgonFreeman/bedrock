@@ -489,7 +489,7 @@ const collabsFulfillmentSweep = async (
 
       const fulfillResponse = await shopifyOrderFulfill(
         region, 
-        orderId, 
+        { orderId }, 
         {
           notifyCustomer: notifyCustomers,
           ...fulfillPayload,

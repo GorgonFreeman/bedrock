@@ -56,7 +56,6 @@ const collabsFulfillmentSweepRecent = async (
       success: logiwaRecentShippedOrdersSuccess,
       result: logiwaRecentShippedOrders,
     } = logiwaRecentShippedOrdersResponse;
-
     if (!logiwaRecentShippedOrdersSuccess) {
       return logiwaRecentShippedOrdersResponse;
     }
@@ -149,7 +148,7 @@ const collabsFulfillmentSweepRecent = async (
 
       piles.shopifyOrderFulfill.push([
         channelName === 'BADDEST' ? 'baddest' : 'au',
-        orderId,
+        { orderId },
         {
           notifyCustomer: true,
           ...fulfillPayload,
@@ -208,6 +207,7 @@ const collabsFulfillmentSweepRecent = async (
     const logiwaOrderDecider = async (logiwaOrder) => {
   
       const {
+        code: orderName,
         currentTrackingNumber,
         trackingNumbers,
         products,
@@ -264,10 +264,14 @@ const collabsFulfillmentSweepRecent = async (
       logDeep(logiwaOrder);
       await askQuestion('?');
   
-      piles.resolved.push({
-        // ...order, // logiwaOrder doesn't have all the required info. Consider allowing shopifyOrderFulfill to use something it does have.
-        fulfillPayload,
-      });
+      piles.resolved.push([
+        'us', // Logiwa, therefore US
+        { orderName },
+        {
+          notifyCustomer: true,
+          ...fulfillPayload,
+        },
+      ]);
     };
 
     const logiwaProcessor = new Processor(
@@ -316,8 +320,8 @@ const collabsFulfillmentSweepRecent = async (
   const shopifyOrderFulfillProcessor = new Processor(
     piles.shopifyOrderFulfill,
     async (pile) => {
-      const [region, orderId, options] = pile.shift();
-      const result = await shopifyOrderFulfill(region, orderId, options);
+      const [region, orderIdentifier, options] = pile.shift();
+      const result = await shopifyOrderFulfill(region, orderIdentifier, options);
       piles.results.push(result);
     },
     pile => pile.length === 0,
@@ -368,3 +372,4 @@ module.exports = {
 
 // curl localhost:8000/collabsFulfillmentSweepRecent
 // curl localhost:8000/collabsFulfillmentSweepRecent -H "Content-Type: application/json" -d '{ "options": { "regions": ["au"] } }'
+// curl localhost:8000/collabsFulfillmentSweepRecent -H "Content-Type: application/json" -d '{ "options": { "regions": ["us"] } }'
