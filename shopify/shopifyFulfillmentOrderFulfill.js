@@ -61,6 +61,12 @@ const shopifyFulfillmentOrderFulfill = async (
   } = fulfillmentOrder;
 
   // TODO: Return based on status
+  if (status === 'CLOSED') {
+    return {
+      success: false,
+      error: ['Fulfillment order is closed'],
+    };
+  }
 
   if (lineItems.length >= 100) {
     return {
