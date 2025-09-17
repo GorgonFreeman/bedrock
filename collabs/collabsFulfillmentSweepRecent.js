@@ -56,6 +56,7 @@ const collabsFulfillmentSweepRecent = async (
       success: logiwaRecentShippedOrdersSuccess,
       result: logiwaRecentShippedOrders,
     } = logiwaRecentShippedOrdersResponse;
+
     if (!logiwaRecentShippedOrdersSuccess) {
       return logiwaRecentShippedOrdersResponse;
     }
