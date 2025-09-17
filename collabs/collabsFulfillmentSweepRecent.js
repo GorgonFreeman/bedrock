@@ -339,8 +339,8 @@ const collabsFulfillmentSweepRecent = async (
             notifyCustomer: true,
 
             originAddress: {
-              // Bleckmann, therefore UK
-              countryCode: 'UK',
+              // Bleckmann, therefore GB
+              countryCode: 'GB',
             },
 
             trackingInfo: {
