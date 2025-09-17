@@ -114,6 +114,7 @@ const collabsFulfillmentSweepRecent = async (
   const processors = [];
   const piles = {
     shopifyOrderFulfill: [],
+    results: [],
   };
 
   let fulfillerCanFinish = 0;
@@ -247,7 +248,8 @@ const collabsFulfillmentSweepRecent = async (
     piles.shopifyOrderFulfill,
     async (pile) => {
       const [region, orderId, options] = pile.shift();
-      await shopifyOrderFulfill(region, orderId, options);
+      const result = await shopifyOrderFulfill(region, orderId, options);
+      piles.results.push(result);
     },
     pile => pile.length === 0,
     {
@@ -276,13 +278,13 @@ const collabsFulfillmentSweepRecent = async (
 
   processors.push(shopifyOrderFulfillProcessor);
 
-  const results = await Promise.all(processors.map(p => p.run()));
+  await Promise.all(processors.map(p => p.run()));
 
-  logDeep(piles.shopifyOrderFulfill);
+  logDeep(piles);
 
   return {
     success: true, 
-    result: results,
+    result: piles,
   };
 };
 
