@@ -211,5 +211,6 @@ module.exports = {
   bedrock_unlisted_shopifyOrdersTagWithShippingMethod: require('./bedrock_unlisted/bedrock_unlisted_shopifyOrdersTagWithShippingMethod').bedrock_unlisted_shopifyOrdersTagWithShippingMethodApi,
   bedrock_unlisted_shopifyStaffCustomerOffboard: require('./bedrock_unlisted/bedrock_unlisted_shopifyStaffCustomerOffboard').bedrock_unlisted_shopifyStaffCustomerOffboardApi,
   bedrock_unlisted_shopifyStaffCustomerOnboard: require('./bedrock_unlisted/bedrock_unlisted_shopifyStaffCustomerOnboard').bedrock_unlisted_shopifyStaffCustomerOnboardApi,
+  bedrock_unlisted_shopifyWishlistDataMigrateIwishToCustom: require('./bedrock_unlisted/bedrock_unlisted_shopifyWishlistDataMigrateIwishToCustom').bedrock_unlisted_shopifyWishlistDataMigrateIwishToCustomApi,
   bedrock_unlisted_slackErrorPost: require('./bedrock_unlisted/bedrock_unlisted_slackErrorPost').bedrock_unlisted_slackErrorPostApi,
 };
