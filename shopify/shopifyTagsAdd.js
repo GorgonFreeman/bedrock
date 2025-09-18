@@ -1,5 +1,6 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/tagsAdd
 
+const { HOSTED } = require('../constants');
 const { respond, mandateParam, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
@@ -66,7 +67,7 @@ const shopifyTagsAdd = async (
     },
   );
   
-  logDeep(response);
+  !HOSTED && logDeep(response);
   return response;
 };
 
