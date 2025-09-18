@@ -1,5 +1,6 @@
 // Action fulfillments for any recently fulfilled orders. Purely platform > Shopify.
 
+const { HOSTED } = require('../constants');
 const { funcApi, dateTimeFromNow, days, logDeep, askQuestion, Processor } = require('../utils');
 const {
   REGIONS_ALL,
@@ -125,7 +126,7 @@ const collabsFulfillmentSweepRecent = async (
   if (peoplevoxRecentDispatches) {
 
     logDeep('peoplevoxRecentDispatches', peoplevoxRecentDispatches?.[0], peoplevoxRecentDispatches?.length);
-    await askQuestion('?');
+    // await askQuestion('?');
 
     const peoplevoxHandleDispatch = async (dispatch) => {
 
@@ -206,7 +207,7 @@ const collabsFulfillmentSweepRecent = async (
   if (logiwaRecentDispatches) {
 
     logDeep('logiwaRecentDispatches', logiwaRecentDispatches?.[0], logiwaRecentDispatches?.length);
-    await askQuestion('?');
+    // await askQuestion('?');
 
     const logiwaOrderDecider = async (logiwaOrder) => {
   
@@ -241,7 +242,7 @@ const collabsFulfillmentSweepRecent = async (
 
       if (![...knownGoodStatuses, ...knownBadStatuses].includes(shipmentOrderStatusName)) {
         console.log(shipmentOrderStatusId, shipmentOrderStatusName);
-        await askQuestion('Unknown status - please resolve in the code. This order will be skipped for this run.');
+        !HOSTED && await askQuestion('Unknown status - please resolve in the code. This order will be skipped for this run.');
         return;
       }
       
@@ -295,7 +296,7 @@ const collabsFulfillmentSweepRecent = async (
   if (bleckmannRecentDispatches) {
 
     logDeep('bleckmannRecentDispatches', bleckmannRecentDispatches?.[0], bleckmannRecentDispatches?.length);
-    await askQuestion('?');
+    // await askQuestion('?');
 
     const bleckmannDispatchDecider = async (dispatch) => {
       const {
@@ -396,9 +397,9 @@ const collabsFulfillmentSweepRecent = async (
     {
       canFinish: false,
       maxInFlightRequests: 0,
-      // runOptions: {
-      //   interval: 20,
-      // },
+      runOptions: {
+        interval: 20,
+      },
     },
   );
   
@@ -441,6 +442,8 @@ const collabsFulfillmentSweepRecent = async (
 
 const collabsFulfillmentSweepRecentApi = funcApi(collabsFulfillmentSweepRecent, {
   argNames: ['options'],
+  requireHostedApiKey: true,
+  allowCrossOrigin: true,
 });
 
 module.exports = {
