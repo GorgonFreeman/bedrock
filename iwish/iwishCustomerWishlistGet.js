@@ -16,7 +16,7 @@ const iwishCustomerWishlistGet = async (
       ...getterOptions
     },
   );
-  logDeep('response', response);
+  // logDeep('response', response);
   return response;
 };
 
@@ -48,4 +48,4 @@ module.exports = {
   iwishCustomerWishlistGetApi,
 };
 
-// curl localhost:8000/iwishCustomerWishlistGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerId": "2700981665864" }'
+// curl localhost:8000/iwishCustomerWishlistGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "customerId": "5736896757832" }'
