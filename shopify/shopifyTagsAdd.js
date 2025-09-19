@@ -41,7 +41,7 @@ const shopifyTagsAddSingle = async (
       apiVersion,
     },
   );
-  logDeep(response);
+  !HOSTED && logDeep(response);
   return response;
 };
 
