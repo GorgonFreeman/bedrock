@@ -88,7 +88,7 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
   };
   console.log(config);
 
-  const {
+  let {
     // Native gcloud args
     project,
     region,
@@ -96,6 +96,7 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
     runtime = 'nodejs20',
     allowUnauthenticated = true,
     gen2 = true,
+    set_env_vars: setEnvVars,
     keep, // TODO: Remove this and refactor .hosting.yml to allow empty configs
     
     // Custom config properties
@@ -105,12 +106,15 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
     ...miscCommandArgs
   } = config;
 
+  setEnvVars = `HOSTED=true${ setEnvVars ? `,${ setEnvVars }` : '' }`;
+
   const deployCommand = [
     `gcloud functions deploy ${ functionName }`,
     `--project ${ project }`,
     `--region ${ region }`,
     `--trigger-${ trigger }`,
     `--runtime ${ runtime }`,
+    `--set-env-vars ${ setEnvVars }`,
     ...(allowUnauthenticated ? ['--allow-unauthenticated'] : []),
     ...(gen2 ? ['--gen2'] : []),
     ...Object.entries(miscCommandArgs).map(([key, value]) => `--${ key.replaceAll('_', '-') } ${ value }`),

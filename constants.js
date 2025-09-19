@@ -1,5 +1,5 @@
 module.exports = {
-  HOSTED: !!process.env.K_SERVICE, // TODO: Consider making this an explicit flag set during deployment
+  HOSTED: !!process.env.HOSTED,
   REGIONS_ALL: [
     'au', 
     'us',
