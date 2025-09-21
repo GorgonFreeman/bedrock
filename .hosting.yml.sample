@@ -18,6 +18,7 @@ functions:
     schedules:
       - name: do_thing_errday
         schedule: 0 0 * * *
+        attempt_deadline: 30m
       - name: do_thing_every_10_minutes
         schedule: */10 * * * *
 
