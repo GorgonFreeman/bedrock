@@ -207,6 +207,7 @@ module.exports = {
   bedrock_unlisted_bootsDiscountCodeMarkUsed: require('./bedrock_unlisted/bedrock_unlisted_bootsDiscountCodeMarkUsed').bedrock_unlisted_bootsDiscountCodeMarkUsedApi,
   bedrock_unlisted_bootsDiscountCodeReserve: require('./bedrock_unlisted/bedrock_unlisted_bootsDiscountCodeReserve').bedrock_unlisted_bootsDiscountCodeReserveApi,
   bedrock_unlisted_bootsFormProcess: require('./bedrock_unlisted/bedrock_unlisted_bootsFormProcess').bedrock_unlisted_bootsFormProcessApi,
+  bedrock_unlisted_giveawayFormProcess: require('./bedrock_unlisted/bedrock_unlisted_giveawayFormProcess').bedrock_unlisted_giveawayFormProcessApi,
   bedrock_unlisted_shopifyOrdersTagWithShippingPaid: require('./bedrock_unlisted/bedrock_unlisted_shopifyOrderTagWithShippingPaid').bedrock_unlisted_shopifyOrdersTagWithShippingPaidApi,
   bedrock_unlisted_shopifyOrdersTagWithShippingMethod: require('./bedrock_unlisted/bedrock_unlisted_shopifyOrdersTagWithShippingMethod').bedrock_unlisted_shopifyOrdersTagWithShippingMethodApi,
   bedrock_unlisted_shopifyStaffCustomerOffboard: require('./bedrock_unlisted/bedrock_unlisted_shopifyStaffCustomerOffboard').bedrock_unlisted_shopifyStaffCustomerOffboardApi,
