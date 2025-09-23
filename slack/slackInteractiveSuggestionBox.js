@@ -1,4 +1,4 @@
-const { respond, logDeep, customAxios } = require('../utils');
+const { respond, logDeep, customAxios, capitaliseString } = require('../utils');
 
 const { slackMessagePost } = require('../slack/slackMessagePost');
 
@@ -8,9 +8,9 @@ const SUGGESTION_MIN_LENGTH = 10;
 const SUGGESTION_MAX_LENGTH = 500;
 
 // Messages
-const SUGGESTION_TEXTFIELD_PLACEHOLDER = 'Enter your suggestion here...';
-const SUGGESTION_TEXTFIELD_LABEL = `Your anonymous suggestion (${ SUGGESTION_MIN_LENGTH }-${ SUGGESTION_MAX_LENGTH } characters):`;
+const SUGGESTION_TEXTFIELD_PLACEHOLDER = `Enter your suggestion here (${ SUGGESTION_MIN_LENGTH }-${ SUGGESTION_MAX_LENGTH } characters)...`;
 const SUGGESTION_HEADER_TEXT = 'Suggestion Box';
+const ANONYMOUS_CHECKBOX_LABEL = 'I would like to be anonymous';
 const SUBMIT_BUTTON_TEXT = 'Submit Suggestion';
 const CANCEL_BUTTON_TEXT = 'Cancel';
 const EMPTY_SUGGESTION_MESSAGE = 'Is this a prank? You didn\'t enter anything! :face_holding_back_tears:';
@@ -18,6 +18,8 @@ const SUGGESTION_TOO_SHORT_MESSAGE = `Your suggestion is too short. :thinking_fa
 const FAILED_TO_POST_SUGGESTION_MESSAGE = 'Failed to post suggestion to Slack.\nPlease let the dev team know asap so we can deliver your suggestions ASAP!';
 const SUBMITTED_SUGGESTION_MESSAGE = ':inbox_tray: Your suggestion has been submitted anonymously.\nThank you for your feedback! :wink:';
 const CANCEL_MESSAGE = 'No worries - nothing was submitted.\n(You can always come back later to submit another suggestion!)';
+const ANONYMOUS_SUGGESTION_MESSAGE = 'New Anonymous Suggestion';
+const NON_ANONYMOUS_SUGGESTION_MESSAGE = 'New Suggestion from';
 
 // Blocks
 const dividerBlock = {
@@ -50,7 +52,32 @@ const suggestionInputBlock = ({ initialValue, focusOnLoad = false } = {}) => {
     },
     label: {
       type: 'plain_text',
-      text: SUGGESTION_TEXTFIELD_LABEL,
+      text: ' ',
+    }
+  };
+};
+
+const anonymousCheckboxBlock = ({ anonymous = false } = {}) => {
+  const checkBoxOptions = [
+    {
+      text: {
+        type: 'plain_text',
+        text: ANONYMOUS_CHECKBOX_LABEL,
+      },
+      value: `anonymous`
+    }
+  ];
+  return {
+    type: 'input',
+    block_id: `anonymous_checkbox`,
+    element: {
+      type: "checkboxes",
+      options: checkBoxOptions,
+      ...anonymous ? { initial_options: checkBoxOptions } : {},
+    },
+    "label": {
+      type: 'plain_text',
+      text: ' ',
     }
   };
 };
@@ -80,11 +107,12 @@ const submitActionBlock = {
   ]
 };
 
-const initialBlocks = ({ initialValue } = {}) => {
+const initialBlocks = ({ initialValue, anonymous = false } = {}) => {
   return [
     headerBlock,
     dividerBlock,
-    suggestionInputBlock(initialValue),
+    suggestionInputBlock({ initialValue }),
+    anonymousCheckboxBlock({ anonymous }),
     submitActionBlock,
   ];
 };
@@ -99,22 +127,25 @@ const errorBlock = (errorMessage) => {
   }
 };
 
-const erroredBlocks = (errorMessage, { initialValue } = {}) => {
+const erroredBlocks = (errorMessage, { initialValue, anonymous = false } = {}) => {
   return [
     headerBlock,
     dividerBlock,
-    suggestionInputBlock({ initialValue, focusOnLoad: false }),
+    suggestionInputBlock({ initialValue, focusOnLoad: true }),
+    anonymousCheckboxBlock({ anonymous }),
     errorBlock(errorMessage),
     submitActionBlock,
   ];
 };
 
-const suggestionHeaderBlock = {
-  type: 'header',
-  text: {
+const suggestionHeaderBlock = ({ isAnonymous, username } = {}) => {
+  return {
+    type: 'header',
+    text: {
     type: 'plain_text',
-    text: 'New Suggestion',
-  },
+      text: `${ isAnonymous ? ANONYMOUS_SUGGESTION_MESSAGE : `${ NON_ANONYMOUS_SUGGESTION_MESSAGE } ${ capitaliseString(username) }` }`,
+    },
+  };
 };
 
 const suggestionSlackBlock = (suggestion) => {
@@ -127,9 +158,9 @@ const suggestionSlackBlock = (suggestion) => {
   };
 };
 
-const suggestionReportBlocks = (suggestion) => {
+const suggestionReportBlocks = (suggestion, { isAnonymous, username } = {}) => {
   return [
-    suggestionHeaderBlock,
+    suggestionHeaderBlock({ isAnonymous, username }),
     dividerBlock,
     suggestionSlackBlock(suggestion),
   ];
@@ -155,7 +186,7 @@ const slackInteractiveSuggestionBox = async (req, res) => {
   respond(res, 200); // Acknowledgement - we'll provide the next step to the response_url later
 
   const payload = JSON.parse(body.payload);
-  logDeep('payload', payload);
+  // logDeep('payload', payload);
 
   const { 
     response_url: responseUrl,
@@ -177,6 +208,7 @@ const slackInteractiveSuggestionBox = async (req, res) => {
   let response;
 
   let suggestion;
+  let isAnonymous;
 
   switch (actionId) {
     case `${ ACTION_NAME }:submit`:
@@ -184,11 +216,16 @@ const slackInteractiveSuggestionBox = async (req, res) => {
       suggestion = Object.values(state?.values?.suggestion_textfield || {})?.[0]?.value;
       suggestion = suggestion?.trim();
 
+      // Check if user wants to be anonymous
+      isAnonymous = Object.values(state?.values?.anonymous_checkbox || {})?.[0]?.selected_options?.some(
+        option => option.value === 'anonymous'
+      ) || false;
+
       if (!suggestion || suggestion === '') {
         response = {
           response_type: 'ephemeral',
           replace_original: 'true',
-          blocks: erroredBlocks(EMPTY_SUGGESTION_MESSAGE),
+          blocks: erroredBlocks(EMPTY_SUGGESTION_MESSAGE, { anonymous: isAnonymous }),
         };
         break;
       }
@@ -197,18 +234,19 @@ const slackInteractiveSuggestionBox = async (req, res) => {
         response = {
           response_type: 'ephemeral',
           replace_original: 'true',
-          blocks: erroredBlocks(SUGGESTION_TOO_SHORT_MESSAGE, { initialValue: suggestion }),
+          blocks: erroredBlocks(SUGGESTION_TOO_SHORT_MESSAGE, { initialValue: suggestion, anonymous: isAnonymous }),
         };
         break;
       }
 
-      logDeep('username', username);
-      logDeep('suggestion', suggestion);
+      // TODO: Anonymous checkbox gets deselected when errored for two times since state on the checkbox is lost on the second error
+
+      logDeep(`New suggestion from ${ username } | Anonymous ${ isAnonymous } | Suggestion: ${ suggestion }`);
 
       const slackMessagePostResult = await slackMessagePost({
         channelName: SUGGESTIONS_BOX_SLACK_CHANNEL,
       }, {
-        blocks: suggestionReportBlocks(suggestion),
+        blocks: suggestionReportBlocks(suggestion, { isAnonymous, username }),
       });
 
       if (!slackMessagePostResult.success) {
@@ -244,7 +282,7 @@ const slackInteractiveSuggestionBox = async (req, res) => {
       };
   }
 
-  logDeep('response', response);
+  // logDeep('response', response);
   return customAxios(responseUrl, {
     method: 'post',
     body: response,
