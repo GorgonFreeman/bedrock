@@ -161,8 +161,8 @@ const suggestionSlackBlock = (suggestion) => {
 const suggestionReportBlocks = (suggestion, { isAnonymous, username } = {}) => {
   return [
     suggestionHeaderBlock({ isAnonymous, username }),
-    dividerBlock,
     suggestionSlackBlock(suggestion),
+    dividerBlock,
   ];
 };
 
