@@ -4,6 +4,7 @@ const { TEAM_DOMAIN_TO_CREDSPATH } = require('../slack/slack.constants');
 const actionNameToFunc = {
   'test': require('../slack/slackInteractiveTest'),
   'pizza': require('../slack/slackInteractiveTestMulti'),
+  'suggestion_box': require('../slack/slackInteractiveSuggestionBox'),
 };
 
 const slackWebhookRouterApi = async (req, res) => {
