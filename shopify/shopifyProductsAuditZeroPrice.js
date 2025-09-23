@@ -1,53 +1,25 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/orders
+const { REGIONS_ALL } = require('../constants');
+const { funcApi, logDeep } = require('../utils');
 
-const { respond, mandateParam, logDeep } = require('../utils');
-const { shopifyGet } = require('../shopify/shopify.utils');
-
-const defaultAttrs = `id name`;
+const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
 
 const shopifyProductsAuditZeroPrice = async (
-  credsPath,
-  {
-    attrs = defaultAttrs,
-    ...options
-  } = {},
+  region,
 ) => {
-
-  const response = await shopifyGet(
-    credsPath, 
-    'order', 
-    {
-      attrs,
-      ...options,
-    },
-  );
-
-  return response;
+  return true;
 };
 
-const shopifyProductsAuditZeroPriceApi = async (req, res) => {
-  const { 
-    credsPath,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'credsPath', credsPath),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await shopifyProductsAuditZeroPrice(
-    credsPath,
-    options,
-  );
-  respond(res, 200, result);
-};
+const shopifyProductsAuditZeroPriceApi = funcApi(
+  shopifyProductsAuditZeroPrice,
+  { 
+    argNames: ['region'], 
+    validatorsByArg: { region: Boolean },
+  },
+);
 
 module.exports = {
   shopifyProductsAuditZeroPrice,
   shopifyProductsAuditZeroPriceApi,
 };
 
-// curl localhost:8000/shopifyProductsAuditZeroPrice -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 2 } }'
+// curl localhost:8000/shopifyProductsAuditZeroPrice -H "Content-Type: application/json" -d '{ "region": "au" }'
