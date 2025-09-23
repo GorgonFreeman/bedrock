@@ -5,17 +5,18 @@ const { slackMessagePost } = require('../slack/slackMessagePost');
 const ACTION_NAME = 'suggestion_box';
 const SUGGESTIONS_BOX_SLACK_CHANNEL = '#suggestion_box';
 const SUGGESTION_MIN_LENGTH = 10;
+const SUGGESTION_MAX_LENGTH = 500;
 
 // Messages
 const SUGGESTION_TEXTFIELD_PLACEHOLDER = 'Enter your suggestion here...';
-const SUGGESTION_TEXTFIELD_LABEL = 'Your anonymous suggestion:';
+const SUGGESTION_TEXTFIELD_LABEL = `Your anonymous suggestion (${ SUGGESTION_MIN_LENGTH }-${ SUGGESTION_MAX_LENGTH } characters):`;
 const SUGGESTION_HEADER_TEXT = 'Suggestion Box';
 const SUBMIT_BUTTON_TEXT = 'Submit Suggestion';
 const CANCEL_BUTTON_TEXT = 'Cancel';
 const EMPTY_SUGGESTION_MESSAGE = 'Is this a prank? You didn\'t enter anything! :face_holding_back_tears:';
 const SUGGESTION_TOO_SHORT_MESSAGE = `Your suggestion is too short. :thinking_face: Please enter at least ${ SUGGESTION_MIN_LENGTH } characters.`;
 const FAILED_TO_POST_SUGGESTION_MESSAGE = 'Failed to post suggestion to Slack.\nPlease let the dev team know asap so we can deliver your suggestions ASAP!';
-const SUBMITTED_SUGGESTION_MESSAGE = 'Your suggestion has been submitted anonymously.\nThank you for your feedback! :wink:';
+const SUBMITTED_SUGGESTION_MESSAGE = ':inbox_tray: Your suggestion has been submitted anonymously.\nThank you for your feedback! :wink:';
 const CANCEL_MESSAGE = 'No worries - nothing was submitted.\n(You can always come back later to submit another suggestion!)';
 
 // Blocks
@@ -31,21 +32,27 @@ const headerBlock = {
   },
 };
 
-const suggestionInputBlock = {
-  type: 'input',
-  block_id: `suggestion_textfield`,
-  element: {
-    type: 'plain_text_input',
-    multiline: true,
-    placeholder: {
-      type: 'plain_text',
-      text: SUGGESTION_TEXTFIELD_PLACEHOLDER,
+const suggestionInputBlock = ({ initialValue, focusOnLoad = false } = {}) => {
+  return {
+    type: 'input',
+    block_id: `suggestion_textfield`,
+    element: {
+      type: 'plain_text_input',
+      multiline: true,
+      min_length: SUGGESTION_MIN_LENGTH,
+      max_length: SUGGESTION_MAX_LENGTH,
+      focus_on_load: focusOnLoad,
+      ...initialValue ? { initial_value: initialValue } : {},
+      placeholder: {
+        type: 'plain_text',
+        text: SUGGESTION_TEXTFIELD_PLACEHOLDER,
+      },
     },
-  },
-  label: {
-    type: 'plain_text',
-    text: SUGGESTION_TEXTFIELD_LABEL,
-  }
+    label: {
+      type: 'plain_text',
+      text: SUGGESTION_TEXTFIELD_LABEL,
+    }
+  };
 };
 
 const submitActionBlock = {
@@ -73,12 +80,34 @@ const submitActionBlock = {
   ]
 };
 
-const initialBlocks = [
-  headerBlock,
-  dividerBlock,
-  suggestionInputBlock,
-  submitActionBlock,
-];
+const initialBlocks = ({ initialValue } = {}) => {
+  return [
+    headerBlock,
+    dividerBlock,
+    suggestionInputBlock(initialValue),
+    submitActionBlock,
+  ];
+};
+
+const errorBlock = (errorMessage) => {
+  return {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: `:warning: ${ errorMessage }`,
+    },
+  }
+};
+
+const erroredBlocks = (errorMessage, { initialValue } = {}) => {
+  return [
+    headerBlock,
+    dividerBlock,
+    suggestionInputBlock({ initialValue, focusOnLoad: false }),
+    errorBlock(errorMessage),
+    submitActionBlock,
+  ];
+};
 
 const suggestionHeaderBlock = {
   type: 'header',
@@ -115,11 +144,9 @@ const slackInteractiveSuggestionBox = async (req, res) => {
   if (!body?.payload) {
     console.log(`Initiation, e.g. slash command`);
 
-    logDeep('initialBlocks', initialBlocks);
-
     return respond(res, 200, {
       response_type: 'ephemeral',
-      blocks: initialBlocks,
+      blocks: initialBlocks(),
     });
   }
 
@@ -133,7 +160,8 @@ const slackInteractiveSuggestionBox = async (req, res) => {
   const { 
     response_url: responseUrl,
     state, 
-    actions, 
+    actions,
+    user,
   } = payload;
   
   const action = actions?.[0];
@@ -141,6 +169,10 @@ const slackInteractiveSuggestionBox = async (req, res) => {
     action_id: actionId,
     value: actionValue,
   } = action;
+
+  const {
+    username,
+  } = user;
 
   let response;
 
@@ -156,7 +188,7 @@ const slackInteractiveSuggestionBox = async (req, res) => {
         response = {
           response_type: 'ephemeral',
           replace_original: 'true',
-          text: EMPTY_SUGGESTION_MESSAGE,
+          blocks: erroredBlocks(EMPTY_SUGGESTION_MESSAGE),
         };
         break;
       }
@@ -165,10 +197,13 @@ const slackInteractiveSuggestionBox = async (req, res) => {
         response = {
           response_type: 'ephemeral',
           replace_original: 'true',
-          text: SUGGESTION_TOO_SHORT_MESSAGE,
+          blocks: erroredBlocks(SUGGESTION_TOO_SHORT_MESSAGE, { initialValue: suggestion }),
         };
         break;
       }
+
+      logDeep('username', username);
+      logDeep('suggestion', suggestion);
 
       const slackMessagePostResult = await slackMessagePost({
         channelName: SUGGESTIONS_BOX_SLACK_CHANNEL,
