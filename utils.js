@@ -499,13 +499,18 @@ const funcApi = (
       body = await bodyModifier(body, req);
     }
 
-    if (argNames && validatorsByArg) {
+    if (argNames?.length) {
       const paramsValid = await Promise.all(
-        Object.entries(validatorsByArg).map(([argName, validator]) => {
+        argNames.map(async argName => {
+          if (argName === 'options') {
+            return true;
+          }
+          // TODO: Consider using customNullish instead of Boolean as a the default validator
+          const validator = validatorsByArg[argName] || Boolean;
           return mandateParam(res, argName, body[argName], { validator });
         })
       );
-      
+
       if (paramsValid.some(valid => valid === false)) {
         return;
       }
