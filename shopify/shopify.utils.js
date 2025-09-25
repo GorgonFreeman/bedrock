@@ -174,7 +174,7 @@ const shopifyGetter = async (
     ...pinnedStatus ? ['$pinnedStatus: MetafieldDefinitionPinnedStatus,'] : [],
     ...ownerGid ? ['$owner: ID!,'] : [],
     ...includeClosed ? ['$includeClosed: Boolean,'] : [],
-    ...type ? ['$type: String,'] : [],
+    ...type ? ['$type: String!,'] : [],
   ].join('\n');
 
   const queryVariableDeclaration = [
