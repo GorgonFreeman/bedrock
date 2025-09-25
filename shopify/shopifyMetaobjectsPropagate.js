@@ -1,53 +1,96 @@
-const { funcApi, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+const { funcApi, logDeep, arrayStandardResponse } = require('../utils');
+const { shopifyMetaobjectsGet } = require('../shopify/shopifyMetaobjectsGet');
+const { shopifyMetaobjectCreate } = require('../shopify/shopifyMetaobjectCreate');
 
-const defaultAttrs = `id`;
+// All attributes needed to recreate metaobjects in the destination stores
+const attrs = `
+  id
+  handle
+  displayName
+  type
+  fields {
+    key
+    value
+    type
+    reference {
+      id
+    }
+  }
+`;
+
+// Transform metaobject data for creation
+const metaobjectToCreatePayload = (metaobject) => {
+
+  const { 
+    handle,
+    displayName,
+    type,
+    fields,
+  } = metaobject;
+
+  const createPayload = {
+    type,
+    handle,
+    fields: fields.map(field => ({
+      key: field.key,
+      value: field.value,
+      type: field.type,
+      reference: field.reference?.id || null,
+    })),
+  };
+
+  return createPayload;
+};
 
 const shopifyMetaobjectsPropagate = async (
-  credsPath,
-  arg,
+  fromCredsPath,
+  toCredsPaths,
+  type,
   {
     apiVersion,
-    option,
+    fetchOptions,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
+  const shopifyMetaobjectsResponse = await shopifyMetaobjectsGet(
+    fromCredsPath,
+    type,
+    {
       apiVersion,
+      attrs,
+      ...fetchOptions,
     },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
+  );
 
+  const { success: metaobjectsGetSuccess, result: metaobjects } = shopifyMetaobjectsResponse;
+  if (!metaobjectsGetSuccess) {
+    return shopifyMetaobjectsResponse;
+  }
+
+  // Transform the data for creation
+  const transformedMetaobjects = metaobjects.map(metaobjectToCreatePayload);
+
+  const responses = await Promise.all(toCredsPaths.map(credsPath => {
+    return shopifyMetaobjectCreate(
+      credsPath, 
+      transformedMetaobjects, 
+      {
+        apiVersion,
+        returnAttrs: attrs,
+      },
+    );
+  }));
+
+  const response = arrayStandardResponse(responses);
   logDeep(response);
   return response;
 };
 
 const shopifyMetaobjectsPropagateApi = funcApi(shopifyMetaobjectsPropagate, {
-  argNames: ['credsPath', 'arg'],
+  argNames: ['fromCredsPath', 'toCredsPaths', 'type', 'options'],
+  validatorsByArg: {
+    toCredsPaths: Array.isArray,
+  },
 });
 
 module.exports = {
@@ -55,4 +98,4 @@ module.exports = {
   shopifyMetaobjectsPropagateApi,
 };
 
-// curl localhost:8000/shopifyMetaobjectsPropagate -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyMetaobjectsPropagate -H "Content-Type: application/json" -d '{ "fromCredsPath": "au", "toCredsPaths": ["us", "uk"], "type": "yugioh-card" }'
