@@ -51,6 +51,7 @@ module.exports = {
   shopifyFilesUploadFromFolder: require('./shopify/shopifyFilesUploadFromFolder').shopifyFilesUploadFromFolderApi,
   shopifyFulfillmentOrderFulfill: require('./shopify/shopifyFulfillmentOrderFulfill').shopifyFulfillmentOrderFulfillApi,
   shopifyGetSingle: require('./shopify/shopifyGetSingle').shopifyGetSingleApi,
+  shopifyMetafieldDefinitionsPropagate: require('./shopify/shopifyMetafieldDefinitionsPropagate').shopifyMetafieldDefinitionsPropagateApi,
   shopifyMetaobjectDefinitionCreate: require('./shopify/shopifyMetaobjectDefinitionCreate').shopifyMetaobjectDefinitionCreateApi,
   shopifyMetaobjectDefinitionGet: require('./shopify/shopifyMetaobjectDefinitionGet').shopifyMetaobjectDefinitionGetApi,
   shopifyMetaobjectDefinitionsGet: require('./shopify/shopifyMetaobjectDefinitionsGet').shopifyMetaobjectDefinitionsGetApi,
