@@ -33,9 +33,6 @@ const FUNC = async (
 
 const FUNCApi = funcApi(FUNC, {
   argNames: ['query', 'options'],
-  validatorsByArg: {
-    query: Boolean,
-  },
 });
 
 module.exports = {

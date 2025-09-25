@@ -1,4 +1,4 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
 const { peoplevoxClient, peoplevoxStandardInterpreter } = require('../peoplevox/peoplevox.utils');
 
 const FUNC = async (
@@ -32,25 +32,9 @@ const FUNC = async (
   
 };
 
-const FUNCApi = async (req, res) => {
-  const { 
-    salesOrderNumber,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'salesOrderNumber', salesOrderNumber),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await FUNC(
-    salesOrderNumber,
-    options,
-  );
-  respond(res, 200, result);
-};
+const FUNCApi = funcApi(FUNC, {
+  argNames: ['salesOrderNumber'],
+});
 
 module.exports = {
   FUNC,

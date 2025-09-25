@@ -1,4 +1,4 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
 const { printifyClient } = require('../printify/printify.utils');
 
 const FUNC = async (
@@ -22,25 +22,9 @@ const FUNC = async (
   
 };
 
-const FUNCApi = async (req, res) => {
-  const { 
-    arg,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await FUNC(
-    arg,
-    options,
-  );
-  respond(res, 200, result);
-};
+const FUNCApi = funcApi(FUNC, {
+  argNames: ['arg'],
+});
 
 module.exports = {
   FUNC,

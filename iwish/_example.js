@@ -1,4 +1,4 @@
-const { respond, mandateParam, credsByPath, CustomAxiosClient, logDeep } = require('../utils');
+const { funcApi, credsByPath, CustomAxiosClient, logDeep } = require('../utils');
 const { iwishClient } = require('../iwish/iwish.utils');
 
 const FUNC = async (
@@ -19,28 +19,9 @@ const FUNC = async (
   return response;
 };
 
-const FUNCApi = async (req, res) => {
-  const { 
-    credsPath,
-    customerId,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'customerId', customerId),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await FUNC(
-    credsPath,
-    customerId,
-    options,
-  );
-  respond(res, 200, result);
-};
+const FUNCApi = funcApi(FUNC, {
+  argNames: ['credsPath', 'customerId'],
+});
 
 module.exports = {
   FUNC,

@@ -1,4 +1,4 @@
-const { respond, mandateParam } = require('../utils');
+const { funcApi } = require('../utils');
 
 const FUNC = async (
   arg,
@@ -14,25 +14,9 @@ const FUNC = async (
   
 };
 
-const FUNCApi = async (req, res) => {
-  const { 
-    arg,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await FUNC(
-    arg,
-    options,
-  );
-  respond(res, 200, result);
-};
+const FUNCApi = funcApi(FUNC, {
+  argNames: ['arg'],
+});
 
 module.exports = {
   FUNC,

@@ -1,4 +1,4 @@
-const { respond, logDeep } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
 const { etsyGet } = require('../etsy/etsy.utils');
 
 const FUNC = async (
@@ -22,16 +22,10 @@ const FUNC = async (
   return response;
 };
 
-const FUNCApi = async (req, res) => {
-  const { 
-    options,
-  } = req.body;
-
-  const result = await FUNC(
-    options,
-  );
-  respond(res, 200, result);
-};
+const FUNCApi = funcApi(FUNC, {
+  argNames: [],
+  validatorsByArg: {},
+});
 
 module.exports = {
   FUNC,

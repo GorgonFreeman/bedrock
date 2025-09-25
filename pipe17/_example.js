@@ -1,4 +1,4 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
 const { pipe17Client } = require('../pipe17/pipe17.utils');
 
 const FUNC = async (
@@ -27,25 +27,9 @@ const FUNC = async (
   return response;
 };
 
-const FUNCApi = async (req, res) => {
-  const { 
-    receiptId,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'receiptId', receiptId),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await FUNC(
-    receiptId,
-    options,
-  );
-  respond(res, 200, result);
-};
+const FUNCApi = funcApi(FUNC, {
+  argNames: ['receiptId'],
+});
 
 module.exports = {
   FUNC,

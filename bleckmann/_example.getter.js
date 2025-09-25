@@ -1,6 +1,6 @@
 // https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/INVENTORY/getAdjustments
 
-const { respond, mandateParam, logDeep } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
 const { bleckmannGet } = require('../bleckmann/bleckmann.utils');
 
 const FUNC = async (
@@ -31,28 +31,9 @@ const FUNC = async (
   return response;
 };
 
-const FUNCApi = async (req, res) => {
-  const {
-    createdFrom,
-    createdTo,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'createdFrom', createdFrom),
-    mandateParam(res, 'createdTo', createdTo),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await FUNC(
-    createdFrom,
-    createdTo,
-    options,
-  );
-  respond(res, 200, result);
-};
+const FUNCApi = funcApi(FUNC, {
+  argNames: ['createdFrom', 'createdTo'],
+});
 
 module.exports = {
   FUNC,

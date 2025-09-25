@@ -27,10 +27,6 @@ const FUNC = async (
 
 const FUNCApi = funcApi(FUNC, {
   argNames: ['channelId', 'timestamp', 'options'],
-  validatorsByArg: {
-    channelId: Boolean,
-    timestamp: Boolean,
-  },
 });
 
 module.exports = {

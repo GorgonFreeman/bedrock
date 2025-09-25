@@ -1,4 +1,4 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
 const { logiwaClient } = require('../logiwa/logiwa.utils');
 
 const FUNC = async (
@@ -17,25 +17,9 @@ const FUNC = async (
   return response;
 };
 
-const FUNCApi = async (req, res) => {
-  const { 
-    orderId,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'orderId', orderId),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await FUNC(
-    orderId,
-    options,
-  );
-  respond(res, 200, result);
-};
+const FUNCApi = funcApi(FUNC, {
+  argNames: ['orderId'],
+});
 
 module.exports = {
   FUNC,

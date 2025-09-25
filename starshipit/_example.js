@@ -1,4 +1,4 @@
-const { respond, mandateParam, logDeep } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
 const { starshipitClient } = require('../starshipit/starshipit.utils');
 
 const FUNC = async (
@@ -28,26 +28,9 @@ const FUNC = async (
   return response;
 };
 
-const FUNCApi = async (req, res) => {
-  const { 
-    credsPath,
-    arg,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'arg', arg),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await FUNC(
-    credsPath,
-    arg,
-  );
-  respond(res, 200, result);
-};
+const FUNCApi = funcApi(FUNC, {
+  argNames: ['credsPath', 'arg'],
+});
 
 module.exports = {
   FUNC,

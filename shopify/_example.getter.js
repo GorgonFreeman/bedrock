@@ -1,6 +1,6 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/queries/orders
 
-const { respond, mandateParam, logDeep } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
 const { shopifyGet } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id name`;
@@ -25,25 +25,9 @@ const FUNC = async (
   return response;
 };
 
-const FUNCApi = async (req, res) => {
-  const { 
-    credsPath,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'credsPath', credsPath),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await FUNC(
-    credsPath,
-    options,
-  );
-  respond(res, 200, result);
-};
+const FUNCApi = funcApi(FUNC, {
+  argNames: ['credsPath'],
+});
 
 module.exports = {
   FUNC,

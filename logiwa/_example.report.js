@@ -1,6 +1,6 @@
 // https://mydeveloper.logiwa.com/#tag/Report/paths/~1v3.1~1Report~1InventorySnapshot~1i~1%7Bindex%7D~1s~1%7Bsize%7D/get
 
-const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
+const { funcApi, logDeep, objHasAny } = require('../utils');
 const { logiwaGet } = require('../logiwa/logiwa.utils');
 const { MAX_PER_PAGE } = require('../logiwa/logiwa.constants');
 
@@ -44,25 +44,12 @@ const FUNC = async (
   return response;
 };
 
-const FUNCApi = async (req, res) => {
-  const { 
-    criteria,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'criteria', criteria, p => objHasAny(p, ['warehouseIdentifier_eq', 'clientIdentifier_eq', 'locationIdentifier_eq', 'sku_eq', 'snapshotDate_bt'])),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await FUNC(
-    criteria,
-    options,
-  );
-  respond(res, 200, result);
-};
+const FUNCApi = funcApi(FUNC, {
+  argNames: ['criteria'],
+  validatorsByArg: {
+    criteria: (value) => objHasAny(value, ['warehouseIdentifier_eq', 'clientIdentifier_eq', 'locationIdentifier_eq', 'sku_eq', 'snapshotDate_bt']),
+  },
+});
 
 module.exports = {
   FUNC,
