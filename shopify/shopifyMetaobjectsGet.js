@@ -7,6 +7,7 @@ const defaultAttrs = `id handle displayName`;
 
 const shopifyMetaobjectsGet = async (
   credsPath,
+  type,
   {
     attrs = defaultAttrs,
     ...options
@@ -18,6 +19,7 @@ const shopifyMetaobjectsGet = async (
     'metaobject', 
     {
       attrs,
+      type,
       ...options,
     },
   );
@@ -26,7 +28,7 @@ const shopifyMetaobjectsGet = async (
 };
 
 const shopifyMetaobjectsGetApi = funcApi(shopifyMetaobjectsGet, {
-  argNames: ['credsPath', 'options'],
+  argNames: ['credsPath', 'type', 'options'],
 });
 
 module.exports = {
@@ -34,4 +36,4 @@ module.exports = {
   shopifyMetaobjectsGetApi,
 };
 
-// curl localhost:8000/shopifyMetaobjectsGet -H "Content-Type: application/json" -d '{ "credsPath": "au" }'
+// curl localhost:8000/shopifyMetaobjectsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "type": "?" }'
