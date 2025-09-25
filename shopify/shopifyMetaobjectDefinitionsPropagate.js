@@ -60,13 +60,19 @@ const metaobjectDefinitionToCreatePayload = (metaobjectDefinition) => {
     publishable: moDefCapabilitiesPublishable,
   } = moDefCapabilities;
 
+  // Check if this is an app-reserved type (starts with '$app:')
+  const isAppReservedType = moDefType.startsWith('$app:');
+  
   const createPayload = {
     name: moDefName,
     type: moDefType,
     description: moDefDescription,
     access: {
       storefront: moDefAccessStorefront,
-      admin: moDefAccessAdmin,
+      // Only include admin access for app-reserved types
+      ...(isAppReservedType && {
+        admin: moDefAccessAdmin === 'PUBLIC_READ_WRITE' ? 'MERCHANT_READ_WRITE' : moDefAccessAdmin,
+      }),
     },
     capabilities: {
       translatable: { enabled: moDefCapabilitiesTranslatable.enabled },
