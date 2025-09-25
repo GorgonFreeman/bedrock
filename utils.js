@@ -506,7 +506,7 @@ const funcApi = (
             return true;
           }
           // TODO: Consider using customNullish instead of Boolean as a the default validator
-          const validator = validatorsByArg[argName] || Boolean;
+          const validator = validatorsByArg?.[argName] || Boolean;
           return mandateParam(res, argName, body[argName], { validator });
         })
       );
