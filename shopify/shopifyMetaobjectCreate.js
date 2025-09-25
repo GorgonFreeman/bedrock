@@ -41,4 +41,4 @@ module.exports = {
   shopifyMetaobjectCreateApi,
 };
 
-// curl http://localhost:8000/shopifyMetaobjectCreate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "metaobjectInput": { "type": "wishlist_emojis", "handle": "happy-face", "fields": [ { "key": "emoji", "value": "😊" }, { "key": "description", "value": "A happy face emoji" } ] }, "options": { "returnAttrs": "id handle displayName" } }'
+// curl http://localhost:8000/shopifyMetaobjectCreate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "metaobjectInput": { "type": "yugioh-card", "handle": "black-luster-soldier", "fields": [ { "key": "title", "value": "Black Luster Soldier" }, { "key": "atk", "value": "3000" }, { "key": "def", "value": "2500" }, { "key": "mode", "value": "attack" }, { "key": "effects", "value": "This card can only be Ritual Summoned with the Ritual Spell Card, \"Black Luster Ritual\". You must also Tribute monsters whose total Level Stars equal 8 or more from the field or your hand." } ] }, "options": { "returnAttrs": "id handle displayName fields { key value }" } }'
