@@ -7,10 +7,34 @@ const attrs = `
   id
   name
   type
-  namespace
-  key
   description
-  ownerType
+  access {
+    admin
+    storefront
+  }
+  capabilities {
+    translatable {
+      enabled
+    }
+    publishable {
+      enabled
+    }
+  }
+  displayNameKey
+  fieldDefinitions {
+    name
+    key
+    type {
+      name
+      category
+    }
+    description
+    required
+    validations {
+      name
+      value
+    }
+  }
 `;
 
 const shopifyMetaobjectDefinitionsPropagate = async (
