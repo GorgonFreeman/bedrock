@@ -1,4 +1,4 @@
-const { funcApi, logDeep, arrayStandardResponse } = require('../utils');
+const { funcApi, logDeep, arrayStandardResponse, customNullish } = require('../utils');
 const { shopifyMetaobjectsGet } = require('../shopify/shopifyMetaobjectsGet');
 const { shopifyMetaobjectCreate } = require('../shopify/shopifyMetaobjectCreate');
 
@@ -39,11 +39,12 @@ const metaobjectToCreatePayload = (metaobject) => {
   const createPayload = {
     type,
     handle,
-    fields: fields.map(field => ({
-      key: field.key,
-      value: field.value,
-      type: field.type,
-      reference: field.reference?.id || null,
+    fields: fields
+      .filter(field => field.type !== 'metaobject_reference')
+      .filter(field => !customNullish(field.value))
+      .map(field => ({
+        key: field.key,
+        value: field.value,
     })),
   };
 
