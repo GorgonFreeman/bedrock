@@ -79,13 +79,16 @@ const metaobjectDefinitionToCreatePayload = (metaobjectDefinition) => {
       publishable: { enabled: moDefCapabilitiesPublishable.enabled },
     },
     displayNameKey: moDefDisplayNameKey,
-    fieldDefinitions: moDefFieldDefinitions.map(field => ({
-      name: field.name,
-      key: field.key,
-      type: field.type.name, // Convert type object to string
-      description: field.description,
-      required: field.required,
-      validations: field.validations, // TODO: handle validations that are name: "metaobject_definition_id" by looking up the metaobject definition by handle on the destination store
+    fieldDefinitions: moDefFieldDefinitions
+      // For now, don't try to propagate metaobject-dependant fields
+      .filter(field => !field.type.name.includes('metaobject_reference'))
+      .map(field => ({
+        name: field.name,
+        key: field.key,
+        type: field.type.name, // Convert type object to string
+        description: field.description,
+        required: field.required,
+        validations: field.validations, // TODO: handle validations that are name: "metaobject_definition_id" by looking up the metaobject definition by handle on the destination store
     })),
   };
 
