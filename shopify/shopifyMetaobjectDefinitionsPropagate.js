@@ -79,7 +79,7 @@ const metaobjectDefinitionToCreatePayload = (metaobjectDefinition) => {
       type: field.type.name, // Convert type object to string
       description: field.description,
       required: field.required,
-      validations: field.validations,
+      validations: field.validations, // TODO: handle validations that are name: "metaobject_definition_id" by looking up the metaobject definition by handle on the destination store
     })),
   };
 
