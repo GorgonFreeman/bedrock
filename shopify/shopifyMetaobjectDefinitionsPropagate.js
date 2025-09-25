@@ -3,7 +3,7 @@ const { shopifyClient } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id`;
 
-const shopifyMetafieldDefinitionsPropagate = async (
+const shopifyMetaobjectDefinitionsPropagate = async (
   credsPath,
   arg,
   {
@@ -46,13 +46,13 @@ const shopifyMetafieldDefinitionsPropagate = async (
   return response;
 };
 
-const shopifyMetafieldDefinitionsPropagateApi = funcApi(shopifyMetafieldDefinitionsPropagate, {
+const shopifyMetaobjectDefinitionsPropagateApi = funcApi(shopifyMetaobjectDefinitionsPropagate, {
   argNames: ['credsPath', 'arg'],
 });
 
 module.exports = {
-  shopifyMetafieldDefinitionsPropagate,
-  shopifyMetafieldDefinitionsPropagateApi,
+  shopifyMetaobjectDefinitionsPropagate,
+  shopifyMetaobjectDefinitionsPropagateApi,
 };
 
-// curl localhost:8000/shopifyMetafieldDefinitionsPropagate -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyMetaobjectDefinitionsPropagate -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
