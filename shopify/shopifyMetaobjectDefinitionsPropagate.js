@@ -37,6 +37,55 @@ const attrs = `
   }
 `;
 
+// Transform metaobject definition data for creation
+const metaobjectDefinitionToCreatePayload = (metaobjectDefinition) => {
+
+  const { 
+    name: moDefName,
+    type: moDefType,
+    description: moDefDescription,
+    access: moDefAccess,
+    capabilities: moDefCapabilities,
+    displayNameKey: moDefDisplayNameKey,
+    fieldDefinitions: moDefFieldDefinitions,
+  } = metaobjectDefinition;
+
+  const {
+    storefront: moDefAccessStorefront,
+    admin: moDefAccessAdmin,
+  } = moDefAccess;
+
+  const {
+    translatable: moDefCapabilitiesTranslatable,
+    publishable: moDefCapabilitiesPublishable,
+  } = moDefCapabilities;
+
+  const createPayload = {
+    name: moDefName,
+    type: moDefType,
+    description: moDefDescription,
+    access: {
+      storefront: moDefAccessStorefront,
+      admin: moDefAccessAdmin,
+    },
+    capabilities: {
+      translatable: { enabled: moDefCapabilitiesTranslatable.enabled },
+      publishable: { enabled: moDefCapabilitiesPublishable.enabled },
+    },
+    displayNameKey: moDefDisplayNameKey,
+    fieldDefinitions: moDefFieldDefinitions.map(field => ({
+      name: field.name,
+      key: field.key,
+      type: field.type.name, // Convert type object to string
+      description: field.description,
+      required: field.required,
+      validations: field.validations,
+    })),
+  };
+
+  return createPayload;
+};
+
 const shopifyMetaobjectDefinitionsPropagate = async (
   fromCredsPath,
   toCredsPaths,
@@ -60,10 +109,13 @@ const shopifyMetaobjectDefinitionsPropagate = async (
     return shopifyMetaobjectDefinitionsResponse;
   }
 
+  // Transform the data for creation
+  const transformedDefinitions = metaobjectDefinitions.map(metaobjectDefinitionToCreatePayload);
+
   const responses = await Promise.all(toCredsPaths.map(credsPath => {
     return shopifyMetaobjectDefinitionCreate(
       credsPath, 
-      metaobjectDefinitions, 
+      transformedDefinitions, 
       {
         apiVersion,
         returnAttrs: attrs,
