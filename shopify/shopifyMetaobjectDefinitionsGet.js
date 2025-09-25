@@ -1,9 +1,9 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/orders
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/metaobjectdefinitions
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyGet } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id name`;
+const defaultAttrs = `id name type`;
 
 const shopifyMetaobjectDefinitionsGet = async (
   credsPath,
@@ -15,7 +15,7 @@ const shopifyMetaobjectDefinitionsGet = async (
 
   const response = await shopifyGet(
     credsPath, 
-    'order', 
+    'metaobjectDefinition', 
     {
       attrs,
       ...options,
