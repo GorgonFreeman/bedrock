@@ -98,4 +98,4 @@ module.exports = {
   shopifyMetaobjectsPropagateApi,
 };
 
-// curl localhost:8000/shopifyMetaobjectsPropagate -H "Content-Type: application/json" -d '{ "fromCredsPath": "au", "toCredsPaths": ["us", "uk"], "type": "yugioh-card" }'
+// curl localhost:8000/shopifyMetaobjectsPropagate -H "Content-Type: application/json" -d '{ "fromCredsPath": "au", "toCredsPaths": ["us", "uk"], "type": "wishlist_emojis" }'
