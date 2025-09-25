@@ -172,6 +172,36 @@ const slackInteractiveSuggestionBox = async (req, res) => {
   console.log('slackInteractiveSuggestionBox');
 
   const { body } = req;
+  const { text: commandText } = body;
+
+  if (commandText) {
+    console.log(`Full slack command with command text > /${ ACTION_NAME } ${ commandText }`);
+
+    const {
+      response_url: responseUrl,
+      user_name: username,
+    } = body;
+
+    const slackCommandMessagePostResult = await slackMessagePost({
+      channelName: SUGGESTIONS_BOX_SLACK_CHANNEL,
+    }, {
+      blocks: suggestionReportBlocks(commandText, { isAnonymous: false, username }),
+    });
+
+    if (!slackCommandMessagePostResult.success) {
+      return respond(res, 200, {
+        response_type: 'ephemeral',
+        replace_original: 'true',
+        text: FAILED_TO_POST_SUGGESTION_MESSAGE,
+      });
+    }
+
+    return respond(res, 200, {
+      response_type: 'ephemeral',
+      replace_original: 'true',
+      text: SUBMITTED_SUGGESTION_MESSAGE,
+    });
+  }
 
   if (!body?.payload) {
     console.log(`Initiation, e.g. slash command`);
