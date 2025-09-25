@@ -6,7 +6,16 @@ const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
 const shopifyProductsAuditZeroPrice = async (
   region,
 ) => {
-  return true;
+  const variantsResponse = await shopifyVariantsGet(
+    region,
+    {
+      attrs: `id sku price compareAtPrice inventoryItem { unitCost { amount } }`,
+      queries: [`price:<=0`],
+    },
+  );
+
+  logDeep(variantsResponse);
+  return variantsResponse;  
 };
 
 const shopifyProductsAuditZeroPriceApi = funcApi(
