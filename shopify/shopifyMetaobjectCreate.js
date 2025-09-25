@@ -1,13 +1,13 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/metaobjectCreate
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `id handle displayName`;
 
 const shopifyMetaobjectCreate = async (
   credsPath,
-  pageInput,
+  metaobjectInput,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
@@ -16,14 +16,14 @@ const shopifyMetaobjectCreate = async (
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'metaobjectCreate',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      metaobject: {
+        type: 'MetaobjectCreateInput!',
+        value: metaobjectInput,
       },
     },
-    `page { ${ returnAttrs } }`,
+    `metaobject { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -33,7 +33,7 @@ const shopifyMetaobjectCreate = async (
 };
 
 const shopifyMetaobjectCreateApi = funcApi(shopifyMetaobjectCreate, {
-  argNames: ['credsPath', 'pageInput'],
+  argNames: ['credsPath', 'metaobjectInput'],
 });
 
 module.exports = {
@@ -41,4 +41,4 @@ module.exports = {
   shopifyMetaobjectCreateApi,
 };
 
-// curl http://localhost:8000/shopifyMetaobjectCreate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyMetaobjectCreate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "metaobjectInput": { "type": "wishlist_emojis", "handle": "happy-face", "fields": [ { "key": "emoji", "value": "😊" }, { "key": "description", "value": "A happy face emoji" } ] }, "options": { "returnAttrs": "id handle displayName" } }'
