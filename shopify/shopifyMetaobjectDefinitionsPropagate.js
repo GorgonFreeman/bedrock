@@ -1,53 +1,62 @@
-const { funcApi, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+const { funcApi, logDeep, arrayStandardResponse } = require('../utils');
+const { shopifyMetaobjectDefinitionsGet } = require('../shopify/shopifyMetaobjectDefinitionsGet');
+const { shopifyMetaobjectDefinitionCreate } = require('../shopify/shopifyMetaobjectDefinitionCreate');
 
-const defaultAttrs = `id`;
+// All attributes needed to recreate in the destination stores
+const attrs = `
+  id
+  name
+  type
+  namespace
+  key
+  description
+  ownerType
+`;
 
 const shopifyMetaobjectDefinitionsPropagate = async (
-  credsPath,
-  arg,
+  fromCredsPath,
+  toCredsPaths,
   {
     apiVersion,
-    option,
+    fetchOptions,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
+  const shopifyMetaobjectDefinitionsResponse = await shopifyMetaobjectDefinitionsGet(
+    fromCredsPath,
+    {
       apiVersion,
+      attrs,
+      ...fetchOptions,
     },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
+  );
 
+  const { success: metaobjectDefinitionsGetSuccess, result: metaobjectDefinitions } = shopifyMetaobjectDefinitionsResponse;
+  if (!metaobjectDefinitionsGetSuccess) {
+    return shopifyMetaobjectDefinitionsResponse;
+  }
+
+  const responses = await Promise.all(toCredsPaths.map(credsPath => {
+    return shopifyMetaobjectDefinitionCreate(
+      credsPath, 
+      metaobjectDefinitions, 
+      {
+        apiVersion,
+        returnAttrs: attrs,
+      },
+    );
+  }));
+
+  const response = arrayStandardResponse(responses);
   logDeep(response);
   return response;
 };
 
 const shopifyMetaobjectDefinitionsPropagateApi = funcApi(shopifyMetaobjectDefinitionsPropagate, {
-  argNames: ['credsPath', 'arg'],
+  argNames: ['fromCredsPath', 'toCredsPaths', 'options'],
+  validatorsByArg: {
+    toCredsPaths: Array.isArray,
+  },
 });
 
 module.exports = {
@@ -55,4 +64,4 @@ module.exports = {
   shopifyMetaobjectDefinitionsPropagateApi,
 };
 
-// curl localhost:8000/shopifyMetaobjectDefinitionsPropagate -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyMetaobjectDefinitionsPropagate -H "Content-Type: application/json" -d '{ "fromCredsPath": "au", "toCredsPaths": ["us", "uk"] }'
