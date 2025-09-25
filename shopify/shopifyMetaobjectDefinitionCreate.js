@@ -1,11 +1,11 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/metaobjectDefinitionCreate
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id name type`;
 
-const shopifyMetaobjectDefinitionCreate = async (
+const shopifyMetaobjectDefinitionCreateSingle = async (
   credsPath,
   metaobjectDefinitionInput,
   {
@@ -32,12 +32,37 @@ const shopifyMetaobjectDefinitionCreate = async (
   return response;
 };
 
+const shopifyMetaobjectDefinitionCreate = async (
+  credsPath,
+  metaobjectDefinitionInput,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    metaobjectDefinitionInput,
+    shopifyMetaobjectDefinitionCreateSingle,
+    (metaobjectDefinitionInput) => ({
+      args: [credsPath, metaobjectDefinitionInput],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+  
+  logDeep(response);
+  return response;
+};
+
 const shopifyMetaobjectDefinitionCreateApi = funcApi(shopifyMetaobjectDefinitionCreate, {
   argNames: ['credsPath', 'metaobjectDefinitionInput'],
 });
 
 module.exports = {
   shopifyMetaobjectDefinitionCreate,
+  shopifyMetaobjectDefinitionCreateSingle,
   shopifyMetaobjectDefinitionCreateApi,
 };
 
