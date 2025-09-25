@@ -13,7 +13,15 @@ const attrs = `
     value
     type
     reference {
-      id
+      ... on MediaImage {
+        id
+      }
+      ... on GenericFile {
+        id
+      }
+      ... on Metaobject {
+        id
+      }
     }
   }
 `;
