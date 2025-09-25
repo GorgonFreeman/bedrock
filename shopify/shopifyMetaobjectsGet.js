@@ -36,4 +36,4 @@ module.exports = {
   shopifyMetaobjectsGetApi,
 };
 
-// curl localhost:8000/shopifyMetaobjectsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "type": "?" }'
+// curl localhost:8000/shopifyMetaobjectsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "type": "wishlist_emojis" }'
