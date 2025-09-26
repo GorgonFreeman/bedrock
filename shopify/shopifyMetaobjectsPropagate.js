@@ -68,6 +68,7 @@ const shopifyMetaobjectsPropagate = async (
         reference: fieldReference,
       } = field;
 
+      // Skip fields with null/undefined values to satisfy GraphQL non-null constraints
       if (customNullish(fieldValue)) {
         continue;
       }
