@@ -29,102 +29,6 @@ const attrs = `
   }
 `;
 
-// Transform metaobject data for creation
-const metaobjectToCreatePayload = async (metaobject, fromCredsPath, toCredsPath) => {
-
-  const { 
-    handle,
-    displayName,
-    type,
-    fields,
-  } = metaobject;
-
-  const transformedFields = [];
-
-  for (const field of fields) {
-
-    const {
-      key: fieldKey,
-      value: fieldValue,
-      type: fieldType,
-      reference: fieldReference,
-    } = field;
-
-    if (customNullish(fieldValue)) {
-      continue;
-    }
-
-    if (fieldType === 'metaobject_reference') {
-      // Handle metaobject reference
-      interactive && logDeep('field', field);
-      interactive && await askQuestion('?');
-
-      const fromMetaobjectId = gidToId(fieldValue);
-
-      const fromMetaobjectResponse = await shopifyMetaobjectGet(
-        fromCredsPath,
-        {
-          metaobjectId: fromMetaobjectId,
-        },
-        {
-          // TODO: Support apiVersion and other global options
-          // apiVersion,
-          attrs: 'id handle type',
-        }, 
-      );
-
-      const { success: fromMetaobjectGetSuccess, result: fromMetaobject } = fromMetaobjectResponse;
-      if (!fromMetaobjectGetSuccess) {
-        return fromMetaobjectResponse;
-      }
-
-      interactive && logDeep('fromMetaobject', fromMetaobject);
-      interactive && await askQuestion('?');
-
-      const toMetaobjectResponse = await shopifyMetaobjectGet(
-        toCredsPath,
-        {
-          metaobjectHandle: fromMetaobject.handle,
-          metaobjectType: fromMetaobject.type,
-        },
-        {
-          // apiVersion,
-          attrs: 'id handle type',
-        },
-      );
-
-      const { success: toMetaobjectGetSuccess, result: toMetaobject } = toMetaobjectResponse;
-      if (!toMetaobjectGetSuccess) {
-        return toMetaobjectResponse;
-      }
-
-      interactive && logDeep('toMetaobject', toMetaobject);
-      interactive && await askQuestion('?');
-      
-      const toMetaobjectGid = toMetaobject.id;
-      transformedFields.push({
-        key: fieldKey,
-        value: toMetaobjectGid,
-      });
-
-      continue;
-    }
-
-    transformedFields.push({
-      key: fieldKey,
-      value: fieldValue,
-    });
-  }
-
-  const createPayload = {
-    type,
-    handle,
-    fields: transformedFields,
-  };
-
-  return createPayload;
-};
-
 const shopifyMetaobjectsPropagate = async (
   fromCredsPath,
   toCredsPaths,
@@ -142,6 +46,101 @@ const shopifyMetaobjectsPropagate = async (
       error: ['Interactive mode can only be done locally'],
     };
   }
+
+  // Transform metaobject data for creation
+  const metaobjectToCreatePayload = async (metaobject, fromCredsPath, toCredsPath) => {
+
+    const { 
+      handle,
+      displayName,
+      type,
+      fields,
+    } = metaobject;
+
+    const transformedFields = [];
+
+    for (const field of fields) {
+
+      const {
+        key: fieldKey,
+        value: fieldValue,
+        type: fieldType,
+        reference: fieldReference,
+      } = field;
+
+      if (customNullish(fieldValue)) {
+        continue;
+      }
+
+      if (fieldType === 'metaobject_reference') {
+        // Handle metaobject reference
+        interactive && logDeep('field', field);
+        interactive && await askQuestion('?');
+
+        const fromMetaobjectId = gidToId(fieldValue);
+
+        const fromMetaobjectResponse = await shopifyMetaobjectGet(
+          fromCredsPath,
+          {
+            metaobjectId: fromMetaobjectId,
+          },
+          {
+            apiVersion,
+            attrs: 'id handle type',
+          }, 
+        );
+
+        const { success: fromMetaobjectGetSuccess, result: fromMetaobject } = fromMetaobjectResponse;
+        if (!fromMetaobjectGetSuccess) {
+          return fromMetaobjectResponse;
+        }
+
+        interactive && logDeep('fromMetaobject', fromMetaobject);
+        interactive && await askQuestion('?');
+
+        const toMetaobjectResponse = await shopifyMetaobjectGet(
+          toCredsPath,
+          {
+            metaobjectHandle: fromMetaobject.handle,
+            metaobjectType: fromMetaobject.type,
+          },
+          {
+            apiVersion,
+            attrs: 'id handle type',
+          },
+        );
+
+        const { success: toMetaobjectGetSuccess, result: toMetaobject } = toMetaobjectResponse;
+        if (!toMetaobjectGetSuccess) {
+          return toMetaobjectResponse;
+        }
+
+        interactive && logDeep('toMetaobject', toMetaobject);
+        interactive && await askQuestion('?');
+        
+        const toMetaobjectGid = toMetaobject.id;
+        transformedFields.push({
+          key: fieldKey,
+          value: toMetaobjectGid,
+        });
+
+        continue;
+      }
+
+      transformedFields.push({
+        key: fieldKey,
+        value: fieldValue,
+      });
+    }
+
+    const createPayload = {
+      type,
+      handle,
+      fields: transformedFields,
+    };
+
+    return createPayload;
+  };
 
   const shopifyMetaobjectsResponse = await shopifyMetaobjectsGet(
     fromCredsPath,
