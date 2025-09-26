@@ -1,13 +1,13 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/order
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/metaobject
 
 const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 
-const defaultAttrs = `id name`;
+const defaultAttrs = `id handle displayName`;
 
 const shopifyMetaobjectGetSingle = async (
   credsPath,
-  thingId,
+  metaobjectId,
   {
     apiVersion,
     attrs = defaultAttrs,
@@ -16,8 +16,8 @@ const shopifyMetaobjectGetSingle = async (
   
   const response = await shopifyGetSingle(
     credsPath,
-    'thing',
-    thingId,
+    'metaobject',
+    metaobjectId,
     {
       apiVersion,
       attrs,
@@ -30,17 +30,17 @@ const shopifyMetaobjectGetSingle = async (
 
 const shopifyMetaobjectGet = async (
   credsPath,
-  thingId,
+  metaobjectId,
   {
     queueRunOptions,
     ...options
   } = {},
 ) => {
   const response = await actionMultipleOrSingle(
-    thingId,
+    metaobjectId,
     shopifyMetaobjectGetSingle,
-    (thingId) => ({
-      args: [credsPath, thingId],
+    (metaobjectId) => ({
+      args: [credsPath, metaobjectId],
       options,
     }),
     {
@@ -53,7 +53,7 @@ const shopifyMetaobjectGet = async (
 };
 
 const shopifyMetaobjectGetApi = funcApi(shopifyMetaobjectGet, {
-  argNames: ['credsPath', 'thingId', 'options'],
+  argNames: ['credsPath', 'metaobjectId', 'options'],
 });
 
 module.exports = {
@@ -61,4 +61,4 @@ module.exports = {
   shopifyMetaobjectGetApi,
 };
 
-// curl localhost:8000/shopifyMetaobjectGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "thingId": "7012222266312" }'
+// curl localhost:8000/shopifyMetaobjectGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "metaobjectId": "177416241224" }'
