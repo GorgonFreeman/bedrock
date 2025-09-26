@@ -57,7 +57,7 @@ const shopifyMetaobjectGetSingle = async (
     context: {
       credsPath,
       apiVersion,
-      // resultsNode: resource,
+      resultsNode: 'metaobjectByHandle',
     },
   });
   logDeep(response);
