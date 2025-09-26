@@ -81,6 +81,33 @@ const metaobjectToCreatePayload = async (metaobject, fromCredsPath, toCredsPath)
       logDeep('fromMetaobject', fromMetaobject);
       await askQuestion('?');
 
+      const toMetaobjectResponse = await shopifyMetaobjectGet(
+        toCredsPath,
+        {
+          metaobjectHandle: fromMetaobject.handle,
+          metaobjectType: fromMetaobject.type,
+        },
+        {
+          // apiVersion,
+          attrs: 'id handle type',
+        },
+      );
+
+      const { success: toMetaobjectGetSuccess, result: toMetaobject } = toMetaobjectResponse;
+      if (!toMetaobjectGetSuccess) {
+        return toMetaobjectResponse;
+      }
+
+      logDeep('toMetaobject', toMetaobject);
+      await askQuestion('?');
+      
+      const toMetaobjectGid = toMetaobject.id;
+      transformedFields.push({
+        key: fieldKey,
+        value: toMetaobjectGid,
+      });
+
+      continue;
     }
 
     transformedFields.push({
