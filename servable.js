@@ -56,6 +56,7 @@ module.exports = {
   shopifyMetaobjectDefinitionGet: require('./shopify/shopifyMetaobjectDefinitionGet').shopifyMetaobjectDefinitionGetApi,
   shopifyMetaobjectDefinitionsGet: require('./shopify/shopifyMetaobjectDefinitionsGet').shopifyMetaobjectDefinitionsGetApi,
   shopifyMetaobjectDefinitionsPropagate: require('./shopify/shopifyMetaobjectDefinitionsPropagate').shopifyMetaobjectDefinitionsPropagateApi,
+  shopifyMetaobjectGet: require('./shopify/shopifyMetaobjectGet').shopifyMetaobjectGetApi,
   shopifyMetaobjectsGet: require('./shopify/shopifyMetaobjectsGet').shopifyMetaobjectsGetApi,
   shopifyMetaobjectsPropagate: require('./shopify/shopifyMetaobjectsPropagate').shopifyMetaobjectsPropagateApi,
   shopifyOrderFulfill: require('./shopify/shopifyOrderFulfill').shopifyOrderFulfillApi,
