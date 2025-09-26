@@ -81,7 +81,8 @@ const shopifyMetaobjectsPropagate = async (
         interactive && await askQuestion('?');
 
         const fromMetaobjectId = gidToId(fieldValue);
-
+        
+        // TODO: check if array-style fromCredsPath works
         let fromMetaobject = metaobjectsData?.[fromCredsPath]?.[fromMetaobjectId];
 
         if (!fromMetaobject) {
