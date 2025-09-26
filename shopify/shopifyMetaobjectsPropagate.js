@@ -128,6 +128,12 @@ const shopifyMetaobjectsPropagate = async (
         continue;
       }
 
+      if (fieldType === 'file_reference') {
+        // Handle file reference
+        logDeep('field', field);
+        await askQuestion('?');
+      }
+
       transformedFields.push({
         key: fieldKey,
         value: fieldValue,
