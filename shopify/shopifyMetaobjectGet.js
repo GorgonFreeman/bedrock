@@ -1,13 +1,17 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/queries/metaobject
 
-const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
+const { funcApi, logDeep, actionMultipleOrSingle, objHasAny } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
+const { shopifyClient } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id handle displayName`;
 
 const shopifyMetaobjectGetSingle = async (
   credsPath,
-  metaobjectId,
+  {
+    metaobjectId,
+    metaobjectHandle,
+  },
   {
     apiVersion,
     attrs = defaultAttrs,
@@ -30,17 +34,17 @@ const shopifyMetaobjectGetSingle = async (
 
 const shopifyMetaobjectGet = async (
   credsPath,
-  metaobjectId,
+  metaobjectIdentifier,
   {
     queueRunOptions,
     ...options
   } = {},
 ) => {
   const response = await actionMultipleOrSingle(
-    metaobjectId,
+    metaobjectIdentifier,
     shopifyMetaobjectGetSingle,
-    (metaobjectId) => ({
-      args: [credsPath, metaobjectId],
+    (metaobjectIdentifier) => ({
+      args: [credsPath, metaobjectIdentifier],
       options,
     }),
     {
@@ -53,7 +57,10 @@ const shopifyMetaobjectGet = async (
 };
 
 const shopifyMetaobjectGetApi = funcApi(shopifyMetaobjectGet, {
-  argNames: ['credsPath', 'metaobjectId', 'options'],
+  argNames: ['credsPath', 'metaobjectIdentifier', 'options'],
+  validatorsByArg: {
+    metaobjectIdentifier: p => objHasAny(p, ['metaobjectId', 'metaobjectHandle']),
+  },
 });
 
 module.exports = {
@@ -61,4 +68,4 @@ module.exports = {
   shopifyMetaobjectGetApi,
 };
 
-// curl localhost:8000/shopifyMetaobjectGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "metaobjectId": "177416241224" }'
+// curl localhost:8000/shopifyMetaobjectGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "metaobjectIdentifier": { "metaobjectId": "177416241224" } }'

@@ -63,12 +63,14 @@ const metaobjectToCreatePayload = async (metaobject, fromCredsPath, toCredsPath)
 
       const fromMetaobjectResponse = await shopifyMetaobjectGet(
         fromCredsPath,
-        fromMetaobjectId,
+        {
+          metaobjectId: fromMetaobjectId,
+        },
         {
           // TODO: Support apiVersion and other global options
           // apiVersion,
           attrs: 'id handle displayName',
-        },
+        }, 
       );
 
       const { success: fromMetaobjectGetSuccess, result: fromMetaobject } = fromMetaobjectResponse;
