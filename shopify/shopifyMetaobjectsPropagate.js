@@ -41,7 +41,7 @@ const metaobjectToCreatePayload = (metaobject) => {
     type,
     handle,
     fields: fields
-      .filter(field => field.type !== 'metaobject_reference')
+      // .filter(field => field.type !== 'metaobject_reference')
       .filter(field => !customNullish(field.value))
       .map(field => ({
         key: field.key,
