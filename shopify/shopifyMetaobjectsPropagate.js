@@ -69,7 +69,7 @@ const metaobjectToCreatePayload = async (metaobject, fromCredsPath, toCredsPath)
         {
           // TODO: Support apiVersion and other global options
           // apiVersion,
-          attrs: 'id handle displayName',
+          attrs: 'id handle type',
         }, 
       );
 
