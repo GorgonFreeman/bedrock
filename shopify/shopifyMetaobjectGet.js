@@ -103,3 +103,4 @@ module.exports = {
 
 // curl localhost:8000/shopifyMetaobjectGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "metaobjectIdentifier": { "metaobjectId": "177416241224" } }'
 // curl localhost:8000/shopifyMetaobjectGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "metaobjectIdentifier": { "metaobjectHandle": "symbols", "metaobjectType": "emoji_categories" } }'
+// curl localhost:8000/shopifyMetaobjectGet -H "Content-Type: application/json" -d '{ "credsPath": "uk", "metaobjectIdentifier": { "metaobjectHandle": "symbols", "metaobjectType": "emoji_categories" }, "options": { "attrs": "id handle displayName type fields { key value type reference { ... on MediaImage { id } ... on GenericFile { id } ... on Metaobject { id handle type } } }" } }'
