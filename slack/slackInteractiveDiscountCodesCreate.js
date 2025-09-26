@@ -2,6 +2,8 @@ const { respond, logDeep, customAxios } = require('../utils');
 
 const ACTION_NAME = 'discount_codes_create';
 
+const shopifyGetSingle = require('../shopify/shopifyGetSingle');
+
 // Messages
 const AU_DISCOUNT_URL_LABEL = 'AU Discount URL';
 const AU_DISCOUNT_URL_PLACEHOLDER = 'https://whitefoxboutique.com.au/discount/....';
@@ -106,16 +108,33 @@ const slackInteractiveDiscountCodesCreate = async (req, res) => {
   } = action;
 
   let response;
-  let auDiscountUrl;
+  let auDiscountId;
 
   switch (actionId) {
     case `${ ACTION_NAME }:fetch`:
 
-      auDiscountUrl = Object.values(state?.values?.discount_url_input || {})?.[0]?.value;
-      auDiscountId = auDiscountUrl.split('?').shift().split('/').pop();
+      const auDiscountUrl = Object.values(state?.values?.discount_url_input || {})?.[0]?.value;
+      auDiscountId = auDiscountUrl?.split('?')?.shift()?.split('/')?.pop() || null;
 
-      console.log('auDiscountUrl', auDiscountUrl);
-      console.log('auDiscountId', auDiscountId);
+      if (!auDiscountId) {
+        response = {
+          response_type: 'ephemeral',
+          replace_original: 'true',
+          text: `Invalid AU Discount URL`,
+        };
+        break;
+      }
+
+      const attrs = `id title code`;
+      const discount = await shopifyGetSingle(
+        'au',
+        'discount',
+        auDiscountId,
+        {
+          attrs,
+        },
+      )
+
       break;
       
     case `${ ACTION_NAME }:cancel`:
