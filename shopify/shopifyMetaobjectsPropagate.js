@@ -28,7 +28,7 @@ const attrs = `
 `;
 
 // Transform metaobject data for creation
-const metaobjectToCreatePayload = (metaobject) => {
+const metaobjectToCreatePayload = async (metaobject, fromRegion, toRegion) => {
 
   const { 
     handle,
@@ -37,16 +37,35 @@ const metaobjectToCreatePayload = (metaobject) => {
     fields,
   } = metaobject;
 
+  const transformedFields = [];
+  
+  for (const field of fields) {
+
+    const {
+      key: fieldKey,
+      value: fieldValue,
+      type: fieldType,
+      reference: fieldReference,
+    } = field;
+
+    if (customNullish(fieldValue)) {
+      continue;
+    }
+
+    if (fieldType !== 'metaobject_reference') {
+      // Handle metaobject reference
+    }
+
+    transformedFields.push({
+      key: fieldKey,
+      value: fieldValue,
+    });
+  }
+
   const createPayload = {
     type,
     handle,
-    fields: fields
-      // .filter(field => field.type !== 'metaobject_reference')
-      .filter(field => !customNullish(field.value))
-      .map(field => ({
-        key: field.key,
-        value: field.value,
-    })),
+    fields: transformedFields,
   };
 
   return createPayload;
