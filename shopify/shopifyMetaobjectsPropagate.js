@@ -56,8 +56,8 @@ const metaobjectToCreatePayload = async (metaobject, fromCredsPath, toCredsPath)
 
     if (fieldType === 'metaobject_reference') {
       // Handle metaobject reference
-      logDeep('field', field);
-      await askQuestion('?');
+      interactive && logDeep('field', field);
+      interactive && await askQuestion('?');
 
       const fromMetaobjectId = gidToId(fieldValue);
 
@@ -78,8 +78,8 @@ const metaobjectToCreatePayload = async (metaobject, fromCredsPath, toCredsPath)
         return fromMetaobjectResponse;
       }
 
-      logDeep('fromMetaobject', fromMetaobject);
-      await askQuestion('?');
+      interactive && logDeep('fromMetaobject', fromMetaobject);
+      interactive && await askQuestion('?');
 
       const toMetaobjectResponse = await shopifyMetaobjectGet(
         toCredsPath,
@@ -98,8 +98,8 @@ const metaobjectToCreatePayload = async (metaobject, fromCredsPath, toCredsPath)
         return toMetaobjectResponse;
       }
 
-      logDeep('toMetaobject', toMetaobject);
-      await askQuestion('?');
+      interactive && logDeep('toMetaobject', toMetaobject);
+      interactive && await askQuestion('?');
       
       const toMetaobjectGid = toMetaobject.id;
       transformedFields.push({
