@@ -1,7 +1,9 @@
 const { HOSTED } = require('../constants');
-const { funcApi, logDeep, arrayStandardResponse, customNullish, askQuestion } = require('../utils');
+const { funcApi, logDeep, arrayStandardResponse, customNullish, askQuestion, gidToId } = require('../utils');
+
 const { shopifyMetaobjectsGet } = require('../shopify/shopifyMetaobjectsGet');
 const { shopifyMetaobjectCreate } = require('../shopify/shopifyMetaobjectCreate');
+const { shopifyMetaobjectGet } = require('../shopify/shopifyMetaobjectGet');
 
 // All attributes needed to recreate metaobjects in the destination stores
 const attrs = `
@@ -54,8 +56,28 @@ const metaobjectToCreatePayload = async (metaobject, fromCredsPath, toCredsPath)
 
     if (fieldType === 'metaobject_reference') {
       // Handle metaobject reference
-      logDeep(field);
+      logDeep('field', field);
       await askQuestion('?');
+
+      const fromMetaobjectId = gidToId(fieldValue);
+
+      const fromMetaobjectResponse = await shopifyMetaobjectGet(
+        fromCredsPath,
+        fromMetaobjectId,
+        {
+          apiVersion,
+          // attrs: '',
+        },
+      );
+
+      const { success: fromMetaobjectGetSuccess, result: fromMetaobject } = fromMetaobjectResponse;
+      if (!fromMetaobjectGetSuccess) {
+        return fromMetaobjectResponse;
+      }
+
+      logDeep('fromMetaobject', fromMetaobject);
+      await askQuestion('?');
+
     }
 
     transformedFields.push({
