@@ -1,5 +1,6 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/metaobjectCreate
 
+const { HOSTED } = require('../constants');
 const { funcApi, logDeep, actionMultipleOrSingle, askQuestion } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
@@ -11,11 +12,21 @@ const shopifyMetaobjectCreateSingle = async (
   {
     apiVersion,
     returnAttrs = defaultAttrs,
+    interactive,
   } = {},
 ) => {
 
-  logDeep(metaobjectInput);
-  await askQuestion('Continue?');
+  if (interactive) {
+    if (HOSTED) {
+      return {
+        success: false,
+        error: ['Interactive mode can only be done locally'],
+      };
+    }
+
+    logDeep(metaobjectInput);
+    await askQuestion('Continue?');
+  }
 
   const response = await shopifyMutationDo(
     credsPath,
