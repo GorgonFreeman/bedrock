@@ -2,12 +2,50 @@
 
 const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
+const { shopifyClient } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id name`;
+const defaultAttrs = `
+  id
+  discount {
+    ... on DiscountCodeBasic {
+      title
+      appliesOncePerCustomer
+      asyncUsageCount
+      createdAt
+      startsAt
+      endsAt
+      hasTimelineComment
+      shortSummary
+      status
+      summary
+      usageLimit
+      codesCount {
+        count
+      }
+    }
+    ... on DiscountCodeBxgy {
+      title
+    }
+    ... on DiscountCodeFreeShipping {
+      title
+    }
+    ... on DiscountAutomaticApp {
+      title
+    }
+    ... on DiscountAutomaticBasic {
+      title
+    }
+    ... on DiscountAutomaticBxgy {
+      title
+    }
+  }
+`;
 
-const shopifyDiscountGetSingle = async (
+const shopifyDiscountGet = async (
   credsPath,
-  thingId,
+  {
+    discountId,
+  },
   {
     apiVersion,
     attrs = defaultAttrs,
@@ -16,8 +54,8 @@ const shopifyDiscountGetSingle = async (
   
   const response = await shopifyGetSingle(
     credsPath,
-    'thing',
-    thingId,
+    'discountNode',
+    discountId,
     {
       apiVersion,
       attrs,
@@ -28,32 +66,8 @@ const shopifyDiscountGetSingle = async (
   return response;
 };
 
-const shopifyDiscountGet = async (
-  credsPath,
-  thingId,
-  {
-    queueRunOptions,
-    ...options
-  } = {},
-) => {
-  const response = await actionMultipleOrSingle(
-    thingId,
-    shopifyDiscountGetSingle,
-    (thingId) => ({
-      args: [credsPath, thingId],
-      options,
-    }),
-    {
-      ...(queueRunOptions ? { queueRunOptions } : {}),
-    },
-  );
-  
-  logDeep(response);
-  return response;
-};
-
 const shopifyDiscountGetApi = funcApi(shopifyDiscountGet, {
-  argNames: ['credsPath', 'thingId', 'options'],
+  argNames: ['credsPath', 'discountIdentifier', 'options'],
 });
 
 module.exports = {
@@ -61,4 +75,4 @@ module.exports = {
   shopifyDiscountGetApi,
 };
 
-// curl localhost:8000/shopifyDiscountGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "thingId": "7012222266312" }'
+// curl localhost:8000/shopifyDiscountGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "discountIdentifier": { "discountId": "1696440287304" } }'
