@@ -28,7 +28,7 @@ const attrs = `
 `;
 
 // Transform metaobject data for creation
-const metaobjectToCreatePayload = async (metaobject, fromRegion, toRegion) => {
+const metaobjectToCreatePayload = async (metaobject, fromCredsPath, toCredsPath) => {
 
   const { 
     handle,
@@ -38,7 +38,7 @@ const metaobjectToCreatePayload = async (metaobject, fromRegion, toRegion) => {
   } = metaobject;
 
   const transformedFields = [];
-  
+
   for (const field of fields) {
 
     const {
@@ -104,10 +104,15 @@ const shopifyMetaobjectsPropagate = async (
     return shopifyMetaobjectsResponse;
   }
 
-  // Transform the data for creation
-  const transformedMetaobjects = metaobjects.map(metaobjectToCreatePayload);
+  const responses = await Promise.all(toCredsPaths.map(async credsPath => {
 
-  const responses = await Promise.all(toCredsPaths.map(credsPath => {
+    // Transform the data for creation
+    const transformedMetaobjects = [];
+    for (const mo of metaobjects) {
+      const transformedMetaobject = await metaobjectToCreatePayload(mo, fromCredsPath, credsPath);
+      transformedMetaobjects.push(transformedMetaobject);
+    }
+
     return shopifyMetaobjectCreate(
       credsPath, 
       transformedMetaobjects, 
