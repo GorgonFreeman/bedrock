@@ -5,6 +5,8 @@ const { shopifyMetaobjectsGet } = require('../shopify/shopifyMetaobjectsGet');
 const { shopifyMetaobjectCreate } = require('../shopify/shopifyMetaobjectCreate');
 const { shopifyMetaobjectGet } = require('../shopify/shopifyMetaobjectGet');
 
+const metaobjectsData = {};
+
 // All attributes needed to recreate metaobjects in the destination stores
 const attrs = `
   id
@@ -80,20 +82,28 @@ const shopifyMetaobjectsPropagate = async (
 
         const fromMetaobjectId = gidToId(fieldValue);
 
-        const fromMetaobjectResponse = await shopifyMetaobjectGet(
-          fromCredsPath,
-          {
-            metaobjectId: fromMetaobjectId,
-          },
-          {
-            apiVersion,
-            attrs: 'id handle type',
-          }, 
-        );
+        let fromMetaobject = metaobjectsData?.[fromCredsPath]?.[fromMetaobjectId];
 
-        const { success: fromMetaobjectGetSuccess, result: fromMetaobject } = fromMetaobjectResponse;
-        if (!fromMetaobjectGetSuccess) {
-          return fromMetaobjectResponse;
+        if (!fromMetaobject) {
+          const fromMetaobjectResponse = await shopifyMetaobjectGet(
+            fromCredsPath,
+            {
+              metaobjectId: fromMetaobjectId,
+            },
+            {
+              apiVersion,
+              attrs: 'id handle type',
+            }, 
+          );
+
+          const { success: fromMetaobjectGetSuccess, result: fromMetaobjectResult } = fromMetaobjectResponse;
+          if (!fromMetaobjectGetSuccess) {
+            return fromMetaobjectResponse;
+          }
+
+          fromMetaobject = fromMetaobjectResult;
+          metaobjectsData[fromCredsPath] = metaobjectsData[fromCredsPath] || {};
+          metaobjectsData[fromCredsPath][fromMetaobjectId] = fromMetaobject;
         }
 
         interactive && logDeep('fromMetaobject', fromMetaobject);
