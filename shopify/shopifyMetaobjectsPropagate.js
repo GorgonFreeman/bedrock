@@ -1,3 +1,4 @@
+const { HOSTED } = require('../constants');
 const { funcApi, logDeep, arrayStandardResponse, customNullish } = require('../utils');
 const { shopifyMetaobjectsGet } = require('../shopify/shopifyMetaobjectsGet');
 const { shopifyMetaobjectCreate } = require('../shopify/shopifyMetaobjectCreate');
@@ -58,8 +59,16 @@ const shopifyMetaobjectsPropagate = async (
   {
     apiVersion,
     fetchOptions,
+    interactive,
   } = {},
 ) => {
+
+  if (interactive && HOSTED) {
+    return {
+      success: false,
+      error: ['Interactive mode can only be done locally'],
+    };
+  }
 
   const shopifyMetaobjectsResponse = await shopifyMetaobjectsGet(
     fromCredsPath,
@@ -86,6 +95,7 @@ const shopifyMetaobjectsPropagate = async (
       {
         apiVersion,
         returnAttrs: attrs,
+        interactive,
       },
     );
   }));
@@ -108,3 +118,4 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyMetaobjectsPropagate -H "Content-Type: application/json" -d '{ "fromCredsPath": "au", "toCredsPaths": ["us", "uk"], "type": "wishlist_emojis" }'
+// curl localhost:8000/shopifyMetaobjectsPropagate -H "Content-Type: application/json" -d '{ "fromCredsPath": "au", "toCredsPaths": ["us", "uk"], "type": "wishlist_emojis", "options": { "interactive": true } }'
