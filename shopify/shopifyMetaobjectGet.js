@@ -69,3 +69,4 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyMetaobjectGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "metaobjectIdentifier": { "metaobjectId": "177416241224" } }'
+// curl localhost:8000/shopifyMetaobjectGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "metaobjectIdentifier": { "metaobjectHandle": "symbols" } }'
