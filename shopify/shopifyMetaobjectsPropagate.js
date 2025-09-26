@@ -1,5 +1,5 @@
 const { HOSTED } = require('../constants');
-const { funcApi, logDeep, arrayStandardResponse, customNullish } = require('../utils');
+const { funcApi, logDeep, arrayStandardResponse, customNullish, askQuestion } = require('../utils');
 const { shopifyMetaobjectsGet } = require('../shopify/shopifyMetaobjectsGet');
 const { shopifyMetaobjectCreate } = require('../shopify/shopifyMetaobjectCreate');
 
@@ -54,6 +54,8 @@ const metaobjectToCreatePayload = async (metaobject, fromCredsPath, toCredsPath)
 
     if (fieldType !== 'metaobject_reference') {
       // Handle metaobject reference
+      logDeep(field);
+      await askQuestion('?');
     }
 
     transformedFields.push({
