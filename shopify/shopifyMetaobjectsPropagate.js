@@ -110,21 +110,29 @@ const shopifyMetaobjectsPropagate = async (
         interactive && logDeep('fromMetaobject', fromMetaobject);
         interactive && await askQuestion('?');
 
-        const toMetaobjectResponse = await shopifyMetaobjectGet(
-          toCredsPath,
-          {
-            metaobjectHandle: fromMetaobject.handle,
-            metaobjectType: fromMetaobject.type,
-          },
-          {
-            apiVersion,
-            attrs: 'id handle type',
-          },
-        );
+        let toMetaobject = metaobjectsData?.[toCredsPath]?.[fromMetaobjectId];
 
-        const { success: toMetaobjectGetSuccess, result: toMetaobject } = toMetaobjectResponse;
-        if (!toMetaobjectGetSuccess) {
-          return toMetaobjectResponse;
+        if (!toMetaobject) {
+          const toMetaobjectResponse = await shopifyMetaobjectGet(
+            toCredsPath,
+            {
+              metaobjectHandle: fromMetaobject.handle,
+              metaobjectType: fromMetaobject.type,
+            },
+            {
+              apiVersion,
+              attrs: 'id handle type',
+            },
+          );
+
+          const { success: toMetaobjectGetSuccess, result: toMetaobjectResult } = toMetaobjectResponse;
+          if (!toMetaobjectGetSuccess) {
+            return toMetaobjectResponse;
+          }
+
+          toMetaobject = toMetaobjectResult;
+          metaobjectsData[toCredsPath] = metaobjectsData[toCredsPath] || {};
+          metaobjectsData[toCredsPath][fromMetaobjectId] = toMetaobject;
         }
 
         interactive && logDeep('toMetaobject', toMetaobject);
