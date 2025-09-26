@@ -1,6 +1,6 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/metaobjectCreate
 
-const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
+const { funcApi, logDeep, actionMultipleOrSingle, askQuestion } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id handle displayName`;
@@ -13,6 +13,9 @@ const shopifyMetaobjectCreateSingle = async (
     returnAttrs = defaultAttrs,
   } = {},
 ) => {
+
+  logDeep(metaobjectInput);
+  await askQuestion('Continue?');
 
   const response = await shopifyMutationDo(
     credsPath,
