@@ -52,7 +52,7 @@ const metaobjectToCreatePayload = async (metaobject, fromCredsPath, toCredsPath)
       continue;
     }
 
-    if (fieldType !== 'metaobject_reference') {
+    if (fieldType === 'metaobject_reference') {
       // Handle metaobject reference
       logDeep(field);
       await askQuestion('?');
