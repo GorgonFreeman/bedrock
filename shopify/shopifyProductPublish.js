@@ -22,16 +22,12 @@ const shopifyProductPublish = async (
         apiVersion,
         attrs: `
           id
-          resourcePublications(first: 20) {
+          unpublishedPublications(first: 20) {
             edges {
               node {
-                isPublished
-                publishDate
-                publication {
-                  id
-                  catalog {
-                    title
-                  }
+                id
+                catalog {
+                  title
                 }
               }
             }
@@ -47,9 +43,8 @@ const shopifyProductPublish = async (
     
     logDeep(productData);
     await askQuestion('?');
-    publications = productData.resourcePublications
-      .filter(p => !p.isPublished)
-      .map(p => ({ publicationId: p.publication.id }))
+    publications = productData.unpublishedPublications
+      .map(p => ({ publicationId: p.id }))
     ;
   }
 
