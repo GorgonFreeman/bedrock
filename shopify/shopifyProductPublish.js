@@ -10,6 +10,7 @@ const shopifyProductPublish = async (
   {
     apiVersion,
     publications, // https://shopify.dev/docs/api/admin-graphql/latest/input-objects/ProductPublicationInput
+    // TODO: Consider accepting an option to unpublish
   } = {},
 ) => {
 
