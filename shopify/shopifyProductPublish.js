@@ -46,8 +46,10 @@ const shopifyProductPublish = async (
     }
 
     logDeep(productData);
-
-    publications = productData.publications;
+    publications = productData.resourcePublications
+      .filter(p => p.isPublished)
+      .map(p => p.publication.id)
+    ;
   }
 
   return true;
