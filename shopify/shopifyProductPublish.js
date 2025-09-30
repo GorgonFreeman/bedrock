@@ -1,7 +1,7 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/productPublish
 
 const { funcApi, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+const { shopifyMutationDo } = require('../shopify/shopify.utils');
 const { shopifyProductGet } = require('../shopify/shopifyProductGet');
 
 const shopifyProductPublish = async (
@@ -44,7 +44,7 @@ const shopifyProductPublish = async (
     if (!productGetSuccess) {
       return productGetResponse;
     }
-
+    
     logDeep(productData);
     publications = productData.resourcePublications
       .filter(p => p.isPublished)
@@ -52,7 +52,25 @@ const shopifyProductPublish = async (
     ;
   }
 
-  return true;
+  const response = await shopifyMutationDo(
+    credsPath,
+    'productPublish',
+    {
+      input: {
+        type: 'ProductPublishInput!',
+        value: {
+          id: `gid://shopify/Product/${ productId }`,
+          productPublications: publications,
+        },
+      },
+    },
+    `product { publishedAt }`,
+    { 
+      apiVersion,
+    },
+  );
+  logDeep(response);
+  return response;
 };
 
 const shopifyProductPublishApi = funcApi(shopifyProductPublish, {
