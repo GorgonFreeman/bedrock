@@ -45,13 +45,18 @@ const shopifyProductsPublish = async (
     async (pile) => {
       const product = pile.shift();
 
-      logDeep(product);
-      await askQuestion('Continue?');
-
       const { 
         id: productGid, 
         unpublishedPublications, 
       } = product;
+
+      if (unpublishedPublications.length === 0) {
+        return;
+      }
+
+      logDeep(product);
+      await askQuestion('Continue?');
+
       const publicationsInput = unpublishedPublications.map(p => ({ publicationId: p.id }));
       const productId = gidToId(productGid);
 
