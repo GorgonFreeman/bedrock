@@ -1,6 +1,6 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/productPublish
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, askQuestion } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 const { shopifyProductGet } = require('../shopify/shopifyProductGet');
 
@@ -46,11 +46,15 @@ const shopifyProductPublish = async (
     }
     
     logDeep(productData);
+    await askQuestion('?');
     publications = productData.resourcePublications
       .filter(p => !p.isPublished)
       .map(p => ({ publicationId: p.publication.id }))
     ;
   }
+
+  logDeep(publications);
+  await askQuestion('?');
 
   const response = await shopifyMutationDo(
     credsPath,
