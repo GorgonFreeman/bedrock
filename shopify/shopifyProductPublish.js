@@ -48,7 +48,7 @@ const shopifyProductPublish = async (
     logDeep(productData);
     publications = productData.resourcePublications
       .filter(p => p.isPublished)
-      .map(p => p.publication.id)
+      .map(p => ({ publicationId: p.publication.id }))
     ;
   }
 
