@@ -41,15 +41,15 @@ const shopifyProductPublish = async (
       return productGetResponse;
     }
     
-    logDeep(productData);
-    await askQuestion('?');
+    // logDeep(productData);
+    // await askQuestion('?');
     publications = productData.unpublishedPublications
       .map(p => ({ publicationId: p.id }))
     ;
   }
 
-  logDeep(publications);
-  await askQuestion('?');
+  // logDeep(publications);
+  // await askQuestion('?');
 
   if (!publications?.length) {
     return {
