@@ -68,9 +68,9 @@ const shopifyProductsPublish = async (
     },
     pile => pile.length === 0,
     {
-      runOptions: {
-        interval: 20,
-      },
+      // runOptions: {
+      //   interval: 20,
+      // },
     },
   );
 
