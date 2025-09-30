@@ -1,53 +1,21 @@
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/productPublish
+
 const { funcApi, logDeep } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
-
 const shopifyProductPublish = async (
   credsPath,
-  arg,
+  productId,
   {
     apiVersion,
-    option,
+    publications, // https://shopify.dev/docs/api/admin-graphql/latest/input-objects/ProductPublicationInput
   } = {},
 ) => {
-
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
-      apiVersion,
-    },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
-
-  logDeep(response);
-  return response;
+  return true;
 };
 
 const shopifyProductPublishApi = funcApi(shopifyProductPublish, {
-  argNames: ['credsPath', 'arg'],
+  argNames: ['credsPath', 'productId', 'options'],
 });
 
 module.exports = {
@@ -55,4 +23,4 @@ module.exports = {
   shopifyProductPublishApi,
 };
 
-// curl localhost:8000/shopifyProductPublish -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyProductPublish -H "Content-Type: application/json" -d '{ "credsPath": "au", "productId": "6981196546120" }'
