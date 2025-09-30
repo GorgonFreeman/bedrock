@@ -2,6 +2,7 @@
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
+const { shopifyProductGet } = require('../shopify/shopifyProductGet');
 
 const shopifyProductPublish = async (
   credsPath,
@@ -11,6 +12,43 @@ const shopifyProductPublish = async (
     publications, // https://shopify.dev/docs/api/admin-graphql/latest/input-objects/ProductPublicationInput
   } = {},
 ) => {
+
+  if (!publications) {
+    const productGetResponse = await shopifyProductGet(
+      credsPath,
+      { productId },
+      {
+        apiVersion,
+        attrs: `
+          id
+          resourcePublications(first: 20) {
+            edges {
+              node {
+                isPublished
+                publishDate
+                publication {
+                  id
+                  catalog {
+                    title
+                  }
+                }
+              }
+            }
+          }
+        `
+      },
+    );
+
+    const { success: productGetSuccess, result: productData } = productGetResponse;
+    if (!productGetSuccess) {
+      return productGetResponse;
+    }
+
+    logDeep(productData);
+
+    publications = productData.publications;
+  }
+
   return true;
 };
 
