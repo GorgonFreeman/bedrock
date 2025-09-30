@@ -56,6 +56,13 @@ const shopifyProductPublish = async (
   logDeep(publications);
   await askQuestion('?');
 
+  if (!publications?.length) {
+    return {
+      success: false,
+      error: ['No publications to publish'],
+    };
+  }
+
   const response = await shopifyMutationDo(
     credsPath,
     'productPublish',
