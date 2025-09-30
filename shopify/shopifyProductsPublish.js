@@ -1,5 +1,6 @@
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, Processor, gidToId, arrayStandardResponse, askQuestion } = require('../utils');
 const { shopifyProductsGet } = require('../shopify/shopifyProductsGet');
+const { shopifyProductPublish } = require('../shopify/shopifyProductPublish');
 
 const shopifyProductsPublish = async (
   credsPath,
@@ -32,14 +33,52 @@ const shopifyProductsPublish = async (
     },
   );
 
-  const { success: productsGetSuccess, result: productsData } = productsResponse;
+  const { success: productsGetSuccess, result: products } = productsResponse;
   if (!productsGetSuccess) {
     return productsResponse;
   }
 
-  logDeep(productsData);
+  const results = [];
 
-  return true;
+  const publishingProcessor = new Processor(
+    products, 
+    async (pile) => {
+      const product = pile.shift();
+
+      logDeep(product);
+      await askQuestion('Continue?');
+
+      const { 
+        id: productGid, 
+        unpublishedPublications, 
+      } = product;
+      const publicationsInput = unpublishedPublications.map(p => ({ publicationId: p.id }));
+      const productId = gidToId(productGid);
+
+      const publishResponse = await shopifyProductPublish(
+        credsPath, 
+        productId,
+        {
+          apiVersion,
+          publications: publicationsInput,
+        },
+      );
+
+      results.push(publishResponse);
+    },
+    pile => pile.length === 0,
+    {
+      runOptions: {
+        interval: 20,
+      },
+    },
+  );
+
+  await publishingProcessor.run();
+
+  const response = arrayStandardResponse(results);
+  logDeep(response);
+  return response;
 };
 
 const shopifyProductsPublishApi = funcApi(shopifyProductsPublish, {
