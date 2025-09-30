@@ -54,8 +54,8 @@ const shopifyProductsPublish = async (
         return;
       }
 
-      logDeep(product);
-      await askQuestion('Continue?');
+      // logDeep(product);
+      // await askQuestion('Continue?');
 
       const publicationsInput = unpublishedPublications.map(p => ({ publicationId: p.id }));
       const productId = gidToId(productGid);
@@ -73,9 +73,9 @@ const shopifyProductsPublish = async (
     },
     pile => pile.length === 0,
     {
-      // runOptions: {
-      //   interval: 20,
-      // },
+      runOptions: {
+        interval: 20,
+      },
     },
   );
 
