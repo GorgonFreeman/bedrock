@@ -194,6 +194,7 @@ module.exports = {
   collabsFulfillmentSweep: require('./collabs/collabsFulfillmentSweep').collabsFulfillmentSweepApi,
   collabsFulfillmentSweepRecent: require('./collabs/collabsFulfillmentSweepRecent').collabsFulfillmentSweepRecentApi,
   collabsFulfillmentSweepV2: require('./collabs/collabsFulfillmentSweepV2').collabsFulfillmentSweepV2Api,
+  collabsFulfillmentSweepV3: require('./collabs/collabsFulfillmentSweepV3').collabsFulfillmentSweepV3Api,
   collabsFulfillmentsReview: require('./collabs/collabsFulfillmentsReview').collabsFulfillmentsReviewApi,
   collabsInventoryReview: require('./collabs/collabsInventoryReview').collabsInventoryReviewApi,
   collabsOrderFulfillmentFind: require('./collabs/collabsOrderFulfillmentFind').collabsOrderFulfillmentFindApi,
