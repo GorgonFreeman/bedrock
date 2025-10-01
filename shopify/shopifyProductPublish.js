@@ -70,7 +70,7 @@ const shopifyProductPublish = async (
         },
       },
     },
-    `product { publishedAt }`,
+    `product { id title publishedAt }`,
     { 
       apiVersion,
     },
