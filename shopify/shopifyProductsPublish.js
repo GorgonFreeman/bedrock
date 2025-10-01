@@ -1,8 +1,8 @@
-const { funcApi, logDeep, Processor, gidToId, arrayStandardResponse, askQuestion } = require('../utils');
+const { funcApi, logDeep, Processor, gidToId, arrayStandardResponse, askQuestion, actionMultipleOrSingle } = require('../utils');
 const { shopifyProductsGet } = require('../shopify/shopifyProductsGet');
 const { shopifyProductPublish } = require('../shopify/shopifyProductPublish');
 
-const shopifyProductsPublish = async (
+const shopifyProductsPublishSingle = async (
   credsPath,
   {
     apiVersion,
@@ -86,12 +86,36 @@ const shopifyProductsPublish = async (
   return response;
 };
 
+const shopifyProductsPublish = async (
+  credsPath,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    credsPath,
+    shopifyProductsPublishSingle,
+    (credsPath) => ({
+      args: [credsPath],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+  
+  logDeep(response);
+  return response;
+};
+
 const shopifyProductsPublishApi = funcApi(shopifyProductsPublish, {
   argNames: ['credsPath', 'options'],
 });
 
 module.exports = {
   shopifyProductsPublish,
+  shopifyProductsPublishSingle,
   shopifyProductsPublishApi,
 };
 
