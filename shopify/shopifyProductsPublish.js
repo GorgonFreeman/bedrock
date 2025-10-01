@@ -1,3 +1,4 @@
+const { HOSTED } = require('../constants');
 const { funcApi, logDeep, Processor, gidToId, arrayStandardResponse, askQuestion, actionMultipleOrSingle } = require('../utils');
 const { shopifyProductsGetter } = require('../shopify/shopifyProductsGet');
 const { shopifyProductPublish } = require('../shopify/shopifyProductPublish');
@@ -106,13 +107,13 @@ const shopifyProductsPublishSingle = async (
   });
  
   await Promise.all([
-    productsGetter.run(),
+    productsGetter.run({ verbose: !HOSTED }),
     qualifyingProcessor.run({ verbose: false }),
-    publishingProcessor.run(),
+    publishingProcessor.run({ verbose: !HOSTED }),
   ]);
 
   const response = arrayStandardResponse(piles.results);
-  logDeep(response);
+  !HOSTED && logDeep(response);
   return response;
 };
 
@@ -135,7 +136,7 @@ const shopifyProductsPublish = async (
     },
   );
   
-  logDeep(response);
+  !HOSTED && logDeep(response);
   return response;
 };
 

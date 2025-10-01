@@ -1,5 +1,6 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/productPublish
 
+const { HOSTED } = require('../constants');
 const { funcApi, logDeep, askQuestion } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 const { shopifyProductGet } = require('../shopify/shopifyProductGet');
@@ -75,7 +76,7 @@ const shopifyProductPublish = async (
       apiVersion,
     },
   );
-  logDeep(response);
+  !HOSTED && logDeep(response);
   return response;
 };
 
