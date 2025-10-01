@@ -1344,7 +1344,7 @@ const actionMultipleOrSingle = async (input, func, buildOpArgs, { queueRunOption
       buildOpArgs(inputItem),
     )));
     let queueResponses = await queue.run(queueRunOptions);
-    queueResponse = arrayStandardResponse(queueResponses);
+    const queueResponse = arrayStandardResponse(queueResponses);
     return queueResponse;
   }
 
