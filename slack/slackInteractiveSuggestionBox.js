@@ -13,14 +13,15 @@ const SUGGESTION_HEADER_TEXT = 'Suggestion Box';
 const ANONYMOUS_CHECKBOX_LABEL = 'I would like to be anonymous';
 const SUBMIT_BUTTON_TEXT = 'Submit Suggestion';
 const CANCEL_BUTTON_TEXT = 'Cancel';
-const EMPTY_SUGGESTION_MESSAGE = 'Is this a prank? You didn\'t enter anything! :face_holding_back_tears:';
-const SUGGESTION_TOO_SHORT_MESSAGE = `Your suggestion is too short. :thinking_face: Please enter at least ${ SUGGESTION_MIN_LENGTH } characters.`;
-const FAILED_TO_POST_SUGGESTION_MESSAGE = 'Failed to post suggestion to Slack.\nPlease let the dev team know asap so we can deliver your suggestions ASAP!';
-const SUBMITTED_SUGGESTION_MESSAGE = ':inbox_tray: Your suggestion has been submitted.\nThank you for your feedback! :wink:';
-const SUBMITTED_SUGGESTION_MESSAGE_ANONYMOUS = ':inbox_tray: Your suggestion has been submitted anonymously.\nThank you for your feedback! :wink:';
-const CANCEL_MESSAGE = 'No worries - nothing was submitted.\n(You can always come back later to submit another suggestion!)';
-const ANONYMOUS_SUGGESTION_MESSAGE = 'New Anonymous Suggestion';
-const NON_ANONYMOUS_SUGGESTION_MESSAGE = 'New Suggestion from [name]';
+
+const MESSAGE_EMPTY_SUGGESTION = 'Is this a prank? You didn\'t enter anything! :face_holding_back_tears:';
+const MESSAGE_SUGGESTION_TOO_SHORT = `Your suggestion is too short. :thinking_face: Please enter at least ${ SUGGESTION_MIN_LENGTH } characters.`;
+const MESSAGE_FAILED_TO_POST_SUGGESTION = 'Failed to post suggestion to Slack.\nPlease let the dev team know asap so we can deliver your suggestions ASAP!';
+const MESSAGE_SUBMITTED_SUGGESTION = ':inbox_tray: Your suggestion has been submitted.\nThank you for your feedback! :wink:';
+const MESSAGE_SUBMITTED_SUGGESTION_ANONYMOUS = ':inbox_tray: Your suggestion has been submitted anonymously.\nThank you for your feedback! :wink:';
+const MESSAGE_CANCEL = 'No worries - nothing was submitted.\n(You can always come back later to submit another suggestion!)';
+const MESSAGE_ANONYMOUS_SUGGESTION = 'New Anonymous Suggestion';
+const MESSAGE_NON_ANONYMOUS_SUGGESTION = 'New Suggestion from [name]';
 
 // Blocks
 const dividerBlock = {
@@ -144,7 +145,7 @@ const suggestionHeaderBlock = ({ isAnonymous, username } = {}) => {
     type: 'header',
     text: {
     type: 'plain_text',
-      text: `${ isAnonymous ? ANONYMOUS_SUGGESTION_MESSAGE : `${ NON_ANONYMOUS_SUGGESTION_MESSAGE.replaceAll('[name]', capitaliseString(username)) }` }`,
+      text: `${ isAnonymous ? MESSAGE_ANONYMOUS_SUGGESTION : `${ MESSAGE_NON_ANONYMOUS_SUGGESTION.replaceAll('[name]', capitaliseString(username)) }` }`,
     },
   };
 };
@@ -192,14 +193,14 @@ const slackInteractiveSuggestionBox = async (req, res) => {
       return respond(res, 200, {
         response_type: 'ephemeral',
         replace_original: 'true',
-        text: FAILED_TO_POST_SUGGESTION_MESSAGE,
+        text: MESSAGE_FAILED_TO_POST_SUGGESTION,
       });
     }
 
     return respond(res, 200, {
       response_type: 'ephemeral',
       replace_original: 'true',
-      text: SUBMITTED_SUGGESTION_MESSAGE,
+      text: MESSAGE_SUBMITTED_SUGGESTION,
     });
   }
 
@@ -256,7 +257,7 @@ const slackInteractiveSuggestionBox = async (req, res) => {
         response = {
           response_type: 'ephemeral',
           replace_original: 'true',
-          blocks: erroredBlocks(EMPTY_SUGGESTION_MESSAGE, { anonymous: isAnonymous }),
+          blocks: erroredBlocks(MESSAGE_EMPTY_SUGGESTION, { anonymous: isAnonymous }),
         };
         break;
       }
@@ -265,7 +266,7 @@ const slackInteractiveSuggestionBox = async (req, res) => {
         response = {
           response_type: 'ephemeral',
           replace_original: 'true',
-          blocks: erroredBlocks(SUGGESTION_TOO_SHORT_MESSAGE, { initialValue: suggestion, anonymous: isAnonymous }),
+          blocks: erroredBlocks(MESSAGE_SUGGESTION_TOO_SHORT, { initialValue: suggestion, anonymous: isAnonymous }),
         };
         break;
       }
@@ -284,7 +285,7 @@ const slackInteractiveSuggestionBox = async (req, res) => {
         response = {
           response_type: 'ephemeral',
           replace_original: 'true',
-          text: FAILED_TO_POST_SUGGESTION_MESSAGE,
+          text: MESSAGE_FAILED_TO_POST_SUGGESTION,
         };
         break;
       }
@@ -292,7 +293,7 @@ const slackInteractiveSuggestionBox = async (req, res) => {
       response = {
         response_type: 'ephemeral',
         replace_original: 'true',
-        text: isAnonymous ? SUBMITTED_SUGGESTION_MESSAGE_ANONYMOUS : SUBMITTED_SUGGESTION_MESSAGE,
+        text: isAnonymous ? MESSAGE_SUBMITTED_SUGGESTION_ANONYMOUS : MESSAGE_SUBMITTED_SUGGESTION,
       };
       break;
 
@@ -301,7 +302,7 @@ const slackInteractiveSuggestionBox = async (req, res) => {
       response = {
         response_type: 'ephemeral',
         replace_original: 'true',
-        text: CANCEL_MESSAGE,
+        text: MESSAGE_CANCEL,
       };
       break;
 
