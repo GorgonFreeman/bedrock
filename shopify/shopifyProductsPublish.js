@@ -89,7 +89,7 @@ const shopifyProductsPublishSingle = async (
 const shopifyProductsPublish = async (
   credsPath,
   {
-    queueRunOptions,
+    queueRunOptions = { interval: 1 },
     ...options
   } = {},
 ) => {
