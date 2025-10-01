@@ -106,7 +106,7 @@ const shopifyProductsPublishSingle = async (
  
   await Promise.all([
     productsGetter.run(),
-    qualifyingProcessor.run(),
+    qualifyingProcessor.run({ verbose: false }),
     publishingProcessor.run(),
   ]);
 
