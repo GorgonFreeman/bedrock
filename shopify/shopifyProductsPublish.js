@@ -12,6 +12,7 @@ const shopifyProductsPublishSingle = async (
 
   const piles = {
     products: [],
+    actionable: [],
     results: [],
   };
 
@@ -42,8 +43,22 @@ const shopifyProductsPublishSingle = async (
     },
   );
 
+  const qualifyingProcessor = new Processor(
+    piles.products,
+    async (pile) => {
+      const product = pile.shift();
+      if (product.unpublishedPublications.length > 0) {
+        piles.actionable.push(product);
+      }
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+    },
+  );
+
   const publishingProcessor = new Processor(
-    piles.products, 
+    piles.actionable, 
     async (pile) => {
       const product = pile.shift();
 
@@ -51,10 +66,6 @@ const shopifyProductsPublishSingle = async (
         id: productGid, 
         unpublishedPublications, 
       } = product;
-
-      if (unpublishedPublications.length === 0) {
-        return;
-      }
 
       // logDeep(product);
       // await askQuestion('Continue?');
@@ -83,11 +94,16 @@ const shopifyProductsPublishSingle = async (
   );
 
   productsGetter.on('done', () => {
+    qualifyingProcessor.canFinish = true;
+  });
+
+  qualifyingProcessor.on('done', () => {
     publishingProcessor.canFinish = true;
   });
  
   await Promise.all([
     productsGetter.run(),
+    qualifyingProcessor.run(),
     publishingProcessor.run(),
   ]);
 
