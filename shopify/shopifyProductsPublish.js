@@ -40,6 +40,7 @@ const shopifyProductsPublishSingle = async (
       onItems: (items) => {
         piles.products.push(...items);
       },
+      logFlavourText: `Getting items on ${ credsPath }`,
     },
   );
 
@@ -54,6 +55,7 @@ const shopifyProductsPublishSingle = async (
     pile => pile.length === 0,
     {
       canFinish: false,
+      logFlavourText: `Qualifying ${ credsPath }`,
     },
   );
 
@@ -90,6 +92,7 @@ const shopifyProductsPublishSingle = async (
       runOptions: {
         interval: 20,
       },
+      logFlavourText: `Publishing ${ credsPath }`,
     },
   );
 
