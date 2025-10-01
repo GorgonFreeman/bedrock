@@ -20,7 +20,7 @@ const SUBMITTED_SUGGESTION_MESSAGE = ':inbox_tray: Your suggestion has been subm
 const SUBMITTED_SUGGESTION_MESSAGE_ANONYMOUS = ':inbox_tray: Your suggestion has been submitted anonymously.\nThank you for your feedback! :wink:';
 const CANCEL_MESSAGE = 'No worries - nothing was submitted.\n(You can always come back later to submit another suggestion!)';
 const ANONYMOUS_SUGGESTION_MESSAGE = 'New Anonymous Suggestion';
-const NON_ANONYMOUS_SUGGESTION_MESSAGE = 'New Suggestion from';
+const NON_ANONYMOUS_SUGGESTION_MESSAGE = 'New Suggestion from [name]';
 
 // Blocks
 const dividerBlock = {
@@ -144,7 +144,7 @@ const suggestionHeaderBlock = ({ isAnonymous, username } = {}) => {
     type: 'header',
     text: {
     type: 'plain_text',
-      text: `${ isAnonymous ? ANONYMOUS_SUGGESTION_MESSAGE : `${ NON_ANONYMOUS_SUGGESTION_MESSAGE } ${ capitaliseString(username) }` }`,
+      text: `${ isAnonymous ? ANONYMOUS_SUGGESTION_MESSAGE : `${ NON_ANONYMOUS_SUGGESTION_MESSAGE.replaceAll('[name]', capitaliseString(username)) }` }`,
     },
   };
 };
