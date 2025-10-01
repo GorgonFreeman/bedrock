@@ -1,5 +1,6 @@
 const { REGIONS_ALL } = require('../constants');
 const { funcApi } = require('../utils');
+const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 
 const collabsFulfillmentSweepV3 = async (
   {
@@ -7,6 +8,42 @@ const collabsFulfillmentSweepV3 = async (
     // option,
   } = {},
 ) => {
+
+  const piles = {
+    in: {},
+  };
+  
+  const shopifyOrderGetters = [];
+  for (const region of regions) {
+    piles.in[region] = [];
+
+    const getter = await shopifyOrdersGetter(
+      region, 
+      {
+        attrs: `
+          id
+          name
+          shippingLine {
+            title
+          }
+        `,
+        queries: [
+          'created_at:>2025-07-01',
+          'fulfillment_status:unshipped',
+          'status:open',
+          'delivery_method:shipping',
+        ],
+
+        onItems: (items) => {
+          piles.in[region].push(...items);
+        },
+      },
+    );
+
+    shopifyOrderGetters.push(getter);
+  }
+
+  await Promise.all(shopifyOrderGetters.map(getter => getter.run()));
 
   return { 
     regions, 
