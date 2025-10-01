@@ -92,6 +92,7 @@ const shopifyProductsPublishSingle = async (
       runOptions: {
         interval: 20,
       },
+      maxInFlightRequests: 50,
       logFlavourText: `Publishing ${ credsPath }`,
     },
   );
