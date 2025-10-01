@@ -360,10 +360,29 @@ const shopifyFulfillmentLineItemsFromExternalLineItems = (externalLineItems, sho
   return fulfillmentLineItemsPayload;
 };
 
+const shopifyCredsPathDistill = (credsPath) => {
+  let nodes = Array.isArray(credsPath) 
+    ? credsPath.map(node => {
+      try {
+        return node.split('.');
+      } catch (err) {
+        return null;
+      }
+    })
+    : credsPath.split('.');
+  nodes = nodes.flat().filter(n => n);
+  
+  return {
+    region: nodes[0],
+    branch: nodes.slice(1).join('.'),
+  };
+};
+
 module.exports = {
   shopifyClient,
   shopifyGetter,
   shopifyGet,
   shopifyMutationDo,
   shopifyFulfillmentLineItemsFromExternalLineItems,
+  shopifyCredsPathDistill,
 };
