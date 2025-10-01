@@ -1,5 +1,5 @@
 const { funcApi, logDeep, Processor, gidToId, arrayStandardResponse, askQuestion, actionMultipleOrSingle } = require('../utils');
-const { shopifyProductsGet } = require('../shopify/shopifyProductsGet');
+const { shopifyProductsGetter } = require('../shopify/shopifyProductsGet');
 const { shopifyProductPublish } = require('../shopify/shopifyProductPublish');
 
 const shopifyProductsPublishSingle = async (
@@ -9,6 +9,11 @@ const shopifyProductsPublishSingle = async (
     fetchOptions,
   } = {},
 ) => {
+
+  const piles = {
+    products: [],
+    results: [],
+  };
 
   const attrs = `
     id
@@ -24,24 +29,21 @@ const shopifyProductsPublishSingle = async (
     }
   `;
 
-  const productsResponse = await shopifyProductsGet(
+  const productsGetter = await shopifyProductsGetter(
     credsPath,
     {
       apiVersion,
       ...fetchOptions,
       attrs,
+
+      onItems: (items) => {
+        piles.products.push(...items);
+      },
     },
   );
 
-  const { success: productsGetSuccess, result: products } = productsResponse;
-  if (!productsGetSuccess) {
-    return productsResponse;
-  }
-
-  const results = [];
-
   const publishingProcessor = new Processor(
-    products, 
+    piles.products, 
     async (pile) => {
       const product = pile.shift();
 
@@ -69,19 +71,27 @@ const shopifyProductsPublishSingle = async (
         },
       );
 
-      results.push(publishResponse);
+      piles.results.push(publishResponse);
     },
     pile => pile.length === 0,
     {
+      canFinish: false,
       runOptions: {
         interval: 20,
       },
     },
   );
 
-  await publishingProcessor.run();
+  productsGetter.on('done', () => {
+    publishingProcessor.canFinish = true;
+  });
+ 
+  await Promise.all([
+    productsGetter.run(),
+    publishingProcessor.run(),
+  ]);
 
-  const response = arrayStandardResponse(results);
+  const response = arrayStandardResponse(piles.results);
   logDeep(response);
   return response;
 };
