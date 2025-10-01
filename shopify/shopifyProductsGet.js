@@ -1,10 +1,11 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/queries/products
 
 const { respond, mandateParam, logDeep } = require('../utils');
-const { shopifyGet } = require('../shopify/shopify.utils');
+const { shopifyGet, shopifyGetter } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id`;
 
+/*
 const shopifyProductsGet = async (
   credsPath,
   {
@@ -22,6 +23,34 @@ const shopifyProductsGet = async (
     },
   );
 
+  return response;
+};
+*/
+
+const payloadMaker = (
+  credsPath,
+  {
+    attrs = defaultAttrs,
+    ...options
+  } = {},
+) => {
+  return [
+    credsPath,
+    'product',
+    {
+      attrs,
+      ...options,
+    },
+  ];
+};
+
+const shopifyProductsGet = async (...args) => {
+  const response = await shopifyGet(...payloadMaker(...args));
+  return response;
+};
+
+const shopifyProductsGetter = async (...args) => {
+  const response = await shopifyGetter(...payloadMaker(...args));
   return response;
 };
 
@@ -47,6 +76,7 @@ const shopifyProductsGetApi = async (req, res) => {
 
 module.exports = {
   shopifyProductsGet,
+  shopifyProductsGetter,
   shopifyProductsGetApi,
 };
 
