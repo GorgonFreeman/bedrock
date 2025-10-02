@@ -25,7 +25,7 @@ const peoplevoxDespatchesGetBySalesOrderNumber = async (
   }
 
   const response = arrayStandardResponse(responses, { flatten: true });
-  logDeep(response);
+  // logDeep(response);
   return response;  
 };
 
