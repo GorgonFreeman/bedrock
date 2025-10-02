@@ -111,6 +111,8 @@ const collabsFulfillmentSweepV3 = async (
         },
 
         onDone: getterFinish,
+
+        logFlavourText: `${ region }:getter:`,
       },
     );
 
@@ -210,6 +212,7 @@ const collabsFulfillmentSweepV3 = async (
       {
         canFinish: false,
         onDone: processorFinish,
+        logFlavourText: `${ region }:starshipit:`,
       },
     );
 
@@ -284,6 +287,7 @@ const collabsFulfillmentSweepV3 = async (
       {
         canFinish: false,
         onDone: processorFinish,
+        logFlavourText: `${ region }:peoplevox:`,
       },
     );
 
@@ -306,6 +310,7 @@ const collabsFulfillmentSweepV3 = async (
     arrayExhaustedCheck,
     {
       canFinish: false,
+      logFlavourText: `fulfiller:`,
     },
   );
 
