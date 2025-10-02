@@ -22,6 +22,22 @@ const collabsFulfillmentSweepV3 = async (
   const regionsBleckmann = regions.filter(region => REGIONS_BLECKMANN.includes(region));
   const regionsStarshipit = regions.filter(region => REGIONS_STARSHIPIT.includes(region));
 
+  const anyRelevant = [regionsPeoplevox, regionsLogiwa, regionsBleckmann, regionsStarshipit].some(Boolean);
+  if (!anyRelevant) {
+    return {
+      success: false,
+      message: ['No regions supported'],
+    };
+  }
+
+  const unsupportedRegions = regions.filter(region => ![regionsPeoplevox, regionsLogiwa, regionsBleckmann, regionsStarshipit].some(Boolean));
+  if (unsupportedRegions.length > 0) {
+    return {
+      success: false,
+      message: [`Unsupported regions: ${ unsupportedRegions.join(', ') }`],
+    };
+  }
+
   const piles = {};
 
   for (const region of regions) {
