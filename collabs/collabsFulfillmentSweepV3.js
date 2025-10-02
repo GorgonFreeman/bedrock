@@ -96,7 +96,7 @@ const collabsFulfillmentSweepV3 = async (
 
         onDone: getterFinish,
 
-        limit: 500,
+        limit: 50,
       },
     );
 
