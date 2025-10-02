@@ -56,6 +56,8 @@ const collabsFulfillmentSweepV3 = async (
         onItems: (items) => {
           piles[region].in.push(...items);
         },
+
+        limit: 50,
       },
     );
 
