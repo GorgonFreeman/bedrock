@@ -20,13 +20,19 @@ const collabsFulfillmentSweepV3 = async (
   const regionsBleckmann = regions.filter(region => REGIONS_BLECKMANN.includes(region));
   const regionsStarshipit = regions.filter(region => REGIONS_STARSHIPIT.includes(region));
 
-  const piles = {
-    in: {},
-  };
+  const piles = {};
+
+  for (const region of regions) {
+    piles[region] = {
+      in: [],
+      resolved: [],
+      disqualified: [],
+      error: [],
+    };
+  }
   
   const shopifyOrderGetters = [];
   for (const region of regions) {
-    piles.in[region] = [];
 
     const getter = await shopifyOrdersGetter(
       region, 
@@ -46,7 +52,7 @@ const collabsFulfillmentSweepV3 = async (
         ],
 
         onItems: (items) => {
-          piles.in[region].push(...items);
+          piles[region].in.push(...items);
         },
       },
     );
