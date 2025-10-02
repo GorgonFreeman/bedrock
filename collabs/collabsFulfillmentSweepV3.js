@@ -18,12 +18,18 @@ const collabsFulfillmentSweepV3 = async (
   } = {},
 ) => {
 
-  const regionsPeoplevox = regions.filter(region => REGIONS_PVX.includes(region));
-  const regionsLogiwa = regions.filter(region => REGIONS_LOGIWA.includes(region));
-  const regionsBleckmann = regions.filter(region => REGIONS_BLECKMANN.includes(region));
+  // const regionsPeoplevox = regions.filter(region => REGIONS_PVX.includes(region));
+  // const regionsLogiwa = regions.filter(region => REGIONS_LOGIWA.includes(region));
+  // const regionsBleckmann = regions.filter(region => REGIONS_BLECKMANN.includes(region));
   const regionsStarshipit = regions.filter(region => REGIONS_STARSHIPIT.includes(region));
 
-  const anyRelevant = [regionsPeoplevox, regionsLogiwa, regionsBleckmann, regionsStarshipit].some(Boolean);
+  const anyRelevant = [
+    // regionsPeoplevox, 
+    // regionsLogiwa, 
+    // regionsBleckmann, 
+    regionsStarshipit,
+  ].some(r => r?.length);
+
   if (!anyRelevant) {
     return {
       success: false,
@@ -31,7 +37,12 @@ const collabsFulfillmentSweepV3 = async (
     };
   }
 
-  const unsupportedRegions = regions.filter(region => ![regionsPeoplevox, regionsLogiwa, regionsBleckmann, regionsStarshipit].some(r => r.includes(region)));
+  const unsupportedRegions = regions.filter(region => ![
+    // regionsPeoplevox, 
+    // regionsLogiwa, 
+    // regionsBleckmann, 
+    regionsStarshipit,
+  ].some(r => r.includes(region)));
   if (unsupportedRegions.length > 0) {
     return {
       success: false,
