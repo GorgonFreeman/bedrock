@@ -311,6 +311,9 @@ const collabsFulfillmentSweepV3 = async (
     {
       canFinish: false,
       logFlavourText: `fulfiller:`,
+      runOptions: {
+        interval: 20,
+      },
     },
   );
 
