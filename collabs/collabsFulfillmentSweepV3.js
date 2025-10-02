@@ -244,7 +244,12 @@ const collabsFulfillmentSweepV3 = async (
   
 };
 
-const collabsFulfillmentSweepV3Api = funcApi(collabsFulfillmentSweepV3);
+const collabsFulfillmentSweepV3Api = funcApi(
+  collabsFulfillmentSweepV3,
+  {
+    argNames: ['options'],
+  },
+);
 
 module.exports = {
   collabsFulfillmentSweepV3,
