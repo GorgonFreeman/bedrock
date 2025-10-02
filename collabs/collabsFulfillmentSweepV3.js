@@ -32,8 +32,27 @@ const collabsFulfillmentSweepV3 = async (
       error: [],
     };
   }
+
+  const getters = [];
+  const processors = [];
+  const fulfillers = [];
+
+  let gettersFinished = 0;
+  const getterFinish = () => {
+    gettersFinished++;
+    if (gettersFinished === getters.length) {
+      processors.forEach(i => i.canFinish = true);
+    }
+  };
+
+  let processorsFinished = 0;
+  const processorFinish = () => {
+    processorsFinished++;
+    if (processorsFinished === processors.length) {
+      fulfillers.forEach(i => i.canFinish = true);
+    }
+  };
   
-  const shopifyOrderGetters = [];
   for (const region of regions) {
 
     const getter = await shopifyOrdersGetter(
@@ -57,14 +76,14 @@ const collabsFulfillmentSweepV3 = async (
           piles[region].in.push(...items);
         },
 
-        limit: 50,
+        onDone: getterFinish,
+
+        limit: 500,
       },
     );
 
-    shopifyOrderGetters.push(getter);
+    getters.push(getter);
   }
-
-  const processors = [];
 
   for (const region of regionsStarshipit) {
 
@@ -103,6 +122,7 @@ const collabsFulfillmentSweepV3 = async (
       arrayExhaustedCheck,
       {
         canFinish: false,
+        onDone: processorFinish,
       },
     );
 
@@ -110,7 +130,7 @@ const collabsFulfillmentSweepV3 = async (
   }
 
   await Promise.all([
-    ...shopifyOrderGetters.map(getter => getter.run()),
+    ...getters.map(getter => getter.run()),
     ...processors.map(processor => processor.run()),
   ]);
 
