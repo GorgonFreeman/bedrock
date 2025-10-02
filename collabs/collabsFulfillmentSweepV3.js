@@ -256,4 +256,4 @@ module.exports = {
   collabsFulfillmentSweepV3Api,
 };
 
-// curl localhost:8000/collabsFulfillmentSweepV3 -H "Content-Type: application/json" -d '{ "options": { "regions": ["au"] } }'
+// curl localhost:8000/collabsFulfillmentSweepV3 -H "Content-Type: application/json" -d '{ "options": { "regions": ["au", "baddest"] } }'
