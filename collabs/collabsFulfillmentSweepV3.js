@@ -158,24 +158,14 @@ const collabsFulfillmentSweepV3 = async (
         // } = starshipitOrder;
 
         const {
-          status,
           packages,
+          manifested,
         } = starshipitOrder;
 
-        if (['Unshipped', 'Printed', 'Saved'].includes(status)) {
+        if (!manifested) {
           piles[region].disqualified.push({
             ...order,
-            reason: `Status '${ status }' not shipped`,
-          });
-          return;
-        }
-        
-        // TODO: Consider using 'manifest_sent'
-        if (!['Shipped'].includes(status)) {
-          console.warn(`Unrecognised Starshipit status: ${ status } (${ orderId })`);
-          piles[region].error.push({
-            ...order,
-            reason: `Unrecognised Starshipit status: ${ status }`,
+            reason: `Not manifested`,
           });
           return;
         }
