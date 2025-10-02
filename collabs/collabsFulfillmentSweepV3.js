@@ -39,7 +39,9 @@ const collabsFulfillmentSweepV3 = async (
     };
   }
 
-  const piles = {};
+  const piles = {
+    shopifyOrderFulfill: [],
+  };
 
   for (const region of regions) {
     piles[region] = {
@@ -47,7 +49,6 @@ const collabsFulfillmentSweepV3 = async (
       resolved: [],
       disqualified: [],
       error: [],
-      shopifyOrderFulfill: [],
     };
   }
 
@@ -148,9 +149,27 @@ const collabsFulfillmentSweepV3 = async (
     processors.push(starshipitProcessor);
   }
 
+  const orderFulfiller = new Processor(
+    piles.shopifyOrderFulfill,
+    async (pile) => {
+      const args = pile.shift();
+      const [region, ...rest] = args;
+      const response = await shopifyOrderFulfill(...args);
+      const destination = response?.success ? 'resolved' : 'error';
+      piles[region][destination].push(response);
+    },
+    arrayExhaustedCheck,
+    {
+      canFinish: false,
+    },
+  );
+
+  fulfillers.push(orderFulfiller);
+
   await Promise.all([
     ...getters.map(getter => getter.run()),
     ...processors.map(processor => processor.run()),
+    ...fulfillers.map(fulfiller => fulfiller.run()),
   ]);
 
   logDeep(piles);
