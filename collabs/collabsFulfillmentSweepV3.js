@@ -31,7 +31,7 @@ const collabsFulfillmentSweepV3 = async (
     };
   }
 
-  const unsupportedRegions = regions.filter(region => ![regionsPeoplevox, regionsLogiwa, regionsBleckmann, regionsStarshipit].some(Boolean));
+  const unsupportedRegions = regions.filter(region => ![regionsPeoplevox, regionsLogiwa, regionsBleckmann, regionsStarshipit].some(r => r.includes(region)));
   if (unsupportedRegions.length > 0) {
     return {
       success: false,
