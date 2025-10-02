@@ -5,8 +5,10 @@ const {
   REGIONS_BLECKMANN, 
   REGIONS_STARSHIPIT,
 } = require('../constants');
-const { funcApi } = require('../utils');
+const { shopifyRegionToStarshipitAccount } = require('../mappings');
+const { funcApi, logDeep, Processor, arrayExhaustedCheck } = require('../utils');
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
+const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 
 const collabsFulfillmentSweepV3 = async (
   {
@@ -60,11 +62,61 @@ const collabsFulfillmentSweepV3 = async (
     shopifyOrderGetters.push(getter);
   }
 
-  await Promise.all(shopifyOrderGetters.map(getter => getter.run()));
+  const processors = [];
+
+  for (const region of regionsStarshipit) {
+
+    const starshipitProcessor = new Processor(
+      piles[region].in,
+      async (pile) => {
+
+        const order = pile.shift();
+        const { orderId, shippingLine } = order;
+        const shippingMethod = shippingLine?.title;
+        const starshipitAccount = shopifyRegionToStarshipitAccount(region, shippingMethod);
+
+        const starshipitOrderResponse = await starshipitOrderGet(starshipitAccount, { orderNumber: orderId });
+        const { success, result: starshipitOrder } = starshipitOrderResponse;
+        if (!success || !starshipitOrder) {
+          piles[region].error.push(order);
+          return;
+        }
+
+        const { 
+          status,
+          tracking_number: trackingNumber,
+          tracking_url: trackingUrl,
+        } = starshipitOrder;
+        
+        if (status === 'Shipped') {
+
+          // Push fulfillment into to a pile to be fulfilled
+          piles[region].resolved.push(order);
+          return;
+
+        } else {
+          piles[region].disqualified.push(order);
+        }
+      },
+      arrayExhaustedCheck,
+      {
+        canFinish: false,
+      },
+    );
+
+    processors.push(starshipitProcessor);
+  }
+
+  await Promise.all([
+    ...shopifyOrderGetters.map(getter => getter.run()),
+    ...processors.map(processor => processor.run()),
+  ]);
+
+  logDeep(piles);
 
   return { 
-    regions, 
-    // option,
+    success: true,
+    result: piles, 
   };
   
 };

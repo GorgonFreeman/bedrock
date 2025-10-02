@@ -1557,6 +1557,8 @@ const handleize = (str) => {
   ;
 };
 
+const arrayExhaustedCheck = (arr) => arr.length === 0;
+
 module.exports = {
 
   // Really core
@@ -1612,6 +1614,7 @@ module.exports = {
   convertFormDataToObject,
   convertObjectToFormData,
   handleize,
+  arrayExhaustedCheck,
   
   // Classes
   CustomAxiosClient,
