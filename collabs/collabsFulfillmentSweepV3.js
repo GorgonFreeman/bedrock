@@ -151,20 +151,16 @@ const collabsFulfillmentSweepV3 = async (
         logDeep(starshipitOrder);
         await askQuestion('?');
 
+        // const { 
+        //   status,
+        //   tracking_number: trackingNumber,
+        //   tracking_url: trackingUrl,
+        // } = starshipitOrder;
+
         const {
           status,
-          tracking_number: trackingNumber,
-          tracking_url: trackingUrl,
+          packages,
         } = starshipitOrder;
-
-        // TODO: Consider using 'manifest_sent'
-        if (!trackingNumber) {
-          piles[region].disqualified.push({
-            ...order,
-            reason: 'No tracking number available',
-          });
-          return;
-        }
 
         if (['Unshipped', 'Printed', 'Saved'].includes(status)) {
           piles[region].disqualified.push({
@@ -173,12 +169,36 @@ const collabsFulfillmentSweepV3 = async (
           });
           return;
         }
-
+        
+        // TODO: Consider using 'manifest_sent'
         if (!['Shipped'].includes(status)) {
           console.warn(`Unrecognised Starshipit status: ${ status } (${ orderId })`);
           piles[region].error.push({
             ...order,
             reason: `Unrecognised Starshipit status: ${ status }`,
+          });
+          return;
+        }
+
+        const package = packages?.[0];
+
+        if (!package) {
+          piles[region].disqualified.push({
+            ...order,
+            reason: 'No Starshipit package',
+          });
+          return;
+        }
+
+        const {
+          tracking_number: trackingNumber,
+          tracking_url: trackingUrl,
+        } = package;
+
+        if (!trackingNumber) {
+          piles[region].disqualified.push({
+            ...order,
+            reason: 'No tracking number available',
           });
           return;
         }
