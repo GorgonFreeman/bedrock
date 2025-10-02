@@ -90,6 +90,8 @@ const collabsFulfillmentSweepV3 = async (
           'status:open',
           'delivery_method:shipping',
         ],
+        sortKey: 'CREATED_AT',
+        reverse: true,
 
         onItems: (items) => {
           piles[region].in.push(...items);
