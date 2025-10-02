@@ -120,14 +120,20 @@ const collabsFulfillmentSweepV3 = async (
 
         if (!starshipitAccount) {
           console.warn(`No Starshipit account found for ${ region }:${ shippingMethod } (${ orderId })`);
-          piles[region].error.push(order);
+          piles[region].error.push({
+            ...order,
+            reason: `No Starshipit account found for ${ region }:${ shippingMethod }`,
+          });
           return;
         }
 
         const starshipitOrderResponse = await starshipitOrderGet(starshipitAccount, { orderNumber: orderId });
         const { success, result: starshipitOrder } = starshipitOrderResponse;
         if (!success || !starshipitOrder) {
-          piles[region].error.push(order);
+          piles[region].error.push({
+            ...order,
+            reason: 'Failed to retrieve order from Starshipit',
+          });
           return;
         }
 
@@ -139,18 +145,27 @@ const collabsFulfillmentSweepV3 = async (
 
         // TODO: Consider using 'manifest_sent'
         if (!trackingNumber) {
-          piles[region].disqualified.push(order);
+          piles[region].disqualified.push({
+            ...order,
+            reason: 'No tracking number available',
+          });
           return;
         }
 
         if (['Unshipped', 'Printed', 'Saved'].includes(status)) {
-          piles[region].disqualified.push(order);
+          piles[region].disqualified.push({
+            ...order,
+            reason: `Status '${ status }' not shipped`,
+          });
           return;
         }
 
         if (!['Shipped'].includes(status)) {
           console.warn(`Unrecognised Starshipit status: ${ status } (${ orderId })`);
-          piles[region].error.push(order);
+          piles[region].error.push({
+            ...order,
+            reason: `Unrecognised Starshipit status: ${ status }`,
+          });
           return;
         }
 
