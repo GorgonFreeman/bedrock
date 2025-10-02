@@ -97,6 +97,7 @@ const collabsFulfillmentSweepV3 = async (
         `,
         queries: [
           'created_at:>2025-07-01',
+          // 'created_at:<2025-10-01',
           'fulfillment_status:unshipped',
           'status:open',
           'delivery_method:shipping',
@@ -109,8 +110,6 @@ const collabsFulfillmentSweepV3 = async (
         },
 
         onDone: getterFinish,
-
-        limit: 50,
       },
     );
 
@@ -216,6 +215,10 @@ const collabsFulfillmentSweepV3 = async (
     piles.shopifyOrderFulfill,
     async (pile) => {
       const args = pile.shift();
+
+      logDeep('fulfill', args);
+      await askQuestion('?');
+
       const [region, ...rest] = args;
       const response = await shopifyOrderFulfill(...args);
       const destination = response?.success ? 'resolved' : 'error';
