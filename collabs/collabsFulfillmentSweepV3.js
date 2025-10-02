@@ -1,4 +1,10 @@
-const { REGIONS_ALL } = require('../constants');
+const { 
+  REGIONS_ALL, 
+  REGIONS_PVX, 
+  REGIONS_LOGIWA, 
+  REGIONS_BLECKMANN, 
+  REGIONS_STARSHIPIT,
+} = require('../constants');
 const { funcApi } = require('../utils');
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 
@@ -8,6 +14,11 @@ const collabsFulfillmentSweepV3 = async (
     // option,
   } = {},
 ) => {
+
+  const regionsPeoplevox = regions.filter(region => REGIONS_PVX.includes(region));
+  const regionsLogiwa = regions.filter(region => REGIONS_LOGIWA.includes(region));
+  const regionsBleckmann = regions.filter(region => REGIONS_BLECKMANN.includes(region));
+  const regionsStarshipit = regions.filter(region => REGIONS_STARSHIPIT.includes(region));
 
   const piles = {
     in: {},
