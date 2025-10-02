@@ -148,7 +148,10 @@ const collabsFulfillmentSweepV3 = async (
           return;
         }
 
-        const { 
+        logDeep(starshipitOrder);
+        await askQuestion('?');
+
+        const {
           status,
           tracking_number: trackingNumber,
           tracking_url: trackingUrl,
