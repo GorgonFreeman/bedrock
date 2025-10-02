@@ -6,7 +6,7 @@ const {
   REGIONS_STARSHIPIT,
 } = require('../constants');
 const { shopifyRegionToStarshipitAccount } = require('../mappings');
-const { funcApi, logDeep, Processor, arrayExhaustedCheck } = require('../utils');
+const { funcApi, logDeep, Processor, arrayExhaustedCheck, askQuestion, gidToId } = require('../utils');
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
 const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
@@ -110,7 +110,8 @@ const collabsFulfillmentSweepV3 = async (
       async (pile) => {
 
         const order = pile.shift();
-        const { orderId, shippingLine } = order;
+        const { id: orderGid, shippingLine } = order;
+        const orderId = gidToId(orderGid);
         const shippingMethod = shippingLine?.title;
         const starshipitAccount = shopifyRegionToStarshipitAccount(region, shippingMethod);
 
