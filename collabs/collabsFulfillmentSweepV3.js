@@ -10,6 +10,7 @@ const { funcApi, logDeep, Processor, arrayExhaustedCheck, askQuestion, gidToId }
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
 const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
+const { peoplevoxDespatchesGetBySalesOrderNumber } = require('../peoplevox/peoplevoxDespatchesGetBySalesOrderNumber');
 
 const collabsFulfillmentSweepV3 = async (
   {
@@ -18,13 +19,13 @@ const collabsFulfillmentSweepV3 = async (
   } = {},
 ) => {
 
-  // const regionsPeoplevox = regions.filter(region => REGIONS_PVX.includes(region));
+  const regionsPeoplevox = regions.filter(region => REGIONS_PVX.includes(region));
   // const regionsLogiwa = regions.filter(region => REGIONS_LOGIWA.includes(region));
   // const regionsBleckmann = regions.filter(region => REGIONS_BLECKMANN.includes(region));
   const regionsStarshipit = regions.filter(region => REGIONS_STARSHIPIT.includes(region));
 
   const anyRelevant = [
-    // regionsPeoplevox, 
+    regionsPeoplevox, 
     // regionsLogiwa, 
     // regionsBleckmann, 
     regionsStarshipit,
@@ -38,7 +39,7 @@ const collabsFulfillmentSweepV3 = async (
   }
 
   const unsupportedRegions = regions.filter(region => ![
-    // regionsPeoplevox, 
+    regionsPeoplevox, 
     // regionsLogiwa, 
     // regionsBleckmann, 
     regionsStarshipit,
@@ -209,6 +210,80 @@ const collabsFulfillmentSweepV3 = async (
     );
 
     processors.push(starshipitProcessor);
+  }
+
+  for (const region of regionsPeoplevox) {
+
+    const peoplevoxProcessor = new Processor(
+      piles[region].in,
+      async (pile) => {
+
+        const orders = pile.splice(0, 100);
+        const orderIds = orders.map(o => gidToId(o.id));
+        const peoplevoxDispatchesResponse = await peoplevoxDespatchesGetBySalesOrderNumber(orderIds);
+
+        if (!peoplevoxDispatchesResponse?.success) {
+          piles[region].error.push(...orders);
+          return;
+        }
+
+        const peoplevoxDispatches = peoplevoxDispatchesResponse.result;
+        for (const order of orders) {
+
+          const peoplevoxDispatch = peoplevoxDispatches?.find(dispatch => dispatch['Salesorder number'] === order.orderId);
+
+          if (!peoplevoxDispatch) {
+            piles[region].error.push({
+              ...order,
+              reason: 'No Peoplevox dispatch found',
+            });
+            return;
+          }
+
+          const {
+            'Tracking number': trackingNumber,
+          } = peoplevoxDispatch;
+
+          if (!trackingNumber) {
+            piles[region].disqualified.push({
+              ...order,
+              reason: 'No tracking number available',
+            });
+            return;
+          }
+
+          if (peoplevoxDispatch && trackingNumber) {
+
+            const fulfillPayload = {
+              originAddress: {
+                // Peoplevox, therefore AU
+                countryCode: 'AU',
+              },
+              trackingInfo: {
+                number: trackingNumber,
+              },
+            };
+    
+            // Push fulfillment into to a pile to be fulfilled
+            piles.shopifyOrderFulfill.push([
+              region,
+              { orderId },
+              {
+                notifyCustomer: false, // TODO: Consider setting to true if recent order
+                ...fulfillPayload,
+              },
+            ]);
+          }
+        }
+      },
+      arrayExhaustedCheck,
+      {
+        canFinish: false,
+        onDone: processorFinish,
+      },
+    );
+
+    processors.push(peoplevoxProcessor);
   }
 
   const orderFulfiller = new Processor(
