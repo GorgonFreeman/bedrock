@@ -137,13 +137,13 @@ const shopifyOrderFulfill = async (
 
   const variables = {
     fulfillment: {
+      lineItemsByFulfillmentOrder: [{
+        fulfillmentOrderId: fulfillmentOrderGid,
+        ...fulfillPayloadLineItems && { fulfillmentOrderLineItems: fulfillPayloadLineItems },
+      }],
       ...notifyCustomer && { notifyCustomer },
       ...originAddress && { originAddress },
       ...trackingInfo && { trackingInfo },
-      ...fulfillPayloadLineItems && { lineItemsByFulfillmentOrder: [{
-        fulfillmentOrderId: fulfillmentOrderGid,
-        fulfillmentOrderLineItems: fulfillPayloadLineItems,
-      }] },
     },
   };
 
