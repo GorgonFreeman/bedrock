@@ -116,6 +116,12 @@ const collabsFulfillmentSweepV3 = async (
         const shippingMethod = shippingLine?.title;
         const starshipitAccount = shopifyRegionToStarshipitAccount(region, shippingMethod);
 
+        if (!starshipitAccount) {
+          console.warn(`No Starshipit account found for ${ region }:${ shippingMethod } (${ orderId })`);
+          piles[region].error.push(order);
+          return;
+        }
+
         const starshipitOrderResponse = await starshipitOrderGet(starshipitAccount, { orderNumber: orderId });
         const { success, result: starshipitOrder } = starshipitOrderResponse;
         if (!success || !starshipitOrder) {
@@ -128,16 +134,45 @@ const collabsFulfillmentSweepV3 = async (
           tracking_number: trackingNumber,
           tracking_url: trackingUrl,
         } = starshipitOrder;
-        
-        if (status === 'Shipped') {
 
-          // Push fulfillment into to a pile to be fulfilled
-          piles[region].resolved.push(order);
-          return;
-
-        } else {
+        // TODO: Consider using 'manifest_sent'
+        if (!trackingNumber) {
           piles[region].disqualified.push(order);
+          return;
         }
+
+        if (['Unshipped', 'Printed', 'Saved'].includes(status)) {
+          piles[region].disqualified.push(order);
+          return;
+        }
+
+        if (!['Shipped'].includes(status)) {
+          console.warn(`Unrecognised Starshipit status: ${ status } (${ orderId })`);
+          piles[region].error.push(order);
+          return;
+        }
+
+        const fulfillPayload = {
+          originAddress: {
+            // Starshipit, therefore AU
+            countryCode: 'AU',
+          },
+          trackingInfo: {
+            number: trackingNumber,
+            url: trackingUrl,
+          },
+        };
+
+        // Push fulfillment into to a pile to be fulfilled
+        piles.shopifyOrderFulfill.push([
+          region,
+          { orderId },
+          {
+            notifyCustomer: false, // TODO: Consider setting to true if recent order
+            ...fulfillPayload,
+          },
+        ]);
+
       },
       arrayExhaustedCheck,
       {
