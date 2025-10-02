@@ -296,7 +296,7 @@ const collabsFulfillmentSweepV3 = async (
       const args = pile.shift();
 
       logDeep('fulfill', args);
-      await askQuestion('?');
+      // await askQuestion('?');
 
       const [region, ...rest] = args;
       const response = await shopifyOrderFulfill(...args);
