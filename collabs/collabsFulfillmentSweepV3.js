@@ -19,13 +19,13 @@ const collabsFulfillmentSweepV3 = async (
   } = {},
 ) => {
 
-  const regionsPeoplevox = regions.filter(region => REGIONS_PVX.includes(region));
+  // const regionsPeoplevox = regions.filter(region => REGIONS_PVX.includes(region));
   // const regionsLogiwa = regions.filter(region => REGIONS_LOGIWA.includes(region));
   // const regionsBleckmann = regions.filter(region => REGIONS_BLECKMANN.includes(region));
   const regionsStarshipit = regions.filter(region => REGIONS_STARSHIPIT.includes(region));
 
   const anyRelevant = [
-    regionsPeoplevox, 
+    // regionsPeoplevox, 
     // regionsLogiwa, 
     // regionsBleckmann, 
     regionsStarshipit,
@@ -39,7 +39,7 @@ const collabsFulfillmentSweepV3 = async (
   }
 
   const unsupportedRegions = regions.filter(region => ![
-    regionsPeoplevox, 
+    // regionsPeoplevox, 
     // regionsLogiwa, 
     // regionsBleckmann, 
     regionsStarshipit,
@@ -218,7 +218,8 @@ const collabsFulfillmentSweepV3 = async (
 
     processors.push(starshipitProcessor);
   }
-
+  
+  /*
   for (const region of regionsPeoplevox) {
 
     const peoplevoxProcessor = new Processor(
@@ -293,6 +294,7 @@ const collabsFulfillmentSweepV3 = async (
 
     processors.push(peoplevoxProcessor);
   }
+  */
 
   const orderFulfiller = new Processor(
     piles.shopifyOrderFulfill,
