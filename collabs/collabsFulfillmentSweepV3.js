@@ -12,20 +12,25 @@ const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
 const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 const { peoplevoxDespatchesGetBySalesOrderNumber } = require('../peoplevox/peoplevoxDespatchesGetBySalesOrderNumber');
 
+const PEOPLEVOX_ON = false; // Peoplevox doesn't seem to be a good source of truth for despatches
+
 const collabsFulfillmentSweepV3 = async (
   {
     regions = REGIONS_ALL,
     // option,
   } = {},
 ) => {
-
-  // const regionsPeoplevox = regions.filter(region => REGIONS_PVX.includes(region));
+  
+  regionsPeoplevox = [];
+  if (PEOPLEVOX_ON) {
+    regionsPeoplevox = regions.filter(region => REGIONS_PVX.includes(region));
+  }
   // const regionsLogiwa = regions.filter(region => REGIONS_LOGIWA.includes(region));
   // const regionsBleckmann = regions.filter(region => REGIONS_BLECKMANN.includes(region));
   const regionsStarshipit = regions.filter(region => REGIONS_STARSHIPIT.includes(region));
 
   const anyRelevant = [
-    // regionsPeoplevox, 
+    regionsPeoplevox, 
     // regionsLogiwa, 
     // regionsBleckmann, 
     regionsStarshipit,
@@ -39,7 +44,7 @@ const collabsFulfillmentSweepV3 = async (
   }
 
   const unsupportedRegions = regions.filter(region => ![
-    // regionsPeoplevox, 
+    regionsPeoplevox, 
     // regionsLogiwa, 
     // regionsBleckmann, 
     regionsStarshipit,
@@ -219,7 +224,6 @@ const collabsFulfillmentSweepV3 = async (
     processors.push(starshipitProcessor);
   }
   
-  /*
   for (const region of regionsPeoplevox) {
 
     const peoplevoxProcessor = new Processor(
@@ -294,7 +298,6 @@ const collabsFulfillmentSweepV3 = async (
 
     processors.push(peoplevoxProcessor);
   }
-  */
 
   const orderFulfiller = new Processor(
     piles.shopifyOrderFulfill,
