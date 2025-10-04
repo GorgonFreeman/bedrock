@@ -1,13 +1,13 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/discountAutomaticAppCreate
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `discountId title status`;
 
 const shopifyAppDiscountCreateAutomatic = async (
   credsPath,
-  pageInput,
+  discountInput,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
@@ -16,14 +16,14 @@ const shopifyAppDiscountCreateAutomatic = async (
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'discountAutomaticAppCreate',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      automaticAppDiscount: {
+        type: 'DiscountAutomaticAppInput!',
+        value: discountInput,
       },
     },
-    `page { ${ returnAttrs } }`,
+    `automaticAppDiscount { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -33,7 +33,7 @@ const shopifyAppDiscountCreateAutomatic = async (
 };
 
 const shopifyAppDiscountCreateAutomaticApi = funcApi(shopifyAppDiscountCreateAutomatic, {
-  argNames: ['credsPath', 'pageInput'],
+  argNames: ['credsPath', 'automaticAppDiscountInput'],
 });
 
 module.exports = {
@@ -41,4 +41,4 @@ module.exports = {
   shopifyAppDiscountCreateAutomaticApi,
 };
 
-// curl http://localhost:8000/shopifyAppDiscountCreateAutomatic -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyAppDiscountCreateAutomatic -H 'Content-Type: application/json' -d '{ "credsPath": "au", "automaticAppDiscountInput": { "title": "40% Off Cheapest Item from Collection", "functionHandle": "discount-buy-x-get-40-y-custom", "startsAt": "2025-12-01T00:00:00Z", "endsAt": null, "combinesWith": { "orderDiscounts": false, "productDiscounts": false, "shippingDiscounts": false }, "metafields": [{ "namespace": "default", "key": "function-configuration", "type": "json", "value": "{\"discounts\":[{\"value\":{\"percentage\":{\"value\":\"40.0\"}},\"targets\":[{\"cartLine\":{\"id\":null,\"quantity\":null}}]}],\"discountApplicationStrategy\":\"FIRST\"}" }] }, "options": { "returnAttrs": "discountId title status startsAt endsAt" } }'
