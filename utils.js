@@ -1559,6 +1559,30 @@ const handleize = (str) => {
 
 const arrayExhaustedCheck = (arr) => arr.length === 0;
 
+const surveyNestedArrays = (input) => {
+
+  if (Array.isArray(input)) {
+    return input.length;
+  }
+
+  if (typeof input !== 'object' || input === null) {
+    return input;
+  }
+
+  const output = {};
+
+  try {
+    for (const [k,v] of Object.entries(input)) {
+      output[k] = surveyNestedArrays(v);
+    }
+  } catch (err) {
+    console.warn(err);
+    return input;
+  }
+
+  return output;
+};
+
 module.exports = {
 
   // Really core
@@ -1615,6 +1639,7 @@ module.exports = {
   convertObjectToFormData,
   handleize,
   arrayExhaustedCheck,
+  surveyNestedArrays,
   
   // Classes
   CustomAxiosClient,
