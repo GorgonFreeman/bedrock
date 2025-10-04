@@ -102,7 +102,7 @@ const collabsFulfillmentSweepV3 = async (
           }
         `,
         queries: [
-          'created_at:>2025-07-01',
+          'created_at:>2025-10-01',
           // 'created_at:<2025-10-01',
           'fulfillment_status:unshipped',
           'status:open',
