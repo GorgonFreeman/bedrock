@@ -1,28 +1,14 @@
 const { funcApi, logDeep } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
-
 const shopifyGraphqlSend = async (
   credsPath,
-  arg,
+  query,
   {
     apiVersion,
-    option,
+    variables = {},
   } = {},
 ) => {
-
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
 
   const response = await shopifyClient.fetch({
     method: 'post',
@@ -31,15 +17,6 @@ const shopifyGraphqlSend = async (
       credsPath,
       apiVersion,
     },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
   });
 
   logDeep(response);
@@ -47,7 +24,7 @@ const shopifyGraphqlSend = async (
 };
 
 const shopifyGraphqlSendApi = funcApi(shopifyGraphqlSend, {
-  argNames: ['credsPath', 'arg'],
+  argNames: ['credsPath', 'query'],
 });
 
 module.exports = {
@@ -55,4 +32,9 @@ module.exports = {
   shopifyGraphqlSendApi,
 };
 
-// curl localhost:8000/shopifyGraphqlSend -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyGraphqlSend \
+//   -H "Content-Type: application/json" \
+//   -d '{
+//     "credsPath": "au",
+//     "query": "mutation {\n  deliveryCustomizationCreate(\n    deliveryCustomization: {\n      functionId: \"0199ad76-78bb-773e-a22c-fd15a476d93b\",\n      title: \"Hide delivery options for dangerous goods\",\n      enabled: true\n    }\n  ) {\n    deliveryCustomization {\n      id\n    }\n    userErrors {\n      message\n    }\n  }\n}"
+//   }'
