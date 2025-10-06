@@ -1,13 +1,13 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/order
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/app
 
 const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 
-const defaultAttrs = `id name`;
+const defaultAttrs = `id apiKey developerName`;
 
 const shopifyAppGetSingle = async (
   credsPath,
-  thingId,
+  appId,
   {
     apiVersion,
     attrs = defaultAttrs,
@@ -16,8 +16,8 @@ const shopifyAppGetSingle = async (
   
   const response = await shopifyGetSingle(
     credsPath,
-    'thing',
-    thingId,
+    'app',
+    appId,
     {
       apiVersion,
       attrs,
@@ -30,17 +30,17 @@ const shopifyAppGetSingle = async (
 
 const shopifyAppGet = async (
   credsPath,
-  thingId,
+  appId,
   {
     queueRunOptions,
     ...options
   } = {},
 ) => {
   const response = await actionMultipleOrSingle(
-    thingId,
+    appId,
     shopifyAppGetSingle,
-    (thingId) => ({
-      args: [credsPath, thingId],
+    (appId) => ({
+      args: [credsPath, appId],
       options,
     }),
     {
@@ -53,7 +53,7 @@ const shopifyAppGet = async (
 };
 
 const shopifyAppGetApi = funcApi(shopifyAppGet, {
-  argNames: ['credsPath', 'thingId', 'options'],
+  argNames: ['credsPath', 'appId', 'options'],
 });
 
 module.exports = {
@@ -61,4 +61,4 @@ module.exports = {
   shopifyAppGetApi,
 };
 
-// curl localhost:8000/shopifyAppGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "thingId": "7012222266312" }'
+// curl localhost:8000/shopifyAppGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "appId": "218165444609" }'
