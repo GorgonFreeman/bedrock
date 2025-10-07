@@ -2,7 +2,7 @@ const { respond, logDeep, customAxios } = require('../utils');
 
 const ACTION_NAME = 'discount_codes_create';
 
-const shopifyGetSingle = require('../shopify/shopifyGetSingle');
+const { shopifyDiscountGet } = require('../shopify/shopifyDiscountGet');
 
 // Messages
 const AU_DISCOUNT_URL_LABEL = 'AU Discount URL';
@@ -71,6 +71,11 @@ const fetchBlocks = [
   discountSettingsFetchActionBlock,
 ];
 
+const discountDetailsBlock = (discount) => {
+  type: 'section',
+  fields: ,
+}
+
 const slackInteractiveDiscountCodesCreate = async (req, res) => {
 
   console.log('slackInteractiveDiscountCodesCreate');
@@ -79,8 +84,6 @@ const slackInteractiveDiscountCodesCreate = async (req, res) => {
 
   if (!body?.payload) {
     console.log(`Initiation, e.g. slash command`);
-
-    logDeep('fetchBlocks', fetchBlocks);
 
     return respond(res, 200, {
       response_type: 'ephemeral',
@@ -125,15 +128,20 @@ const slackInteractiveDiscountCodesCreate = async (req, res) => {
         break;
       }
 
-      const attrs = `id title code`;
-      const discount = await shopifyGetSingle(
-        'au',
-        'discount',
-        auDiscountId,
-        {
-          attrs,
-        },
-      )
+      const shopifyDiscount = await shopifyDiscountGet('au', { discountId: auDiscountId });
+      logDeep('shopifyDiscount', shopifyDiscount);
+
+      if(!shopifyDiscount?.success) {
+        response = {
+          response_type: 'ephemeral',
+          replace_original: 'true',
+          text: `Error fetching discount, check if the discount exists in Shopify AU`,
+        };
+        break;
+      }
+
+      const { discount } = shopifyDiscount.result;
+      const { title, appliesOncePerCustomer, asyncUsageCount, createdAt, startsAt, endsAt, hasTimelineComment, shortSummary, status, summary, usageLimit, codesCount } = discount;
 
       break;
       
