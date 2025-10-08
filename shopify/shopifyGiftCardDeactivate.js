@@ -1,11 +1,11 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/giftCardDeactivate
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `enabled deactivatedAt`;
 
-const shopifyGiftCardDeactivate = async (
+const shopifyGiftCardDeactivateSingle = async (
   credsPath,
   giftCardId,
   {
@@ -13,7 +13,6 @@ const shopifyGiftCardDeactivate = async (
     returnAttrs = defaultAttrs,
   } = {},
 ) => {
-
   const response = await shopifyMutationDo(
     credsPath,
     'giftCardDeactivate',
@@ -27,6 +26,26 @@ const shopifyGiftCardDeactivate = async (
     { 
       apiVersion,
     },
+  );
+  
+  return response;
+};
+
+const shopifyGiftCardDeactivate = async (
+  credsPath,
+  giftCardId,
+  {
+    apiVersion,
+    returnAttrs = defaultAttrs,
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    giftCardId,
+    shopifyGiftCardDeactivateSingle,
+    (giftCardId) => ({
+      args: [credsPath, giftCardId],
+      options: { apiVersion, returnAttrs },
+    }),
   );
   logDeep(response);
   return response;
@@ -42,3 +61,4 @@ module.exports = {
 };
 
 // curl http://localhost:8000/shopifyGiftCardDeactivate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "giftCardId": 630309617736 }'
+// curl http://localhost:8000/shopifyGiftCardDeactivate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "giftCardId": [630309617736, 630309617737] }'
