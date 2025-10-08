@@ -16,6 +16,7 @@ module.exports = {
   upstashSet: require('./upstash/upstash.utils').upstashSetApi,
   upstashDel: require('./upstash/upstash.utils').upstashDelApi,
   upstashExists: require('./upstash/upstash.utils').upstashExistsApi,
+  swapReturnsGet: require('./swap/swapReturnsGet').swapReturnsGetApi,
   supabaseRowGet: require('./supabase/supabase.utils').supabaseRowGetApi,
   supabaseRowDelete: require('./supabase/supabase.utils').supabaseRowDeleteApi,
   supabaseRowInsert: require('./supabase/supabase.utils').supabaseRowInsertApi,
