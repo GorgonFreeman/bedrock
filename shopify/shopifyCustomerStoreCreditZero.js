@@ -1,4 +1,4 @@
-const { respond, mandateParam, logDeep, gidToId, askQuestion, arrayStandardResponse, actionMultipleOrSingle } = require('../utils');
+const { respond, mandateParam, logDeep, gidToId, askQuestion, arrayStandardResponse, actionMultipleOrSingle, funcApi } = require('../utils');
 const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
 const { shopifyStoreCreditAccountDebit } = require('../shopify/shopifyStoreCreditAccountDebit');
 
@@ -98,28 +98,10 @@ const shopifyCustomerStoreCreditZero = async (
   return response;
 };
 
-const shopifyCustomerStoreCreditZeroApi = async (req, res) => {
-  const {
-    credsPath,
-    customerId,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'customerId', customerId),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await shopifyCustomerStoreCreditZero(
-    credsPath,
-    customerId,
-    options,
-  );
-  respond(res, 200, result);
-};
+const shopifyCustomerStoreCreditZeroApi = funcApi(shopifyCustomerStoreCreditZero, {
+  argNames: ['credsPath', 'customerId'],
+  allowCrossOrigin: true,
+});
 
 module.exports = {
   shopifyCustomerStoreCreditZero,
