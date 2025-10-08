@@ -32,9 +32,11 @@ module.exports = {
   shopifyGraphqlSendApi,
 };
 
-// curl localhost:8000/shopifyGraphqlSend \
-//   -H "Content-Type: application/json" \
-//   -d '{
-//     "credsPath": "au",
-//     "query": "mutation {\n  deliveryCustomizationCreate(\n    deliveryCustomization: {\n      functionId: \"0199ad76-78bb-773e-a22c-fd15a476d93b\",\n      title: \"Hide delivery options for dangerous goods\",\n      enabled: true\n    }\n  ) {\n    deliveryCustomization {\n      id\n    }\n    userErrors {\n      message\n    }\n  }\n}"
-//   }'
+/*
+curl localhost:8000/shopifyGraphqlSend \
+  -H "Content-Type: application/json" \
+  -d '{
+    "credsPath": "uk.tender",
+    "query": "mutation { deliveryCustomizationCreate(deliveryCustomization: { functionId: \"0199ad76-78bb-773e-a22c-fd15a476d93b\", title: \"Hide delivery options for dangerous goods\", enabled: true }) { deliveryCustomization { id } userErrors { message } } }"
+  }'
+*/
