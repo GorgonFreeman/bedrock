@@ -31,6 +31,7 @@ module.exports = {
   starshipitOrderGet: require('./starshipit/starshipitOrderGet').starshipitOrderGetApi,
   starshipitOrderUpdate: require('./starshipit/starshipitOrderUpdate').starshipitOrderUpdateApi,
   starshipitOrdersListShipped: require('./starshipit/starshipitOrdersListShipped').starshipitOrdersListShippedApi,
+  starshipitProductsGet: require('./starshipit/starshipitProductsGet').starshipitProductsGetApi,
   starshipitTrackingGet: require('./starshipit/starshipitTrackingGet').starshipitTrackingGetApi,
   slackMessageDelete: require('./slack/slackMessageDelete').slackMessageDeleteApi,
   slackMessagePost: require('./slack/slackMessagePost').slackMessagePostApi,
