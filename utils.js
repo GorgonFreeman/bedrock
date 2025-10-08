@@ -1626,6 +1626,49 @@ const surveyNestedArrays = (input) => {
   return output;
 };
 
+const dateFromNowCalendar = ({
+  days = 0,
+  months = 0,
+  years = 0,
+  dateOnly = false,
+} = {}) => {
+  const adjustedDate = new Date();
+
+  adjustedDate.setFullYear(adjustedDate.getFullYear() + years);
+  adjustedDate.setMonth(adjustedDate.getMonth() + months);
+  adjustedDate.setDate(adjustedDate.getDate() + days);
+
+  const adjustedDateIso = adjustedDate.toISOString();
+
+  if (dateOnly) {
+    return adjustedDateIso.slice(0, 10);
+  }
+
+  return adjustedDateIso;
+};
+
+const dateFromNow = ({
+  plus,
+  minus,
+  dateOnly,
+} = {}) => {
+  let adjustedDate = new Date();
+  if (plus) {
+    adjustedDate = new Date(new Date().getTime() + plus);
+  }
+  if (minus) {
+    adjustedDate = new Date(new Date().getTime() - minus);
+  }
+
+  const adjustedDateIso = adjustedDate.toISOString();
+
+  if (dateOnly) {
+    return adjustedDateIso.slice(0, 10);
+  }
+
+  return adjustedDateIso;
+};
+
 module.exports = {
 
   // Really core
@@ -1647,6 +1690,8 @@ module.exports = {
   monthsish,
   yearsish,
   dateTimeFromNow,
+  dateFromNowCalendar,
+  dateFromNow,
   readableTimeFromMs,
   
   // Misc

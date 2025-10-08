@@ -5,6 +5,8 @@ const {
   getterAsGetFunction,
 } = require("../utils");
 
+const { MAX_LIMIT } = require("./swap.constants");
+
 const swapRequestSetup = ({ credsPath } = {}) => {
   const creds = credsByPath(["swap", credsPath]);
 
@@ -35,7 +37,16 @@ const swapClient = new CustomAxiosClient({
   },
 });
 
-const swapGetter = async (credsPath, url, nodeName, { params, ...getterOptions } = {}) => {
+const swapGetter = async (
+  credsPath,
+  url,
+  nodeName,
+  {
+    params,
+    limit = MAX_LIMIT,
+    ...getterOptions
+  } = {},
+) => {
   return new Getter({
     url,
     payload: {

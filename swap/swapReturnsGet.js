@@ -1,21 +1,54 @@
-const { funcApi } = require('../utils');
+const {
+  funcApi,
+  logDeep,
+  dateFromNowCalendar,
+} = require("../utils");
+const { swapClient } = require("../swap/swap.utils");
 
 const swapReturnsGet = async (
-  arg,
+  credsPath,
+  fromDatePayload,
   {
-    option,
+    toDatePayload,
+    limit = 50,
+    version = 1,
   } = {},
 ) => {
+  let { fromDate, fromDateAdjuster } = fromDatePayload || {};
 
-  return { 
-    arg, 
-    option,
-  };
-  
+  if (!fromDate && fromDateAdjuster) {
+    fromDate = dateFromNowCalendar({ ...fromDateAdjuster, dateOnly: true });
+  }
+
+  let { toDate, toDateAdjuster } = toDatePayload || {};
+
+  if (!toDate && toDateAdjuster) {
+    toDate = dateFromNowCalendar({ ...toDateAdjuster, dateOnly: true });
+  }
+
+  const response = await swapClient.fetch({
+    url: `/returns`,
+    params: {
+      limit,
+      version,
+      from_date: fromDate,
+      ...(toDate && { to_date: toDate }),
+    },
+    context: {
+      credsPath,
+    },
+  });
+
+  logDeep(response);
+  return response;
 };
 
 const swapReturnsGetApi = funcApi(swapReturnsGet, {
-  argNames: ['arg'],
+  argNames: [
+    "credsPath",
+    "fromDatePayload",
+    "options",
+  ],
 });
 
 module.exports = {
@@ -23,4 +56,4 @@ module.exports = {
   swapReturnsGetApi,
 };
 
-// curl localhost:8000/swapReturnsGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/swapReturnsGet -H "Content-Type: application/json" -d '{ "credsPath": "uk", "fromDatePayload": { "fromDateAdjuster": { "days": -10 } } }'
