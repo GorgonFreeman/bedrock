@@ -1,13 +1,13 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/giftCardDeactivate
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `enabled deactivatedAt`;
 
 const shopifyGiftCardDeactivate = async (
   credsPath,
-  pageInput,
+  giftCardId,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
@@ -16,14 +16,14 @@ const shopifyGiftCardDeactivate = async (
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'giftCardDeactivate',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      id: {
+        type: 'ID!',
+        value: `gid://shopify/GiftCard/${ giftCardId }`,
       },
     },
-    `page { ${ returnAttrs } }`,
+    `giftCard { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -33,7 +33,7 @@ const shopifyGiftCardDeactivate = async (
 };
 
 const shopifyGiftCardDeactivateApi = funcApi(shopifyGiftCardDeactivate, {
-  argNames: ['credsPath', 'pageInput'],
+  argNames: ['credsPath', 'giftCardId'],
 });
 
 module.exports = {
@@ -41,4 +41,4 @@ module.exports = {
   shopifyGiftCardDeactivateApi,
 };
 
-// curl http://localhost:8000/shopifyGiftCardDeactivate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyGiftCardDeactivate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "giftCardId": 630309617736 }'
