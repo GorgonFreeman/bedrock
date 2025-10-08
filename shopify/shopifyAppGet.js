@@ -1,46 +1,78 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/queries/app
 
-const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
+const { funcApi, logDeep, actionMultipleOrSingle, objHasAny, objHasAll } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
+const { shopifyClient } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id apiKey developerName`;
+const defaultAttrs = `id apiKey developerName handle title`;
 
 const shopifyAppGetSingle = async (
   credsPath,
-  appId,
+  {
+    appId,
+    appHandle,
+  },
   {
     apiVersion,
     attrs = defaultAttrs,
   } = {},
 ) => {
-  
-  const response = await shopifyGetSingle(
-    credsPath,
-    'app',
-    appId,
-    {
+
+  if (appId) {
+    const response = await shopifyGetSingle(
+      credsPath,
+      'app',
+      appId,
+      {
+        apiVersion,
+        attrs,
+      },
+    );
+    
+    logDeep(response);
+    return response;
+  }
+
+  /* appHandle */
+  const query = `
+    query appByHandle($handle: String!) {
+      appByHandle(handle: $handle) {
+        ${ attrs }
+      } 
+    }
+  `;
+
+  const variables = {
+    handle: appHandle,
+  };
+
+  const response = await shopifyClient.fetch({
+    method: 'post',
+    body: { query, variables },
+    context: {
+      credsPath,
       apiVersion,
-      attrs,
+      resultsNode: 'appByHandle',
     },
-  );
-  
+  });
   logDeep(response);
   return response;
+  /* /appHandle */
 };
 
 const shopifyAppGet = async (
   credsPath,
-  appId,
+  appIdentifier,
   {
     queueRunOptions,
     ...options
   } = {},
 ) => {
   const response = await actionMultipleOrSingle(
-    appId,
+    appIdentifier,
     shopifyAppGetSingle,
-    (appId) => ({
-      args: [credsPath, appId],
+    (appIdentifier) => ({
+      args: [credsPath, appIdentifier],
       options,
     }),
     {
@@ -53,7 +85,10 @@ const shopifyAppGet = async (
 };
 
 const shopifyAppGetApi = funcApi(shopifyAppGet, {
-  argNames: ['credsPath', 'appId', 'options'],
+  argNames: ['credsPath', 'appIdentifier', 'options'],
+  validatorsByArg: {
+    appIdentifier: p => objHasAny(p, ['appId', 'appHandle']),
+  },
 });
 
 module.exports = {
@@ -61,4 +96,5 @@ module.exports = {
   shopifyAppGetApi,
 };
 
-// curl localhost:8000/shopifyAppGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "appId": "218165444609" }'
+// curl localhost:8000/shopifyAppGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "appIdentifier": { "appId": "138898178049" } }'
+// curl localhost:8000/shopifyAppGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "appIdentifier": { "appHandle": "tender" } }'
