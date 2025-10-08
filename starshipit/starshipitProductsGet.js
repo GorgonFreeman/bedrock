@@ -1,19 +1,21 @@
+// https://api-docs.starshipit.com/#ccf0f10f-e370-45c0-ba5c-13bfaac80ca6
+
 const { funcApi, logDeep } = require('../utils');
 const { starshipitClient } = require('../starshipit/starshipit.utils');
 
 const starshipitProductsGet = async (
   credsPath,
-  arg,
 ) => {
 
   const response = await starshipitClient.fetch({
-    url: '/things',
+    url: '/products',
     params: {
-      arg_value: arg,
+      // arg_value: arg,
     },
     context: {
       credsPath,
     },
+    /*
     interpreter: (response) => {
       return {
         ...response,
@@ -22,6 +24,7 @@ const starshipitProductsGet = async (
         } : {},
       };
     },
+    */
   });
 
   logDeep(response);
@@ -29,7 +32,7 @@ const starshipitProductsGet = async (
 };
 
 const starshipitProductsGetApi = funcApi(starshipitProductsGet, {
-  argNames: ['credsPath', 'arg'],
+  argNames: ['credsPath'],
 });
 
 module.exports = {
@@ -37,4 +40,4 @@ module.exports = {
   starshipitProductsGetApi,
 };
 
-// curl localhost:8000/starshipitProductsGet -H "Content-Type: application/json" -d '{ "credsPath": "wf", "arg": "408418809" }' 
+// curl localhost:8000/starshipitProductsGet -H "Content-Type: application/json" -d '{ "credsPath": "wf" }' 
