@@ -1351,11 +1351,14 @@ const actionMultipleOrSingle = async (input, func, buildOpArgs, { queueRunOption
   return new Operation(func, buildOpArgs(input)).run();
 };
 
-const arraysToCartesianProduct = (arrays) => {
-  return arrays.reduce(
-    (acc, curr) => acc.flatMap(a => curr.map(b => [...a, b])),
-    [[]],
-  );
+const ensureArray = (x) => (Array.isArray(x) ? x : [x]);
+
+const arraysToCartesianProduct = (arrayOfMixed) => {
+  return arrayOfMixed
+    .map(ensureArray)
+    .reduce((acc, curr) => {
+      return acc.flatMap(a => curr.map(b => [...a, b]));
+    }, [[]]);
 };
 
 const actionMultipleOrSingleV2 = async (input, func, buildOpArgs, { queueRunOptions = {} } = {}) => {
@@ -1385,7 +1388,7 @@ const actionMultipleOrSingleV2 = async (input, func, buildOpArgs, { queueRunOpti
       buildOpArgs(inputItem),
     )));
   } else {
-    // #3: Array of arrays
+    // #3: Array of arrays/single values
     // Action all combinations of all values in the arrays.
     const combinations = arraysToCartesianProduct(input);
     queue = new OperationQueue(combinations.map(combo => new Operation(
@@ -1676,6 +1679,7 @@ module.exports = {
   gidToId,
   surveyObjects,
   actionMultipleOrSingle,
+  actionMultipleOrSingleV2,
   standardInterpreters,
   valueExcludingOutliers,
   arrayUnique,
