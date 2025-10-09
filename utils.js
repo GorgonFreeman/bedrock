@@ -1361,7 +1361,7 @@ const arraysToCartesianProduct = (arrayOfMixed) => {
     }, [[]]);
 };
 
-const actionMultipleOrSingleV2 = async (input, func, buildOpArgs, { queueRunOptions = {} } = {}) => {
+const actionMultipleOrSingleV2 = async (input, func, buildOpArgs, { multipleInputs = false, queueRunOptions = {} } = {}) => {
   
   /* How different inputs are handled:
   1. Single input 
@@ -1380,21 +1380,24 @@ const actionMultipleOrSingleV2 = async (input, func, buildOpArgs, { queueRunOpti
 
   let queue;
 
-  if (input.every(i => !Array.isArray(i))) {
-    // #2: Single array
+  if (!multipleInputs) {
+    // #2: One input, as array
     // Action one operation per value in the array.
     queue = new OperationQueue(input.map(inputItem => new Operation(
       func, 
       buildOpArgs(inputItem),
     )));
   } else {
-    // #3: Array of arrays/single values
+    // #3: Multiple inputs
     // Action all combinations of all values in the arrays.
     const combinations = arraysToCartesianProduct(input);
-    queue = new OperationQueue(combinations.map(combo => new Operation(
-      func, 
-      buildOpArgs(...combo),
-    )));
+    queue = new OperationQueue(combinations.map(combo => {
+      console.log('combo', combo);
+      return new Operation(
+        func, 
+        buildOpArgs(...combo),
+      );
+    }));
   }
 
   const queueResponses = await queue.run(queueRunOptions);

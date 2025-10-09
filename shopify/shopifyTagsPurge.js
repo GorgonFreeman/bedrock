@@ -68,6 +68,7 @@ const shopifyTagsPurge = async (
       options,
     }),
     {
+      multipleInputs: true,
       ...(queueRunOptions ? { queueRunOptions } : {}),
     },
   );
