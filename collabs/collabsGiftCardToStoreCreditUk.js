@@ -533,6 +533,8 @@ const collabsGiftCardToStoreCreditUkApi = funcApi(collabsGiftCardToStoreCreditUk
       errorChannelNameLocal: "#alerts_swap_store_credit",
     },
   },
+  requireHostedApiKey: true,
+  allowCrossOrigin: true,
 });
 
 module.exports = {

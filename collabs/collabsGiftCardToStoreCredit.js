@@ -534,6 +534,8 @@ const collabsGiftCardToStoreCreditApi = funcApi(collabsGiftCardToStoreCredit, {
       errorChannelNameLocal: "#alerts_loop_store_credit",
     },
   },
+  requireHostedApiKey: true,
+  allowCrossOrigin: true,
 });
 
 module.exports = {
