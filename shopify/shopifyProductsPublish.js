@@ -2,12 +2,14 @@ const { HOSTED } = require('../constants');
 const { funcApi, logDeep, Processor, gidToId, arrayStandardResponse, askQuestion, actionMultipleOrSingle } = require('../utils');
 const { shopifyProductsGetter } = require('../shopify/shopifyProductsGet');
 const { shopifyProductPublish } = require('../shopify/shopifyProductPublish');
+const { shopifyTagsAdd } = require('../shopify/shopifyTagsAdd');
 
 const shopifyProductsPublishSingle = async (
   credsPath,
   {
     apiVersion,
     fetchOptions,
+    demo,
   } = {},
 ) => {
 
@@ -73,6 +75,17 @@ const shopifyProductsPublishSingle = async (
       // logDeep(product);
       // await askQuestion('Continue?');
 
+      if (demo) {
+        const tagResponse = await shopifyTagsAdd(
+          credsPath,
+          productGid,
+          ['demo_will_publish'],
+          { apiVersion },
+        );
+        piles.results.push(tagResponse);
+        return;
+      }
+
       const publicationsInput = unpublishedPublications.map(p => ({ publicationId: p.id }));
       const productId = gidToId(productGid);
 
@@ -94,7 +107,10 @@ const shopifyProductsPublishSingle = async (
         interval: 20,
       },
       maxInFlightRequests: 50,
-      logFlavourText: `Publishing ${ credsPath }`,
+      logFlavourText: demo
+        ? `Tagging ${ credsPath }`
+        : `Publishing ${ credsPath }`
+      ,
     },
   );
 
