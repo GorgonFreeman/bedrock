@@ -1,4 +1,5 @@
 const { 
+  HOSTED,
   REGIONS_ALL, 
   REGIONS_PVX, 
   REGIONS_LOGIWA, 
@@ -306,7 +307,7 @@ const collabsFulfillmentSweepV3 = async (
     async (pile) => {
       const args = pile.shift();
 
-      logDeep('fulfill', args);
+      !HOSTED && logDeep('fulfill', args);
       // await askQuestion('?');
 
       const [region, ...rest] = args;
@@ -327,12 +328,12 @@ const collabsFulfillmentSweepV3 = async (
   fulfillers.push(orderFulfiller);
 
   await Promise.all([
-    ...getters.map(getter => getter.run()),
-    ...processors.map(processor => processor.run()),
-    ...fulfillers.map(fulfiller => fulfiller.run()),
+    ...getters.map(getter => getter.run({ verbose: !HOSTED })),
+    ...processors.map(processor => processor.run({ verbose: !HOSTED })),
+    ...fulfillers.map(fulfiller => fulfiller.run({ verbose: !HOSTED })),
   ]);
 
-  logDeep(piles);
+  !HOSTED && logDeep(piles);
   logDeep(surveyNestedArrays(piles));
 
   return { 
