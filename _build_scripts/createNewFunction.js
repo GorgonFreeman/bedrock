@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { askQuestion, capitaliseString } = require('../utils');
 const fs = require('fs').promises;
 const { exec, spawn } = require('child_process');
@@ -142,8 +143,9 @@ const createNewFunction = async () => {
     const script = await scriptFileContents(funcName, pathName, selectedTemplate);
     await fs.writeFile(`${ pathName }${ funcName }.js`, script);
 
-    // Only commit if 'commit' is present in argv
-    if (process.argv.includes('commit')) {
+    // Only commit if AUTO_COMMIT_STUBS is true or 'commit' is present in argv
+    const shouldAutoCommit = process.env.AUTO_COMMIT_STUBS === 'true' || process.argv.includes('commit');
+    if (shouldAutoCommit) {
       gitCommitAll(`${ funcName } stub`);
     }
   } catch(err) {
