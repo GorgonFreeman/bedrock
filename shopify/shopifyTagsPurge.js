@@ -39,7 +39,12 @@ const shopifyTagsPurge = async (
     credsPath,
     resourcesWithTags.map(resource => resource.id),
     tags,
-    { apiVersion },
+    { 
+      apiVersion,
+      queueRunOptions: {
+        interval: 20,
+      },
+    },
   );
 
   logDeep(response);

@@ -44,6 +44,7 @@ const shopifyTagsRemove = async (
   {
     apiVersion,
     returnAttrs,
+    queueRunOptions,
   } = {},
 ) => {
   
@@ -54,6 +55,9 @@ const shopifyTagsRemove = async (
       args: [credsPath, gid, tags],
       options: { apiVersion, returnAttrs },
     }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
   );
   logDeep(response);
   return response;
