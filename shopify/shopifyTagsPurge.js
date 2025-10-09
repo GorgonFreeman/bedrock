@@ -1,4 +1,4 @@
-const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
+const { funcApi, logDeep, actionMultipleOrSingle, objHasAny } = require('../utils');
 const { shopifyGet } = require('../shopify/shopify.utils');
 const { shopifyTagsRemove } = require('../shopify/shopifyTagsRemove');
 
@@ -6,7 +6,7 @@ const shopifyTagsPurgeSingle = async (
   credsPath,
   {
     tags,
-    // tagPrefix,
+    tagPrefix,
   },
   resource,
   {
@@ -75,6 +75,9 @@ const shopifyTagsPurge = async (
 
 const shopifyTagsPurgeApi = funcApi(shopifyTagsPurge, {
   argNames: ['credsPath', 'tagsIdentifier', 'resource', 'options'],
+  validatorsByArg: {
+    tagsIdentifier: p => Array.isArray(p) ? p.every(i => objHasAny(i, ['tags', 'tagPrefix'])) : objHasAny(p, ['tags', 'tagPrefix']),
+  },
 });
 
 module.exports = {
