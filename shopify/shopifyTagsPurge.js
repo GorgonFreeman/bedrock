@@ -1,12 +1,12 @@
 const { funcApi, logDeep } = require('../utils');
-const { shopifyGetter } = require('../shopify/shopify.utils');
+const { shopifyGet } = require('../shopify/shopify.utils');
 const { shopifyTagsRemove } = require('../shopify/shopifyTagsRemove');
 
 const shopifyTagsPurge = async (
   credsPath,
   {
     tags,
-    tagPrefix,
+    // tagPrefix,
   },
   resource,
   {
@@ -14,20 +14,34 @@ const shopifyTagsPurge = async (
   } = {},
 ) => {
   
-  const resourcesWithTagsResponse = await shopifyGetter(
+  const resourcesWithTagsResponse = await shopifyGet(
     credsPath,
     resource,
     {
       apiVersion,
+      attrs: 'id tags',
+      queries: [tags.join(' OR ')],
     },
   );
+
+  let { 
+    success: resourcesWithTagsSuccess, 
+    result: resourcesWithTags, 
+  } = resourcesWithTagsResponse;
   
+  if (!resourcesWithTagsSuccess) {
+    return resourcesWithTagsResponse;
+  }
 
+  resourcesWithTags = resourcesWithTags.filter(resource => resource.tags.some(tag => tags.includes(tag)));
 
-  const response = {
-    success: true,
-    result: 'hi',
-  };
+  const response = await shopifyTagsRemove(
+    credsPath,
+    resourcesWithTags.map(resource => resource.id),
+    tags,
+    { apiVersion },
+  );
+
   logDeep(response);
   return response;
 };
@@ -41,4 +55,4 @@ module.exports = {
   shopifyTagsPurgeApi,
 };
 
-// curl localhost:8000/shopifyTagsPurge -H "Content-Type: application/json" -d '{ "credsPath": "au", "tagsIdentifier": { "tags": "demo_will_publish" }, "resource": "product" }'
+// curl localhost:8000/shopifyTagsPurge -H "Content-Type: application/json" -d '{ "credsPath": "au", "tagsIdentifier": { "tags": ["demo_will_publish"] }, "resource": "product" }'
