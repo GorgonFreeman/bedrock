@@ -12,6 +12,8 @@ const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
 const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 const { peoplevoxDespatchesGetBySalesOrderNumber } = require('../peoplevox/peoplevoxDespatchesGetBySalesOrderNumber');
 
+const { bedrock_unlisted_slackErrorPost } = require('../bedrock_unlisted/bedrock_unlisted_slackErrorPost');
+
 const PEOPLEVOX_ON = false; // Peoplevox doesn't seem to be a good source of truth for despatches
 
 const collabsFulfillmentSweepV3 = async (
@@ -344,6 +346,8 @@ const collabsFulfillmentSweepV3Api = funcApi(
   collabsFulfillmentSweepV3,
   {
     argNames: ['options'],
+    requireHostedApiKey: true, 
+    errorReporter: bedrock_unlisted_slackErrorPost,
   },
 );
 
