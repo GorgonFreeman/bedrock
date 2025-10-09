@@ -1351,6 +1351,56 @@ const actionMultipleOrSingle = async (input, func, buildOpArgs, { queueRunOption
   return new Operation(func, buildOpArgs(input)).run();
 };
 
+const arraysToCartesianProduct = (arrays) => {
+  return arrays.reduce(
+    (acc, curr) => acc.flatMap(a => curr.map(b => [...a, b])),
+    [[]],
+  );
+};
+
+const actionMultipleOrSingleV2 = async (input, func, buildOpArgs, { queueRunOptions = {} } = {}) => {
+  
+  /* How different inputs are handled:
+  1. Single input 
+  Pass directly to args builder function, and return result.
+  2. Single array
+  Action one operation per value in the array.
+  3. Array of arrays
+  Action all permutations of all values in the arrays.
+  */
+  
+  // #1: Single input
+  // Pass directly to args builder function, and return result.
+  if (!Array.isArray(input)) {
+    return new Operation(func, buildOpArgs(input)).run();
+  }
+
+  let queue;
+
+  if (input.every(i => !Array.isArray(i))) {
+    // #2: Single array
+    // Action one operation per value in the array.
+    queue = new OperationQueue(input.map(inputItem => new Operation(
+      func, 
+      buildOpArgs(inputItem),
+    )));
+  } else {
+    // #3: Array of arrays
+    // Action all combinations of all values in the arrays.
+    const combinations = arraysToCartesianProduct(input);
+    queue = new OperationQueue(combinations.map(combo => new Operation(
+      func, 
+      buildOpArgs(...combo),
+    )));
+  }
+
+  const queueResponses = await queue.run(queueRunOptions);
+  const queueResponse = arrayStandardResponse(queueResponses);
+  return queueResponse;
+
+  // TODO: Consider if we need to handle arrays that don't represent multiples. Supply that as a single-item array?
+};
+
 const standardInterpreters = {
   expectOne: (response) => {
     if (!response?.success) {
