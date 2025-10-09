@@ -15,7 +15,7 @@ const starshipitProductsGet = async (
     '/products',
     {
       // params,
-      // nodeName = 'results',
+      nodeName: 'products',
       ...getterOptions,
     },
   );

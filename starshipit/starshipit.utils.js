@@ -53,15 +53,11 @@ const starshipitGetterPaginator = async (customAxiosPayload, response, additiona
   }
 
   // 1. Extract necessary pagination info
-  const {
-    page: currentPage,
-    page_size: pageSize,
-  } = customAxiosPayload?.params;
-
   // TODO: Pass cumulative results count back into paginators for checking if done - pageSize is optional
-
   const { 
-    total_count: totalCount,
+    page_number: currentPage,
+    page_size: pageSize,
+    total_records: totalCount,
   } = result;
 
   // 2. Supplement payload with next pagination info
@@ -69,7 +65,7 @@ const starshipitGetterPaginator = async (customAxiosPayload, response, additiona
     ...customAxiosPayload,
     params: {
       ...customAxiosPayload?.params,
-      page: currentPage + 1,
+      page_number: currentPage + 1,
     },
   };
   
@@ -88,7 +84,7 @@ const starshipitGetterDigester = async (response, nodeName) => {
     return null;
   }
 
-  const items = result?.[nodeName];
+  const items = result?.data?.[nodeName];
   return items;
 };
 
