@@ -1,31 +1,24 @@
 // https://api-docs.starshipit.com/#ccf0f10f-e370-45c0-ba5c-13bfaac80ca6
 
 const { funcApi, logDeep } = require('../utils');
-const { starshipitClient } = require('../starshipit/starshipit.utils');
+const { starshipitGet } = require('../starshipit/starshipit.utils');
 
 const starshipitProductsGet = async (
   credsPath,
+  {
+    ...getterOptions
+  } = {},
 ) => {
 
-  const response = await starshipitClient.fetch({
-    url: '/products',
-    params: {
-      // arg_value: arg,
+  const response = await starshipitGet(
+    credsPath,
+    '/products',
+    {
+      // params,
+      // nodeName = 'results',
+      ...getterOptions,
     },
-    context: {
-      credsPath,
-    },
-    /*
-    interpreter: (response) => {
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.arg_value,
-        } : {},
-      };
-    },
-    */
-  });
+  );
 
   logDeep(response);
   return response;
