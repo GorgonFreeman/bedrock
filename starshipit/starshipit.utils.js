@@ -93,7 +93,7 @@ const starshipitGetter = async (
   credsPath,
   url,
   {
-    params,
+    params = {},
     nodeName = 'results',
     ...getterOptions
   } = {},
@@ -102,7 +102,10 @@ const starshipitGetter = async (
     {
       url,
       payload: {
-        params,
+        params: {
+          page_size: MAX_PER_PAGE,
+          ...params,
+        },
       },
       paginator: (...args) => starshipitGetterPaginator(...args, nodeName),
       digester: (...args) => starshipitGetterDigester(...args, nodeName),
