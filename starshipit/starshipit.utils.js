@@ -1,3 +1,4 @@
+const { MAX_PER_PAGE } = require('../starshipit/starshipit.constants');
 const { credsByPath, CustomAxiosClient, Getter, askQuestion, logDeep, getterAsGetFunction } = require('../utils');
 
 const starshipitRequestSetup = ({ credsPath } = {}) => {
