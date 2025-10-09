@@ -97,3 +97,8 @@ youtube:
   API_KEY: ____________________________  # Google Cloud Console > APIs & Services > Credentials > Create Credentials > API Key
   CLIENT_ID: __________________________  # Google Cloud Console > APIs & Services > Credentials > Create Credentials > OAuth client ID
   CLIENT_SECRET: ______________________  # Google Cloud Console > APIs & Services > Credentials > Create Credentials > OAuth client ID > Email Me My Security Token
+
+swap:
+  BASE_URL: https://returnsportal.co/api/1.1/xx
+  API_KEY: ____________________________
+  STORE_ID: ___________________________
