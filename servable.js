@@ -86,6 +86,7 @@ module.exports = {
   shopifyStoreCreditAccountCredit: require('./shopify/shopifyStoreCreditAccountCredit').shopifyStoreCreditAccountCreditApi,
   shopifyStoreCreditAccountDebit: require('./shopify/shopifyStoreCreditAccountDebit').shopifyStoreCreditAccountDebitApi,
   shopifyTagsAdd: require('./shopify/shopifyTagsAdd').shopifyTagsAddApi,
+  shopifyTagsPurge: require('./shopify/shopifyTagsPurge').shopifyTagsPurgeApi,
   shopifyTagsRemove: require('./shopify/shopifyTagsRemove').shopifyTagsRemoveApi,
   shopifyThemeFilePropagate: require('./shopify/shopifyThemeFilePropagate').shopifyThemeFilePropagateApi,
   shopifyThemeGet: require('./shopify/shopifyThemeGet').shopifyThemeGetApi,
