@@ -99,6 +99,7 @@ youtube:
   CLIENT_SECRET: ______________________  # Google Cloud Console > APIs & Services > Credentials > Create Credentials > OAuth client ID > Email Me My Security Token
 
 swap:
-  BASE_URL: https://returnsportal.co/api/1.1/xx
-  API_KEY: ____________________________
-  STORE_ID: ___________________________
+  acc:
+    BASE_URL: https://returnsportal.co/api/1.1/xx
+    API_KEY: __________________________
+    STORE_ID: _________________________
