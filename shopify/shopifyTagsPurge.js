@@ -1,53 +1,39 @@
 const { funcApi, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
-
-const defaultAttrs = `id`;
+const { shopifyGetter } = require('../shopify/shopify.utils');
+const { shopifyTagsRemove } = require('../shopify/shopifyTagsRemove');
 
 const shopifyTagsPurge = async (
   credsPath,
-  arg,
+  {
+    tags,
+    tagPrefix,
+  },
+  resource,
   {
     apiVersion,
-    option,
   } = {},
 ) => {
-
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
+  
+  const resourcesWithTagsResponse = await shopifyGetter(
+    credsPath,
+    resource,
+    {
       apiVersion,
     },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
+  );
+  
 
+
+  const response = {
+    success: true,
+    result: 'hi',
+  };
   logDeep(response);
   return response;
 };
 
 const shopifyTagsPurgeApi = funcApi(shopifyTagsPurge, {
-  argNames: ['credsPath', 'arg', 'options'],
+  argNames: ['credsPath', 'tagsIdentifier', 'resource', 'options'],
 });
 
 module.exports = {
@@ -55,4 +41,4 @@ module.exports = {
   shopifyTagsPurgeApi,
 };
 
-// curl localhost:8000/shopifyTagsPurge -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyTagsPurge -H "Content-Type: application/json" -d '{ "credsPath": "au", "tagsIdentifier": { "tags": "demo_will_publish" }, "resource": "product" }'
