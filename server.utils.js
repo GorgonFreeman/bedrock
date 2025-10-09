@@ -85,8 +85,8 @@ const parseCommonRequests = (req) => {
     req.on('end', async () => {
       try {
         if (contentType === 'application/json') {
-
-          body = JSON.parse(body);
+          // Only parse JSON if body is not empty
+          body = body.trim() ? JSON.parse(body) : {};
 
         } else if (contentType === 'application/x-www-form-urlencoded') {
 
