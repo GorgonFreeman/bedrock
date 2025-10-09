@@ -42,7 +42,7 @@ const defaultAttrs = `
 
 const getSwapOrders = async (region) => {
   const SWAP_ORDERS = [];
-  const originalFromDate = dateFromNow({ minus: days(1), dateOnly: true });
+  const originalFromDate = dateFromNow({ minus: days(3), dateOnly: true });
 
   const fetchSwapReturnsRecursively = async (fromDatePayload) => {
     const swapReturns = await swapReturnsGet(region, fromDatePayload, {
@@ -167,7 +167,7 @@ const processOrder = async (region, order, options) => {
       {
         attrs: `
         id
-        presentmentCurrencyCode
+        presentmentCurrencyCode 
         subtotalPriceSet {
           shopMoney {
             amount
@@ -307,15 +307,15 @@ const processOrder = async (region, order, options) => {
       const exchangeRate = parseFloat(orderSubtotalInPresentmentCurrency / orderSubtotal).toFixed(6);
 
       amountToCredit = finalReturnAmount * exchangeRate;
-      currencyCode = subtotalPriceSet.presentmentCurrencyCode;
+      currencyCode = subtotalPriceSet.presentmentMoney.currencyCode;
     }
 
     if (!options.demo) {
-      deactivateResponse = await shopifyGiftCardDeactivate(region, strippedGiftCardId, {
+      deactivateResult = await shopifyGiftCardDeactivate(region, strippedGiftCardId, {
         options: { returnAttrs: "enabled deactivatedAt" },
       });
 
-      const deactivationValid = deactivateResponse.success === true && deactivateResponse.result?.giftCard?.enabled === false;
+      const deactivationValid = deactivateResult.success === true && deactivateResult.result?.giftCard?.enabled === false;
 
       if (!deactivationValid) {
         return {
@@ -496,7 +496,7 @@ const processRegion = async (region, options) => {
 const collabsGiftCardToStoreCreditUk = async ({
   demo = false,
   subKey = SUB_KEY,
-  daysBack = 2,
+  daysBack = 5,
 } = {}) => {
   const fromDate = dateFromNow({ minus: days(daysBack), dateOnly: true });
   const region = "uk";
