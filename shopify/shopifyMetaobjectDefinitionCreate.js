@@ -40,6 +40,7 @@ const shopifyMetaobjectDefinitionCreate = async (
     ...options
   } = {},
 ) => {
+  // TODO: Support multiple credsPaths AND metaobjectDefinitionInputs
   const response = await actionMultipleOrSingle(
     metaobjectDefinitionInput,
     shopifyMetaobjectDefinitionCreateSingle,
