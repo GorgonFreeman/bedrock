@@ -32,7 +32,7 @@ const starshipitClient = new CustomAxiosClient({
   preparer: starshipitRequestSetup,
   baseInterpreter: (response) => {
 
-    if (!response?.result?.success) {
+    if (!(response?.result?.success || response?.result?.succeeded)) {
       return {
         success: false,
         error: [response.result],
