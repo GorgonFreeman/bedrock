@@ -81,7 +81,7 @@ const shopifyProductPublish = async (
 };
 
 const shopifyProductPublishApi = funcApi(shopifyProductPublish, {
-  argNames: ['credsPath', 'productId'],
+  argNames: ['credsPath', 'productId', 'options'],
 });
 
 module.exports = {

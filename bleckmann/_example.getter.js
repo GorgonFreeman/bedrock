@@ -32,7 +32,7 @@ const FUNC = async (
 };
 
 const FUNCApi = funcApi(FUNC, {
-  argNames: ['createdFrom', 'createdTo'],
+  argNames: ['createdFrom', 'createdTo', 'options'],
 });
 
 module.exports = {

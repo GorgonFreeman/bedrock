@@ -33,7 +33,7 @@ const shopifyThemeFilePropagate = async (
 };
 
 const shopifyThemeFilePropagateApi = funcApi(shopifyThemeFilePropagate, {
-  argNames: ['fromRegion', 'toRegions', 'themeIdentifier', 'filePath'],
+  argNames: ['fromRegion', 'toRegions', 'themeIdentifier', 'filePath', 'options'],
   validatorsByArg: {
     fromRegion: Boolean,
     toRegions: Array.isArray,

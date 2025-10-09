@@ -33,7 +33,7 @@ const FUNC = async (
 };
 
 const FUNCApi = funcApi(FUNC, {
-  argNames: ['salesOrderNumber'],
+  argNames: ['salesOrderNumber', 'options'],
 });
 
 module.exports = {

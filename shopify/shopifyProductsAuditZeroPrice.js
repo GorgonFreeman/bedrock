@@ -21,7 +21,7 @@ const shopifyProductsAuditZeroPrice = async (
 const shopifyProductsAuditZeroPriceApi = funcApi(
   shopifyProductsAuditZeroPrice,
   { 
-    argNames: ['region'], 
+    argNames: ['region', 'options'], 
     validatorsByArg: { region: Boolean },
   },
 );

@@ -30,7 +30,7 @@ const FUNC = async (
 };
 
 const FUNCApi = funcApi(FUNC, {
-  argNames: [],
+  argNames: ['options'],
   validatorsByArg: {},
 });
 

@@ -24,7 +24,7 @@ const shopifyGraphqlSend = async (
 };
 
 const shopifyGraphqlSendApi = funcApi(shopifyGraphqlSend, {
-  argNames: ['credsPath', 'query'],
+  argNames: ['credsPath', 'query', 'options'],
 });
 
 module.exports = {

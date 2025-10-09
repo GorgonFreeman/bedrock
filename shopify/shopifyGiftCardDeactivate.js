@@ -27,7 +27,7 @@ const shopifyGiftCardDeactivateSingle = async (
       apiVersion,
     },
   );
-  
+
   return response;
 };
 
@@ -52,7 +52,7 @@ const shopifyGiftCardDeactivate = async (
 };
 
 const shopifyGiftCardDeactivateApi = funcApi(shopifyGiftCardDeactivate, {
-  argNames: ['credsPath', 'giftCardId'],
+  argNames: ['credsPath', 'giftCardId', 'options'],
 });
 
 module.exports = {

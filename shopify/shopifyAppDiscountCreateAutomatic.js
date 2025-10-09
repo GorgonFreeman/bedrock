@@ -33,7 +33,7 @@ const shopifyAppDiscountCreateAutomatic = async (
 };
 
 const shopifyAppDiscountCreateAutomaticApi = funcApi(shopifyAppDiscountCreateAutomatic, {
-  argNames: ['credsPath', 'automaticAppDiscountInput'],
+  argNames: ['credsPath', 'automaticAppDiscountInput', 'options'],
 });
 
 module.exports = {

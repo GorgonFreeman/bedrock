@@ -84,7 +84,7 @@ const shopifyPagePropagate = async (
 };
 
 const shopifyPagePropagateApi = funcApi(shopifyPagePropagate, {
-  argNames: ['fromCredsPath', 'toCredsPaths', 'pageIdentifier'],
+  argNames: ['fromCredsPath', 'toCredsPaths', 'pageIdentifier', 'options'],
   validatorsByArg: {
     fromCredsPath: Boolean,
     toCredsPaths: Array.isArray,

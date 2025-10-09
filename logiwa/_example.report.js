@@ -45,7 +45,7 @@ const FUNC = async (
 };
 
 const FUNCApi = funcApi(FUNC, {
-  argNames: ['criteria'],
+  argNames: ['criteria', 'options'],
   validatorsByArg: {
     criteria: (value) => objHasAny(value, ['warehouseIdentifier_eq', 'clientIdentifier_eq', 'locationIdentifier_eq', 'sku_eq', 'snapshotDate_bt']),
   },

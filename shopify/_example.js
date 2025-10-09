@@ -47,7 +47,7 @@ const FUNC = async (
 };
 
 const FUNCApi = funcApi(FUNC, {
-  argNames: ['credsPath', 'arg'],
+  argNames: ['credsPath', 'arg', 'options'],
 });
 
 module.exports = {

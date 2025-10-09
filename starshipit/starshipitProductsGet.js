@@ -25,7 +25,7 @@ const starshipitProductsGet = async (
 };
 
 const starshipitProductsGetApi = funcApi(starshipitProductsGet, {
-  argNames: ['credsPath'],
+  argNames: ['credsPath', 'options'],
 });
 
 module.exports = {

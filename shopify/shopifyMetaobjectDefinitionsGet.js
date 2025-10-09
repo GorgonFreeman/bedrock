@@ -26,7 +26,7 @@ const shopifyMetaobjectDefinitionsGet = async (
 };
 
 const shopifyMetaobjectDefinitionsGetApi = funcApi(shopifyMetaobjectDefinitionsGet, {
-  argNames: ['credsPath'],
+  argNames: ['credsPath', 'options'],
 });
 
 module.exports = {
@@ -34,4 +34,4 @@ module.exports = {
   shopifyMetaobjectDefinitionsGetApi,
 };
 
-// curl localhost:8000/shopifyMetaobjectDefinitionsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 2 } }'
+// curl localhost:8000/shopifyMetaobjectDefinitionsGet -H "Content-Type: application/json" -d '{ "credsPath": "au" }'

@@ -18,7 +18,7 @@ const FUNC = async (
 };
 
 const FUNCApi = funcApi(FUNC, {
-  argNames: ['arg'],
+  argNames: ['arg', 'options'],
 });
 
 module.exports = {

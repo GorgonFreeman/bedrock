@@ -28,7 +28,7 @@ const FUNC = async (
 };
 
 const FUNCApi = funcApi(FUNC, {
-  argNames: ['receiptId'],
+  argNames: ['receiptId', 'options'],
 });
 
 module.exports = {

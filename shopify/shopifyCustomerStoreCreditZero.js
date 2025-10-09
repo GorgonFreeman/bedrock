@@ -99,7 +99,7 @@ const shopifyCustomerStoreCreditZero = async (
 };
 
 const shopifyCustomerStoreCreditZeroApi = funcApi(shopifyCustomerStoreCreditZero, {
-  argNames: ['credsPath', 'customerId'],
+  argNames: ['credsPath', 'customerId', 'options'],
   allowCrossOrigin: true,
 });
 

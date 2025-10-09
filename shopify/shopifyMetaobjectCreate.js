@@ -71,7 +71,7 @@ const shopifyMetaobjectCreate = async (
 };
 
 const shopifyMetaobjectCreateApi = funcApi(shopifyMetaobjectCreate, {
-  argNames: ['credsPath', 'metaobjectInput'],
+  argNames: ['credsPath', 'metaobjectInput', 'options'],
 });
 
 module.exports = {

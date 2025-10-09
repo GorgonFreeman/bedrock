@@ -23,8 +23,7 @@ const FUNC = async (
 };
 
 const FUNCApi = funcApi(FUNC, {
-  argNames: [],
-  validatorsByArg: {},
+  argNames: ['options'],
 });
 
 module.exports = {
