@@ -34,3 +34,4 @@ module.exports = {
 };
 
 // curl localhost:8000/starshipitProductsGet -H "Content-Type: application/json" -d '{ "credsPath": "wf" }' 
+// curl localhost:8000/starshipitProductsGet -H "Content-Type: application/json" -d '{ "credsPath": "wf", "options": { "perPage": 15 } }' 

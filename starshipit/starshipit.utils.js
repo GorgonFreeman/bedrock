@@ -94,6 +94,7 @@ const starshipitGetter = async (
   url,
   {
     params = {},
+    perPage = MAX_PER_PAGE,
     nodeName = 'results',
     ...getterOptions
   } = {},
@@ -103,7 +104,7 @@ const starshipitGetter = async (
       url,
       payload: {
         params: {
-          page_size: MAX_PER_PAGE,
+          page_size: perPage,
           ...params,
         },
       },
