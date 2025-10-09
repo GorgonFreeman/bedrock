@@ -3,6 +3,7 @@ const {
   logDeep,
   arrayStandardResponse,
   surveyNestedArrays,
+  dateFromNowCalendar,
   dateFromNow,
   days,
   gidToId,
@@ -310,36 +311,44 @@ const processOrder = async (region, order, options) => {
     }
 
     if (!options.demo) {
-      deactivateResult = await shopifyGiftCardDeactivate(region, strippedGiftCardId, { subKey: options.subKey });
+      deactivateResponse = await shopifyGiftCardDeactivate(region, strippedGiftCardId, {
+        options: { returnAttrs: "enabled deactivatedAt" },
+      });
 
-      if (!deactivateResult || !deactivateResult.success) {
+      const deactivationValid = deactivateResponse.success === true && deactivateResponse.result?.giftCard?.enabled === false;
+
+      if (!deactivationValid) {
         return {
           success: false,
-          error: `Error deactivating gift card for order ${order_id}`,
+          error: `Error disabling gift card ${strippedGiftCardId} for customer ${customerGid} store credit not given`,
           result: {
-            orderId: order_id,
-            customerGid,
+            deactivationFailed: true,
             giftCardId: strippedGiftCardId,
+            customerGid: gidToId(customerGid),
           },
         };
       }
 
-      lifetimeResult = await shopifyStoreCreditLifetimeGet(region, customerGid, { subKey: options.subKey });
+      lifetimeResult = await shopifyStoreCreditLifetimeGet(region, { subKey: options.subKey });
 
       if (!lifetimeResult || !lifetimeResult.success) {
         return {
           success: false,
-          error: `Error getting customer lifetime for order ${order_id}`,
+          error: `Error getting store credit lifetime for order ${order_id}`,
           result: { orderId: order_id, customerGid },
         };
       }
 
-      creditResult = await shopifyStoreCreditAccountCredit(region, customerGid, amountToCredit, currencyCode, { subKey: options.subKey });
+      const lifetimeMonths = lifetimeResult.result;
+
+      creditResult = await shopifyStoreCreditAccountCredit(region, { customerId: gidToId(customerGid) }, amountToCredit, currencyCode, {
+        expiresAt: dateFromNowCalendar({ months: lifetimeMonths, days: 1 }),
+      });
 
       if (!creditResult || !creditResult.success) {
         return {
           success: false,
-          error: `Error crediting customer for order ${order_id}`,
+          error: `Error crediting customer ${gidToId(customerGid)} with ${amountToCredit} ${currencyCode} for order ${order_id}`,
           result: { orderId: order_id, customerGid },
         };
       }
@@ -378,8 +387,8 @@ const processRegion = async (region, options) => {
   try {
     const swapOrdersResult = await getSwapOrders(region);
 
-    logDeep(swapOrdersResult);
-    await askQuestion("?");
+    //logDeep(swapOrdersResult);
+    //await askQuestion("?");
 
     if (!swapOrdersResult.success) {
       return {
@@ -411,8 +420,8 @@ const processRegion = async (region, options) => {
       };
     }
 
-    logDeep(giftCardsResponse);
-    await askQuestion("?");
+    //logDeep(giftCardsResponse);
+    //await askQuestion("?");
 
     const giftCards = giftCardsResponse.result;
     if (giftCards.length === 0) {
@@ -427,7 +436,7 @@ const processRegion = async (region, options) => {
       };
     }
 
-    const matchingOrders = matchGiftCardsToOrders(giftCards, swapOrders);
+    let matchingOrders = matchGiftCardsToOrders(giftCards, swapOrders);
     if (matchingOrders.length === 0) {
       return {
         success: true,
@@ -440,8 +449,8 @@ const processRegion = async (region, options) => {
       };
     }
 
-    logDeep(matchingOrders);
-    await askQuestion("?");
+    //logDeep(matchingOrders);
+    //await askQuestion("?");
 
     const orderResponses = await Promise.all(matchingOrders.map((order) => processOrder(region, order, options)));
 
@@ -463,8 +472,8 @@ const processRegion = async (region, options) => {
 
     const creditResults = orderResponses.map((r) => r.result);
 
-    logDeep(creditResults);
-    await askQuestion("?");
+    //logDeep(creditResults);
+    //await askQuestion("?");
 
     return {
       success: true,

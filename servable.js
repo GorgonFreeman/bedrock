@@ -56,6 +56,7 @@ module.exports = {
   shopifyFulfillmentOrderFulfill: require('./shopify/shopifyFulfillmentOrderFulfill').shopifyFulfillmentOrderFulfillApi,
   shopifyGetSingle: require('./shopify/shopifyGetSingle').shopifyGetSingleApi,
   shopifyGiftCardDeactivate: require('./shopify/shopifyGiftCardDeactivate').shopifyGiftCardDeactivateApi,
+  shopifyGiftCardDisable: require('./shopify/shopifyGiftCardDisable').shopifyGiftCardDisableApi,
   shopifyGiftCardGet: require('./shopify/shopifyGiftCardGet').shopifyGiftCardGetApi,
   shopifyGiftCardsGet: require('./shopify/shopifyGiftCardsGet').shopifyGiftCardsGetApi,
   shopifyGraphqlSend: require('./shopify/shopifyGraphqlSend').shopifyGraphqlSendApi,
