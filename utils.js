@@ -1337,20 +1337,6 @@ class ProcessorPipeline {
   }
 };
 
-const actionMultipleOrSingle = async (input, func, buildOpArgs, { queueRunOptions = {} } = {}) => {
-  if (Array.isArray(input)) {
-    const queue = new OperationQueue(input.map(inputItem => new Operation(
-      func, 
-      buildOpArgs(inputItem),
-    )));
-    let queueResponses = await queue.run(queueRunOptions);
-    const queueResponse = arrayStandardResponse(queueResponses);
-    return queueResponse;
-  }
-
-  return new Operation(func, buildOpArgs(input)).run();
-};
-
 const ensureArray = (x) => (Array.isArray(x) ? x : [x]);
 
 const arraysToCartesianProduct = (arrayOfMixed) => {
@@ -1361,7 +1347,7 @@ const arraysToCartesianProduct = (arrayOfMixed) => {
     }, [[]]);
 };
 
-const actionMultipleOrSingleV2 = async (input, func, buildOpArgs, { multipleInputs = false, queueRunOptions = {} } = {}) => {
+const actionMultipleOrSingle = async (input, func, buildOpArgs, { multipleInputs = false, queueRunOptions = {} } = {}) => {
   
   /* How different inputs are handled:
   1. Single input 
@@ -1682,7 +1668,6 @@ module.exports = {
   gidToId,
   surveyObjects,
   actionMultipleOrSingle,
-  actionMultipleOrSingleV2,
   standardInterpreters,
   valueExcludingOutliers,
   arrayUnique,

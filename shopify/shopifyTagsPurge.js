@@ -1,4 +1,4 @@
-const { funcApi, logDeep, actionMultipleOrSingleV2 } = require('../utils');
+const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyGet } = require('../shopify/shopify.utils');
 const { shopifyTagsRemove } = require('../shopify/shopifyTagsRemove');
 
@@ -60,7 +60,7 @@ const shopifyTagsPurge = async (
     ...options
   } = {},
 ) => {
-  return actionMultipleOrSingleV2(
+  return actionMultipleOrSingle(
     [credsPath, tagsIdentifier], 
     shopifyTagsPurgeSingle, 
     (credsPath, tagsIdentifier) => ({
