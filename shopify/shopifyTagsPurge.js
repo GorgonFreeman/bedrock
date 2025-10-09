@@ -20,7 +20,12 @@ const shopifyTagsPurgeSingle = async (
     {
       apiVersion,
       attrs: 'id tags',
-      queries: [tags.join(' OR ')],
+      queries: [
+        ...tags 
+          ? tags.join(' OR ') 
+          // tagPrefix
+          : `${ tagPrefix }*`,
+      ],
     },
   );
 
@@ -32,8 +37,12 @@ const shopifyTagsPurgeSingle = async (
   if (!resourcesWithTagsSuccess) {
     return resourcesWithTagsResponse;
   }
-
-  resourcesWithTags = resourcesWithTags.filter(resource => resource.tags.some(tag => tags.includes(tag)));
+  
+  if (tags) {
+    resourcesWithTags = resourcesWithTags.filter(resource => resource.tags.some(tag => tags.includes(tag)));
+  } else if (tagPrefix) {
+    resourcesWithTags = resourcesWithTags.filter(resource => resource.tags.some(tag => tags.startsWith(tagPrefix)));
+  }
 
   const response = await shopifyTagsRemove(
     credsPath,
@@ -86,4 +95,4 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyTagsPurge -H "Content-Type: application/json" -d '{ "credsPath": "au", "tagsIdentifier": { "tags": ["demo_will_publish"] }, "resource": "product" }'
-// curl localhost:8000/shopifyTagsPurge -H "Content-Type: application/json" -d '{ "credsPath": ["au", "us", "uk"], "tagsIdentifier": [{ "tags": ["demo_will_publish"] }, { "tags": ["fetch"] }], "resource": "product" }'
+// curl localhost:8000/shopifyTagsPurge -H "Content-Type: application/json" -d '{ "credsPath": ["au", "us", "uk"], "tagsIdentifier": [{ "tags": ["collection:"] }, { "tags": ["0"] }, { "tags": ["#ERROR!"] }], "resource": "product" }'
