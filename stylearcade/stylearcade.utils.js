@@ -20,6 +20,18 @@ const stylearcadeClient = new CustomAxiosClient({
   baseHeaders: {
     'Content-Type': 'application/json',
   },
+  baseInterpreter: (response, context) => {
+    const { resultsNode } = context;
+
+    if (!resultsNode) {
+      return response;
+    }
+
+    return {
+      ...response,
+      ...response?.result && { result: response.result?.[resultsNode] },
+    };
+  },
 });
 
 const stylearcadeGetterPaginator = async (customAxiosPayload, response, additionalPaginationData) => {
@@ -63,7 +75,6 @@ const stylearcadeGetterDigester = async (response) => {
 const stylearcadeGetter = async (
   {
     url,
-    credsPath,
     params,
     perPage = 100,
     context,
@@ -83,9 +94,7 @@ const stylearcadeGetter = async (
       digester: stylearcadeGetterDigester,
       client: stylearcadeClient,
       clientArgs: {
-        context: {
-          credsPath,
-        },
+        context,
       },
       ...getterOptions,
     },

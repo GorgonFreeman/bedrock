@@ -8,7 +8,10 @@ const stylearcadeDataGet = async (
 ) => {
 
   const response = await stylearcadeGet({
-    credsPath,
+    context: {
+      credsPath,
+      resultsNode: 'records',
+    },
   });
   logDeep(response);
   return response;
