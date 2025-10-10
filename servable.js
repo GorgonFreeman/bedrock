@@ -50,6 +50,7 @@ module.exports = {
   shopifyCustomerStoreCreditZero: require('./shopify/shopifyCustomerStoreCreditZero').shopifyCustomerStoreCreditZeroApi,
   shopifyCustomerUpdate: require('./shopify/shopifyCustomerUpdate').shopifyCustomerUpdateApi,
   shopifyCustomerUpsert: require('./shopify/shopifyCustomerUpsert').shopifyCustomerUpsertApi,
+  shopifyCustomersGet: require('./shopify/shopifyCustomersGet').shopifyCustomersGetApi,
   shopifyDiscountClassTagsReport: require('./shopify/shopifyDiscountClassTagsReport').shopifyDiscountClassTagsReportApi,
   shopifyFileCreate: require('./shopify/shopifyFileCreate').shopifyFileCreateApi,
   shopifyFileUpload: require('./shopify/shopifyFileUpload').shopifyFileUploadApi,
