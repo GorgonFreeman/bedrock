@@ -1,4 +1,4 @@
-const { funcApi } = require('../utils');
+const { funcApi, credsByPath, CustomAxiosClient, logDeep } = require('../utils');
 
 const stylearcadeDataGet = async (
   {
@@ -6,8 +6,22 @@ const stylearcadeDataGet = async (
   } = {},
 ) => {
 
-  return true;
+  const creds = credsByPath(['stylearcade', credsPath]);
+  const { 
+    BASE_URL, 
+    API_KEY, 
+  } = creds;
 
+  const client = new CustomAxiosClient({
+    baseUrl: BASE_URL,
+    headers: {
+      'Authorization': API_KEY,
+    },
+  });
+
+  const response = await client.fetch();
+  logDeep(response);
+  return response;
 };
 
 const stylearcadeDataGetApi = funcApi(stylearcadeDataGet, {
