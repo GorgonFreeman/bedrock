@@ -1,21 +1,18 @@
 const { funcApi } = require('../utils');
+const { REGIONS_WF } = require('../constants');
 
 const collabsCustomsDataSweep = async (
-  arg,
   {
-    option,
+    regions = REGIONS_WF,
   } = {},
 ) => {
 
-  return { 
-    arg, 
-    option,
-  };
+  return true;
   
 };
 
 const collabsCustomsDataSweepApi = funcApi(collabsCustomsDataSweep, {
-  argNames: ['arg', 'options'],
+  argNames: ['options'],
 });
 
 module.exports = {
@@ -23,4 +20,4 @@ module.exports = {
   collabsCustomsDataSweepApi,
 };
 
-// curl localhost:8000/collabsCustomsDataSweep -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/collabsCustomsDataSweep
