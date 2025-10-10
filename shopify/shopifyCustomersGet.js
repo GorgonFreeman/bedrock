@@ -1,36 +1,60 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/orders
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/customers
 
-const { funcApi, logDeep } = require('../utils');
-const { shopifyGet } = require('../shopify/shopify.utils');
+const { respond, mandateParam, logDeep } = require('../utils');
+const { shopifyGet, shopifyGetter } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id name`;
+const defaultAttrs = `id email`;
 
-const shopifyCustomersGet = async (
+const payloadMaker = (
   credsPath,
   {
     attrs = defaultAttrs,
     ...options
   } = {},
 ) => {
-
-  const response = await shopifyGet(
-    credsPath, 
-    'order', 
+  return [
+    credsPath,
+    'customer',
     {
       attrs,
       ...options,
     },
-  );
+  ];
+};
 
+const shopifyCustomersGet = async (...args) => {
+  const response = await shopifyGet(...payloadMaker(...args));
   return response;
 };
 
-const shopifyCustomersGetApi = funcApi(shopifyCustomersGet, {
-  argNames: ['credsPath', 'options'],
-});
+const shopifyCustomersGetter = async (...args) => {
+  const response = await shopifyGetter(...payloadMaker(...args));
+  return response;
+};
+
+const shopifyCustomersGetApi = async (req, res) => {
+  const { 
+    credsPath,
+    options,
+  } = req.body;
+
+  const paramsValid = await Promise.all([
+    mandateParam(res, 'credsPath', credsPath),
+  ]);
+  if (paramsValid.some(valid => valid === false)) {
+    return;
+  }
+
+  const result = await shopifyCustomersGet(
+    credsPath,
+    options,
+  );
+  respond(res, 200, result);
+};
 
 module.exports = {
   shopifyCustomersGet,
+  shopifyCustomersGetter,
   shopifyCustomersGetApi,
 };
 
