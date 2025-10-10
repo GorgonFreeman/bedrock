@@ -17,7 +17,6 @@ const stylearcadeRequestSetup = ({ credsPath } = {}) => {
 
 const stylearcadeClient = new CustomAxiosClient({
   preparer: stylearcadeRequestSetup,
-  requiredContext: ['credsPath'],
   baseHeaders: {
     'Content-Type': 'application/json',
   },
@@ -62,8 +61,9 @@ const stylearcadeGetterDigester = async (response) => {
 };
 
 const stylearcadeGetter = async (
-  url,
   {
+    url,
+    credsPath,
     params,
     perPage = 100,
     context,
@@ -83,7 +83,9 @@ const stylearcadeGetter = async (
       digester: stylearcadeGetterDigester,
       client: stylearcadeClient,
       clientArgs: {
-        context,
+        context: {
+          credsPath,
+        },
       },
       ...getterOptions,
     },
