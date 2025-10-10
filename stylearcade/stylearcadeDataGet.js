@@ -14,8 +14,8 @@ const stylearcadeDataGet = async (
 
   const client = new CustomAxiosClient({
     baseUrl: BASE_URL,
-    headers: {
-      'Authorization': API_KEY,
+    baseHeaders: {
+      Authorization: `Bearer ${ API_KEY }`,
     },
   });
 
