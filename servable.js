@@ -24,6 +24,7 @@ module.exports = {
   supabaseTableGet: require('./supabase/supabase.utils').supabaseTableGetApi,
   supabaseTableGetAll: require('./supabase/supabase.utils').supabaseTableGetAllApi,
   supabaseRpc: require('./supabase/supabase.utils').supabaseRpcApi,
+  stylearcadeDataGet: require('./stylearcade/stylearcadeDataGet').stylearcadeDataGetApi,
   starshipitAddressCreate: require('./starshipit/starshipitAddressCreate').starshipitAddressCreateApi,
   starshipitAddressDelete: require('./starshipit/starshipitAddressDelete').starshipitAddressDeleteApi,
   starshipitAddressUpdate: require('./starshipit/starshipitAddressUpdate').starshipitAddressUpdateApi,
