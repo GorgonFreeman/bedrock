@@ -103,3 +103,7 @@ swap:
     BASE_URL: https://returnsportal.co/api/1.1/xx
     API_KEY: __________________________
     STORE_ID: _________________________
+
+stylearcade:
+  BASE_URL: https://___________________
+  API_KEY: ____________________________
