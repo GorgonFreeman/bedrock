@@ -151,6 +151,62 @@ const matchGiftCardsToOrders = (giftCards, swapOrders) => {
   return matchingOrders;
 };
 
+const groupResultsByCustomer = (validResults) => {
+  return validResults.reduce((groups, item) => {
+    const customerId = gidToId(item.customerGid);
+    if (!groups[customerId]) {
+      groups[customerId] = {
+        totalAmount: 0,
+        currencyCode: item.currencyCode,
+        giftCardIds: [],
+        orderIds: [],
+      };
+    }
+    groups[customerId].totalAmount += item.amountToCredit;
+    groups[customerId].giftCardIds.push(item.giftCardId);
+    groups[customerId].orderIds.push(item.orderId);
+    return groups;
+  }, {});
+};
+
+const processCreditResults = async (region, customerGroups, lifetimeMonths) => {
+  const creditResults = [];
+
+  for (const [customerId, groupData] of Object.entries(customerGroups)) {
+    try {
+      const creditResult = await shopifyStoreCreditAccountCredit(region, { customerId }, groupData.totalAmount, groupData.currencyCode, {
+        expiresAt: dateFromNowCalendar({ months: lifetimeMonths, days: 1 }),
+      });
+
+      if (!creditResult.success) {
+        return {
+          success: false,
+          error: `Error crediting ${customerId} with ${groupData.totalAmount} ${groupData.currencyCode}`,
+        };
+      }
+
+      creditResults.push({
+        customerGid: customerId,
+        totalAmount: groupData.totalAmount,
+        currencyCode: groupData.currencyCode,
+        giftCardIds: groupData.giftCardIds,
+        orderIds: groupData.orderIds,
+        creditResult,
+      });
+    } catch (error) {
+      return {
+        success: false,
+        error: `Error crediting ${customerId}: ${error.message}`,
+      };
+    }
+  }
+
+  return {
+    success: true,
+    result: creditResults,
+  };
+};
+
 const processOrder = async (region, order, options) => {
   try {
     const {
@@ -265,8 +321,6 @@ const processOrder = async (region, order, options) => {
     let amountToCredit;
     let currencyCode;
     let deactivateResult;
-    let lifetimeResult;
-    let creditResult;
 
     if (presentmentCurrencyCode === "GBP") {
       amountToCredit = parseFloat(total_credit_exchange_value);
@@ -328,30 +382,6 @@ const processOrder = async (region, order, options) => {
           },
         };
       }
-
-      lifetimeResult = await shopifyStoreCreditLifetimeGet(region, { subKey: options.subKey });
-
-      if (!lifetimeResult || !lifetimeResult.success) {
-        return {
-          success: false,
-          error: `Error getting store credit lifetime for order ${order_id}`,
-          result: { orderId: order_id, customerGid },
-        };
-      }
-
-      const lifetimeMonths = lifetimeResult.result;
-
-      creditResult = await shopifyStoreCreditAccountCredit(region, { customerId: gidToId(customerGid) }, amountToCredit, currencyCode, {
-        expiresAt: dateFromNowCalendar({ months: lifetimeMonths, days: 1 }),
-      });
-
-      if (!creditResult || !creditResult.success) {
-        return {
-          success: false,
-          error: `Error crediting customer ${gidToId(customerGid)} with ${amountToCredit} ${currencyCode} for order ${order_id}`,
-          result: { orderId: order_id, customerGid },
-        };
-      }
     }
 
     return {
@@ -366,12 +396,6 @@ const processOrder = async (region, order, options) => {
         deactivateResult: options.demo
           ? { success: true, demo: true }
           : deactivateResult,
-        lifetimeResult: options.demo
-          ? { success: true, demo: true }
-          : lifetimeResult,
-        creditResult: options.demo
-          ? { success: true, demo: true }
-          : creditResult,
       },
     };
   } catch (error) {
@@ -454,9 +478,9 @@ const processRegion = async (region, options) => {
 
     const orderResponses = await Promise.all(matchingOrders.map((order) => processOrder(region, order, options)));
 
-    const failedOrders = orderResponses.filter((r) => !r.success);
-    if (failedOrders.length > 0) {
-      const errorMessage = failedOrders
+    const deactivationFailures = orderResponses.filter((r) => r.result?.deactivationFailed);
+    if (deactivationFailures.length > 0) {
+      const errorMessage = deactivationFailures
         .map((f) => f.error)
         .join("\n");
       return {
@@ -464,22 +488,62 @@ const processRegion = async (region, options) => {
         error: errorMessage,
         result: {
           region,
-          failedOrders: failedOrders.length,
-          failedOrderDetails: failedOrders,
+          deactivationFailures: deactivationFailures.length,
+          failedDeactivations: deactivationFailures,
         },
       };
     }
 
-    const creditResults = orderResponses.map((r) => r.result);
+    const validResults = orderResponses.filter((r) => r.success && r.result?.customerGid);
 
-    //logDeep(creditResults);
-    //await askQuestion("?");
+    if (validResults.length === 0) {
+      return {
+        success: true,
+        result: {
+          region,
+          results: ["No valid orders to process"],
+          processedOrders: orderResponses,
+          creditResults: [],
+        },
+      };
+    }
+
+    const customerGroups = groupResultsByCustomer(validResults.map((r) => r.result));
+
+    const lifetimeResult = await shopifyStoreCreditLifetimeGet(region, { subKey: options.subKey });
+    if (!lifetimeResult || !lifetimeResult.success) {
+      return {
+        success: false,
+        error: `Error getting store credit lifetime for ${region}`,
+        result: { region },
+      };
+    }
+    const lifetimeMonths = lifetimeResult.result;
+
+    let creditResults;
+    if (!options.demo) {
+      const creditResultsResponse = await processCreditResults(region, customerGroups, lifetimeMonths);
+      if (!creditResultsResponse.success) {
+        return creditResultsResponse;
+      }
+      creditResults = creditResultsResponse.result;
+    } else {
+      creditResults = Object.entries(customerGroups).map(([customerId, groupData]) => ({
+        customerGid: customerId,
+        totalAmount: groupData.totalAmount,
+        currencyCode: groupData.currencyCode,
+        giftCardIds: groupData.giftCardIds,
+        orderIds: groupData.orderIds,
+        creditResult: { success: true, demo: true },
+      }));
+    }
 
     return {
       success: true,
       result: {
         region,
         processedOrders: orderResponses,
+        customerGroups: Object.keys(customerGroups).length,
         creditResults,
         failedOrders: 0,
       },
