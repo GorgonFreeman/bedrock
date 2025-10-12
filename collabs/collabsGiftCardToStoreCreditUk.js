@@ -42,7 +42,7 @@ const defaultAttrs = `
 
 const getSwapOrders = async (region) => {
   const SWAP_ORDERS = [];
-  const originalFromDate = dateFromNow({ minus: days(3), dateOnly: true });
+  const originalFromDate = dateFromNow({ minus: days(1), dateOnly: true });
 
   const fetchSwapReturnsRecursively = async (fromDatePayload) => {
     const swapReturns = await swapReturnsGet(region, fromDatePayload, {
@@ -496,7 +496,7 @@ const processRegion = async (region, options) => {
 const collabsGiftCardToStoreCreditUk = async ({
   demo = false,
   subKey = SUB_KEY,
-  daysBack = 5,
+  daysBack = 1,
 } = {}) => {
   const fromDate = dateFromNow({ minus: days(daysBack), dateOnly: true });
   const region = "uk";
