@@ -65,8 +65,8 @@ const stylearcadeGetterPaginator = async (customAxiosPayload, response, addition
 };
 
 const stylearcadeGetterDigester = async (response, resultsNode) => {
-  logDeep('digester: get items from response', response, resultsNode);
-  await askQuestion('?');
+  // logDeep('digester: get items from response', response, resultsNode);
+  // await askQuestion('?');
 
   const { success, result } = response;
   if (!success || !result) { // Return if failed
@@ -74,7 +74,7 @@ const stylearcadeGetterDigester = async (response, resultsNode) => {
   }
 
   const items = result?.[resultsNode];
-  console.log('items', items?.length);
+  // console.log('items', items?.length);
 
   return items;
 };
