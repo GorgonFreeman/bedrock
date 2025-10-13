@@ -43,8 +43,6 @@ const stylearcadeGetterPaginator = async (customAxiosPayload, response, addition
     return [true, null];
   }
 
-  logDeep(result);
-
   const { nextCursor } = result;
 
   // Supplement payload with next pagination info
@@ -55,8 +53,6 @@ const stylearcadeGetterPaginator = async (customAxiosPayload, response, addition
       ...(nextCursor && { cursor: nextCursor }),
     },
   };
-
-  logDeep(paginatedPayload);
   
   // Logic to determine done
   const done = !nextCursor;
