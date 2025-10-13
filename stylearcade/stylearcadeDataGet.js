@@ -1,4 +1,4 @@
-const { funcApi, credsByPath, CustomAxiosClient, logDeep } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
 const { stylearcadeGet } = require('./stylearcade.utils');
 
 const stylearcadeDataGet = async (
