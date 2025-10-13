@@ -96,3 +96,4 @@ module.exports = {
 
 // curl localhost:8000/shopifyTagsPurge -H "Content-Type: application/json" -d '{ "credsPath": "au", "tagsIdentifier": { "tags": ["demo_will_publish"] }, "resource": "product" }'
 // curl localhost:8000/shopifyTagsPurge -H "Content-Type: application/json" -d '{ "credsPath": ["au", "us", "uk"], "tagsIdentifier": [{ "tags": ["collection:"] }, { "tags": ["0"] }, { "tags": ["#ERROR!"] }], "resource": "product", "options": { "queueRunOptions": { "interval": 20 } } }'
+// curl localhost:8100/shopifyTagsPurge -H "Content-Type: application/json" -d '{ "credsPath": ["au", "us", "uk"], "tagsIdentifier": [{ "tagPrefix": "SMS_accepts" }, { "tagPrefix": ["SMS_market"] }, { "tagPrefix": ["Credit Balance"] }, { "tags": ["hello_there"] }], "resource": "customer", "options": { "queueRunOptions": { "interval": 20 } } }'
