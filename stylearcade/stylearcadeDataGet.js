@@ -1,19 +1,28 @@
 const { funcApi, logDeep } = require('../utils');
-const { stylearcadeGet } = require('./stylearcade.utils');
+const { stylearcadeGet, stylearcadeGetter } = require('./stylearcade.utils');
 
-const stylearcadeDataGet = async (
+const payloadMaker = (
   {
     credsPath,
   } = {},
 ) => {
-
-  const response = await stylearcadeGet({
-    context: {
-      credsPath,
+  return [
+    {
+      context: {
+        credsPath,
+      },
+      resultsNode: 'records',
     },
-    resultsNode: 'records',
-  });
-  logDeep(response);
+  ];
+};
+
+const stylearcadeDataGet = async (...args) => {
+  const response = await stylearcadeGet(...payloadMaker(...args));
+  return response;
+};
+
+const stylearcadeDataGetter = async (...args) => {
+  const response = await stylearcadeGetter(...payloadMaker(...args));
   return response;
 };
 
@@ -23,6 +32,7 @@ const stylearcadeDataGetApi = funcApi(stylearcadeDataGet, {
 
 module.exports = {
   stylearcadeDataGet,
+  stylearcadeDataGetter,
   stylearcadeDataGetApi,
 };
 
