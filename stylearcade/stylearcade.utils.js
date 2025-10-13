@@ -35,8 +35,8 @@ const stylearcadeClient = new CustomAxiosClient({
 });
 
 const stylearcadeGetterPaginator = async (customAxiosPayload, response, additionalPaginationData) => {
-  console.log('stylearcadeGetterPaginator', customAxiosPayload, response, additionalPaginationData);
-  await askQuestion('Continue?');
+  // console.log('stylearcadeGetterPaginator', customAxiosPayload, response, additionalPaginationData);
+  // await askQuestion('Continue?');
 
   const { success, result } = response;
   if (!success || !result) { // Return if failed
