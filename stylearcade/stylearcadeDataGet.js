@@ -4,6 +4,7 @@ const { stylearcadeGet, stylearcadeGetter } = require('./stylearcade.utils');
 const payloadMaker = (
   {
     credsPath,
+    ...getterOptions
   } = {},
 ) => {
   return [
@@ -12,6 +13,7 @@ const payloadMaker = (
         credsPath,
       },
       resultsNode: 'records',
+      ...getterOptions,
     },
   ];
 };
