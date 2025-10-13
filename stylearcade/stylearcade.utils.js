@@ -38,35 +38,45 @@ const stylearcadeGetterPaginator = async (customAxiosPayload, response, addition
   console.log('stylearcadeGetterPaginator', customAxiosPayload, response, additionalPaginationData);
   await askQuestion('Continue?');
 
-  return [true, null];
+  const { success, result } = response;
+  if (!success || !result) { // Return if failed
+    return [true, null];
+  }
+
+  logDeep(result);
+
+  const { nextCursor } = result;
 
   // Supplement payload with next pagination info
-  // const paginatedPayload = {
-  //   ...customAxiosPayload,
-  //   params: {
-  //     ...customAxiosPayload.params,
-  //     // Add pagination parameters based on what the API expects
-  //     ...(nextPage && { page: nextPage }),
-  //     ...(nextCursor && { cursor: nextCursor }),
-  //   },
-  // };
+  const paginatedPayload = {
+    ...customAxiosPayload,
+    params: {
+      ...customAxiosPayload.params,
+      ...(nextCursor && { cursor: nextCursor }),
+    },
+  };
+
+  logDeep(paginatedPayload);
   
   // Logic to determine done
-  // const done = !hasNextPage;
+  const done = !nextCursor;
   
-  // return [done, paginatedPayload];
+  return [done, paginatedPayload];
 };
 
 const stylearcadeGetterDigester = async (response, resultsNode) => {
-  // logDeep('digester: get items from response', response);
-  // await askQuestion('?');
+  logDeep('digester: get items from response', response, resultsNode);
+  await askQuestion('?');
 
   const { success, result } = response;
   if (!success || !result) { // Return if failed
     return null;
   }
 
-  return result?.[resultsNode];
+  const items = result?.[resultsNode];
+  console.log('items', items?.length);
+
+  return items;
 };
 
 const stylearcadeGetter = async (
@@ -89,7 +99,7 @@ const stylearcadeGetter = async (
         },
       },
       paginator: stylearcadeGetterPaginator,
-      digester: (response, resultsNode) => stylearcadeGetterDigester(response, resultsNode),
+      digester: (response) => stylearcadeGetterDigester(response, resultsNode),
       client: stylearcadeClient,
       clientArgs: {
         context,
