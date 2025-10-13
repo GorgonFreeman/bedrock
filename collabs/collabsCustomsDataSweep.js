@@ -3,6 +3,8 @@ const { REGIONS_WF } = require('../constants');
 
 const { stylearcadeDataGetter } = require('../stylearcade/stylearcadeDataGet');
 
+const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
+
 const collabsCustomsDataSweep = async (
   {
     regions = REGIONS_WF,
@@ -27,8 +29,14 @@ const collabsCustomsDataSweep = async (
     },
   });
 
+  const peoplevoxCustomsDataGet = async () => {
+    const reportResponse = await peoplevoxReportGet('Customs Data');
+    piles.inPeoplevox = piles.inPeoplevox.concat(reportResponse.result); // concat to avoid max call size issue
+  };
+
   await Promise.all([
     stylearcadeGetter.run(),
+    peoplevoxCustomsDataGet(),
   ]);
 
   logDeep(piles);
