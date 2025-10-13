@@ -41,7 +41,7 @@ const shopifyTagsPurgeSingle = async (
   if (tags) {
     resourcesWithTags = resourcesWithTags.filter(resource => resource.tags.some(tag => tags.includes(tag)));
   } else if (tagPrefix) {
-    resourcesWithTags = resourcesWithTags.filter(resource => resource.tags.some(tag => tags.startsWith(tagPrefix)));
+    resourcesWithTags = resourcesWithTags.filter(resource => resource.tags.some(tag => tag.startsWith(tagPrefix)));
   }
 
   const response = await shopifyTagsRemove(
