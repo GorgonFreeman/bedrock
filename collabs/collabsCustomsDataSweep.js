@@ -147,7 +147,7 @@ const collabsCustomsDataSweep = async () => {
       logDeep(hsCodeUs, hsCodeUk, customsDescription, countryCodeOfOrigin, skuTarget);
       // await askQuestion('Continue?');
 
-      const shopifyAuProduct = piles.inShopify['au'].find(item => item.variants.find(v => v.sku.startsWith(skuTarget)));
+      const shopifyAuProduct = piles.inShopify['au'].find(item => item.variants.find(v => v?.sku?.startsWith(skuTarget)));
 
       if (!shopifyAuProduct) {
         piles.missing.push(stylearcadeProduct);
