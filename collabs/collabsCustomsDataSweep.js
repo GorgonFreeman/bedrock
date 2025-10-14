@@ -30,6 +30,7 @@ const collabsCustomsDataSweep = async () => {
     // actions
     starshipitProductUpdate: [],
     starshipitProductAdd: [],
+    shopifyInventoryItemUpdate: [],
 
     results: [],
   };
@@ -253,8 +254,46 @@ const collabsCustomsDataSweep = async () => {
           piles.shopifyMetafieldSet.push(shopifyMetafieldSetArgs);
         }
 
-      }
+        if (updateHsCode || updateCountryCodeOfOrigin) {
+          const inventoryItemUpdatePayloads = variants.map(v => {
+            const { inventoryItem } = v;
+            const { id: inventoryItemGid } = inventoryItem;
+            return [
+              region,
+              inventoryItemGid,
+              {
+                harmonizedSystemCode: relevantHsCode,
+                countryCodeOfOrigin: countryCodeOfOrigin,
+              },
+            ];
+          });
+          piles.shopifyInventoryItemUpdate.push(...inventoryItemUpdatePayloads);         
+          continue;
+        }
+        
+        for (const v of variants) {
 
+          const { inventoryItem } = v;
+
+          const { 
+            id: inventoryItemGid,
+            harmonizedSystemCode,
+            countryCodeOfOrigin: currentCountryCodeOfOrigin,
+          } = inventoryItem;
+
+          if (harmonizedSystemCode !== relevantHsCode || countryCodeOfOrigin !== currentCountryCodeOfOrigin) {
+            const shopifyInventoryItemUpdateArgs = [
+              region,
+              inventoryItemGid,
+              {
+                harmonizedSystemCode: relevantHsCode,
+                countryCodeOfOrigin: countryCodeOfOrigin,
+              },
+            ];
+            piles.shopifyInventoryItemUpdate.push(shopifyInventoryItemUpdateArgs);
+          }
+        }
+      }
     },
     pile => pile.length === 0,
     {
