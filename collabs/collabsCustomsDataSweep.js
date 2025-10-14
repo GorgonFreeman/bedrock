@@ -169,7 +169,8 @@ const collabsCustomsDataSweep = async (
 
         const {
           id: starshipitProductId,
-          hs_code: starshipitHsCode,          customs_description: starshipitCustomsDescription,
+          hs_code: starshipitHsCode,          
+          customs_description: starshipitCustomsDescription,
           country: starshipitCountry,
         } = starshipitItem;
 
@@ -195,8 +196,7 @@ const collabsCustomsDataSweep = async (
         // Update if needed
       }
        
-      for (const region of regions) {
-        if (shopifyProducts[region]) {
+      for (const region of regions) {        if (shopifyProducts[region]) {
           // Update if needed
         }
       }
