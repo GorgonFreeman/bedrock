@@ -3,27 +3,34 @@
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `id countryCodeOfOrigin harmonizedSystemCode`;
 
 const shopifyInventoryItemUpdate = async (
   credsPath,
-  pageInput,
+  inventoryItemId,
+  updatePayload,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
   } = {},
 ) => {
 
+  const mutationName = 'inventoryItemUpdate';
+
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    mutationName,
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      id: {
+        type: 'ID!',
+        value: `gid://shopify/InventoryItem/${ inventoryItemId }`,
+      },
+      input: {
+        type: 'InventoryItemInput!',
+        value: updatePayload,
       },
     },
-    `page { ${ returnAttrs } }`,
+    `inventoryItem { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -33,7 +40,7 @@ const shopifyInventoryItemUpdate = async (
 };
 
 const shopifyInventoryItemUpdateApi = funcApi(shopifyInventoryItemUpdate, {
-  argNames: ['credsPath', 'pageInput', 'options'],
+  argNames: ['credsPath', 'inventoryItemId', 'updatePayload', 'options'],
 });
 
 module.exports = {
@@ -41,4 +48,4 @@ module.exports = {
   shopifyInventoryItemUpdateApi,
 };
 
-// curl http://localhost:8000/shopifyInventoryItemUpdate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyInventoryItemUpdate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "inventoryItemId": "43729076", "updatePayload": { "cost": 145.89, "tracked": false, "countryCodeOfOrigin": "US", "provinceCodeOfOrigin": "OR", "harmonizedSystemCode": "621710", "countryHarmonizedSystemCodes": [{ "harmonizedSystemCode": "6217109510", "countryCode": "CA" }] }, "options": { "returnAttrs": "id" } }'
