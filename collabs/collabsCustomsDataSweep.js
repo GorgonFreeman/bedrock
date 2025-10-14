@@ -169,8 +169,52 @@ const collabsCustomsDataSweep = async () => {
       const skus = shopifyAuProduct?.variants.map(v => v.sku);
 
       const peoplevoxItems = piles.inPeoplevox.filter(item => skus.includes(item['Item code']));
+      if (peoplevoxItems?.length) {
+        // add peoplevox update operations to pile
+      }
 
+      // TODO: Consolidate into one loop through skus
       const starshipitItems = piles.inStarshipit.filter(item => skus.includes(item.sku));
+      if (starshipitItems?.length) {
+        // update incorrect starshipit items
+        for (const starshipitItem of starshipitItems) {
+          const {
+            id: starshipitProductId,
+            hs_code: starshipitHsCode,          
+            customs_description: starshipitCustomsDescription,
+            country: starshipitCountry,
+          } = starshipitItem;
+  
+          if (!(starshipitHsCode === hsCodeUs && starshipitCustomsDescription === customsDescription && starshipitCountry === countryOfOrigin)) {
+            piles.starshipitProductUpdate.push([
+              'wf',
+              starshipitProductId,
+              {
+                hs_code: hsCodeUs,
+                customs_description: customsDescription,
+                country: countryOfOrigin,
+              },
+            ]);
+          }
+        }
+        
+        // add missing starshipit items
+        const missingSkus = skus.filter(sku => !starshipitItems.some(item => item.sku === sku));
+        if (missingSkus?.length) {
+          for (const missingSku of missingSkus) {
+            piles.starshipitProductAdd.push([
+              'wf',
+              missingSku,
+              {
+                hs_code: hsCodeUs,
+                customs_description: customsDescription,
+                country: countryOfOrigin,
+              },
+            ]);
+          }
+        }
+      }
+
 
       const shopifyProducts = {};
 
