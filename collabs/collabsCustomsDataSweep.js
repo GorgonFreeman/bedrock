@@ -5,6 +5,8 @@ const { stylearcadeDataGetter } = require('../stylearcade/stylearcadeDataGet');
 
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
+const { starshipitProductsGetter } = require('../starshipit/starshipitProductsGet');
+
 const collabsCustomsDataSweep = async (
   {
     regions = REGIONS_WF,
@@ -34,9 +36,19 @@ const collabsCustomsDataSweep = async (
     piles.inPeoplevox = piles.inPeoplevox.concat(reportResponse.result); // concat to avoid max call size issue
   };
 
+  const starshipitGetter = await starshipitProductsGetter(
+    'wf',
+    {
+      onItems: (items) => {
+        piles.inStarshipit.push(...items);
+      },
+    },
+  );
+
   await Promise.all([
     stylearcadeGetter.run(),
     peoplevoxCustomsDataGet(),
+    starshipitGetter.run(),
   ]);
 
   logDeep(piles);
