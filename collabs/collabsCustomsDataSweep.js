@@ -1,5 +1,5 @@
 const { funcApi, logDeep, surveyNestedArrays, Processor, askQuestion } = require('../utils');
-const { REGIONS_WF } = require('../constants');
+const { HOSTED, REGIONS_WF } = require('../constants');
 
 const { stylearcadeDataGetter } = require('../stylearcade/stylearcadeDataGet');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
@@ -42,6 +42,7 @@ const collabsCustomsDataSweep = async () => {
     onItems: (items) => {
       piles.inStylearcade.push(...items);
     },
+    logFlavourText: 'stylearcadeGetter',
   });
   getters.push(stylearcadeGetter);
 
@@ -82,6 +83,7 @@ const collabsCustomsDataSweep = async () => {
       onItems: (items) => {
         piles.inStarshipit.push(...items);
       },
+      logFlavourText: 'starshipitGetter',
     },
   );
   getters.push(starshipitGetter);
@@ -120,6 +122,7 @@ const collabsCustomsDataSweep = async () => {
         piles.inShopify[region] = piles.inShopify[region] || [];
         piles.inShopify[region].push(...items);
       },
+      logFlavourText: `shopifyGetter:${ region }`,
     },
   )));
   getters.push(...shopifyGetters);
@@ -323,7 +326,7 @@ const collabsCustomsDataSweep = async () => {
   
   // Run all getters before processing - otherwise processors start with partial data
   await Promise.all([
-    ...getters.map(g => typeof g.run === 'function' ? g.run({ verbose: false }) : g()),
+    ...getters.map(g => typeof g.run === 'function' ? g.run({ verbose: !HOSTED }) : g()),
   ]);
 
   piles.inStylearcade = piles.inStylearcade.map(({ data }) => data).filter(Boolean);
