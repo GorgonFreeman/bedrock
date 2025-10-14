@@ -1,26 +1,33 @@
 // https://api-docs.starshipit.com/#ccf0f10f-e370-45c0-ba5c-13bfaac80ca6
 
 const { funcApi, logDeep } = require('../utils');
-const { starshipitGet } = require('../starshipit/starshipit.utils');
+const { starshipitGet, starshipitGetter } = require('../starshipit/starshipit.utils');
 
-const starshipitProductsGet = async (
+const payloadMaker = (
   credsPath,
   {
     ...getterOptions
   } = {},
 ) => {
 
-  const response = await starshipitGet(
+  return [
     credsPath,
     '/products',
     {
-      // params,
       nodeName: 'products',
       ...getterOptions,
     },
-  );
+  ];
+};
 
+const starshipitProductsGet = async (...args) => {
+  const response = await starshipitGet(...payloadMaker(...args));
   logDeep(response);
+  return response;
+};
+
+const starshipitProductsGetter = async (...args) => {
+  const response = await starshipitGetter(...payloadMaker(...args));
   return response;
 };
 
@@ -30,6 +37,7 @@ const starshipitProductsGetApi = funcApi(starshipitProductsGet, {
 
 module.exports = {
   starshipitProductsGet,
+  starshipitProductsGetter,
   starshipitProductsGetApi,
 };
 
