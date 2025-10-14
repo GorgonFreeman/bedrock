@@ -56,15 +56,14 @@ const collabsCustomsDataSweep = async () => {
     {
       attrs: `
         id
-        metafields (namespace: "shipping_data") {
-          edges { 
-            node { 
-              id
-              namespace
-              key
-              value 
-            } 
-          } 
+        mfCustomsDescription: metafield(namespace: "shipping_data", key: "item_description") { 
+          value 
+        }
+        mfHsCode: metafield(namespace: "shipping_data", key: "hs_code") { 
+          value 
+        }
+        mfCountryCodeOfOrigin: metafield(namespace: "shipping_data", key: "country_code_of_origin") { 
+          value 
         }
         variants (first: 100) {
           edges {
@@ -229,10 +228,11 @@ const collabsCustomsDataSweep = async () => {
 
         const {
           id: productGid,
-          metafields,
           variants,
+          mfCustomsDescription,
+          mfHsCode,
+          mfCountryCodeOfOrigin,
         } = shopifyRegionProduct;
-
 
       }
 
