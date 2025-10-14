@@ -1,15 +1,23 @@
+// https://api-docs.starshipit.com/#9101a9d7-91b1-492c-b7ad-5f92f80bbfd7
+
 const { funcApi, logDeep } = require('../utils');
 const { starshipitClient } = require('../starshipit/starshipit.utils');
 
 const starshipitProductUpdate = async (
   credsPath,
-  arg,
+  productId,
+  updatePayload,
+  {
+    // option,
+  } = {},
 ) => {
 
   const response = await starshipitClient.fetch({
-    url: '/things',
-    params: {
-      arg_value: arg,
+    url: '/products/update',
+    method: 'put',
+    body: {
+      id: productId,
+      product: updatePayload,
     },
     context: {
       credsPath,
@@ -18,7 +26,7 @@ const starshipitProductUpdate = async (
       return {
         ...response,
         ...response.result ? {
-          result: response.result.arg_value,
+          result: response.result.product,
         } : {},
       };
     },
@@ -29,7 +37,7 @@ const starshipitProductUpdate = async (
 };
 
 const starshipitProductUpdateApi = funcApi(starshipitProductUpdate, {
-  argNames: ['credsPath', 'arg', 'options'],
+  argNames: ['credsPath', 'productId', 'updatePayload', 'options'],
 });
 
 module.exports = {
@@ -37,4 +45,4 @@ module.exports = {
   starshipitProductUpdateApi,
 };
 
-// curl localhost:8000/starshipitProductUpdate -H "Content-Type: application/json" -d '{ "credsPath": "wf", "arg": "408418809" }' 
+// curl localhost:8000/starshipitProductUpdate -H "Content-Type: application/json" -d '{ "credsPath": "wf", "productId": "408418809", "updatePayload": { "hs_code": "123456" } }' 
