@@ -3,7 +3,7 @@
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id namespace key type value owner { id }`;
+const defaultAttrs = `id namespace key type value`;
 
 const shopifyMetafieldsSet = async (
   credsPath,
