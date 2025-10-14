@@ -2,12 +2,11 @@ const { funcApi, logDeep, surveyNestedArrays, Processor, askQuestion } = require
 const { REGIONS_WF } = require('../constants');
 
 const { stylearcadeDataGetter } = require('../stylearcade/stylearcadeDataGet');
-
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
-
 const { starshipitProductsGetter } = require('../starshipit/starshipitProductsGet');
-
 const { shopifyProductsGetter } = require('../shopify/shopifyProductsGet');
+
+
 
 const collabsCustomsDataSweep = async (
   {
@@ -26,18 +25,27 @@ const collabsCustomsDataSweep = async (
     inStarshipit: [],
     inShopify: {},
     dataIncomplete: [],
+
+    // actions
+    starshipitProductUpdate: [],
   };
+
+  const getters = [];
+  const assessors = [];
+  const actioners = [];
 
   const stylearcadeGetter = await stylearcadeDataGetter({
     onItems: (items) => {
       piles.inStylearcade.push(...items);
     },
   });
+  getters.push(stylearcadeGetter);
 
   const peoplevoxCustomsDataGet = async () => {
     const reportResponse = await peoplevoxReportGet('Customs Data');
     piles.inPeoplevox = piles.inPeoplevox.concat(reportResponse.result); // concat to avoid max call size issue
   };
+  getters.push(peoplevoxCustomsDataGet);
 
   const starshipitGetter = await starshipitProductsGetter(
     'wf',
@@ -73,6 +81,7 @@ const collabsCustomsDataSweep = async (
       },
     },
   );
+  getters.push(starshipitGetter);
 
   // TODO: Convert these to bulk operations to remove the first: X risk
   const shopifyGetters = await Promise.all(regions.map(async (region) => await shopifyProductsGetter(
@@ -110,13 +119,7 @@ const collabsCustomsDataSweep = async (
       },
     },
   )));
-
-  await Promise.all([
-    stylearcadeGetter.run(),
-    peoplevoxCustomsDataGet(),
-    starshipitGetter.run(),
-    ...shopifyGetters.map(g => g.run()),
-  ]);
+  getters.push(...shopifyGetters);
 
   // 2. Assess all data and identify updates.
 
@@ -139,6 +142,9 @@ const collabsCustomsDataSweep = async (
 
       const skuTarget = `${ skuTrunk }-`;
 
+      logDeep(hsCodeUs, hsCodeUk, customsDescription, countryCodeOfOrigin, skuTarget);
+      await askQuestion('Continue?');
+
       if (!(hsCodeUs || hsCodeUk || customsDescription)) {
         piles.dataIncomplete.push(stylearcadeProduct);
         return;
@@ -147,6 +153,21 @@ const collabsCustomsDataSweep = async (
       const peoplevoxItem = piles.inPeoplevox.find(item => item['Item code'].startsWith(skuTarget));
 
       const starshipitItem = piles.inStarshipit.find(item => item.sku.startsWith(skuTarget));
+      if (starshipitItem) {
+        const {
+          id: starshipitProductId,
+          hs_code: starshipitHsCode
+        } = starshipitItem;
+
+        if (starshipitHsCode !== hsCodeUs) {
+          piles.starshipitProductUpdate.push([
+            starshipitProductId,
+            {
+              hs_code: hsCodeUs,
+            },
+          ]);
+        }
+      }
 
       for (const region of regions) {
         const shopifyRegionProduct = piles.inShopify[region].find(item => item.variants.find(v => v.sku.startsWith(skuTarget)));
@@ -155,9 +176,36 @@ const collabsCustomsDataSweep = async (
     },
     pile => pile.length === 0,
     {
-      canFinish: true,
+      canFinish: false,
     },
   );
+  assessors.push(assessingProcessor);
+
+  let gettersFinished = 0;
+  for (const getter of getters) {
+    getter.on('done', () => {
+      gettersFinished++;
+      if (gettersFinished === getters.length) {
+        assessors.forEach(i => i.canFinish = true);
+      }
+    });
+  }
+
+  let assessorsFinished = 0;
+  for (const assessor of assessors) {
+    assessor.on('done', () => {
+      assessorsFinished++;
+      if (assessorsFinished === assessors.length) {
+        actioners.forEach(i => i.canFinish = true);
+      }
+    });
+  }
+
+  await Promise.all([
+    ...getters.map(g => g.run()),
+    ...assessors.map(a => a.run()),
+    ...actioners.map(a => a.run()),
+  ]);
 
   // 3. Action all updates.
 
