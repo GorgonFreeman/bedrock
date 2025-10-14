@@ -130,7 +130,7 @@ const collabsCustomsDataSweep = async (
     async (pile) => {
       const stylearcadeProduct = pile.shift();
       logDeep(stylearcadeProduct);
-      await askQuestion('Continue?');
+      // await askQuestion('Continue?');
 
       const {
         productId: skuTrunk,
@@ -143,7 +143,7 @@ const collabsCustomsDataSweep = async (
       const skuTarget = `${ skuTrunk }-`;
 
       logDeep(hsCodeUs, hsCodeUk, customsDescription, countryCodeOfOrigin, skuTarget);
-      await askQuestion('Continue?');
+      // await askQuestion('Continue?');
 
       if (!(hsCodeUs || hsCodeUk || customsDescription)) {
         piles.dataIncomplete.push(stylearcadeProduct);
