@@ -166,6 +166,8 @@ const collabsCustomsDataSweep = async (
         const shopifyRegionProduct = piles.inShopify[region].find(item => item.variants.find(v => v.sku.startsWith(skuTarget)));
         shopifyProducts[region] = shopifyRegionProduct;      
       }
+
+      // TODO: Refactor so Shopify is the point of truth for which items to propagate throughout the system
       
       if (starshipitItem) {
         // Update if needed
@@ -193,8 +195,7 @@ const collabsCustomsDataSweep = async (
         // Add, if found in Shopify AU
         const shopifyAuProduct = shopifyProducts['au'];
         if (shopifyAuProduct) {
-          piles.starshipitProductAdd.push(...shopifyAuProduct.variants.map(v => [
-            'wf',
+          piles.starshipitProductAdd.push(...shopifyAuProduct.variants.map(v => [            'wf',
             v.sku,
             {
               hs_code: hsCodeUs,
