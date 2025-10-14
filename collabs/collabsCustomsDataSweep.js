@@ -6,7 +6,7 @@ const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 const { starshipitProductsGetter } = require('../starshipit/starshipitProductsGet');
 const { shopifyProductsGetter } = require('../shopify/shopifyProductsGet');
 
-
+const { starshipitProductUpdate } = require('../starshipit/starshipitProductUpdate');
 
 const collabsCustomsDataSweep = async (
   {
@@ -28,6 +28,8 @@ const collabsCustomsDataSweep = async (
 
     // actions
     starshipitProductUpdate: [],
+
+    results: [],
   };
 
   const getters = [];
@@ -160,6 +162,24 @@ const collabsCustomsDataSweep = async (
       
       if (starshipitItem) {
         // Update if needed
+
+        const {
+          id: starshipitProductId,
+          hs_code: starshipitHsCode,
+        } = starshipitItem;
+
+        if (starshipitHsCode == hsCodeUs) {
+          return;
+        }
+        
+        piles.starshipitProductUpdate.push([
+          'wf',
+          starshipitProductId,
+          {
+            hs_code: hsCodeUs,
+          },
+        ]);       
+
       } else {
         // Add, if found in Shopify AU
       }
@@ -181,6 +201,24 @@ const collabsCustomsDataSweep = async (
     },
   );
   assessors.push(assessingProcessor);
+
+  // 3. Action all updates.
+
+  const starshipitProductUpdater = new Processor(
+    piles.starshipitProductUpdate,
+    async (pile) => {
+      const args = pile.shift();
+      const response = await starshipitProductUpdate(...args);
+      piles.results.push(response);
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+    },
+  );
+  actioners.push(starshipitProductUpdater);
+
+  
 
   let gettersFinished = 0;
   for (const getter of getters) {
@@ -217,8 +255,6 @@ const collabsCustomsDataSweep = async (
     ...assessors.map(a => a.run()),
     ...actioners.map(a => a.run()),
   ]);
-
-  // 3. Action all updates.
 
   logDeep(piles);
   logDeep(surveyNestedArrays(piles));
