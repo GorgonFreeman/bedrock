@@ -117,12 +117,12 @@ const collabsCustomsDataSweep = async (
     ...shopifyGetters.map(g => g.run()),
   ]);
 
-  logDeep(piles);
-  logDeep(surveyNestedArrays(piles));
-
   // 2. Assess all data and identify updates.
 
   // 3. Action all updates.
+
+  logDeep(piles);
+  logDeep(surveyNestedArrays(piles));
 
   return true;
   
