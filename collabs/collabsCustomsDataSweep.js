@@ -23,7 +23,9 @@ const collabsCustomsDataSweep = async () => {
     inPeoplevox: [],
     inStarshipit: [],
     inShopify: {},
+
     dataIncomplete: [],
+    missing: [],
 
     // actions
     starshipitProductUpdate: [],
@@ -157,12 +159,30 @@ const collabsCustomsDataSweep = async () => {
       logDeep(hsCodeUs, hsCodeUk, customsDescription, countryCodeOfOrigin, skuTarget);
       // await askQuestion('Continue?');
 
-      const peoplevoxItems = piles.inPeoplevox.filter(item => item['Item code'].startsWith(skuTarget));
-      const starshipitItems = piles.inStarshipit.filter(item => item.sku.startsWith(skuTarget));
+      const shopifyAuProduct = piles.inShopify['au'].find(item => item.variants.find(v => v.sku.startsWith(skuTarget)));
+
+      if (!shopifyAuProduct) {
+        piles.missing.push(stylearcadeProduct);
+        return;
+      }
+
+      const skus = shopifyAuProduct?.variants.map(v => v.sku);
+
+      const peoplevoxItems = piles.inPeoplevox.filter(item => skus.includes(item['Item code']));
+
+      const starshipitItems = piles.inStarshipit.filter(item => skus.includes(item.sku));
+
       const shopifyProducts = {};
+
       for (const region of REGIONS) {
+
+        if (region === 'au') {
+          shopifyProducts[region] = shopifyAuProduct;
+          continue;
+        }
+
         const shopifyRegionProduct = piles.inShopify[region].find(item => item.variants.find(v => v.sku.startsWith(skuTarget)));
-        shopifyProducts[region] = shopifyRegionProduct;      
+        shopifyProducts[region] = shopifyRegionProduct;
       }
 
       // TODO: Refactor so Shopify is the point of truth for which items to propagate throughout the system
