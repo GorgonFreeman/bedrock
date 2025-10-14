@@ -142,6 +142,11 @@ const collabsCustomsDataSweep = async (
         af62: countryCodeOfOrigin = 'CN', // Default to China
       } = stylearcadeProduct;
 
+      if (!(hsCodeUs && hsCodeUk && customsDescription)) {
+        piles.dataIncomplete.push(stylearcadeProduct);
+        return;
+      }
+
       const skuTarget = `${ skuTrunk }-`;
 
       const countryOfOrigin = {
@@ -152,26 +157,19 @@ const collabsCustomsDataSweep = async (
       logDeep(hsCodeUs, hsCodeUk, customsDescription, countryCodeOfOrigin, skuTarget);
       // await askQuestion('Continue?');
 
-      if (!(hsCodeUs && hsCodeUk && customsDescription)) {
-        piles.dataIncomplete.push(stylearcadeProduct);
-        return;
-      }
-
       const peoplevoxItem = piles.inPeoplevox.find(item => item['Item code'].startsWith(skuTarget));
       const starshipitItem = piles.inStarshipit.find(item => item.sku.startsWith(skuTarget));
       const shopifyProducts = {};
       for (const region of regions) {
         const shopifyRegionProduct = piles.inShopify[region].find(item => item.variants.find(v => v.sku.startsWith(skuTarget)));
-        shopifyProducts[region] = shopifyRegionProduct;
-      }
+        shopifyProducts[region] = shopifyRegionProduct;      }
       
       if (starshipitItem) {
         // Update if needed
 
         const {
           id: starshipitProductId,
-          hs_code: starshipitHsCode,
-          customs_description: starshipitCustomsDescription,
+          hs_code: starshipitHsCode,          customs_description: starshipitCustomsDescription,
           country: starshipitCountry,
         } = starshipitItem;
 
