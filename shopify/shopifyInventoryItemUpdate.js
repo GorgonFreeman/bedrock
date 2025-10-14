@@ -35,7 +35,7 @@ const shopifyInventoryItemUpdate = async (
       apiVersion,
     },
   );
-  logDeep(response);
+  // logDeep(response);
   return response;
 };
 
