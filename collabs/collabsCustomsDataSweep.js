@@ -1,4 +1,4 @@
-const { funcApi, logDeep, surveyNestedArrays } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor, askQuestion } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 
 const { stylearcadeDataGetter } = require('../stylearcade/stylearcadeDataGet');
@@ -120,6 +120,22 @@ const collabsCustomsDataSweep = async (
   // 2. Assess all data and identify updates.
 
   piles.inStylearcade = piles.inStylearcade.map(({ data }) => data).filter(item => item);
+
+  const assessingProcessor = new Processor(
+    piles.inStylearcade,
+    async (pile) => {
+      const stylearcadeProduct = pile.shift();
+      logDeep(stylearcadeProduct);
+      await askQuestion('Continue?');
+
+
+
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: true,
+    },
+  );
 
   // 3. Action all updates.
 
