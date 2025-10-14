@@ -106,6 +106,14 @@ const collabsCustomsDataSweep = async () => {
   )));
   getters.push(...shopifyGetters);
 
+  // Run all getters before processing - otherwise processors start with partial data
+  await Promise.all([
+    ...getters.map(g => typeof g.run === 'function' ? g.run({ verbose: !HOSTED }) : g()),
+  ]);
+  
+  // Filter Style Arcade pile before initialising assessor
+  piles.inStylearcade = piles.inStylearcade.map(({ data }) => data).filter(Boolean);
+
   // 2. Assess all data and identify updates.
 
   const assessingProcessor = new Processor(
@@ -341,13 +349,6 @@ const collabsCustomsDataSweep = async () => {
       }
     });
   }
-  
-  // Run all getters before processing - otherwise processors start with partial data
-  await Promise.all([
-    ...getters.map(g => typeof g.run === 'function' ? g.run({ verbose: !HOSTED }) : g()),
-  ]);
-
-  piles.inStylearcade = piles.inStylearcade.map(({ data }) => data).filter(Boolean);
 
   await Promise.all([
     ...assessors.map(a => a.run()),
