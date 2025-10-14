@@ -55,31 +55,6 @@ const collabsCustomsDataSweep = async () => {
   const starshipitGetter = await starshipitProductsGetter(
     'wf',
     {
-      attrs: `
-        id
-        mfCustomsDescription: metafield(namespace: "shipping_data", key: "item_description") { 
-          value 
-        }
-        mfHsCode: metafield(namespace: "shipping_data", key: "hs_code") { 
-          value 
-        }
-        mfCountryCodeOfOrigin: metafield(namespace: "shipping_data", key: "country_code_of_origin") { 
-          value 
-        }
-        variants (first: 100) {
-          edges {
-            node {
-              id
-              sku
-              inventoryItem {
-                id
-                harmonizedSystemCode
-                countryCodeOfOrigin
-              }
-            }
-          }
-        }
-      `,
       onItems: (items) => {
         piles.inStarshipit.push(...items);
       },
@@ -92,17 +67,20 @@ const collabsCustomsDataSweep = async () => {
   const shopifyGetters = await Promise.all(REGIONS.map(async (region) => await shopifyProductsGetter(
     region,
     {
+      queries: [
+        `published_status:published`,
+      ],
+      limit: 1000, // TODO: Remove limit after testing
       attrs: `
         id
-        metafields (first: 10, namespace: "shipping_data") {
-          edges { 
-            node { 
-              id
-              namespace
-              key
-              value 
-            } 
-          } 
+        mfCustomsDescription: metafield(namespace: "shipping_data", key: "item_description") { 
+          value 
+        }
+        mfHsCode: metafield(namespace: "shipping_data", key: "hs_code") { 
+          value 
+        }
+        mfCountryCodeOfOrigin: metafield(namespace: "shipping_data", key: "country_code_of_origin") { 
+          value 
         }
         variants (first: 100) {
           edges {
