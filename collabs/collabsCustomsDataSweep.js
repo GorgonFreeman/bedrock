@@ -122,8 +122,8 @@ const collabsCustomsDataSweep = async () => {
     piles.inStylearcade,
     async (pile) => {
       const stylearcadeProduct = pile.shift();
-      logDeep('stylearcadeProduct', stylearcadeProduct);
-      await askQuestion('Continue?');
+      // logDeep('stylearcadeProduct', stylearcadeProduct);
+      // await askQuestion('Continue?');
 
       const {
         productId: skuTrunk,
@@ -185,8 +185,8 @@ const collabsCustomsDataSweep = async () => {
                 country: countryOfOrigin,
               },
             ];
-            logDeep(starshipitUpdateArgs);
-            await askQuestion('Continue?');
+            // logDeep(starshipitUpdateArgs);
+            // await askQuestion('Continue?');
             piles.starshipitProductUpdate.push(starshipitUpdateArgs);
           }
         }
@@ -204,8 +204,8 @@ const collabsCustomsDataSweep = async () => {
                 country: countryOfOrigin,
               },
             ];
-            logDeep(starshipitAddArgs);
-            await askQuestion('Continue?');
+            // logDeep(starshipitAddArgs);
+            // await askQuestion('Continue?');
             piles.starshipitProductAdd.push(starshipitAddArgs);
           }
         }
@@ -214,8 +214,8 @@ const collabsCustomsDataSweep = async () => {
       for (const region of REGIONS) {
 
         const shopifyRegionProduct = (region === 'au') ? shopifyAuProduct : piles.inShopify[region].find(item => item.variants.find(v => v.sku.startsWith(skuTarget)));
-        logDeep(region, shopifyRegionProduct);
-        await askQuestion('Continue?');
+        // logDeep(region, shopifyRegionProduct);
+        // await askQuestion('Continue?');
 
         const {
           id: productGid,
