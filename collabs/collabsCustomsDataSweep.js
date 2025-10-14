@@ -232,6 +232,41 @@ const collabsCustomsDataSweep = async () => {
           mfCountryCodeOfOrigin,
         } = shopifyRegionProduct;
 
+        const relevantHsCode = region === 'uk' ? hsCodeUk : hsCodeUs;
+
+        if (mfCustomsDescription?.value !== customsDescription) {
+          const shopifyMetafieldSetArgs = [
+            region,
+            productGid,
+            {
+              mfCustomsDescription: { value: customsDescription },
+            },
+          ];
+          piles.shopifyMetafieldSet.push(shopifyMetafieldSetArgs);
+        }
+
+        if (relevantHsCode && (mfHsCode?.value !== relevantHsCode)) {
+          const shopifyMetafieldSetArgs = [
+            region,
+            productGid,
+            {
+              mfHsCode: { value: relevantHsCode },
+            },
+          ];
+          piles.shopifyMetafieldSet.push(shopifyMetafieldSetArgs);
+        }
+
+        if (countryCodeOfOrigin && (mfCountryCodeOfOrigin?.value !== countryCodeOfOrigin)) {
+          const shopifyMetafieldSetArgs = [
+            region,
+            productGid,
+            {
+              mfCountryCodeOfOrigin: { value: countryCodeOfOrigin },
+            },
+          ];
+          piles.shopifyMetafieldSet.push(shopifyMetafieldSetArgs);
+        }
+
       }
 
     },
