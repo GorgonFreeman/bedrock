@@ -119,6 +119,8 @@ const collabsCustomsDataSweep = async (
 
   // 2. Assess all data and identify updates.
 
+  piles.inStylearcade = piles.inStylearcade.map(({ data }) => data).filter(item => item);
+
   // 3. Action all updates.
 
   logDeep(piles);
