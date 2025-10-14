@@ -9,11 +9,9 @@ const { shopifyProductsGetter } = require('../shopify/shopifyProductsGet');
 const { starshipitProductUpdate } = require('../starshipit/starshipitProductUpdate');
 const { starshipitProductAdd } = require('../starshipit/starshipitProductAdd');
 
-const collabsCustomsDataSweep = async (
-  {
-    regions = REGIONS_WF,
-  } = {},
-) => {
+const REGIONS = REGIONS_WF;
+
+const collabsCustomsDataSweep = async () => {
 
   // 1. Get all customs data from Style Arcade - this is the source of truth.
   // 1a. Get all customs data from Peoplevox.
@@ -88,7 +86,7 @@ const collabsCustomsDataSweep = async (
   getters.push(starshipitGetter);
 
   // TODO: Convert these to bulk operations to remove the first: X risk
-  const shopifyGetters = await Promise.all(regions.map(async (region) => await shopifyProductsGetter(
+  const shopifyGetters = await Promise.all(REGIONS.map(async (region) => await shopifyProductsGetter(
     region,
     {
       attrs: `
@@ -162,7 +160,7 @@ const collabsCustomsDataSweep = async (
       const peoplevoxItems = piles.inPeoplevox.filter(item => item['Item code'].startsWith(skuTarget));
       const starshipitItems = piles.inStarshipit.filter(item => item.sku.startsWith(skuTarget));
       const shopifyProducts = {};
-      for (const region of regions) {
+      for (const region of REGIONS) {
         const shopifyRegionProduct = piles.inShopify[region].find(item => item.variants.find(v => v.sku.startsWith(skuTarget)));
         shopifyProducts[region] = shopifyRegionProduct;      
       }
@@ -210,7 +208,8 @@ const collabsCustomsDataSweep = async (
         // Update if needed
       }
        
-      for (const region of regions) {        if (shopifyProducts[region]) {
+      for (const region of REGIONS) {        
+        if (shopifyProducts[region]) {
           // Update if needed
         }
       }
