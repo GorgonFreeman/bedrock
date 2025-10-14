@@ -213,7 +213,7 @@ const collabsCustomsDataSweep = async () => {
 
       for (const region of REGIONS) {
 
-        const shopifyRegionProduct = (region === 'au') ? shopifyAuProduct : piles.inShopify[region].find(item => item.variants.find(v => v.sku.startsWith(skuTarget)));
+        const shopifyRegionProduct = (region === 'au') ? shopifyAuProduct : piles.inShopify[region].find(item => item.variants.find(v => v?.sku?.startsWith(skuTarget)));
         // logDeep(region, shopifyRegionProduct);
         // await askQuestion('Continue?');
 
