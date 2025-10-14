@@ -174,20 +174,18 @@ const collabsCustomsDataSweep = async (
           country: starshipitCountry,
         } = starshipitItem;
 
-        if (starshipitHsCode === hsCodeUs && starshipitCustomsDescription === customsDescription && starshipitCountry === countryOfOrigin) {
-          return;
+        if (!(starshipitHsCode === hsCodeUs && starshipitCustomsDescription === customsDescription && starshipitCountry === countryOfOrigin)) {
+          piles.starshipitProductUpdate.push([
+            'wf',
+            starshipitProductId,
+            {
+              hs_code: hsCodeUs,
+              customs_description: customsDescription,
+              country: countryOfOrigin,
+            },
+          ]);
         }
         
-        piles.starshipitProductUpdate.push([
-          'wf',
-          starshipitProductId,
-          {
-            hs_code: hsCodeUs,
-            customs_description: customsDescription,
-            country: countryOfOrigin,
-          },
-        ]);
-
       } else {
         // Add, if found in Shopify AU
       }
