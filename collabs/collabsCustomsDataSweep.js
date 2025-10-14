@@ -164,7 +164,8 @@ const collabsCustomsDataSweep = async (
       const shopifyProducts = {};
       for (const region of regions) {
         const shopifyRegionProduct = piles.inShopify[region].find(item => item.variants.find(v => v.sku.startsWith(skuTarget)));
-        shopifyProducts[region] = shopifyRegionProduct;      }
+        shopifyProducts[region] = shopifyRegionProduct;      
+      }
       
       if (starshipitItem) {
         // Update if needed
