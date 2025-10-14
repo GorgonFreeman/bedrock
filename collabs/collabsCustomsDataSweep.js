@@ -186,7 +186,7 @@ const collabsCustomsDataSweep = async () => {
           } = starshipitItem;
   
           if (!(starshipitHsCode === hsCodeUs && starshipitCustomsDescription === customsDescription && starshipitCountry === countryOfOrigin)) {
-            piles.starshipitProductUpdate.push([
+            const starshipitUpdateArgs = [
               'wf',
               starshipitProductId,
               {
@@ -194,7 +194,10 @@ const collabsCustomsDataSweep = async () => {
                 customs_description: customsDescription,
                 country: countryOfOrigin,
               },
-            ]);
+            ];
+            logDeep(starshipitUpdateArgs);
+            await askQuestion('Continue?');
+            piles.starshipitProductUpdate.push(starshipitUpdateArgs);
           }
         }
         
@@ -202,7 +205,7 @@ const collabsCustomsDataSweep = async () => {
         const missingSkus = skus.filter(sku => !starshipitItems.some(item => item.sku === sku));
         if (missingSkus?.length) {
           for (const missingSku of missingSkus) {
-            piles.starshipitProductAdd.push([
+            const starshipitAddArgs = [
               'wf',
               missingSku,
               {
@@ -210,7 +213,10 @@ const collabsCustomsDataSweep = async () => {
                 customsDescription: customsDescription,
                 country: countryOfOrigin,
               },
-            ]);
+            ];
+            logDeep(starshipitAddArgs);
+            await askQuestion('Continue?');
+            piles.starshipitProductAdd.push(starshipitAddArgs);
           }
         }
       }
@@ -278,7 +284,7 @@ const collabsCustomsDataSweep = async () => {
   
   // Run all getters before processing - otherwise processors start with partial data
   await Promise.all([
-    ...getters.map(g => typeof g.run === 'function' ? g.run() : g()),
+    ...getters.map(g => typeof g.run === 'function' ? g.run({ verbose: false }) : g()),
   ]);
 
   await Promise.all([
@@ -305,4 +311,4 @@ module.exports = {
   collabsCustomsDataSweepApi,
 };
 
-// curl localhost:8000/collabsCustomsDataSweep
+// curl localhost:8100/collabsCustomsDataSweep
