@@ -139,15 +139,20 @@ const collabsCustomsDataSweep = async (
         af55: hsCodeUs,
         af56: hsCodeUk,
         af58: customsDescription,
-        af62: countryCodeOfOrigin,
+        af62: countryCodeOfOrigin = 'CN', // Default to China
       } = stylearcadeProduct;
 
       const skuTarget = `${ skuTrunk }-`;
 
+      const countryOfOrigin = {
+        au: 'Australia',
+        cn: 'China',
+      }[countryCodeOfOrigin.toLowerCase()];
+
       logDeep(hsCodeUs, hsCodeUk, customsDescription, countryCodeOfOrigin, skuTarget);
       // await askQuestion('Continue?');
 
-      if (!(hsCodeUs || hsCodeUk || customsDescription)) {
+      if (!(hsCodeUs && hsCodeUk && customsDescription)) {
         piles.dataIncomplete.push(stylearcadeProduct);
         return;
       }
@@ -166,9 +171,11 @@ const collabsCustomsDataSweep = async (
         const {
           id: starshipitProductId,
           hs_code: starshipitHsCode,
+          customs_description: starshipitCustomsDescription,
+          country: starshipitCountry,
         } = starshipitItem;
 
-        if (starshipitHsCode == hsCodeUs) {
+        if (starshipitHsCode === hsCodeUs && starshipitCustomsDescription === customsDescription && starshipitCountry === countryOfOrigin) {
           return;
         }
         
@@ -177,8 +184,10 @@ const collabsCustomsDataSweep = async (
           starshipitProductId,
           {
             hs_code: hsCodeUs,
+            customs_description: customsDescription,
+            country: countryOfOrigin,
           },
-        ]);       
+        ]);
 
       } else {
         // Add, if found in Shopify AU
@@ -218,7 +227,7 @@ const collabsCustomsDataSweep = async (
   );
   actioners.push(starshipitProductUpdater);
 
-  
+
 
   let gettersFinished = 0;
   for (const getter of getters) {
