@@ -151,26 +151,27 @@ const collabsCustomsDataSweep = async (
       }
 
       const peoplevoxItem = piles.inPeoplevox.find(item => item['Item code'].startsWith(skuTarget));
-
       const starshipitItem = piles.inStarshipit.find(item => item.sku.startsWith(skuTarget));
-      if (starshipitItem) {
-        const {
-          id: starshipitProductId,
-          hs_code: starshipitHsCode
-        } = starshipitItem;
-
-        if (starshipitHsCode !== hsCodeUs) {
-          piles.starshipitProductUpdate.push([
-            starshipitProductId,
-            {
-              hs_code: hsCodeUs,
-            },
-          ]);
-        }
-      }
-
+      const shopifyProducts = {};
       for (const region of regions) {
         const shopifyRegionProduct = piles.inShopify[region].find(item => item.variants.find(v => v.sku.startsWith(skuTarget)));
+        shopifyProducts[region] = shopifyRegionProduct;
+      }
+      
+      if (starshipitItem) {
+        // Update if needed
+      } else {
+        // Add, if found in Shopify AU
+      }
+
+      if (peoplevoxItem) {
+        // Update if needed
+      }
+       
+      for (const region of regions) {
+        if (shopifyProducts[region]) {
+          // Update if needed
+        }
       }
 
     },
