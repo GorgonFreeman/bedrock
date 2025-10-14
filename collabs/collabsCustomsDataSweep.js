@@ -215,7 +215,6 @@ const collabsCustomsDataSweep = async () => {
         }
       }
 
-
       const shopifyProducts = {};
 
       for (const region of REGIONS) {
@@ -229,59 +228,10 @@ const collabsCustomsDataSweep = async () => {
         shopifyProducts[region] = shopifyRegionProduct;
       }
 
-      // TODO: Refactor so Shopify is the point of truth for which items to propagate throughout the system
-      
-      if (starshipitItem) {
-        // Update if needed
-
-        const {
-          id: starshipitProductId,
-          hs_code: starshipitHsCode,          
-          customs_description: starshipitCustomsDescription,
-          country: starshipitCountry,
-        } = starshipitItem;
-
-        if (!(starshipitHsCode === hsCodeUs && starshipitCustomsDescription === customsDescription && starshipitCountry === countryOfOrigin)) {
-          piles.starshipitProductUpdate.push([
-            'wf',
-            starshipitProductId,
-            {
-              hs_code: hsCodeUs,
-              customs_description: customsDescription,
-              country: countryOfOrigin,
-            },
-          ]);
-        }
-        
-      } else {
-        // Add, if found in Shopify AU
-        const shopifyAuProduct = shopifyProducts['au'];
-        if (shopifyAuProduct) {
-          piles.starshipitProductAdd.push(...shopifyAuProduct.variants.map(v => [            'wf',
-            v.sku,
-            {
-              hs_code: hsCodeUs,
-              customs_description: customsDescription,
-              country: countryOfOrigin,
-            },
-          ]));
-        }
-      }
-
-      if (peoplevoxItem) {
-        // Update if needed
-      }
-       
-      for (const region of REGIONS) {        
-        if (shopifyProducts[region]) {
-          // Update if needed
-        }
-      }
-
     },
     pile => pile.length === 0,
     {
-      canFinish: false,
+      canFinish: true,
     },
   );
   assessors.push(assessingProcessor);
@@ -316,28 +266,6 @@ const collabsCustomsDataSweep = async () => {
   );
   actioners.push(starshipitProductAdder);
 
-
-
-  let gettersFinished = 0;
-  for (const getter of getters) {
-    if (typeof getter.on === 'function') {
-      getter.on('done', () => {
-        gettersFinished++;
-        if (gettersFinished === getters.length) {
-          assessors.forEach(i => i.canFinish = true);
-        }
-      });
-    } else {
-      // Handle regular async functions
-      getter().then(() => {
-        gettersFinished++;
-        if (gettersFinished === getters.length) {
-          assessors.forEach(i => i.canFinish = true);
-        }
-      });
-    }
-  }
-
   let assessorsFinished = 0;
   for (const assessor of assessors) {
     assessor.on('done', () => {
@@ -347,9 +275,13 @@ const collabsCustomsDataSweep = async () => {
       }
     });
   }
-
+  
+  // Run all getters before processing - otherwise processors start with partial data
   await Promise.all([
     ...getters.map(g => typeof g.run === 'function' ? g.run() : g()),
+  ]);
+
+  await Promise.all([
     ...assessors.map(a => a.run()),
     ...actioners.map(a => a.run()),
   ]);
@@ -357,7 +289,10 @@ const collabsCustomsDataSweep = async () => {
   logDeep(piles);
   logDeep(surveyNestedArrays(piles));
 
-  return true;
+  return {
+    success: true,
+    result: piles,
+  };
   
 };
 
