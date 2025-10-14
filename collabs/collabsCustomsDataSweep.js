@@ -9,6 +9,7 @@ const { shopifyProductsGetter } = require('../shopify/shopifyProductsGet');
 const { starshipitProductUpdate } = require('../starshipit/starshipitProductUpdate');
 const { starshipitProductAdd } = require('../starshipit/starshipitProductAdd');
 const { shopifyInventoryItemUpdate } = require('../shopify/shopifyInventoryItemUpdate');
+const { shopifyMetafieldsSet } = require('../shopify/shopifyMetafieldsSet');
 
 const REGIONS = REGIONS_WF;
 
@@ -32,6 +33,7 @@ const collabsCustomsDataSweep = async () => {
     starshipitProductUpdate: [],
     starshipitProductAdd: [],
     shopifyInventoryItemUpdate: [],
+    shopifyMetafieldsSet: [],
 
     results: [],
   };
@@ -231,36 +233,39 @@ const collabsCustomsDataSweep = async () => {
         const updateCountryCodeOfOrigin = countryCodeOfOrigin && (mfCountryCodeOfOrigin?.value !== countryCodeOfOrigin);
 
         if (updateCustomsDescription) {
-          const shopifyMetafieldSetArgs = [
-            region,
-            productGid,
-            {
-              mfCustomsDescription: { value: customsDescription },
-            },
-          ];
-          piles.shopifyMetafieldSet.push(shopifyMetafieldSetArgs);
+          const metafields = [{
+            ownerId: productGid,
+            namespace: 'shipping_data',
+            key: 'item_description',
+            type: 'single_line_text_field',
+            value: String(customsDescription),
+          }];
+          const shopifyMetafieldsSetArgs = [region, metafields];
+          piles.shopifyMetafieldsSet.push(shopifyMetafieldsSetArgs);
         }
 
         if (updateHsCode) {
-          const shopifyMetafieldSetArgs = [
-            region,
-            productGid,
-            {
-              mfHsCode: { value: relevantHsCode },
-            },
-          ];
-          piles.shopifyMetafieldSet.push(shopifyMetafieldSetArgs);
+          const metafields = [{
+            ownerId: productGid,
+            namespace: 'shipping_data',
+            key: 'hs_code',
+            type: 'single_line_text_field',
+            value: String(relevantHsCode),
+          }];
+          const shopifyMetafieldsSetArgs = [region, metafields];
+          piles.shopifyMetafieldsSet.push(shopifyMetafieldsSetArgs);
         }
 
         if (updateCountryCodeOfOrigin) {
-          const shopifyMetafieldSetArgs = [
-            region,
-            productGid,
-            {
-              mfCountryCodeOfOrigin: { value: countryCodeOfOrigin },
-            },
-          ];
-          piles.shopifyMetafieldSet.push(shopifyMetafieldSetArgs);
+          const metafields = [{
+            ownerId: productGid,
+            namespace: 'shipping_data',
+            key: 'country_code_of_origin',
+            type: 'single_line_text_field',
+            value: String(countryCodeOfOrigin),
+          }];
+          const shopifyMetafieldsSetArgs = [region, metafields];
+          piles.shopifyMetafieldsSet.push(shopifyMetafieldsSetArgs);
         }
 
         if (updateHsCode || updateCountryCodeOfOrigin) {
@@ -356,6 +361,20 @@ const collabsCustomsDataSweep = async () => {
     },
   );
   actioners.push(shopifyInventoryItemUpdater);
+
+  const shopifyMetafieldsSetter = new Processor(
+    piles.shopifyMetafieldsSet,
+    async (pile) => {
+      const args = pile.shift();
+      const response = await shopifyMetafieldsSet(...args);
+      piles.results.push(response);
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+    },
+  );
+  actioners.push(shopifyMetafieldsSetter);
 
   let assessorsFinished = 0;
   for (const assessor of assessors) {
