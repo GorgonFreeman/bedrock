@@ -206,8 +206,8 @@ const collabsCustomsDataSweep = async () => {
               'wf',
               missingSku,
               {
-                hs_code: hsCodeUs,
-                customs_description: customsDescription,
+                hsCode: hsCodeUs,
+                customsDescription: customsDescription,
                 country: countryOfOrigin,
               },
             ]);
