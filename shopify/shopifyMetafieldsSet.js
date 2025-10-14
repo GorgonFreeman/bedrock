@@ -3,27 +3,29 @@
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `id namespace key type value owner { id }`;
 
 const shopifyMetafieldsSet = async (
   credsPath,
-  pageInput,
+  metafields,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
   } = {},
 ) => {
 
+  const mutationName = 'metafieldsSet';
+
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    mutationName,
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      metafields: {
+        type: '[MetafieldsSetInput!]!',
+        value: metafields,
       },
     },
-    `page { ${ returnAttrs } }`,
+    `metafields { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -33,7 +35,7 @@ const shopifyMetafieldsSet = async (
 };
 
 const shopifyMetafieldsSetApi = funcApi(shopifyMetafieldsSet, {
-  argNames: ['credsPath', 'pageInput', 'options'],
+  argNames: ['credsPath', 'metafields', 'options'],
 });
 
 module.exports = {
@@ -41,4 +43,4 @@ module.exports = {
   shopifyMetafieldsSetApi,
 };
 
-// curl http://localhost:8000/shopifyMetafieldsSet -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyMetafieldsSet -H 'Content-Type: application/json' -d '{ "credsPath": "au", "metafields": [{ "ownerId": "gid://shopify/Product/123456789", "namespace": "custom", "key": "hs_code", "type": "single_line_text_field", "value": "621710" }], "options": { "returnAttrs": "id key namespace value" } }'
