@@ -217,6 +217,15 @@ const collabsCustomsDataSweep = async () => {
         // logDeep(region, shopifyRegionProduct);
         // await askQuestion('Continue?');
 
+        if (!shopifyRegionProduct) {
+          piles.missing.push({
+            ...stylearcadeProduct,
+            platform: 'shopify',
+            region,
+          });
+          continue;
+        }
+
         const {
           id: productGid,
           variants,
