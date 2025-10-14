@@ -287,7 +287,7 @@ const collabsCustomsDataSweep = async () => {
     ...getters.map(g => typeof g.run === 'function' ? g.run({ verbose: false }) : g()),
   ]);
 
-  piles.inStylearcade = piles.inStylearcade.filter(({ data }) => data);
+  piles.inStylearcade = piles.inStylearcade.map(({ data }) => data).filter(Boolean);
 
   await Promise.all([
     ...assessors.map(a => a.run()),
