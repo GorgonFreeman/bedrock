@@ -74,7 +74,6 @@ const collabsCustomsDataSweep = async () => {
       queries: [
         `published_status:published`,
       ],
-      limit: 1000, // TODO: Remove limit after testing
       attrs: `
         id
         mfCustomsDescription: metafield(namespace: "shipping_data", key: "item_description") { 
