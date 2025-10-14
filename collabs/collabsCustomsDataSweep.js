@@ -234,7 +234,11 @@ const collabsCustomsDataSweep = async () => {
 
         const relevantHsCode = region === 'uk' ? hsCodeUk : hsCodeUs;
 
-        if (mfCustomsDescription?.value !== customsDescription) {
+        const updateCustomsDescription = customsDescription && (mfCustomsDescription?.value !== customsDescription);
+        const updateHsCode = relevantHsCode && (mfHsCode?.value !== relevantHsCode);
+        const updateCountryCodeOfOrigin = countryCodeOfOrigin && (mfCountryCodeOfOrigin?.value !== countryCodeOfOrigin);
+
+        if (updateCustomsDescription) {
           const shopifyMetafieldSetArgs = [
             region,
             productGid,
@@ -245,7 +249,7 @@ const collabsCustomsDataSweep = async () => {
           piles.shopifyMetafieldSet.push(shopifyMetafieldSetArgs);
         }
 
-        if (relevantHsCode && (mfHsCode?.value !== relevantHsCode)) {
+        if (updateHsCode) {
           const shopifyMetafieldSetArgs = [
             region,
             productGid,
@@ -256,7 +260,7 @@ const collabsCustomsDataSweep = async () => {
           piles.shopifyMetafieldSet.push(shopifyMetafieldSetArgs);
         }
 
-        if (countryCodeOfOrigin && (mfCountryCodeOfOrigin?.value !== countryCodeOfOrigin)) {
+        if (updateCountryCodeOfOrigin) {
           const shopifyMetafieldSetArgs = [
             region,
             productGid,
