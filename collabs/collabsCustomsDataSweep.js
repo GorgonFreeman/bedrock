@@ -170,6 +170,7 @@ const collabsCustomsDataSweep = async () => {
         for (const starshipitItem of starshipitItems) {
           const {
             id: starshipitProductId,
+            sku,
             hs_code: starshipitHsCode,          
             customs_description: starshipitCustomsDescription,
             country: starshipitCountry,
@@ -180,6 +181,7 @@ const collabsCustomsDataSweep = async () => {
               'wf',
               starshipitProductId,
               {
+                sku,
                 hs_code: hsCodeUs,
                 customs_description: customsDescription,
                 country: countryOfOrigin,
