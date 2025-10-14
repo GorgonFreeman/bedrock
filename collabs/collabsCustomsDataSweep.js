@@ -73,6 +73,7 @@ const collabsCustomsDataSweep = async (
     },
   );
 
+  // TODO: Convert these to bulk operations to remove the first: X risk
   const shopifyGetters = await Promise.all(regions.map(async (region) => await shopifyProductsGetter(
     region,
     {
