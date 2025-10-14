@@ -1,4 +1,4 @@
-const { funcApi, logDeep, surveyNestedArrays, Processor, askQuestion } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor, askQuestion, gidToId } = require('../utils');
 const { HOSTED, REGIONS_WF } = require('../constants');
 
 const { stylearcadeDataGetter } = require('../stylearcade/stylearcadeDataGet');
@@ -8,6 +8,7 @@ const { shopifyProductsGetter } = require('../shopify/shopifyProductsGet');
 
 const { starshipitProductUpdate } = require('../starshipit/starshipitProductUpdate');
 const { starshipitProductAdd } = require('../starshipit/starshipitProductAdd');
+const { shopifyInventoryItemUpdate } = require('../shopify/shopifyInventoryItemUpdate');
 
 const REGIONS = REGIONS_WF;
 
@@ -266,9 +267,10 @@ const collabsCustomsDataSweep = async () => {
           const inventoryItemUpdatePayloads = variants.map(v => {
             const { inventoryItem } = v;
             const { id: inventoryItemGid } = inventoryItem;
+            const inventoryItemId = gidToId(inventoryItemGid);
             return [
               region,
-              inventoryItemGid,
+              inventoryItemId,
               {
                 harmonizedSystemCode: relevantHsCode,
                 countryCodeOfOrigin: countryCodeOfOrigin,
@@ -288,11 +290,12 @@ const collabsCustomsDataSweep = async () => {
             harmonizedSystemCode,
             countryCodeOfOrigin: currentCountryCodeOfOrigin,
           } = inventoryItem;
+          const inventoryItemId = gidToId(inventoryItemGid);
 
           if (harmonizedSystemCode !== relevantHsCode || countryCodeOfOrigin !== currentCountryCodeOfOrigin) {
             const shopifyInventoryItemUpdateArgs = [
               region,
-              inventoryItemGid,
+              inventoryItemId,
               {
                 harmonizedSystemCode: relevantHsCode,
                 countryCodeOfOrigin: countryCodeOfOrigin,
@@ -339,6 +342,20 @@ const collabsCustomsDataSweep = async () => {
     },
   );
   actioners.push(starshipitProductAdder);
+
+  const shopifyInventoryItemUpdater = new Processor(
+    piles.shopifyInventoryItemUpdate,
+    async (pile) => {
+      const args = pile.shift();
+      const response = await shopifyInventoryItemUpdate(...args);
+      piles.results.push(response);
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+    },
+  );
+  actioners.push(shopifyInventoryItemUpdater);
 
   let assessorsFinished = 0;
   for (const assessor of assessors) {
