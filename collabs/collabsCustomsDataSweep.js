@@ -159,8 +159,8 @@ const collabsCustomsDataSweep = async (
       logDeep(hsCodeUs, hsCodeUk, customsDescription, countryCodeOfOrigin, skuTarget);
       // await askQuestion('Continue?');
 
-      const peoplevoxItem = piles.inPeoplevox.find(item => item['Item code'].startsWith(skuTarget));
-      const starshipitItem = piles.inStarshipit.find(item => item.sku.startsWith(skuTarget));
+      const peoplevoxItems = piles.inPeoplevox.filter(item => item['Item code'].startsWith(skuTarget));
+      const starshipitItems = piles.inStarshipit.filter(item => item.sku.startsWith(skuTarget));
       const shopifyProducts = {};
       for (const region of regions) {
         const shopifyRegionProduct = piles.inShopify[region].find(item => item.variants.find(v => v.sku.startsWith(skuTarget)));
