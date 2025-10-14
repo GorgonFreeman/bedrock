@@ -129,6 +129,7 @@ const collabsCustomsDataSweep = async () => {
 
       const skuTarget = `${ skuTrunk }-`;
 
+      // TODO: Move this to a separate mapping file
       const countryOfOrigin = {
         au: 'Australia',
         cn: 'China',
