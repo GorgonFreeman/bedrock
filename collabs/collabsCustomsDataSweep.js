@@ -7,6 +7,8 @@ const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
 const { starshipitProductsGetter } = require('../starshipit/starshipitProductsGet');
 
+const { shopifyProductsGetter } = require('../shopify/shopifyProductsGet');
+
 const collabsCustomsDataSweep = async (
   {
     regions = REGIONS_WF,
@@ -22,7 +24,7 @@ const collabsCustomsDataSweep = async (
     inStylearcade: [],
     inPeoplevox: [],
     inStarshipit: [],
-    inShopify: [],
+    inShopify: {},
   };
 
   const stylearcadeGetter = await stylearcadeDataGetter({
@@ -39,16 +41,79 @@ const collabsCustomsDataSweep = async (
   const starshipitGetter = await starshipitProductsGetter(
     'wf',
     {
+      attrs: `
+        id
+        metafields (namespace: "shipping_data") {
+          edges { 
+            node { 
+              id
+              namespace
+              key
+              value 
+            } 
+          } 
+        }
+        variants (first: 100) {
+          edges {
+            node {
+              id
+              sku
+              inventoryItem {
+                id
+                harmonizedSystemCode
+                countryCodeOfOrigin
+              }
+            }
+          }
+        }
+      `,
       onItems: (items) => {
         piles.inStarshipit.push(...items);
       },
     },
   );
 
+  const shopifyGetters = await Promise.all(regions.map(async (region) => await shopifyProductsGetter(
+    region,
+    {
+      attrs: `
+        id
+        metafields (first: 10, namespace: "shipping_data") {
+          edges { 
+            node { 
+              id
+              namespace
+              key
+              value 
+            } 
+          } 
+        }
+        variants (first: 100) {
+          edges {
+            node {
+              id
+              sku
+              inventoryItem {
+                id
+                harmonizedSystemCode
+                countryCodeOfOrigin
+              }
+            }
+          }
+        }
+      `,
+      onItems: (items) => {
+        piles.inShopify[region] = piles.inShopify[region] || [];
+        piles.inShopify[region].push(...items);
+      },
+    },
+  )));
+
   await Promise.all([
     stylearcadeGetter.run(),
     peoplevoxCustomsDataGet(),
     starshipitGetter.run(),
+    ...shopifyGetters.map(g => g.run()),
   ]);
 
   logDeep(piles);
