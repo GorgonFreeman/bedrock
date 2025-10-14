@@ -133,8 +133,8 @@ const collabsCustomsDataSweep = async () => {
     piles.inStylearcade,
     async (pile) => {
       const stylearcadeProduct = pile.shift();
-      logDeep(stylearcadeProduct);
-      // await askQuestion('Continue?');
+      logDeep('stylearcadeProduct', stylearcadeProduct);
+      await askQuestion('Continue?');
 
       const {
         productId: skuTrunk,
