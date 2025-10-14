@@ -126,8 +126,6 @@ const collabsCustomsDataSweep = async () => {
 
   // 2. Assess all data and identify updates.
 
-  piles.inStylearcade = piles.inStylearcade.map(({ data }) => data).filter(item => item);
-
   const assessingProcessor = new Processor(
     piles.inStylearcade,
     async (pile) => {
@@ -288,6 +286,8 @@ const collabsCustomsDataSweep = async () => {
   await Promise.all([
     ...getters.map(g => typeof g.run === 'function' ? g.run({ verbose: false }) : g()),
   ]);
+
+  piles.inStylearcade = piles.inStylearcade.filter(({ data }) => data);
 
   await Promise.all([
     ...assessors.map(a => a.run()),
