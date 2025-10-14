@@ -183,12 +183,22 @@ const collabsCustomsDataSweep = async (
 
   let gettersFinished = 0;
   for (const getter of getters) {
-    getter.on('done', () => {
-      gettersFinished++;
-      if (gettersFinished === getters.length) {
-        assessors.forEach(i => i.canFinish = true);
-      }
-    });
+    if (typeof getter.on === 'function') {
+      getter.on('done', () => {
+        gettersFinished++;
+        if (gettersFinished === getters.length) {
+          assessors.forEach(i => i.canFinish = true);
+        }
+      });
+    } else {
+      // Handle regular async functions
+      getter().then(() => {
+        gettersFinished++;
+        if (gettersFinished === getters.length) {
+          assessors.forEach(i => i.canFinish = true);
+        }
+      });
+    }
   }
 
   let assessorsFinished = 0;
@@ -202,7 +212,7 @@ const collabsCustomsDataSweep = async (
   }
 
   await Promise.all([
-    ...getters.map(g => g.run()),
+    ...getters.map(g => typeof g.run === 'function' ? g.run() : g()),
     ...assessors.map(a => a.run()),
     ...actioners.map(a => a.run()),
   ]);
