@@ -7,6 +7,7 @@ const { starshipitProductsGetter } = require('../starshipit/starshipitProductsGe
 const { shopifyProductsGetter } = require('../shopify/shopifyProductsGet');
 
 const { starshipitProductUpdate } = require('../starshipit/starshipitProductUpdate');
+const { starshipitProductAdd } = require('../starshipit/starshipitProductAdd');
 
 const collabsCustomsDataSweep = async (
   {
@@ -28,6 +29,7 @@ const collabsCustomsDataSweep = async (
 
     // actions
     starshipitProductUpdate: [],
+    starshipitProductAdd: [],
 
     results: [],
   };
@@ -188,6 +190,18 @@ const collabsCustomsDataSweep = async (
         
       } else {
         // Add, if found in Shopify AU
+        const shopifyAuProduct = shopifyProducts['au'];
+        if (shopifyAuProduct) {
+          piles.starshipitProductAdd.push(...shopifyAuProduct.variants.map(v => [
+            'wf',
+            v.sku,
+            {
+              hs_code: hsCodeUs,
+              customs_description: customsDescription,
+              country: countryOfOrigin,
+            },
+          ]));
+        }
       }
 
       if (peoplevoxItem) {
@@ -222,6 +236,20 @@ const collabsCustomsDataSweep = async (
     },
   );
   actioners.push(starshipitProductUpdater);
+
+  const starshipitProductAdder = new Processor(
+    piles.starshipitProductAdd,
+    async (pile) => {
+      const args = pile.shift();
+      const response = await starshipitProductAdd(...args);
+      piles.results.push(response);
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+    },
+  );
+  actioners.push(starshipitProductAdder);
 
 
 
