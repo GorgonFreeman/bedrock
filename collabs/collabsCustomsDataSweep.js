@@ -25,6 +25,7 @@ const collabsCustomsDataSweep = async (
     inPeoplevox: [],
     inStarshipit: [],
     inShopify: {},
+    dataIncomplete: [],
   };
 
   const stylearcadeGetter = await stylearcadeDataGetter({
@@ -128,7 +129,28 @@ const collabsCustomsDataSweep = async (
       logDeep(stylearcadeProduct);
       await askQuestion('Continue?');
 
+      const {
+        productId: skuTrunk,
+        af55: hsCodeUs,
+        af56: hsCodeUk,
+        af58: customsDescription,
+        af62: countryCodeOfOrigin,
+      } = stylearcadeProduct;
 
+      const skuTarget = `${ skuTrunk }-`;
+
+      if (!(hsCodeUs || hsCodeUk || customsDescription)) {
+        piles.dataIncomplete.push(stylearcadeProduct);
+        return;
+      }
+
+      const peoplevoxItem = piles.inPeoplevox.find(item => item['Item code'].startsWith(skuTarget));
+
+      const starshipitItem = piles.inStarshipit.find(item => item.sku.startsWith(skuTarget));
+
+      for (const region of regions) {
+        const shopifyRegionProduct = piles.inShopify[region].find(item => item.variants.find(v => v.sku.startsWith(skuTarget)));
+      }
 
     },
     pile => pile.length === 0,
