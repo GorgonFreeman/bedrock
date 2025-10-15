@@ -335,6 +335,12 @@ const collabsCustomsDataSweep = async () => {
     async (pile) => {
       const args = pile.shift();
       const response = await starshipitProductUpdate(...args);
+
+      if (!response?.success) {
+        logDeep('starshipitProductUpdate', response, args);
+        await askQuestion('Continue?');
+      }
+
       piles.results.push(response);
     },
     pile => pile.length === 0,
@@ -350,6 +356,12 @@ const collabsCustomsDataSweep = async () => {
     async (pile) => {
       const args = pile.shift();
       const response = await starshipitProductAdd(...args);
+
+      if (!response?.success) {
+        logDeep('starshipitProductAdd', response, args);
+        await askQuestion('Continue?');
+      }
+
       piles.results.push(response);
     },
     pile => pile.length === 0,
@@ -365,6 +377,12 @@ const collabsCustomsDataSweep = async () => {
     async (pile) => {
       const args = pile.shift();
       const response = await shopifyInventoryItemUpdate(...args);
+
+      if (!response?.success) {
+        logDeep('shopifyInventoryItemUpdate', response, args);
+        await askQuestion('Continue?');
+      }
+
       piles.results.push(response);
     },
     pile => pile.length === 0,
@@ -380,6 +398,12 @@ const collabsCustomsDataSweep = async () => {
     async (pile) => {
       const args = pile.shift();
       const response = await shopifyMetafieldsSet(...args);
+
+      if (!response?.success) {
+        logDeep('shopifyMetafieldsSet', response, args);
+        await askQuestion('Continue?');
+      }
+
       piles.results.push(response);
     },
     pile => pile.length === 0,
