@@ -25,6 +25,10 @@ const peoplevoxDailySalesOrderReport = async ({
       credsPath,
     });
 
+    const yesterdaysOrderItemsReport = await peoplevoxReportGet("yesterday order items despatched", {
+      credsPath,
+    });
+
     //logDeep(openItemsReportResponse);
     //await askQuestion("?");
 
@@ -32,14 +36,25 @@ const peoplevoxDailySalesOrderReport = async ({
       return openItemsReportResponse;
     }
 
+    if (!yesterdaysOrderItemsReport.success) {
+      return yesterdaysOrderItemsReport;
+    }
+
     const reportData = openItemsReportResponse.result || [];
+    const yesterdayOrderItemsReportData = yesterdaysOrderItemsReport.result || [];
 
     //logDeep("Report data:", reportData);
     //await askQuestion("?");
 
     const firstResult = reportData[0] || {};
+    const firstYesterdaysOrderItemsReportResult = yesterdayOrderItemsReportData[0] || {};
+
     const openOrdersCount = parseInt(firstResult["Sales order no."] || "0", 10);
     const totalOpenItems = parseInt(firstResult["Number of items"] || "0", 10);
+
+    const yesterdayOrdersCount = parseInt(firstYesterdaysOrderItemsReportResult["Salesorder number"] || "0", 10);
+    const yesterdayItemsCount = parseInt(firstYesterdaysOrderItemsReportResult["No of items"] || "0", 10);
+
     const totalRowsProcessed = reportData.length;
     const timestamp = new Date().toISOString();
 
@@ -47,6 +62,11 @@ const peoplevoxDailySalesOrderReport = async ({
 Open Orders (count): ${openOrdersCount}
 Open Items (sum): ${totalOpenItems}
 Rows processed: ${totalRowsProcessed}
+
+
+:package: Yesterday's Order Items Despatched
+Orders Despatched: ${yesterdayOrdersCount}
+Items Despatched: ${yesterdayItemsCount}
 :clock3: Generated: ${timestamp}`;
 
     const slackResponse = await slackMessagePost({ channelId: userId }, { text: slackMessage }, { credsPath });
@@ -59,6 +79,8 @@ Rows processed: ${totalRowsProcessed}
         openOrdersCount,
         totalOpenItems,
         totalRowsProcessed,
+        yesterdayOrdersCount,
+        yesterdayItemsCount,
         timestamp,
         slackMessageSent: slackResponse.success,
         dateFilter: filterDate,
