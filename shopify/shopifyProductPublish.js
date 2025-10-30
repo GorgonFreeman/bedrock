@@ -68,8 +68,8 @@ const shopifyProductPublish = async (
     ;
   }
 
-  logDeep(publications);
-  await askQuestion('?');
+  // logDeep(publications);
+  // await askQuestion('?');
 
   if (!publications?.length) {
     return {
