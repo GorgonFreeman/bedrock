@@ -1,7 +1,7 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/productPublish
 
 const { HOSTED } = require('../constants');
-const { funcApi, logDeep, askQuestion } = require('../utils');
+const { funcApi, logDeep, askQuestion, gidToId } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 const { shopifyProductGet } = require('../shopify/shopifyProductGet');
 
@@ -11,9 +11,27 @@ const shopifyProductPublish = async (
   {
     apiVersion,
     publications, // https://shopify.dev/docs/api/admin-graphql/latest/input-objects/ProductPublicationInput
+    publishExceptChannels = [ 'point_of_sale' ], // Channels to not publish to
     // TODO: Consider accepting an option to unpublish
   } = {},
 ) => {
+
+  const exceptedChannelsToPublicationIds = {
+    au: {
+      point_of_sale: '41375891528',
+    },
+    us: {
+      point_of_sale: '152743772220',
+    },
+    uk: {
+      point_of_sale: '93497950282',
+    },
+  };
+
+  const exceptedPublicationIds = 
+    Object.entries(exceptedChannelsToPublicationIds[credsPath])
+      .filter(([channel, publicationId]) => publishExceptChannels.includes(channel))
+      .map(([channel, publicationId]) => (publicationId)) || [];
 
   if (!publications) {
     const productGetResponse = await shopifyProductGet(
@@ -45,12 +63,13 @@ const shopifyProductPublish = async (
     // logDeep(productData);
     // await askQuestion('?');
     publications = productData.unpublishedPublications
+      .filter(p => !exceptedPublicationIds.includes(gidToId(p.id)))
       .map(p => ({ publicationId: p.id }))
     ;
   }
 
-  // logDeep(publications);
-  // await askQuestion('?');
+  logDeep(publications);
+  await askQuestion('?');
 
   if (!publications?.length) {
     return {
