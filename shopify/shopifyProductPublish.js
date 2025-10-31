@@ -28,10 +28,10 @@ const shopifyProductPublish = async (
     },
   };
 
-  const exceptedPublicationIds = 
-    Object.entries(exceptedChannelsToPublicationIds[credsPath])
-      .filter(([channel, publicationId]) => publishExceptChannels.includes(channel))
-      .map(([channel, publicationId]) => (publicationId)) || [];
+  const exceptedChannelMapping = exceptedChannelsToPublicationIds[credsPath] || {};
+  const exceptedPublicationIds = Object.entries(exceptedChannelMapping)
+    .filter(([channel, publicationId]) => publishExceptChannels.includes(channel))
+    .map(([channel, publicationId]) => publicationId);
 
   if (!publications) {
     const productGetResponse = await shopifyProductGet(
