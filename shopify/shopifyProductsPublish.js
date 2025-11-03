@@ -31,6 +31,18 @@ const shopifyProductsPublishSingle = async (
         }
       }
     }
+    resourcePublicationsV2(first: 20, onlyPublished: true) {
+      edges {
+        node {
+          publication {
+            id
+            catalog {
+              title
+            }
+          }
+        }
+      }
+    }
   `;
 
   const productsGetter = await shopifyProductsGetter(
@@ -70,10 +82,32 @@ const shopifyProductsPublishSingle = async (
       const { 
         id: productGid, 
         unpublishedPublications, 
+        resourcePublicationsV2,
       } = product;
 
       // logDeep(product);
       // await askQuestion('Continue?');
+
+      const fromChannels = {
+        au: {
+          online_store: '37626282056',
+          tapcart_mobile_app: '71888109640',
+        },
+        us: {
+          online_store: '39839105084',
+          tapcart_mobile_app: '71943585852',
+        },
+        uk: {
+          online_store: '93497819210',
+          tapcart_mobile_app: '97956167754',
+        },
+      }[credsPath.split('.').shift()] || {};
+
+      const publishedToDefaultChannel = resourcePublicationsV2.some(p => Object.values(fromChannels).includes(gidToId(p.publication.id)));
+      if (!publishedToDefaultChannel) {
+        // logDeep('Not published to default channel, skipping', resourcePublicationsV2);
+        return;
+      }
 
       if (demo) {
         const tagResponse = await shopifyTagsAdd(
@@ -86,7 +120,21 @@ const shopifyProductsPublishSingle = async (
         return;
       }
 
-      const publicationsInput = unpublishedPublications.map(p => ({ publicationId: p.id }));
+      const excludeChannels = {
+        au: {
+          point_of_sale: '41375891528',
+        },
+        us: {
+          point_of_sale: '152743772220',
+        },
+        uk: {
+          point_of_sale: '93497950282',
+        },
+      }[credsPath.split('.').shift()] || {};
+
+      const publicationsInput = unpublishedPublications
+        .filter(p => !Object.values(excludeChannels).includes(gidToId(p.id)))
+        .map(p => ({ publicationId: p.id }));
       const productId = gidToId(productGid);
 
       const publishResponse = await shopifyProductPublish(
