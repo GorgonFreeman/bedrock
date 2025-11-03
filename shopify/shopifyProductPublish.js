@@ -11,27 +11,9 @@ const shopifyProductPublish = async (
   {
     apiVersion,
     publications, // https://shopify.dev/docs/api/admin-graphql/latest/input-objects/ProductPublicationInput
-    publishExceptChannels = [ 'point_of_sale' ], // Channels to not publish to
     // TODO: Consider accepting an option to unpublish
   } = {},
 ) => {
-
-  const exceptedChannelsToPublicationIds = {
-    au: {
-      point_of_sale: '41375891528',
-    },
-    us: {
-      point_of_sale: '152743772220',
-    },
-    uk: {
-      point_of_sale: '93497950282',
-    },
-  };
-
-  const exceptedChannelMapping = exceptedChannelsToPublicationIds[credsPath] || {};
-  const exceptedPublicationIds = Object.entries(exceptedChannelMapping)
-    .filter(([channel, publicationId]) => publishExceptChannels.includes(channel))
-    .map(([channel, publicationId]) => publicationId);
 
   if (!publications) {
     const productGetResponse = await shopifyProductGet(
@@ -63,7 +45,6 @@ const shopifyProductPublish = async (
     // logDeep(productData);
     // await askQuestion('?');
     publications = productData.unpublishedPublications
-      .filter(p => !exceptedPublicationIds.includes(gidToId(p.id)))
       .map(p => ({ publicationId: p.id }))
     ;
   }
