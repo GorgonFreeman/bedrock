@@ -6,6 +6,7 @@ const { starshipitGet, starshipitGetter } = require('../starshipit/starshipit.ut
 const payloadMaker = (
   credsPath,
   {
+    searchTerm,
     ...getterOptions
   } = {},
 ) => {
@@ -15,6 +16,9 @@ const payloadMaker = (
     '/products',
     {
       nodeName: 'products',
+      params: {
+        ...(searchTerm && { search_term: searchTerm }),
+      },
       ...getterOptions,
     },
   ];
@@ -41,5 +45,5 @@ module.exports = {
   starshipitProductsGetApi,
 };
 
-// curl localhost:8000/starshipitProductsGet -H "Content-Type: application/json" -d '{ "credsPath": "wf" }' 
+// curl localhost:8000/starshipitProductsGet -H "Content-Type: application/json" -d '{ "credsPath": "wf", "options": { "searchTerm": "3015817" } }' 
 // curl localhost:8000/starshipitProductsGet -H "Content-Type: application/json" -d '{ "credsPath": "wf", "options": { "perPage": 15 } }' 
