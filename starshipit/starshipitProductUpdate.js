@@ -17,7 +17,10 @@ const starshipitProductUpdate = async (
     method: 'put',
     body: {
       id: productId,
-      product: updatePayload,
+      product: {
+        id: productId,
+        ...updatePayload,
+      },
     },
     context: {
       credsPath,
@@ -45,4 +48,4 @@ module.exports = {
   starshipitProductUpdateApi,
 };
 
-// curl localhost:8000/starshipitProductUpdate -H "Content-Type: application/json" -d '{ "credsPath": "wf", "productId": "408418809", "updatePayload": { "hs_code": "123456" } }' 
+// curl localhost:8000/starshipitProductUpdate -H "Content-Type: application/json" -d '{ "credsPath": "wf", "productId": "3015817", "updatePayload": { "sku": "WFAL48-1-S", "hs_code": "6104630011" } }'
