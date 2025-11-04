@@ -45,5 +45,5 @@ module.exports = {
   starshipitProductsGetApi,
 };
 
-// curl localhost:8000/starshipitProductsGet -H "Content-Type: application/json" -d '{ "credsPath": "wf", "options": { "searchTerm": "3015817" } }' 
+// curl localhost:8000/starshipitProductsGet -H "Content-Type: application/json" -d '{ "credsPath": "wf", "options": { "searchTerm": "WFAL48-1-S" } }' 
 // curl localhost:8000/starshipitProductsGet -H "Content-Type: application/json" -d '{ "credsPath": "wf", "options": { "perPage": 15 } }' 
