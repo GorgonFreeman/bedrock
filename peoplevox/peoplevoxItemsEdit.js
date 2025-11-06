@@ -1,5 +1,5 @@
 const { json2csv } = require('json-2-csv');
-const { funcApi, logDeep, arrayToChunks, actionMultipleOrSingle } = require('../utils');
+const { funcApi, logDeep, arrayToChunks, groupObjectsByFields, actionMultipleOrSingle } = require('../utils');
 const { peoplevoxClient, peoplevoxStandardInterpreter } = require('../peoplevox/peoplevox.utils');
 const { MAX_REQUEST_ITEMS } = require('../peoplevox/peoplevox.constants');
 
@@ -44,8 +44,10 @@ const peoplevoxItemsEdit = async (
 ) => {
 
   // Sort item payloads into buckets of attribute sets to avoid setting 'undefined', then chunk by max size
-
-  const chunks = arrayToChunks(itemPayloads, MAX_REQUEST_ITEMS);
+  const buckets = groupObjectsByFields(itemPayloads);
+  // Chunk each bucket by max size, then flatten all chunks
+  const chunksByBucket = buckets.map((bucket) => arrayToChunks(bucket, MAX_REQUEST_ITEMS));
+  const chunks = chunksByBucket.flat();
 
   const response = await actionMultipleOrSingle(
     chunks,

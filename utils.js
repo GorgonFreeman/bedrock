@@ -596,6 +596,32 @@ const arrayToChunks = (array, chunkSize, { chunkBy } = {}) => {
   return chunks;
 };
 
+const groupObjectsByFields = (objArr) => {
+  if (!Array.isArray(objArr)) {
+    throw new Error('groupObjectsByFields: expected an array');
+  }
+
+  if (objArr.some(obj => !isObject(obj))) {
+    throw new Error('groupObjectsByFields: expected array of objects');
+  }
+
+  const bucketsMap = new Map();
+
+  for (const obj of objArr) {
+    // Get sorted keys as a string identifier for the field set
+    const fieldSetKey = Object.keys(obj).sort().join(',');
+
+    if (!bucketsMap.has(fieldSetKey)) {
+      bucketsMap.set(fieldSetKey, []);
+    }
+
+    bucketsMap.get(fieldSetKey).push(obj);
+  }
+
+  // Return buckets as an array of arrays
+  return Array.from(bucketsMap.values());
+};
+
 class CustomAxiosClient {
 
   constructor({ 
@@ -1728,6 +1754,7 @@ module.exports = {
   handleize,
   arrayExhaustedCheck,
   surveyNestedArrays,
+  groupObjectsByFields,
   
   // Classes
   CustomAxiosClient,
