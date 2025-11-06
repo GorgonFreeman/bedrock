@@ -34,6 +34,7 @@ module.exports = {
   starshipitOrderUpdate: require('./starshipit/starshipitOrderUpdate').starshipitOrderUpdateApi,
   starshipitOrdersListShipped: require('./starshipit/starshipitOrdersListShipped').starshipitOrdersListShippedApi,
   starshipitProductAdd: require('./starshipit/starshipitProductAdd').starshipitProductAddApi,
+  starshipitProductDelete: require('./starshipit/starshipitProductDelete').starshipitProductDeleteApi,
   starshipitProductGet: require('./starshipit/starshipitProductGet').starshipitProductGetApi,
   starshipitProductUpdate: require('./starshipit/starshipitProductUpdate').starshipitProductUpdateApi,
   starshipitProductsDeduplicate: require('./starshipit/starshipitProductsDeduplicate').starshipitProductsDeduplicateApi,
