@@ -370,7 +370,7 @@ const collabsCustomsDataSweep = async () => {
         // await askQuestion('Continue?');
       }
 
-      piles.results.push(response);
+      // piles.results.push(response);
     },
     pile => pile.length === 0,
     {
@@ -394,7 +394,7 @@ const collabsCustomsDataSweep = async () => {
         // await askQuestion('Continue?');
       }
 
-      piles.results.push(response);
+      // piles.results.push(response);
     },
     pile => pile.length === 0,
     {
@@ -418,7 +418,7 @@ const collabsCustomsDataSweep = async () => {
         // await askQuestion('Continue?');
       }
 
-      piles.results.push(response);
+      // piles.results.push(response);
     },
     pile => pile.length === 0,
     {
@@ -442,7 +442,7 @@ const collabsCustomsDataSweep = async () => {
         // await askQuestion('Continue?');
       }
 
-      piles.results.push(response);
+      // piles.results.push(response);
     },
     pile => pile.length === 0,
     {
@@ -466,7 +466,7 @@ const collabsCustomsDataSweep = async () => {
         // await askQuestion('Continue?');
       }
 
-      piles.results.push(response);
+      // piles.results.push(response);
     },
     pile => pile.length === 0,
     {
