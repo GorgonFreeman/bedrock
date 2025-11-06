@@ -1,35 +1,28 @@
-const { funcApi, logDeep } = require('../utils');
-const { starshipitClient } = require('../starshipit/starshipit.utils');
+// https://api-docs.starshipit.com/#ccf0f10f-e370-45c0-ba5c-13bfaac80ca6
+
+const { funcApi, logDeep, standardInterpreters } = require('../utils');
+const { starshipitProductsGet } = require('../starshipit/starshipitProductsGet');
 
 const starshipitProductGet = async (
   credsPath,
-  arg,
+  productSku,
 ) => {
 
-  const response = await starshipitClient.fetch({
-    url: '/things',
-    params: {
-      arg_value: arg,
+  const response = await starshipitProductsGet(
+    credsPath,
+    {
+      searchTerm: productSku,
     },
-    context: {
-      credsPath,
-    },
-    interpreter: (response) => {
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.arg_value,
-        } : {},
-      };
-    },
-  });
+  );
 
-  logDeep(response);
-  return response;
+  const singleResponse = standardInterpreters.expectOne(response);
+  
+  logDeep(singleResponse);
+  return singleResponse;
 };
 
 const starshipitProductGetApi = funcApi(starshipitProductGet, {
-  argNames: ['credsPath', 'arg', 'options'],
+  argNames: ['credsPath', 'productSku'],
 });
 
 module.exports = {
@@ -37,4 +30,4 @@ module.exports = {
   starshipitProductGetApi,
 };
 
-// curl localhost:8000/starshipitProductGet -H "Content-Type: application/json" -d '{ "credsPath": "wf", "arg": "408418809" }' 
+// curl localhost:8000/starshipitProductGet -H "Content-Type: application/json" -d '{ "credsPath": "wf", "productSku": "WFAL48-1-S" }' 
