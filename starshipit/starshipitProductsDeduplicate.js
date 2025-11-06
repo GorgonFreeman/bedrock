@@ -29,10 +29,19 @@ const starshipitProductsDeduplicate = async (
     productsBySku[sku].push(starshipitProduct);
   }
 
-  const duplicates = Array.from(Object.values(productsBySku)).filter((products) => products.length > 1);
+  const duplicateGroups = Array.from(Object.values(productsBySku)).filter((products) => products.length > 1);
 
-  logDeep(duplicates);
-  return duplicates;
+  for (const duplicateGroup of duplicateGroups) {
+
+    const [bestProduct, ...duplicateProducts] = duplicateGroup.sort((a, b) => {
+      return Object.keys(b).length - Object.keys(a).length;
+    });
+
+    // delete duplicate products
+  }
+
+  logDeep(duplicateGroups);
+  return duplicateGroups;
 };
 
 const starshipitProductsDeduplicateApi = funcApi(starshipitProductsDeduplicate, {
