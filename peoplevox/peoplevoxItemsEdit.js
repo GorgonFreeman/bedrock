@@ -43,6 +43,8 @@ const peoplevoxItemsEdit = async (
   } = {},
 ) => {
 
+  // Sort item payloads into buckets of attribute sets to avoid setting 'undefined', then chunk by max size
+
   const chunks = arrayToChunks(itemPayloads, MAX_REQUEST_ITEMS);
 
   const response = await actionMultipleOrSingle(
