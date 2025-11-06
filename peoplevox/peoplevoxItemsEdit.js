@@ -1,14 +1,17 @@
+const { json2csv } = require('json-2-csv');
 const { funcApi, logDeep } = require('../utils');
 const { peoplevoxClient, peoplevoxStandardInterpreter } = require('../peoplevox/peoplevox.utils');
 
 const peoplevoxItemsEdit = async (
-  salesOrderNumber,
+  itemPayloads,
   {
     credsPath,
   } = {},
 ) => {
 
-  const action = 'GetData';
+  const action = 'SaveData';
+
+  const csvData = await json2csv(itemPayloads);
 
   const response = await peoplevoxClient.fetch({
     headers: {
@@ -16,16 +19,16 @@ const peoplevoxItemsEdit = async (
     },
     method: 'post',
     body: {
-      getRequest: {
-        TemplateName: 'Sales orders',
-        SearchClause: `SalesOrderNumber.Equals("${ salesOrderNumber }")`,
+      saveRequest: {
+        TemplateName: 'Item types',
+        CsvData: csvData,
       },
     },
     context: { 
       credsPath,
       action,
      },
-    interpreter: peoplevoxStandardInterpreter({ expectOne: true }),
+    interpreter: peoplevoxStandardInterpreter(),
   });
   logDeep(response);
   return response;
@@ -33,7 +36,7 @@ const peoplevoxItemsEdit = async (
 };
 
 const peoplevoxItemsEditApi = funcApi(peoplevoxItemsEdit, {
-  argNames: ['salesOrderNumber', 'options'],
+  argNames: ['itemPayloads', 'options'],
 });
 
 module.exports = {
@@ -41,4 +44,4 @@ module.exports = {
   peoplevoxItemsEditApi,
 };
 
-// curl localhost:8000/peoplevoxItemsEdit -H "Content-Type: application/json" -d '{ "salesOrderNumber": "5977690603592" }'
+// curl localhost:8000/peoplevoxItemsEdit -H "Content-Type: application/json" -d '{ "itemPayloads": [{ "ItemCode": "100335-CHC-L", "Attribute7": "ATTR7" }] }'
