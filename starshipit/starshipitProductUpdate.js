@@ -9,7 +9,7 @@ const starshipitProductUpdate = async (
   sku,
   updatePayload,
   {
-    // option,
+    setData = false, // Note: This API method sets the entire product data by default, so without this option, we fetch and preserve the data first.
   } = {},
 ) => {
 
