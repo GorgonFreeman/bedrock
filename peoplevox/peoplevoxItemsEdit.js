@@ -71,3 +71,6 @@ module.exports = {
 };
 
 // curl localhost:8000/peoplevoxItemsEdit -H "Content-Type: application/json" -d '{ "itemPayloads": [{ "ItemCode": "100335-CHC-L", "Attribute7": "ATTR7" }] }'
+
+// Test CSV where some items have values missing (attribute 10) - sets 'undefined' for any missing values, so need to handle this
+// curl localhost:8000/peoplevoxItemsEdit -H "Content-Type: application/json" -d '{ "itemPayloads": [{ "ItemCode": "100335-CHC-L", "Attribute9": "Whatever" }, { "ItemCode": "100335-CHC-M", "Attribute9": "Watermelon", "Attribute10": "Werewolf" }] }'
