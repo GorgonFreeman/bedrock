@@ -378,7 +378,7 @@ const collabsCustomsDataSweep = async () => {
       logFlavourText: 'starshipitProductUpdater',
     },
   );
-  actioners.push(starshipitProductUpdater);
+  // actioners.push(starshipitProductUpdater);
 
   const starshipitProductAdder = new Processor(
     piles.starshipitProductAdd,
@@ -399,7 +399,7 @@ const collabsCustomsDataSweep = async () => {
       logFlavourText: 'starshipitProductAdder',
     },
   );
-  actioners.push(starshipitProductAdder);
+  // actioners.push(starshipitProductAdder);
 
   const shopifyInventoryItemUpdater = new Processor(
     piles.shopifyInventoryItemUpdate,
@@ -420,7 +420,7 @@ const collabsCustomsDataSweep = async () => {
       logFlavourText: 'shopifyInventoryItemUpdater',
     },
   );
-  actioners.push(shopifyInventoryItemUpdater);
+  // actioners.push(shopifyInventoryItemUpdater);
 
   const shopifyMetafieldsSetter = new Processor(
     piles.shopifyMetafieldsSet,
@@ -441,12 +441,14 @@ const collabsCustomsDataSweep = async () => {
       logFlavourText: 'shopifyMetafieldsSetter',
     },
   );
-  actioners.push(shopifyMetafieldsSetter);
+  // actioners.push(shopifyMetafieldsSetter);
 
   const peoplevoxItemsUpdater = new Processor(
     piles.peoplevoxItemsEdit,
     async (pile) => {
       const payloads = pile.splice(0, pile.length);
+      logDeep('peoplevoxItemsEdit', payloads);
+      await askQuestion('Continue?');
       const response = await peoplevoxItemsEdit(payloads);
 
       if (!response?.success) {
