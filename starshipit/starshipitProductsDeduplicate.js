@@ -1,35 +1,40 @@
 const { funcApi, logDeep } = require('../utils');
-const { starshipitClient } = require('../starshipit/starshipit.utils');
+const { starshipitProductsGet } = require('../starshipit/starshipitProductsGet');
 
 const starshipitProductsDeduplicate = async (
   credsPath,
-  arg,
 ) => {
 
-  const response = await starshipitClient.fetch({
-    url: '/things',
-    params: {
-      arg_value: arg,
-    },
-    context: {
-      credsPath,
-    },
-    interpreter: (response) => {
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.arg_value,
-        } : {},
-      };
-    },
-  });
+  const starshipitProductsResponse = await starshipitProductsGet(credsPath);
 
-  logDeep(response);
-  return response;
+  const { 
+    success: starshipitProductsSuccess, 
+    result: starshipitProducts,
+  } = starshipitProductsResponse;
+
+  if (!starshipitProductsSuccess) {
+    return starshipitProductsResponse;
+  }
+
+  const productsBySku = {};
+  
+  for (const starshipitProduct of starshipitProducts) {
+    const { sku } = starshipitProduct;
+
+    if (!sku) {
+      continue;
+    }
+
+    productsBySku[sku] = productsBySku[sku] || [];
+    productsBySku[sku].push(starshipitProduct);
+  }
+
+  logDeep(productsBySku);
+  return productsBySku;
 };
 
 const starshipitProductsDeduplicateApi = funcApi(starshipitProductsDeduplicate, {
-  argNames: ['credsPath', 'arg', 'options'],
+  argNames: ['credsPath'],
 });
 
 module.exports = {
@@ -37,4 +42,4 @@ module.exports = {
   starshipitProductsDeduplicateApi,
 };
 
-// curl localhost:8000/starshipitProductsDeduplicate -H "Content-Type: application/json" -d '{ "credsPath": "wf", "arg": "408418809" }' 
+// curl localhost:8000/starshipitProductsDeduplicate -H "Content-Type: application/json" -d '{ "credsPath": "wf" }' 
