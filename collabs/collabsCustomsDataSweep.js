@@ -10,6 +10,7 @@ const { starshipitProductUpdate } = require('../starshipit/starshipitProductUpda
 const { starshipitProductAdd } = require('../starshipit/starshipitProductAdd');
 const { shopifyInventoryItemUpdate } = require('../shopify/shopifyInventoryItemUpdate');
 const { shopifyMetafieldsSet } = require('../shopify/shopifyMetafieldsSet');
+const { peoplevoxItemsEdit } = require('../peoplevox/peoplevoxItemsEdit');
 
 const REGIONS = REGIONS_WF;
 
@@ -34,6 +35,7 @@ const collabsCustomsDataSweep = async () => {
     starshipitProductAdd: [],
     shopifyInventoryItemUpdate: [],
     shopifyMetafieldsSet: [],
+    peoplevoxItemsEdit: [],
 
     results: [],
   };
@@ -161,6 +163,33 @@ const collabsCustomsDataSweep = async () => {
       const peoplevoxItems = piles.inPeoplevox.filter(item => skus.includes(item['Item code']));
       if (peoplevoxItems?.length) {
         // add peoplevox update operations to pile
+        for (const peoplevoxItem of peoplevoxItems) {
+
+          const {
+            'Item code': pvxSku,
+            'Attribute 5': pvxHsCode,
+            'Attribute 6': pvxCountryOfOrigin,
+            'Attribute 8': pvxCustomsDescription,
+          } = peoplevoxItem;
+
+          const updatePayload = {
+            ItemCode: pvxSku,
+          };
+
+          if (pvxHsCode !== hsCodeUs) {
+            updatePayload.Attribute5 = hsCodeUs;
+          }
+          if (pvxCountryOfOrigin !== countryOfOrigin) {
+            updatePayload.Attribute6 = countryOfOrigin;
+          }
+          if (pvxCustomsDescription !== customsDescription) {
+            updatePayload.Attribute8 = customsDescription;
+          }
+
+          if (Object.keys(updatePayload).length > 1) {
+            piles.peoplevoxItemsEdit.push(updatePayload);
+          }
+        }
       }
 
       // TODO: Consolidate into one loop through skus
