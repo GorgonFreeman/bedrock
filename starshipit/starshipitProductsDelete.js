@@ -3,16 +3,16 @@
 const { funcApi, logDeep } = require('../utils');
 const { starshipitClient } = require('../starshipit/starshipit.utils');
 
-const starshipitProductDelete = async (
+const starshipitProductsDelete = async (
   credsPath,
-  productId,
+  productIds,
 ) => {
 
   const response = await starshipitClient.fetch({
     url: '/products/delete',
     method: 'delete',
     body: {
-      product_ids: [productId],
+      product_ids: productIds,
     },
     context: {
       credsPath,
@@ -23,13 +23,16 @@ const starshipitProductDelete = async (
   return response;
 };
 
-const starshipitProductDeleteApi = funcApi(starshipitProductDelete, {
-  argNames: ['credsPath', 'productId'],
+const starshipitProductsDeleteApi = funcApi(starshipitProductsDelete, {
+  argNames: ['credsPath', 'productIds'],
+  validatorsByArg: {
+    productIds: Array.isArray,
+  },
 });
 
 module.exports = {
-  starshipitProductDelete,
-  starshipitProductDeleteApi,
+  starshipitProductsDelete,
+  starshipitProductsDeleteApi,
 };
 
-// curl localhost:8000/starshipitProductDelete -H "Content-Type: application/json" -d '{ "credsPath": "wf", "productId": "5585356" }'
+// curl localhost:8000/starshipitProductsDelete -H "Content-Type: application/json" -d '{ "credsPath": "wf", "productIds": [5585356] }'
