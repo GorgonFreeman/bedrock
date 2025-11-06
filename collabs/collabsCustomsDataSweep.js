@@ -443,6 +443,27 @@ const collabsCustomsDataSweep = async () => {
   );
   actioners.push(shopifyMetafieldsSetter);
 
+  const peoplevoxItemsUpdater = new Processor(
+    piles.peoplevoxItemsEdit,
+    async (pile) => {
+      const payloads = pile.splice(0, pile.length);
+      const response = await peoplevoxItemsEdit(payloads);
+
+      if (!response?.success) {
+        logDeep('peoplevoxItemsEdit', response, payloads);
+        await askQuestion('Continue?');
+      }
+
+      piles.results.push(response);
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+      logFlavourText: 'peoplevoxItemsUpdater',
+    },
+  );
+  actioners.push(peoplevoxItemsUpdater);
+
   let assessorsFinished = 0;
   for (const assessor of assessors) {
     assessor.on('done', () => {
