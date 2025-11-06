@@ -151,7 +151,7 @@ const collabsCustomsDataSweep = async () => {
       logDeep(hsCodeUs, hsCodeUk, customsDescription, countryCodeOfOrigin, skuTarget);
       // await askQuestion('Continue?');
 
-      const shopifyAuProduct = piles.inShopify['au'].find(item => item.variants.find(v => v?.sku?.startsWith(skuTarget)));
+      const shopifyAuProduct = piles.inShopify['au']?.find(item => item?.variants?.find(v => v?.sku?.startsWith(skuTarget)));
 
       if (!shopifyAuProduct) {
         piles.missing.push(stylearcadeProduct);
@@ -244,7 +244,7 @@ const collabsCustomsDataSweep = async () => {
 
       for (const region of REGIONS) {
 
-        const shopifyRegionProduct = (region === 'au') ? shopifyAuProduct : piles.inShopify[region].find(item => item.variants.find(v => v?.sku?.startsWith(skuTarget)));
+        const shopifyRegionProduct = (region === 'au') ? shopifyAuProduct : piles.inShopify[region]?.find(item => item?.variants?.find(v => v?.sku?.startsWith(skuTarget)));
         // logDeep(region, shopifyRegionProduct);
         // await askQuestion('Continue?');
 
