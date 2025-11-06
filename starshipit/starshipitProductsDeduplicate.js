@@ -29,8 +29,10 @@ const starshipitProductsDeduplicate = async (
     productsBySku[sku].push(starshipitProduct);
   }
 
-  logDeep(productsBySku);
-  return productsBySku;
+  const duplicates = Array.from(Object.values(productsBySku)).filter((products) => products.length > 1);
+
+  logDeep(duplicates);
+  return duplicates;
 };
 
 const starshipitProductsDeduplicateApi = funcApi(starshipitProductsDeduplicate, {
