@@ -6,6 +6,7 @@ const { starshipitClient } = require('../starshipit/starshipit.utils');
 const starshipitProductUpdate = async (
   credsPath,
   productId,
+  sku,
   updatePayload,
   {
     // option,
@@ -19,6 +20,7 @@ const starshipitProductUpdate = async (
       id: productId,
       product: {
         id: productId,
+        sku,
         ...updatePayload,
       },
     },
@@ -40,7 +42,7 @@ const starshipitProductUpdate = async (
 };
 
 const starshipitProductUpdateApi = funcApi(starshipitProductUpdate, {
-  argNames: ['credsPath', 'productId', 'updatePayload', 'options'],
+  argNames: ['credsPath', 'productId', 'sku', 'updatePayload', 'options'],
 });
 
 module.exports = {
@@ -48,4 +50,4 @@ module.exports = {
   starshipitProductUpdateApi,
 };
 
-// curl localhost:8000/starshipitProductUpdate -H "Content-Type: application/json" -d '{ "credsPath": "wf", "productId": "3015817", "updatePayload": { "sku": "WFAL48-1-S", "hs_code": "6104630011" } }'
+// curl localhost:8000/starshipitProductUpdate -H "Content-Type: application/json" -d '{ "credsPath": "wf", "productId": "3015817", "sku": "WFAL48-1-S", "updatePayload": { "hs_code": "6104630011" } }'
