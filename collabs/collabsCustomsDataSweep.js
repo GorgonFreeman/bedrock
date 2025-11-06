@@ -367,7 +367,7 @@ const collabsCustomsDataSweep = async () => {
 
       if (!response?.success) {
         logDeep('starshipitProductUpdate', response, args);
-        await askQuestion('Continue?');
+        // await askQuestion('Continue?');
       }
 
       piles.results.push(response);
@@ -391,7 +391,7 @@ const collabsCustomsDataSweep = async () => {
 
       if (!response?.success) {
         logDeep('starshipitProductAdd', response, args);
-        await askQuestion('Continue?');
+        // await askQuestion('Continue?');
       }
 
       piles.results.push(response);
@@ -415,7 +415,7 @@ const collabsCustomsDataSweep = async () => {
 
       if (!response?.success) {
         logDeep('shopifyInventoryItemUpdate', response, args);
-        await askQuestion('Continue?');
+        // await askQuestion('Continue?');
       }
 
       piles.results.push(response);
@@ -439,7 +439,7 @@ const collabsCustomsDataSweep = async () => {
 
       if (!response?.success) {
         logDeep('shopifyMetafieldsSet', response, args);
-        await askQuestion('Continue?');
+        // await askQuestion('Continue?');
       }
 
       piles.results.push(response);
@@ -463,7 +463,7 @@ const collabsCustomsDataSweep = async () => {
 
       if (!response?.success) {
         logDeep('peoplevoxItemsEdit', response, payloads);
-        await askQuestion('Continue?');
+        // await askQuestion('Continue?');
       }
 
       piles.results.push(response);
