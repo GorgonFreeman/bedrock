@@ -1,7 +1,8 @@
 // https://api-docs.starshipit.com/#9101a9d7-91b1-492c-b7ad-5f92f80bbfd7
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, askQuestion } = require('../utils');
 const { starshipitClient } = require('../starshipit/starshipit.utils');
+const { starshipitProductGet } = require('../starshipit/starshipitProductGet');
 
 const starshipitProductUpdate = async (
   credsPath,
@@ -12,6 +13,28 @@ const starshipitProductUpdate = async (
     setData = false, // Note: This API method sets the entire product data by default, so without this option, we fetch and preserve the data first.
   } = {},
 ) => {
+
+  if (!setData) {
+    const productResponse = await starshipitProductGet(credsPath, sku);
+
+    const { success, result } = productResponse;
+
+    if (!success) {
+      return productResponse;
+    }
+
+    logDeep('before', updatePayload);
+
+    const currentData = result;
+    updatePayload = {
+      ...currentData,
+      ...updatePayload,
+    };
+
+    logDeep('after', updatePayload);
+
+    await askQuestion('Continue?');
+  }
 
   const response = await starshipitClient.fetch({
     url: '/products/update',
