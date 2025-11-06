@@ -150,6 +150,7 @@ module.exports = {
   peoplevoxAuthGet: require('./peoplevox/peoplevoxAuthGet').peoplevoxAuthGetApi,
   peoplevoxDespatchGet: require('./peoplevox/peoplevoxDespatchGet').peoplevoxDespatchGetApi,
   peoplevoxDespatchesGetBySalesOrderNumber: require('./peoplevox/peoplevoxDespatchesGetBySalesOrderNumber').peoplevoxDespatchesGetBySalesOrderNumberApi,
+  peoplevoxItemsEdit: require('./peoplevox/peoplevoxItemsEdit').peoplevoxItemsEditApi,
   peoplevoxItemsGet: require('./peoplevox/peoplevoxItemsGet').peoplevoxItemsGetApi,
   peoplevoxOrderGet: require('./peoplevox/peoplevoxOrderGet').peoplevoxOrderGetApi,
   peoplevoxOrdersGet: require('./peoplevox/peoplevoxOrdersGet').peoplevoxOrdersGetApi,
