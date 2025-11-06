@@ -129,8 +129,8 @@ const collabsCustomsDataSweep = async () => {
 
       const {
         productId: skuTrunk,
-        af55: hsCodeUs,
-        af56: hsCodeUk,
+        af55: hsCodeUk,
+        af56: hsCodeUs,
         af58: customsDescription,
         af62: countryCodeOfOrigin = 'CN', // Default to China
       } = stylearcadeProduct;
