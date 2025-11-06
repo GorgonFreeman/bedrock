@@ -1,8 +1,9 @@
 const { json2csv } = require('json-2-csv');
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, arrayToChunks, actionMultipleOrSingle } = require('../utils');
 const { peoplevoxClient, peoplevoxStandardInterpreter } = require('../peoplevox/peoplevox.utils');
+const { MAX_REQUEST_ITEMS } = require('../peoplevox/peoplevox.constants');
 
-const peoplevoxItemsEdit = async (
+const peoplevoxItemsEditChunk = async (
   itemPayloads,
   {
     credsPath,
@@ -32,7 +33,32 @@ const peoplevoxItemsEdit = async (
   });
   logDeep(response);
   return response;
+};
+
+const peoplevoxItemsEdit = async (
+  itemPayloads,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+
+  const chunks = arrayToChunks(itemPayloads, MAX_REQUEST_ITEMS);
+
+  const response = await actionMultipleOrSingle(
+    chunks,
+    peoplevoxItemsEditChunk,
+    (chunk) => ({
+      args: [chunk],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
   
+  logDeep(response);
+  return response;
 };
 
 const peoplevoxItemsEditApi = funcApi(peoplevoxItemsEdit, {
