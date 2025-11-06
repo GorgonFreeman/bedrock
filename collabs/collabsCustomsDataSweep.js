@@ -376,6 +376,9 @@ const collabsCustomsDataSweep = async () => {
     {
       canFinish: false,
       logFlavourText: 'starshipitProductUpdater',
+      runOptions: {
+        interval: 20,
+      },
     },
   );
   actioners.push(starshipitProductUpdater);
@@ -397,6 +400,9 @@ const collabsCustomsDataSweep = async () => {
     {
       canFinish: false,
       logFlavourText: 'starshipitProductAdder',
+      runOptions: {
+        interval: 20,
+      },
     },
   );
   actioners.push(starshipitProductAdder);
@@ -418,6 +424,9 @@ const collabsCustomsDataSweep = async () => {
     {
       canFinish: false,
       logFlavourText: 'shopifyInventoryItemUpdater',
+      runOptions: {
+        interval: 20,
+      },
     },
   );
   actioners.push(shopifyInventoryItemUpdater);
@@ -439,6 +448,9 @@ const collabsCustomsDataSweep = async () => {
     {
       canFinish: false,
       logFlavourText: 'shopifyMetafieldsSetter',
+      runOptions: {
+        interval: 20,
+      },
     },
   );
   actioners.push(shopifyMetafieldsSetter);
