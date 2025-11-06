@@ -180,8 +180,8 @@ const collabsCustomsDataSweep = async () => {
             const starshipitUpdateArgs = [
               'wf',
               starshipitProductId,
+              sku,
               {
-                sku,
                 hs_code: hsCodeUs,
                 customs_description: customsDescription,
                 country: countryOfOrigin,
