@@ -23,7 +23,7 @@ const starshipitProductUpdate = async (
       return productResponse;
     }
 
-    logDeep('before', updatePayload);
+    // logDeep('before', updatePayload);
 
     const currentData = result;
     updatePayload = {
@@ -31,9 +31,9 @@ const starshipitProductUpdate = async (
       ...updatePayload,
     };
 
-    logDeep('after', updatePayload);
+    // logDeep('after', updatePayload);
 
-    await askQuestion('Continue?');
+    // await askQuestion('Continue?');
   }
 
   const response = await starshipitClient.fetch({
