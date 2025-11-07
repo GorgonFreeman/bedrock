@@ -1,5 +1,6 @@
 const { funcApi, logDeep } = require('../utils');
 const { starshipitProductsGet } = require('../starshipit/starshipitProductsGet');
+const { starshipitProductsDelete } = require('../starshipit/starshipitProductsDelete');
 
 const starshipitProductsDeduplicate = async (
   credsPath,
@@ -31,6 +32,8 @@ const starshipitProductsDeduplicate = async (
 
   const duplicateGroups = Array.from(Object.values(productsBySku)).filter((products) => products.length > 1);
 
+  const productIdsToDelete = [];
+
   for (const duplicateGroup of duplicateGroups) {
 
     const [bestProduct, ...duplicateProducts] = duplicateGroup.sort((a, b) => {
@@ -38,10 +41,15 @@ const starshipitProductsDeduplicate = async (
     });
 
     // delete duplicate products
+    productIdsToDelete.push(duplicateProducts.map(p => p.id));
   }
 
-  logDeep(duplicateGroups);
-  return duplicateGroups;
+  console.log(`${ productIdsToDelete.length } duplicates found`);
+
+  const deleteResponse = await starshipitProductsDelete(credsPath, productIdsToDelete);
+
+  logDeep(deleteResponse);
+  return deleteResponse;
 };
 
 const starshipitProductsDeduplicateApi = funcApi(starshipitProductsDeduplicate, {
