@@ -64,10 +64,24 @@ const customAxios = async (url, {
   
   while (!done) {
     try {
-      
-      response = method === 'get' 
-      ? await axios[method](url, axiosConfig)
-      : await axios[method](url, body, axiosConfig);
+
+      if (method === 'get') {
+
+        response = await axios[method](url, axiosConfig);
+
+      } else if (method === 'delete') {
+        
+        // Axios delete with body needs data in config, not as second param
+        response = await axios[method](url, { 
+          ...axiosConfig, 
+          ...body ? { data: body } : {}, 
+        });
+
+      } else {
+
+        response = await axios[method](url, body, axiosConfig);
+
+      }
       
       return {
         success: true,
