@@ -41,7 +41,7 @@ const starshipitProductsDeduplicate = async (
     });
 
     // delete duplicate products
-    productIdsToDelete.push(duplicateProducts.map(p => p.id));
+    productIdsToDelete.push(...duplicateProducts.map(p => p.id));
   }
 
   console.log(`${ productIdsToDelete.length } duplicates found`);
