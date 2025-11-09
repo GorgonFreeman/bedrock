@@ -148,7 +148,7 @@ const collabsCustomsDataSweep = async () => {
         cn: 'China',
       }[countryCodeOfOrigin.toLowerCase()];
 
-      logDeep(hsCodeUs, hsCodeUk, customsDescription, countryCodeOfOrigin, skuTarget);
+      !HOSTED && logDeep(hsCodeUs, hsCodeUk, customsDescription, countryCodeOfOrigin, skuTarget);
       // await askQuestion('Continue?');
 
       const shopifyAuProduct = piles.inShopify['au']?.find(item => item?.variants?.find(v => v?.sku?.startsWith(skuTarget)));
@@ -366,7 +366,7 @@ const collabsCustomsDataSweep = async () => {
       const response = await starshipitProductUpdate(...args);
 
       if (!response?.success) {
-        logDeep('starshipitProductUpdate', response, args);
+        !HOSTED && logDeep('starshipitProductUpdate', response, args);
         // await askQuestion('Continue?');
       }
 
@@ -390,7 +390,7 @@ const collabsCustomsDataSweep = async () => {
       const response = await starshipitProductAdd(...args);
 
       if (!response?.success) {
-        logDeep('starshipitProductAdd', response, args);
+        !HOSTED && logDeep('starshipitProductAdd', response, args);
         // await askQuestion('Continue?');
       }
 
@@ -414,7 +414,7 @@ const collabsCustomsDataSweep = async () => {
       const response = await shopifyInventoryItemUpdate(...args);
 
       if (!response?.success) {
-        logDeep('shopifyInventoryItemUpdate', response, args);
+        !HOSTED && logDeep('shopifyInventoryItemUpdate', response, args);
         // await askQuestion('Continue?');
       }
 
@@ -438,7 +438,7 @@ const collabsCustomsDataSweep = async () => {
       const response = await shopifyMetafieldsSet(...args);
 
       if (!response?.success) {
-        logDeep('shopifyMetafieldsSet', response, args);
+        !HOSTED && logDeep('shopifyMetafieldsSet', response, args);
         // await askQuestion('Continue?');
       }
 
@@ -462,7 +462,7 @@ const collabsCustomsDataSweep = async () => {
       const response = await peoplevoxItemsEdit(payloads);
 
       if (!response?.success) {
-        logDeep('peoplevoxItemsEdit', response, payloads);
+        !HOSTED && logDeep('peoplevoxItemsEdit', response, payloads);
         // await askQuestion('Continue?');
       }
 
@@ -487,11 +487,11 @@ const collabsCustomsDataSweep = async () => {
   }
 
   await Promise.all([
-    ...assessors.map(a => a.run()),
-    ...actioners.map(a => a.run()),
+    ...assessors.map(a => a.run({ verbose: !HOSTED })),
+    ...actioners.map(a => a.run({ verbose: !HOSTED })),
   ]);
 
-  logDeep(piles);
+  !HOSTED && logDeep(piles);
   logDeep(surveyNestedArrays(piles));
 
   return {
