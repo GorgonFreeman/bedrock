@@ -12,6 +12,8 @@ const { shopifyInventoryItemUpdate } = require('../shopify/shopifyInventoryItemU
 const { shopifyMetafieldsSet } = require('../shopify/shopifyMetafieldsSet');
 const { peoplevoxItemsEdit } = require('../peoplevox/peoplevoxItemsEdit');
 
+const { bedrock_unlisted_slackErrorPost } = require('../bedrock_unlisted/bedrock_unlisted_slackErrorPost');
+
 const REGIONS = REGIONS_WF;
 
 const collabsCustomsDataSweep = async () => {
@@ -503,6 +505,7 @@ const collabsCustomsDataSweep = async () => {
 
 const collabsCustomsDataSweepApi = funcApi(collabsCustomsDataSweep, {
   argNames: ['options'],
+  errorReporter: bedrock_unlisted_slackErrorPost,
 });
 
 module.exports = {
