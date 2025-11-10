@@ -89,6 +89,9 @@ const collabsCustomsDataSweep = async () => {
         mfCountryCodeOfOrigin: metafield(namespace: "shipping_data", key: "country_code_of_origin") { 
           value 
         }
+        mfMid: metafield(namespace: "shipping_data", key: "mids") { 
+          value
+        }
         variants (first: 100) {
           edges {
             node {
