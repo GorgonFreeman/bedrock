@@ -179,10 +179,10 @@ const collabsCustomsDataSweep = async () => {
 
           const {
             'Item code': pvxSku,
-            'Attribute 5': pvxHsCode,
-            'Attribute 6': pvxCountryOfOrigin,
-            'Attribute 7': pvxMid,
-            'Attribute 8': pvxCustomsDescription,
+            'Attribute5': pvxHsCode,
+            'Attribute6': pvxCountryOfOrigin,
+            'Attribute7': pvxMid,
+            'Attribute8': pvxCustomsDescription,
           } = peoplevoxItem;
 
           const updatePayload = {
