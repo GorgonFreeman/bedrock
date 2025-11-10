@@ -213,6 +213,7 @@ module.exports = {
   etsyUserAddressesGet: require('./etsy/etsyUserAddressesGet').etsyUserAddressesGetApi,
   etsyUserGet: require('./etsy/etsyUserGet').etsyUserGetApi,
   etsyUserShopsGet: require('./etsy/etsyUserShopsGet').etsyUserShopsGetApi,
+  collabsCustomsDataCleanse: require('./collabs/collabsCustomsDataCleanse').collabsCustomsDataCleanseApi,
   collabsCustomsDataSweep: require('./collabs/collabsCustomsDataSweep').collabsCustomsDataSweepApi,
   collabsFulfillmentSweep: require('./collabs/collabsFulfillmentSweep').collabsFulfillmentSweepApi,
   collabsFulfillmentSweepRecent: require('./collabs/collabsFulfillmentSweepRecent').collabsFulfillmentSweepRecentApi,
