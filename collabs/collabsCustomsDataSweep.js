@@ -1,3 +1,8 @@
+/*
+  Syncs customs data such as HS Code and Customs Description from Style Arcade
+  to Peoplevox, Starshipit and Shopify.
+*/
+
 const { funcApi, logDeep, surveyNestedArrays, Processor, askQuestion, gidToId, randomItem } = require('../utils');
 const { HOSTED, REGIONS_WF } = require('../constants');
 const { MIDS_WF } = require('../bedrock_unlisted/constants');
