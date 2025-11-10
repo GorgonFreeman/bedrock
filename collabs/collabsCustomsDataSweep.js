@@ -190,19 +190,24 @@ const collabsCustomsDataSweep = async () => {
           };
 
           if (pvxHsCode !== hsCodeUs) {
+            !HOSTED && logDeep(`[Peoplevox Update] SKU: ${ pvxSku }, Field: HS Code, Current: "${ pvxHsCode }", Expected: "${ hsCodeUs }"`);
             updatePayload.Attribute5 = hsCodeUs;
           }
           if (pvxCountryOfOrigin !== countryOfOrigin) {
+            !HOSTED && logDeep(`[Peoplevox Update] SKU: ${ pvxSku }, Field: Country of Origin, Current: "${ pvxCountryOfOrigin }", Expected: "${ countryOfOrigin }"`);
             updatePayload.Attribute6 = countryOfOrigin;
           }
           if (pvxCustomsDescription !== customsDescription) {
+            !HOSTED && logDeep(`[Peoplevox Update] SKU: ${ pvxSku }, Field: Customs Description, Current: "${ pvxCustomsDescription }", Expected: "${ customsDescription }"`);
             updatePayload.Attribute8 = customsDescription;
           }
           if (pvxMid !== mid) {
+            !HOSTED && logDeep(`[Peoplevox Update] SKU: ${ pvxSku }, Field: MID, Current: "${ pvxMid }", Expected: "${ mid }"`);
             updatePayload.Attribute7 = mid;
           }
           
           if (Object.keys(updatePayload).length > 1) {
+            !HOSTED && logDeep(peoplevoxItem);
             piles.peoplevoxItemsEdit.push(updatePayload);
           }
         }
@@ -223,6 +228,22 @@ const collabsCustomsDataSweep = async () => {
           } = starshipitItem;
   
           if (!(starshipitHsCode === hsCodeUs && starshipitCustomsDescription === customsDescription && starshipitCountry === countryOfOrigin && starshipitMid === mid)) {
+            
+            if (!HOSTED) {
+              if (starshipitHsCode !== hsCodeUs) {
+                logDeep(`[Starshipit Update] SKU: ${ sku }, Field: HS Code, Current: "${ starshipitHsCode }", Expected: "${ hsCodeUs }"`);
+              }
+              if (starshipitCustomsDescription !== customsDescription) {
+                logDeep(`[Starshipit Update] SKU: ${ sku }, Field: Customs Description, Current: "${ starshipitCustomsDescription }", Expected: "${ customsDescription }"`);
+              }
+              if (starshipitCountry !== countryOfOrigin) {
+                logDeep(`[Starshipit Update] SKU: ${ sku }, Field: Country, Current: "${ starshipitCountry }", Expected: "${ countryOfOrigin }"`);
+              }
+              if (starshipitMid !== mid) {
+                logDeep(`[Starshipit Update] SKU: ${ sku }, Field: MID, Current: "${ starshipitMid }", Expected: "${ mid }"`);
+              }
+            }
+            
             const starshipitUpdateArgs = [
               'wf',
               starshipitProductId,
@@ -293,6 +314,7 @@ const collabsCustomsDataSweep = async () => {
         const updateMid = mid && (mfMid?.value !== mid);
 
         if (updateCustomsDescription) {
+          !HOSTED && logDeep(`[Shopify Metafield Update] Region: ${ region }, Product: ${ productGid }, Field: item_description, Current: "${ mfCustomsDescription?.value }", Expected: "${ customsDescription }"`);
           const metafields = [{
             ownerId: productGid,
             namespace: 'shipping_data',
@@ -305,6 +327,7 @@ const collabsCustomsDataSweep = async () => {
         }
 
         if (updateHsCode) {
+          !HOSTED && logDeep(`[Shopify Metafield Update] Region: ${ region }, Product: ${ productGid }, Field: hs_code, Current: "${ mfHsCode?.value }", Expected: "${ relevantHsCode }"`);
           const metafields = [{
             ownerId: productGid,
             namespace: 'shipping_data',
@@ -317,6 +340,7 @@ const collabsCustomsDataSweep = async () => {
         }
 
         if (updateCountryCodeOfOrigin) {
+          !HOSTED && logDeep(`[Shopify Metafield Update] Region: ${ region }, Product: ${ productGid }, Field: country_code_of_origin, Current: "${ mfCountryCodeOfOrigin?.value }", Expected: "${ countryCodeOfOrigin }"`);
           const metafields = [{
             ownerId: productGid,
             namespace: 'shipping_data',
@@ -329,6 +353,7 @@ const collabsCustomsDataSweep = async () => {
         }
 
         if (updateMid) {
+          !HOSTED && logDeep(`[Shopify Metafield Update] Region: ${ region }, Product: ${ productGid }, Field: mids, Current: "${ mfMid?.value }", Expected: "${ mid }"`);
           const metafields = [{
             ownerId: productGid,
             namespace: 'shipping_data',
@@ -341,6 +366,20 @@ const collabsCustomsDataSweep = async () => {
         }
 
         if (updateHsCode || updateCountryCodeOfOrigin) {
+          
+          if (!HOSTED) {
+            variants.forEach(v => {
+              const { inventoryItem, sku: variantSku } = v;
+              const { harmonizedSystemCode: currentHsCode, countryCodeOfOrigin: currentCountryCode } = inventoryItem;
+              if (updateHsCode) {
+                logDeep(`[Shopify Inventory Item Update] Region: ${ region }, SKU: ${ variantSku }, Field: harmonizedSystemCode, Current: "${ currentHsCode }", Expected: "${ relevantHsCode }"`);
+              }
+              if (updateCountryCodeOfOrigin) {
+                logDeep(`[Shopify Inventory Item Update] Region: ${ region }, SKU: ${ variantSku }, Field: countryCodeOfOrigin, Current: "${ currentCountryCode }", Expected: "${ countryCodeOfOrigin }"`);
+              }
+            });
+          }
+
           const inventoryItemUpdatePayloads = variants.map(v => {
             const { inventoryItem } = v;
             const { id: inventoryItemGid } = inventoryItem;
@@ -370,6 +409,16 @@ const collabsCustomsDataSweep = async () => {
           const inventoryItemId = gidToId(inventoryItemGid);
 
           if (harmonizedSystemCode !== relevantHsCode || countryCodeOfOrigin !== currentCountryCodeOfOrigin) {
+            
+            if (!HOSTED) {
+              if (harmonizedSystemCode !== relevantHsCode) {
+                logDeep(`[Shopify Inventory Item Update] Region: ${ region }, SKU: ${ v.sku }, Field: harmonizedSystemCode, Current: "${ harmonizedSystemCode }", Expected: "${ relevantHsCode }"`);
+              }
+              if (currentCountryCodeOfOrigin !== countryCodeOfOrigin) {
+                logDeep(`[Shopify Inventory Item Update] Region: ${ region }, SKU: ${ v.sku }, Field: countryCodeOfOrigin, Current: "${ currentCountryCodeOfOrigin }", Expected: "${ countryCodeOfOrigin }"`);
+              }
+            }
+            
             const shopifyInventoryItemUpdateArgs = [
               region,
               inventoryItemId,
