@@ -1,3 +1,5 @@
+// https://stylearcade.gitlab.io/api-docs/range-plan
+
 const { funcApi, logDeep } = require('../utils');
 const { stylearcadeGet, stylearcadeGetter } = require('./stylearcade.utils');
 
