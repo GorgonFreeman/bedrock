@@ -1614,6 +1614,10 @@ const randomNumber = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
+const randomItem = (arr) => {
+  return arr?.[randomNumber(0, arr.length - 1)];
+};
+
 const convertFormDataToObject = (formData) => {
   const object = {};
   formData.forEach((value, key) => {
@@ -1763,6 +1767,7 @@ module.exports = {
   parseBoolean,
   objToArray,
   randomNumber,
+  randomItem,
   convertFormDataToObject,
   convertObjectToFormData,
   handleize,
