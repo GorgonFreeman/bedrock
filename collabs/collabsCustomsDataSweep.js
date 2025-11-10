@@ -1,5 +1,6 @@
-const { funcApi, logDeep, surveyNestedArrays, Processor, askQuestion, gidToId } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor, askQuestion, gidToId, randomItem } = require('../utils');
 const { HOSTED, REGIONS_WF } = require('../constants');
+const { MIDS_WF } = require('../bedrock_unlisted/constants');
 
 const { stylearcadeDataGetter } = require('../stylearcade/stylearcadeDataGet');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
@@ -164,6 +165,12 @@ const collabsCustomsDataSweep = async () => {
       }
 
       const skus = shopifyAuProduct?.variants.map(v => v.sku);
+      let mid = shopifyAuProduct?.mfMid?.value;
+
+      if (!mid) {
+        // Assign MID - will be set in the region loop below
+        mid = randomItem(MIDS_WF);
+      }
 
       const peoplevoxItems = piles.inPeoplevox.filter(item => skus.includes(item['Item code']));
       if (peoplevoxItems?.length) {
@@ -174,6 +181,7 @@ const collabsCustomsDataSweep = async () => {
             'Item code': pvxSku,
             'Attribute 5': pvxHsCode,
             'Attribute 6': pvxCountryOfOrigin,
+            'Attribute 7': pvxMid,
             'Attribute 8': pvxCustomsDescription,
           } = peoplevoxItem;
 
@@ -190,7 +198,10 @@ const collabsCustomsDataSweep = async () => {
           if (pvxCustomsDescription !== customsDescription) {
             updatePayload.Attribute8 = customsDescription;
           }
-
+          if (pvxMid !== mid) {
+            updatePayload.Attribute7 = mid;
+          }
+          
           if (Object.keys(updatePayload).length > 1) {
             piles.peoplevoxItemsEdit.push(updatePayload);
           }
@@ -208,9 +219,10 @@ const collabsCustomsDataSweep = async () => {
             hs_code: starshipitHsCode,          
             customs_description: starshipitCustomsDescription,
             country: starshipitCountry,
+            mid: starshipitMid,
           } = starshipitItem;
   
-          if (!(starshipitHsCode === hsCodeUs && starshipitCustomsDescription === customsDescription && starshipitCountry === countryOfOrigin)) {
+          if (!(starshipitHsCode === hsCodeUs && starshipitCustomsDescription === customsDescription && starshipitCountry === countryOfOrigin && starshipitMid === mid)) {
             const starshipitUpdateArgs = [
               'wf',
               starshipitProductId,
@@ -219,6 +231,7 @@ const collabsCustomsDataSweep = async () => {
                 hs_code: hsCodeUs,
                 customs_description: customsDescription,
                 country: countryOfOrigin,
+                mid,
               },
             ];
             // logDeep(starshipitUpdateArgs);
@@ -238,6 +251,7 @@ const collabsCustomsDataSweep = async () => {
                 hsCode: hsCodeUs,
                 customsDescription: customsDescription,
                 country: countryOfOrigin,
+                mid,
               },
             ];
             // logDeep(starshipitAddArgs);
@@ -268,6 +282,7 @@ const collabsCustomsDataSweep = async () => {
           mfCustomsDescription,
           mfHsCode,
           mfCountryCodeOfOrigin,
+          mfMid,
         } = shopifyRegionProduct;
 
         const relevantHsCode = region === 'uk' ? hsCodeUk : hsCodeUs;
@@ -275,6 +290,7 @@ const collabsCustomsDataSweep = async () => {
         const updateCustomsDescription = customsDescription && (mfCustomsDescription?.value !== customsDescription);
         const updateHsCode = relevantHsCode && (mfHsCode?.value !== relevantHsCode);
         const updateCountryCodeOfOrigin = countryCodeOfOrigin && (mfCountryCodeOfOrigin?.value !== countryCodeOfOrigin);
+        const updateMid = mid && (mfMid?.value !== mid);
 
         if (updateCustomsDescription) {
           const metafields = [{
@@ -307,6 +323,18 @@ const collabsCustomsDataSweep = async () => {
             key: 'country_code_of_origin',
             type: 'single_line_text_field',
             value: String(countryCodeOfOrigin),
+          }];
+          const shopifyMetafieldsSetArgs = [region, metafields];
+          piles.shopifyMetafieldsSet.push(shopifyMetafieldsSetArgs);
+        }
+
+        if (updateMid) {
+          const metafields = [{
+            ownerId: productGid,
+            namespace: 'shipping_data',
+            key: 'mids',
+            type: 'single_line_text_field',
+            value: String(mid),
           }];
           const shopifyMetafieldsSetArgs = [region, metafields];
           piles.shopifyMetafieldsSet.push(shopifyMetafieldsSetArgs);
