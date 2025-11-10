@@ -1,11 +1,6 @@
 const { funcApi } = require('../utils');
 
-const collabsCustomsDataCleanse = async (
-  arg,
-  {
-    option,
-  } = {},
-) => {
+const collabsCustomsDataCleanse = async () => {
 
   return { 
     arg, 
@@ -15,7 +10,7 @@ const collabsCustomsDataCleanse = async (
 };
 
 const collabsCustomsDataCleanseApi = funcApi(collabsCustomsDataCleanse, {
-  argNames: ['arg', 'options'],
+  argNames: ['options'],
 });
 
 module.exports = {
@@ -23,4 +18,4 @@ module.exports = {
   collabsCustomsDataCleanseApi,
 };
 
-// curl localhost:8000/collabsCustomsDataCleanse -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/collabsCustomsDataCleanse
