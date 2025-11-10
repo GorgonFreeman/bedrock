@@ -165,12 +165,7 @@ const collabsCustomsDataSweep = async () => {
       }
 
       const skus = shopifyAuProduct?.variants.map(v => v.sku);
-      let mid = shopifyAuProduct?.mfMid?.value;
-
-      if (!mid) {
-        // Assign MID - will be set in the region loop below
-        mid = randomItem(MIDS_WF);
-      }
+      const mid = shopifyAuProduct?.mfMid?.value || randomItem(MIDS_WF); // assign MID if not set
 
       const peoplevoxItems = piles.inPeoplevox.filter(item => skus.includes(item['Item code']));
       if (peoplevoxItems?.length) {
