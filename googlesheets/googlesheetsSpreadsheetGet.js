@@ -1,8 +1,7 @@
 // https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets/get
 
-const { google } = require('googleapis');
-
-const { funcApi, credsByPath } = require('../utils');
+const { funcApi } = require('../utils');
+const { getGoogleSheetsClient } = require('./googlesheets.utils');
 
 const googlesheetsSpreadsheetGet = async (
   spreadsheetId,
@@ -11,20 +10,9 @@ const googlesheetsSpreadsheetGet = async (
   } = {},
 ) => {
 
-  const creds = credsByPath(['googlesheets', credsPath]);
-  const { SERVICE_ACCOUNT_JSON } = creds;
+  const sheetsClient = getGoogleSheetsClient({ credsPath });
 
-  const auth = new google.auth.GoogleAuth({
-    credentials: SERVICE_ACCOUNT_JSON,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
-  
-  const sheets = google.sheets({
-    version: 'v4',
-    auth,
-  });
-
-  const response = await sheets.spreadsheets.get({
+  const response = await sheetsClient.spreadsheets.get({
     spreadsheetId,
   });
 
