@@ -177,6 +177,7 @@ module.exports = {
   iwishCustomerWishlistGet: require('./iwish/iwishCustomerWishlistGet').iwishCustomerWishlistGetApi,
   iwishStoreWishlistDataGet: require('./iwish/iwishStoreWishlistDataGet').iwishStoreWishlistDataGetApi,
   googlesheetsSpreadsheetGet: require('./googlesheets/googlesheetsSpreadsheetGet').googlesheetsSpreadsheetGetApi,
+  googlesheetsSpreadsheetTrim: require('./googlesheets/googlesheetsSpreadsheetTrim').googlesheetsSpreadsheetTrimApi,
   etsyAccessTokenRefresh: require('./etsy/etsyAccessTokenRefresh').etsyAccessTokenRefreshApi,
   etsyAccessTokenRequest: require('./etsy/etsyAccessTokenRequest').etsyAccessTokenRequestApi,
   etsyAllListingsGetActive: require('./etsy/etsyAllListingsGetActive').etsyAllListingsGetActiveApi,
