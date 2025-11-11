@@ -56,7 +56,6 @@ const slackInteractiveStockCheck = async (req, res) => {
 
     return respond(res, 200, {
       response_type: 'in_channel',
-      text: `Let's do a stock check! Which store do you want to do?`,
       blocks: initialBlocks,
     });
   }
