@@ -40,6 +40,7 @@ module.exports = {
   starshipitProductsDelete: require('./starshipit/starshipitProductsDelete').starshipitProductsDeleteApi,
   starshipitProductsGet: require('./starshipit/starshipitProductsGet').starshipitProductsGetApi,
   starshipitTrackingGet: require('./starshipit/starshipitTrackingGet').starshipitTrackingGetApi,
+  slackInteractiveStockCheck: require('./slack/slackInteractiveStockCheck').slackInteractiveStockCheckApi,
   slackMessageDelete: require('./slack/slackMessageDelete').slackMessageDeleteApi,
   slackMessagePost: require('./slack/slackMessagePost').slackMessagePostApi,
   slackMessagePostEphemeral: require('./slack/slackMessagePostEphemeral').slackMessagePostEphemeralApi,
