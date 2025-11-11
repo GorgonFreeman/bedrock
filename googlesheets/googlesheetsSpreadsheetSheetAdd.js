@@ -110,5 +110,5 @@ module.exports = {
   googlesheetsSpreadsheetSheetAddApi,
 };
 
-// curl localhost:8000/googlesheetsSpreadsheetSheetAdd -H "Content-Type: application/json" -d '{ "spreadsheetIdentifier": { "spreadsheetId": "1RuI7MrZ0VPGBLd4EXRIfDy7DVdtcdDKKbA8C5UBJQTM" }, "data": { "objArray": [{ "fruit": "apple", "colour": "red" }, { "fruit": "kiwi", "colour": "green" }] } }, "options": { "sheetName": "Fruits <3" } }'
+// curl localhost:8000/googlesheetsSpreadsheetSheetAdd -H "Content-Type: application/json" -d '{ "spreadsheetIdentifier": { "spreadsheetId": "1RuI7MrZ0VPGBLd4EXRIfDy7DVdtcdDKKbA8C5UBJQTM" }, "data": { "objArray": [{ "fruit": "apple", "colour": "red", "type": "Fuji" }, { "fruit": "kiwi", "colour": "green", "price": "11.50" }] }, "options": { "sheetName": "Fruits <3" } }'
 
