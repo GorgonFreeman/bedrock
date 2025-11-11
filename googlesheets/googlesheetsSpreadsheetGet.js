@@ -4,7 +4,7 @@ const { google } = require('googleapis');
 
 const { funcApi, credsByPath } = require('../utils');
 
-const googlesheetsSpreadsheetGetData = async (
+const googlesheetsSpreadsheetGet = async (
   spreadsheetId,
   {
     credsPath,
@@ -31,14 +31,15 @@ const googlesheetsSpreadsheetGetData = async (
   return response;
 };
 
-const googlesheetsSpreadsheetGetDataApi = funcApi(googlesheetsSpreadsheetGetData, {
+const googlesheetsSpreadsheetGetApi = funcApi(googlesheetsSpreadsheetGet, {
   argNames: ['spreadsheetId', 'options'],
 });
 
 module.exports = {
-  googlesheetsSpreadsheetGetData,
-  googlesheetsSpreadsheetGetDataApi,
+  googlesheetsSpreadsheetGet,
+  googlesheetsSpreadsheetGetApi,
 };
 
-// curl localhost:8000/googlesheetsSpreadsheetGetData -H "Content-Type: application/json" -d '{ "spreadsheetId": "..." }'
-// curl localhost:8000/googlesheetsSpreadsheetGetData -H "Content-Type: application/json" -d '{ "spreadsheetId": "1RuI7MrZ0VPGBLd4EXRIfDy7DVdtcdDKKbA8C5UBJQTM" }'
+// curl localhost:8000/googlesheetsSpreadsheetGet -H "Content-Type: application/json" -d '{ "spreadsheetId": "..." }'
+// curl localhost:8000/googlesheetsSpreadsheetGet -H "Content-Type: application/json" -d '{ "spreadsheetId": "1RuI7MrZ0VPGBLd4EXRIfDy7DVdtcdDKKbA8C5UBJQTM" }'
+
