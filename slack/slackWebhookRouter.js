@@ -5,6 +5,7 @@ const actionNameToFunc = {
   'test': require('../slack/slackInteractiveTest'),
   'pizza': require('../slack/slackInteractiveTestMulti'),
   'suggestion_box': require('../slack/slackInteractiveSuggestionBox'),
+  'stock_check': require('../slack/slackInteractiveStockCheck'),
 };
 
 const slackWebhookRouterApi = async (req, res) => {
