@@ -111,6 +111,19 @@ const slackInteractiveStockCheck = async (req, res) => {
       // Run the inventory review
       const inventoryReviewResponse = await collabsInventoryReview(region);
 
+      const { 
+        success: inventoryReviewSuccess,
+        result: inventoryReviewResult,
+      } = inventoryReviewResponse;
+
+      if (!inventoryReviewSuccess) {
+        response = {
+          replace_original: 'true',
+          text: `Error checking ${ regionDisplay } stock: ${ JSON.stringify(inventoryReviewResponse) }\n\nJohnnnn :pleading_face:`,
+        };
+        break;
+      }
+
       response = {
         replace_original: 'true',
         blocks: [
@@ -125,7 +138,7 @@ const slackInteractiveStockCheck = async (req, res) => {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: JSON.stringify(inventoryReviewResponse).substring(0, 500),
+              text: JSON.stringify(inventoryReviewResult).substring(0, 500),
             },
           },
         ],
