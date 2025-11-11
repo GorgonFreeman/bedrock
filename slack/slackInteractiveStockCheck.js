@@ -30,7 +30,7 @@ const slackInteractiveStockCheck = async (req, res) => {
               text: 'AU',
             },
             value: 'au',
-            action_id: `${ ACTION_NAME }:region_select`,
+            action_id: `${ ACTION_NAME }:region_select:au`,
           },
           {
             type: 'button',
@@ -39,7 +39,7 @@ const slackInteractiveStockCheck = async (req, res) => {
               text: 'US',
             },
             value: 'us',
-            action_id: `${ ACTION_NAME }:region_select`,
+            action_id: `${ ACTION_NAME }:region_select:us`,
           },
           {
             type: 'button',
@@ -48,7 +48,7 @@ const slackInteractiveStockCheck = async (req, res) => {
               text: 'UK',
             },
             value: 'uk',
-            action_id: `${ ACTION_NAME }:region_select`,
+            action_id: `${ ACTION_NAME }:region_select:uk`,
           },
         ],
       },
