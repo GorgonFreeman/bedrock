@@ -1,6 +1,7 @@
 const { funcApi, objHasAny } = require('../utils');
 const { getGoogleSheetsClient } = require('../googlesheets/googlesheets.utils');
 const { spreadsheetHandleToSpreadsheetId } = require('../bedrock_unlisted/mappings');
+const { googlesheetsSpreadsheetTrim } = require('../googlesheets/googlesheetsSpreadsheetTrim');
 
 const googlesheetsSpreadsheetSheetAdd = async (
   {
@@ -13,6 +14,7 @@ const googlesheetsSpreadsheetSheetAdd = async (
   {
     sheetName = Date.now(),
     credsPath,
+    trim = true,
   } = {},
 ) => {
 
@@ -84,6 +86,14 @@ const googlesheetsSpreadsheetSheetAdd = async (
       values,
     },
   });
+
+  if (trim) {
+    // Trim, but don't particularly care about the result, and don't hold up response.
+    googlesheetsSpreadsheetTrim(
+      { spreadsheetId, spreadsheetHandle },
+      { credsPath },
+    );
+  }
 
   return {
     success: true,
