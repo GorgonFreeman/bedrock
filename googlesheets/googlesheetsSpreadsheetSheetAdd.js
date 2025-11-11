@@ -7,6 +7,10 @@ const googlesheetsSpreadsheetSheetAdd = async (
     spreadsheetHandle,
   },
   {
+    objArray,
+  },
+  {
+    sheetName,
     credsPath,
   } = {},
 ) => {
@@ -32,9 +36,10 @@ const googlesheetsSpreadsheetSheetAdd = async (
 };
 
 const googlesheetsSpreadsheetSheetAddApi = funcApi(googlesheetsSpreadsheetSheetAdd, {
-  argNames: ['spreadsheetIdentifier', 'options'],
+  argNames: ['spreadsheetIdentifier', 'data', 'options'],
   validatorsByArg: {
     spreadsheetIdentifier: p => objHasAny(p, ['spreadsheetId', 'spreadsheetHandle']),
+    data: p => objHasAny(p, ['objArray']),
   },
 });
 
@@ -43,5 +48,5 @@ module.exports = {
   googlesheetsSpreadsheetSheetAddApi,
 };
 
-// curl localhost:8000/googlesheetsSpreadsheetSheetAdd -H "Content-Type: application/json" -d '{ "spreadsheetIdentifier": { "spreadsheetId": "1RuI7MrZ0VPGBLd4EXRIfDy7DVdtcdDKKbA8C5UBJQTM" } }'
+// curl localhost:8000/googlesheetsSpreadsheetSheetAdd -H "Content-Type: application/json" -d '{ "spreadsheetIdentifier": { "spreadsheetId": "1RuI7MrZ0VPGBLd4EXRIfDy7DVdtcdDKKbA8C5UBJQTM" }, "data": { "objArray": [{ "fruit": "apple", "colour": "red" }, { "fruit": "kiwi", "colour": "green" }] } }, "options": { "sheetName": "Fruits <3" } }'
 
