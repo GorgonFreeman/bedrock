@@ -1,6 +1,6 @@
 const { respond, logDeep, customAxios } = require('../utils');
 
-const ACTION_NAME = 'slash_command'; // slash command
+const COMMAND_NAME = 'slash_command'; // slash command
 
 const FUNC = async (req, res) => {
   console.log('FUNC');

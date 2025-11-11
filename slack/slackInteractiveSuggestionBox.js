@@ -2,7 +2,7 @@ const { respond, logDeep, customAxios, capitaliseString } = require('../utils');
 
 const { slackMessagePost } = require('../slack/slackMessagePost');
 
-const ACTION_NAME = 'suggestion_box';
+const COMMAND_NAME = 'suggestion_box';
 const SUGGESTIONS_BOX_SLACK_CHANNEL = '#suggestion_box';
 const SUGGESTION_MIN_LENGTH = 10;
 const SUGGESTION_MAX_LENGTH = 500;
@@ -94,7 +94,7 @@ const submitActionBlock = {
         text: SUBMIT_BUTTON_TEXT,
       },
       value: 'submit',
-      action_id: `${ ACTION_NAME }:submit`,
+      action_id: `${ COMMAND_NAME }:submit`,
       style: 'primary',
     },
     {
@@ -104,7 +104,7 @@ const submitActionBlock = {
         text: CANCEL_BUTTON_TEXT,
       },
       value: 'cancel',
-      action_id: `${ ACTION_NAME }:cancel`,
+      action_id: `${ COMMAND_NAME }:cancel`,
     }
   ]
 };
@@ -176,7 +176,7 @@ const slackInteractiveSuggestionBox = async (req, res) => {
   const { text: commandText } = body;
 
   if (commandText) {
-    console.log(`Full slack command with command text > /${ ACTION_NAME } ${ commandText }`);
+    console.log(`Full slack command with command text > /${ COMMAND_NAME } ${ commandText }`);
 
     const {
       response_url: responseUrl,
@@ -243,7 +243,7 @@ const slackInteractiveSuggestionBox = async (req, res) => {
   let isAnonymous;
 
   switch (actionId) {
-    case `${ ACTION_NAME }:submit`:
+    case `${ COMMAND_NAME }:submit`:
 
       suggestion = Object.values(state?.values?.suggestion_textfield || {})?.[0]?.value;
       suggestion = suggestion?.trim();
@@ -297,7 +297,7 @@ const slackInteractiveSuggestionBox = async (req, res) => {
       };
       break;
 
-    case `${ ACTION_NAME }:cancel`:
+    case `${ COMMAND_NAME }:cancel`:
 
       response = {
         response_type: 'ephemeral',

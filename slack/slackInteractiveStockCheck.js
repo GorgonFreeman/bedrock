@@ -1,7 +1,7 @@
 const { respond, logDeep, customAxios } = require('../utils');
 const { collabsInventoryReview } = require('../collabs/collabsInventoryReview');
 
-const ACTION_NAME = 'stock_check';
+const COMMAND_NAME = 'stock_check';
 
 const slackInteractiveStockCheck = async (req, res) => {
   console.log('slackInteractiveStockCheck');
@@ -30,7 +30,7 @@ const slackInteractiveStockCheck = async (req, res) => {
               text: 'AU',
             },
             value: 'au',
-            action_id: `${ ACTION_NAME }:region_select:au`,
+            action_id: `${ COMMAND_NAME }:region_select:au`,
           },
           {
             type: 'button',
@@ -39,7 +39,7 @@ const slackInteractiveStockCheck = async (req, res) => {
               text: 'US',
             },
             value: 'us',
-            action_id: `${ ACTION_NAME }:region_select:us`,
+            action_id: `${ COMMAND_NAME }:region_select:us`,
           },
           {
             type: 'button',
@@ -48,7 +48,7 @@ const slackInteractiveStockCheck = async (req, res) => {
               text: 'UK',
             },
             value: 'uk',
-            action_id: `${ ACTION_NAME }:region_select:uk`,
+            action_id: `${ COMMAND_NAME }:region_select:uk`,
           },
         ],
       },
@@ -90,7 +90,7 @@ const slackInteractiveStockCheck = async (req, res) => {
   let response;
 
   switch (actionId) {
-    case `${ ACTION_NAME }:region_select`:
+    case `${ COMMAND_NAME }:region_select`:
       const region = actionValue.toLowerCase();
       const regionUpper = region.toUpperCase();
 

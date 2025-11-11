@@ -1,7 +1,7 @@
 const { respond, logDeep } = require('../utils');
 const { TEAM_DOMAIN_TO_CREDSPATH } = require('../slack/slack.constants');
 
-const actionNameToFunc = {
+const commandNameToFunc = {
   'test': require('../slack/slackInteractiveTest'),
   'pizza': require('../slack/slackInteractiveTestMulti'),
   'suggestion_box': require('../slack/slackInteractiveSuggestionBox'),
@@ -12,7 +12,7 @@ const slackWebhookRouterApi = async (req, res) => {
   // TODO: Verify request is from Slack
 
   let credsPath;
-  let actionName;
+  let commandName;
 
   const { body } = req;
   
@@ -28,8 +28,8 @@ const slackWebhookRouterApi = async (req, res) => {
 
     credsPath = TEAM_DOMAIN_TO_CREDSPATH[teamDomain];
 
-    // TODO: Get actionName from action_id
-    actionName = payload?.actions?.[0]?.action_id?.split(':')?.[0];
+    // TODO: Get commandName from action_id
+    commandName = payload?.actions?.[0]?.action_id?.split(':')?.[0];
 
   } else {
 
@@ -43,7 +43,7 @@ const slackWebhookRouterApi = async (req, res) => {
 
     credsPath = TEAM_DOMAIN_TO_CREDSPATH[teamDomain];
 
-    actionName = command.replace('/', '');
+    commandName = command.replace('/', '');
 
   }
 
@@ -51,11 +51,11 @@ const slackWebhookRouterApi = async (req, res) => {
     return respond(res, 400, { error: `No creds path found for team domain` });
   }
 
-  const interactivityFunc = actionNameToFunc[actionName];
+  const interactivityFunc = commandNameToFunc[commandName];
   console.log('interactivityFunc', interactivityFunc);
 
   if (!interactivityFunc) {
-    return respond(res, 400, { error: `No function found for command "${ actionName }"` });
+    return respond(res, 400, { error: `No function found for command "${ commandName }"` });
   }
 
   return interactivityFunc(req, res);

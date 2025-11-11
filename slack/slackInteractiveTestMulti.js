@@ -1,6 +1,6 @@
 const { respond, logDeep, customAxios } = require('../utils');
 
-const ACTION_NAME = 'pizza';
+const COMMAND_NAME = 'pizza';
 
 const slackInteractiveTestMulti = async (req, res) => {
   console.log('slackInteractiveTestMulti');
@@ -21,7 +21,7 @@ const slackInteractiveTestMulti = async (req, res) => {
         },
         accessory: {
           type: 'static_select',
-          action_id: `${ ACTION_NAME }:topping_select`,
+          action_id: `${ COMMAND_NAME }:topping_select`,
           options: pizzaToppings.map(topping => ({
             text: {
               type: 'plain_text',
@@ -41,7 +41,7 @@ const slackInteractiveTestMulti = async (req, res) => {
               text: 'Cancel',
             },
             value: 'cancel',
-            action_id: `${ ACTION_NAME }:cancel`,
+            action_id: `${ COMMAND_NAME }:cancel`,
           },
           {
             type: 'button',
@@ -50,7 +50,7 @@ const slackInteractiveTestMulti = async (req, res) => {
               text: `I'm done`,
             },
             value: 'done',
-            action_id: `${ ACTION_NAME }:done`,
+            action_id: `${ COMMAND_NAME }:done`,
             style: 'primary',
           },
         ],
@@ -91,7 +91,7 @@ const slackInteractiveTestMulti = async (req, res) => {
 
   switch (actionId) {
     // TODO: Consider having user submit topping and using state, rather than recording toppings on change
-    case `${ ACTION_NAME }:topping_select`:
+    case `${ COMMAND_NAME }:topping_select`:
 
       const chosenTopping = action.selected_option.value;
 
@@ -127,13 +127,13 @@ const slackInteractiveTestMulti = async (req, res) => {
       };
 
       break;
-    case `${ ACTION_NAME }:cancel`:
+    case `${ COMMAND_NAME }:cancel`:
       response = {
         replace_original: 'true',
         text: `More pizza for me :yum:`,
       };
       break;
-    case `${ ACTION_NAME }:done`:
+    case `${ COMMAND_NAME }:done`:
       response = {
         replace_original: 'true',
         text: toppings.length 
