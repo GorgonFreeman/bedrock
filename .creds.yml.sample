@@ -98,6 +98,11 @@ youtube:
   CLIENT_ID: __________________________  # Google Cloud Console > APIs & Services > Credentials > Create Credentials > OAuth client ID
   CLIENT_SECRET: ______________________  # Google Cloud Console > APIs & Services > Credentials > Create Credentials > OAuth client ID > Email Me My Security Token
 
+googlesheets:
+  BASE_URL: https://sheets.googleapis.com/v4
+  API_KEY: ____________________________  # Google Cloud Console > APIs & Services > Credentials > Create Credentials > API Key (for public sheets)
+  ACCESS_TOKEN: _______________________  # OAuth 2.0 access token (for private sheets) - Get from OAuth flow or Service Account
+
 swap:
   acc:
     BASE_URL: https://returnsportal.co/api/1.1/xx
