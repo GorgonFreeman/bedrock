@@ -28,7 +28,7 @@ const slackWebhookRouterApi = async (req, res) => {
 
     credsPath = TEAM_DOMAIN_TO_CREDSPATH[teamDomain];
 
-    // TODO: Get commandName from action_id
+    // Get commandName from action_id
     commandName = payload?.actions?.[0]?.action_id?.split(':')?.[0];
 
   } else {
