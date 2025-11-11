@@ -1,7 +1,7 @@
 // https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets/get
 
 const { funcApi, objHasAny } = require('../utils');
-const { getGoogleSheetsClient } = require('./googlesheets.utils');
+const { getGoogleSheetsClient } = require('../googlesheets/googlesheets.utils');
 const { spreadsheetHandleToSpreadsheetId } = require('../bedrock_unlisted/mappings');
 
 const googlesheetsSpreadsheetGet = async (
