@@ -1,14 +1,29 @@
 // https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets/get
 
-const { funcApi } = require('../utils');
+const { funcApi, objHasAny } = require('../utils');
 const { getGoogleSheetsClient } = require('./googlesheets.utils');
+const { spreadsheetHandleToSpreadsheetId } = require('../bedrock_unlisted/mappings');
 
 const googlesheetsSpreadsheetGet = async (
-  spreadsheetId,
+  {
+    spreadsheetId,
+    spreadsheetHandle,
+  },
   {
     credsPath,
   } = {},
 ) => {
+
+  if (!spreadsheetId) {
+    spreadsheetId = spreadsheetHandleToSpreadsheetId[spreadsheetHandle];
+  }
+
+  if (!spreadsheetId) {
+    return {
+      success: false,
+      errors: [`Couldn't get a spreadsheet ID from ${ spreadsheetHandle }`],
+    };
+  }
 
   const sheetsClient = getGoogleSheetsClient({ credsPath });
 
@@ -20,7 +35,10 @@ const googlesheetsSpreadsheetGet = async (
 };
 
 const googlesheetsSpreadsheetGetApi = funcApi(googlesheetsSpreadsheetGet, {
-  argNames: ['spreadsheetId', 'options'],
+  argNames: ['spreadsheetIdentifier', 'options'],
+  validatorsByArg: {
+    spreadsheetIdentifier: p => objHasAny(p, ['spreadsheetId', 'spreadsheetHandle']),
+  },
 });
 
 module.exports = {
@@ -28,6 +46,5 @@ module.exports = {
   googlesheetsSpreadsheetGetApi,
 };
 
-// curl localhost:8000/googlesheetsSpreadsheetGet -H "Content-Type: application/json" -d '{ "spreadsheetId": "..." }'
-// curl localhost:8000/googlesheetsSpreadsheetGet -H "Content-Type: application/json" -d '{ "spreadsheetId": "1RuI7MrZ0VPGBLd4EXRIfDy7DVdtcdDKKbA8C5UBJQTM" }'
+// curl localhost:8000/googlesheetsSpreadsheetGet -H "Content-Type: application/json" -d '{ "spreadsheetIdentifier": { "spreadsheetId": "1RuI7MrZ0VPGBLd4EXRIfDy7DVdtcdDKKbA8C5UBJQTM" } }'
 
