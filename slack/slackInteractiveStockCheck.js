@@ -87,17 +87,19 @@ const slackInteractiveStockCheck = async (req, res) => {
     actionValue,
   });
 
+  const [commandName, actionName, ...actionNodes] = actionId.split(':');
+
   let response;
 
-  switch (actionId) {
-    case `${ COMMAND_NAME }:region_select`:
-      const region = actionValue.toLowerCase();
-      const regionUpper = region.toUpperCase();
+  switch (actionName) {
+    case 'region_select':
+      const region = actionValue;
+      const regionDisplay = region.toUpperCase();
 
       // Show "Checking [REGION] stock..." message
       response = {
         replace_original: 'true',
-        text: `Checking ${ regionUpper } stock...`,
+        text: `Checking ${ regionDisplay } stock...`,
       };
 
       // Send the loading message first
@@ -107,78 +109,29 @@ const slackInteractiveStockCheck = async (req, res) => {
       });
 
       // Run the inventory review
-      const inventoryResult = await collabsInventoryReview(region);
-
-      // Format the results
-      let resultText = `Stock check for ${ regionUpper }:\n\n`;
-
-      if (!inventoryResult.success) {
-        resultText += `❌ Error: ${ inventoryResult.message || inventoryResult.error || 'Unknown error' }`;
-      } else {
-        const inventoryData = inventoryResult.result;
-        const skus = Object.keys(inventoryData);
-        const totalSkus = skus.length;
-
-        resultText += `✅ Completed! Reviewed ${ totalSkus } SKUs.\n\n`;
-
-        // Show summary statistics
-        let itemsWithDiff = 0;
-        let itemsWithOversellRisk = 0;
-
-        for (const sku of skus) {
-          const item = inventoryData[sku];
-          const diffProp = Object.keys(item).find(key => key.toLowerCase().includes('diff'));
-          const oversellRiskProp = Object.keys(item).find(key => key.toLowerCase().includes('oversellrisk'));
-
-          if (diffProp && item[diffProp] > 0) {
-            itemsWithDiff++;
-          }
-          if (oversellRiskProp && item[oversellRiskProp]) {
-            itemsWithOversellRisk++;
-          }
-        }
-
-        resultText += `📊 Summary:\n`;
-        resultText += `• Items with differences: ${ itemsWithDiff }\n`;
-        resultText += `• Items with oversell risk: ${ itemsWithOversellRisk }\n`;
-
-        // Show top 10 items with differences (if any)
-        if (itemsWithDiff > 0) {
-          const itemsArray = skus.map(sku => ({
-            sku,
-            ...inventoryData[sku],
-          }));
-
-          const diffProp = Object.keys(itemsArray[0]).find(key => key.toLowerCase().includes('diff'));
-          const oversellRiskProp = Object.keys(itemsArray[0]).find(key => key.toLowerCase().includes('oversellrisk'));
-
-          itemsArray.sort((a, b) => {
-            if (a[oversellRiskProp] && !b[oversellRiskProp]) return -1;
-            if (!a[oversellRiskProp] && b[oversellRiskProp]) return 1;
-            return (b[diffProp] || 0) - (a[diffProp] || 0);
-          });
-
-          const topItems = itemsArray.slice(0, 10).filter(item => item[diffProp] > 0);
-
-          if (topItems.length > 0) {
-            resultText += `\n🔍 Top items with differences:\n`;
-            for (const item of topItems) {
-              const shopifyQty = item.shopifyAvailable || 0;
-              const wmsQty = item.logiwaSellable || item.pvxAvailable || item.bleckmannAvailable || 0;
-              const diff = item[diffProp];
-              const risk = item[oversellRiskProp] ? '⚠️' : '';
-              resultText += `• ${ item.sku }: Shopify ${ shopifyQty } vs WMS ${ wmsQty } (diff: ${ diff }) ${ risk }\n`;
-            }
-          }
-        }
-      }
+      const inventoryReviewResponse = await collabsInventoryReview(region);
 
       response = {
         replace_original: 'true',
-        text: resultText,
+        blocks: [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `Stock check for ${ regionDisplay }:\n\n`,
+            },
+          },
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: JSON.stringify(inventoryReviewResponse),
+            },
+          },
+        ],
       };
-
       break;
+      
     default:
       throw new Error(`Unknown actionId: ${ actionId }`);
   }
