@@ -82,7 +82,7 @@ const slackInteractiveTestMulti = async (req, res) => {
     value: actionValue,
   } = action;
 
-  // TODO: Derive toppings from posted message, and use it as persistent state
+  // Derive toppings from posted message, and use it as persistent state
   const currentBlocks = payload.message.blocks;
   const toppingsBlock = currentBlocks.find(block => block.block_id === 'toppingsState');
   let toppings = toppingsBlock?.text?.text?.split(', ') || [];
