@@ -40,26 +40,53 @@ const googlesheetsSpreadsheetTrim = async (
     };
   }
 
-  // Process all sheets to determine what needs trimming
+  // Filter sheets with valid grid properties and prepare ranges for batch fetch
+  const sheetsToProcess = sheetsArray
+    .map(sheet => {
+      const { properties } = sheet;
+      const { sheetId, title: sheetTitle, gridProperties } = properties;
+      const { rowCount, columnCount } = gridProperties || {};
+      
+      if (!rowCount || !columnCount) {
+        return null;
+      }
+      
+      return {
+        sheetId,
+        sheetTitle,
+        rowCount,
+        columnCount,
+      };
+    })
+    .filter(Boolean);
+
+  if (sheetsToProcess.length === 0) {
+    return {
+      success: true,
+      message: 'No sheets with valid grid properties found',
+      sheetsProcessed: sheetsArray.length,
+      sheetsTrimmed: 0,
+      sheetResults: [],
+    };
+  }
+
+  // Fetch all sheet values in a single batch API call (much more efficient)
+  const { data: batchValuesData } = await sheetsClient.spreadsheets.values.batchGet({
+    spreadsheetId,
+    ranges: sheetsToProcess.map(sheet => `${ sheet.sheetTitle }!A:ZZ`),
+  });
+
+  const { valueRanges } = batchValuesData;
+
+  // Process each sheet's data to determine trimming needs
   const trimRequests = [];
   const sheetResults = [];
 
-  for (const sheet of sheetsArray) {
-    const { properties } = sheet;
-    const { sheetId, title: sheetTitle, gridProperties } = properties;
-    const { rowCount, columnCount } = gridProperties || {};
-
-    if (!rowCount || !columnCount) {
-      continue;
-    }
-
-    // Get values for this sheet
-    const { data: valuesData } = await sheetsClient.spreadsheets.values.get({
-      spreadsheetId,
-      range: `${ sheetTitle }!A:ZZ`,
-    });
-
-    const { values } = valuesData || {};
+  for (let i = 0; i < sheetsToProcess.length; i++) {
+    const sheet = sheetsToProcess[i];
+    const { sheetId, sheetTitle, rowCount, columnCount } = sheet;
+    const valueRange = valueRanges[i];
+    const { values } = valueRange || {};
 
     if (!values || values.length === 0) {
       // Sheet is empty, trim everything except first row and column
@@ -95,13 +122,20 @@ const googlesheetsSpreadsheetTrim = async (
           newRows: 1,
           newColumns: 1,
         });
+      } else {
+        sheetResults.push({
+          sheetTitle,
+          sheetId,
+          trimmed: false,
+          message: 'No trimming needed',
+        });
       }
       continue;
     }
 
     // Find max rows and columns with data
     let maxRows = values.length;
-    // More efficient: find max column length without sorting entire array
+    // Efficient: find max column length in single pass
     let maxCols = 0;
     for (const row of values) {
       if (row && row.length > maxCols) {
@@ -191,5 +225,5 @@ module.exports = {
   googlesheetsSpreadsheetTrimApi,
 };
 
-// curl localhost:8000/googlesheetsSpreadsheetTrim -H "Content-Type: application/json" -d '{ "spreadsheetIdentifier": { "spreadsheetId": "1RuI7MrZ0VPGBLd4EXRIfDy7DVdtcdDKKbA8C5UBJQTM" } }'
+// curl localhost:8000/googlesheetsSpreadsheetTrim -H "Content-Type: application/json" -d '{ "spreadsheetIdentifier": { "spreadsheetId": "1k1auuh73VEjq4g-jwKlfszexBZMsf5nFhQWaAQgmyVM" } }'
 
