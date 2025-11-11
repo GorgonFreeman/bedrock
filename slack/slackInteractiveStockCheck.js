@@ -1,35 +1,68 @@
-const { funcApi, logDeep } = require('../utils');
-const { slackClient } = require('../slack/slack.utils');
+const { respond, logDeep, customAxios } = require('../utils');
 
-const slackInteractiveStockCheck = async (
-  channelId,
-  timestamp,
-  {
-    credsPath,
-  } = {},
-) => {
-  const response = await slackClient.fetch({
-    url: '/chat.delete',
-    method: 'post',
-    body: {
-      channel: channelId,
-      ts: timestamp,
-    },
-    context: {
-      credsPath,
-    },
+const ACTION_NAME = 'stock_check';
+
+const slackInteractiveStockCheck = async (req, res) => {
+  console.log('slackInteractiveStockCheck');
+
+  const { body } = req;
+  
+  // If no payload, this is an initiation, e.g. slash command - send the initial blocks
+  if (!body?.payload) {
+
+    const initialBlocks = [
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `I don't do anything yet :hugging_face:`,
+        },
+      },
+    ];
+
+    return respond(res, 200, {
+      response_type: 'in_channel',
+      blocks: initialBlocks,
+    });
+  }
+
+  // Because we got to this point, we have a payload - handle as an interactive step
+  respond(res, 200); // Acknowledge immediately - we'll provide the next step to the response_url later
+
+  const payload = JSON.parse(body.payload);
+  logDeep('payload', payload);
+
+  const { 
+    response_url: responseUrl,
+    state, 
+    actions, 
+  } = payload;
+
+  const action = actions?.[0];
+  const { 
+    action_id: actionId,
+    value: actionValue,
+  } = action;
+
+  logDeep({
+    responseUrl,
+    state,
+    actionId,
+    actionValue,
   });
-  logDeep(response);
-  return response;
+
+  let response;
+
+  response = {
+    replace_original: 'true',
+    text: `I don't do anything yet :hugging_face:`,
+  };
+
+  logDeep('response', response);
+  return customAxios(responseUrl, {
+    method: 'post',
+    body: response,
+  });
 };
 
-const slackInteractiveStockCheckApi = funcApi(slackInteractiveStockCheck, {
-  argNames: ['channelId', 'timestamp', 'options'],
-});
-
-module.exports = {
-  slackInteractiveStockCheck,
-  slackInteractiveStockCheckApi,
-};
-
-// curl localhost:8000/slackInteractiveStockCheck -H "Content-Type: application/json" -d '{ "channelId": "C06GAG30145", "timestamp": "1756218276.372199" }'
+module.exports = slackInteractiveStockCheck;
