@@ -125,7 +125,7 @@ const slackInteractiveStockCheck = async (req, res) => {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: JSON.stringify(inventoryReviewResponse),
+              text: JSON.stringify(inventoryReviewResponse).substring(0, 500),
             },
           },
         ],
