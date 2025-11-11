@@ -100,8 +100,15 @@ youtube:
 
 googlesheets:
   BASE_URL: https://sheets.googleapis.com/v4
-  API_KEY: ____________________________  # Google Cloud Console > APIs & Services > Credentials > Create Credentials > API Key (for public sheets)
-  ACCESS_TOKEN: _______________________  # OAuth 2.0 access token (for private sheets) - Get from OAuth flow or Service Account
+  SERVICE_ACCOUNT_JSON: 
+    {
+      "type": "service_account",
+      "project_id": "your-project-id",
+      "private_key_id": "key-id",
+      "private_key": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n",
+      "client_email": "your-service-account@project.iam.gserviceaccount.com",
+      ...
+    }
 
 swap:
   acc:
