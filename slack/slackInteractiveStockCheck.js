@@ -1,5 +1,6 @@
 const { respond, logDeep, customAxios } = require('../utils');
 const { collabsInventoryReview } = require('../collabs/collabsInventoryReview');
+const { googlesheetsSpreadsheetSheetAdd } = require('../googlesheets/googlesheetsSpreadsheetSheetAdd');
 
 const COMMAND_NAME = 'stock_check';
 
@@ -124,6 +125,36 @@ const slackInteractiveStockCheck = async (req, res) => {
         break;
       }
 
+      const sheetAddResponse = await googlesheetsSpreadsheetSheetAdd(
+        {
+          spreadsheetHandle: 'foxtron_stock_check',
+        }, 
+        {
+          objArray: inventoryReviewResult,
+        },
+        {
+          sheetName: `${ regionDisplay } ${ Date.now() }`,
+        },
+      );
+
+      const {
+        success: sheetAddSuccess,
+        result: sheetAddResult,
+      } = sheetAddResponse;
+
+      // TODO: Provide a CSV file if sheet add fails
+      if (!sheetAddSuccess) {
+        response = {
+          replace_original: 'true',
+          text: `Error adding sheet to spreadsheet: ${ JSON.stringify(sheetAddResponse) }`,
+        };
+        break;
+      }
+
+      const  {
+        sheetUrl,
+      } = sheetAddResult;
+
       response = {
         replace_original: 'true',
         blocks: [
@@ -131,16 +162,10 @@ const slackInteractiveStockCheck = async (req, res) => {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `Stock check for ${ regionDisplay }:\n\n`,
+              text: `Stock check for ${ regionDisplay }: <${ sheetUrl }|sheet>`,
             },
           },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: JSON.stringify(inventoryReviewResult).substring(0, 500),
-            },
-          },
+          // TODO: Summarise the sheet info in the Slack message, e.g. max diff, whether it's within expected range, etc.
         ],
       };
       break;
