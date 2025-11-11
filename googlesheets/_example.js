@@ -1,4 +1,4 @@
-const { funcApi } = require('../utils');
+const { funcApi, objHasAny } = require('../utils');
 const { getGoogleSheetsClient } = require('../googlesheets/googlesheets.utils');
 
 const FUNC = async (
