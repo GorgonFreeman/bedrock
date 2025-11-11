@@ -1,5 +1,6 @@
 const { funcApi, objHasAny } = require('../utils');
 const { getGoogleSheetsClient } = require('../googlesheets/googlesheets.utils');
+const { spreadsheetHandleToSpreadsheetId } = require('../bedrock_unlisted/mappings');
 
 const googlesheetsSpreadsheetSheetAdd = async (
   {
@@ -10,7 +11,7 @@ const googlesheetsSpreadsheetSheetAdd = async (
     objArray,
   },
   {
-    sheetName,
+    sheetName = Date.now(),
     credsPath,
   } = {},
 ) => {
@@ -28,11 +29,72 @@ const googlesheetsSpreadsheetSheetAdd = async (
 
   const sheetsClient = getGoogleSheetsClient({ credsPath });
 
-  const response = await sheetsClient.spreadsheets.get({
+  // Collect all unique keys from all objects to create headers
+  const allKeys = new Set();
+  for (const obj of objArray) {
+    if (obj && typeof obj === 'object') {
+      Object.keys(obj).forEach(key => allKeys.add(key));
+    }
+  }
+  const headers = Array.from(allKeys);
+
+  if (headers.length === 0) {
+    return {
+      success: false,
+      errors: ['objArray contains no valid objects with keys'],
+    };
+  }
+
+  // Convert array of objects to 2D array (rows)
+  const values = [
+    headers, // Header row
+    ...objArray.map(obj => {
+      return headers.map(header => {
+        const value = obj?.[header];
+        // Convert null/undefined to empty string for Google Sheets
+        return value === null || value === undefined ? '' : value;
+      });
+    }),
+  ];
+
+  // Add the new sheet and write data in a batch operation
+  const { data: batchUpdateResponse } = await sheetsClient.spreadsheets.batchUpdate({
     spreadsheetId,
+    resource: {
+      requests: [
+        {
+          addSheet: {
+            properties: {
+              title: sheetName,
+            },
+          },
+        },
+      ],
+    },
   });
 
-  return response;
+  const newSheetId = batchUpdateResponse.replies[0].addSheet.properties.sheetId;
+
+  // Write the data to the new sheet
+  const { data: updateResponse } = await sheetsClient.spreadsheets.values.update({
+    spreadsheetId,
+    range: `${ sheetName }!A1`,
+    valueInputOption: 'RAW',
+    resource: {
+      values,
+    },
+  });
+
+  return {
+    success: true,
+    result: {
+      sheetId: newSheetId,
+      sheetName,
+      rowsAdded: values.length,
+      columnsAdded: headers.length,
+      updateResponse,
+    },
+  };
 };
 
 const googlesheetsSpreadsheetSheetAddApi = funcApi(googlesheetsSpreadsheetSheetAdd, {
