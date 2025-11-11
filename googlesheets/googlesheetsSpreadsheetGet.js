@@ -2,6 +2,8 @@
 
 const { funcApi, objHasAny } = require('../utils');
 const { getGoogleSheetsClient } = require('../googlesheets/googlesheets.utils');
+
+// TODO: Consider moving spreadsheet handle to id mapping into .creds for more extensible use
 const { spreadsheetHandleToSpreadsheetId } = require('../bedrock_unlisted/mappings');
 
 const googlesheetsSpreadsheetGet = async (
