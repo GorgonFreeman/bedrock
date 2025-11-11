@@ -3,7 +3,14 @@
 const { google } = require('googleapis');
 const { credsByPath } = require('../utils');
 
+const GOOGLE_SHEETS_CLIENTS = new Map();
+
 const getGoogleSheetsClient = ({ credsPath } = {}) => {
+
+  if (GOOGLE_SHEETS_CLIENTS.has(credsPath)) {
+    return GOOGLE_SHEETS_CLIENTS.get(credsPath);
+  }
+
   const creds = credsByPath(['googlesheets', credsPath]);
   const { SERVICE_ACCOUNT_JSON } = creds;
 
@@ -16,7 +23,8 @@ const getGoogleSheetsClient = ({ credsPath } = {}) => {
     version: 'v4',
     auth,
   });
-
+  
+  GOOGLE_SHEETS_CLIENTS.set(credsPath, sheets);
   return sheets;
 };
 
