@@ -95,11 +95,14 @@ const googlesheetsSpreadsheetSheetAdd = async (
     );
   }
 
+  const sheetUrl = `https://docs.google.com/spreadsheets/d/${ spreadsheetId }/edit#gid=${ newSheetId }`;
+
   return {
     success: true,
     result: {
       sheetId: newSheetId,
       sheetName,
+      sheetUrl,
       rowsAdded: values.length,
       columnsAdded: headers.length,
       updateResponse,
