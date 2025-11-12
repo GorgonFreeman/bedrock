@@ -247,7 +247,10 @@ const collabsInventoryReview = async (
 
   return { 
     success: true, 
-    result: inventoryReviewObject,
+    result: {
+      object: inventoryReviewObject,
+      array: inventoryReviewArray,
+    },
   };
   
 };
