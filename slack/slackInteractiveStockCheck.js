@@ -107,7 +107,7 @@ const blocks = {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `Stock check for ${ regionDisplay }: <${ sheetUrl }|sheet>`,
+        text: `Stock check for ${ regionDisplay }: <${ sheetUrl }|:google_sheets:>`,
       },
     };
   },
