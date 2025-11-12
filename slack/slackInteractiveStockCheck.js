@@ -1,6 +1,7 @@
 const { respond, logDeep, customAxios } = require('../utils');
 const { collabsInventoryReview } = require('../collabs/collabsInventoryReview');
 const { googlesheetsSpreadsheetSheetAdd } = require('../googlesheets/googlesheetsSpreadsheetSheetAdd');
+const { REGIONS_WF } = require('../constants');
 
 const COMMAND_NAME = 'stock_check';
 
@@ -15,35 +16,15 @@ const blocks = {
 
   region_select: {
     type: 'actions',
-    elements: [
-      {
-        type: 'button',
-        text: {
-          type: 'plain_text',
-          text: 'AU',
-        },
-        value: 'au',
-        action_id: `${ COMMAND_NAME }:region_select:au`,
+    elements: REGIONS_WF.map(region => ({
+      type: 'button',
+      text: {
+        type: 'plain_text',
+        text: region.toUpperCase(),
       },
-      {
-        type: 'button',
-        text: {
-          type: 'plain_text',
-          text: 'US',
-        },
-        value: 'us',
-        action_id: `${ COMMAND_NAME }:region_select:us`,
-      },
-      {
-        type: 'button',
-        text: {
-          type: 'plain_text',
-          text: 'UK',
-        },
-        value: 'uk',
-        action_id: `${ COMMAND_NAME }:region_select:uk`,
-      },
-    ],
+      value: region,
+      action_id: `${ COMMAND_NAME }:region_select:${ region }`,
+    })),
   },
 
   settings: {
@@ -100,85 +81,13 @@ const blocks = {
               type: 'plain_text',
               text: 'Min diff',
             },
-            options: [
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '0',
-                },
-                value: '0',
+            options: Array.from({ length: 11 }, (_, i) => ({
+              text: {
+                type: 'plain_text',
+                text: String(i),
               },
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '1',
-                },
-                value: '1',
-              },
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '2',
-                },
-                value: '2',
-              },
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '3',
-                },
-                value: '3',
-              },
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '4',
-                },
-                value: '4',
-              },
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '5',
-                },
-                value: '5',
-              },
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '6',
-                },
-                value: '6',
-              },
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '7',
-                },
-                value: '7',
-              },
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '8',
-                },
-                value: '8',
-              },
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '9',
-                },
-                value: '9',
-              },
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '10',
-                },
-                value: '10',
-              },
-            ],
+              value: String(i),
+            })),
             initial_option: {
               text: {
                 type: 'plain_text',
