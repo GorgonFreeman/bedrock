@@ -227,15 +227,19 @@ const collabsInventoryReview = async (
       ...value,
     };
   });
-  logDeep('inventoryReviewArray', inventoryReviewArray);
-  const diffProp = Object.keys(inventoryReviewArray?.[0])?.find(key => key.toLowerCase().includes('diff'));
-  logDeep('diffProp', diffProp);
+ 
+  const exampleItem = inventoryReviewArray?.[0];
+  const exampleItemKeys = Object.keys(exampleItem);
+
+  const diffProp = exampleItemKeys?.find(key => key.toLowerCase().includes('diff'));
+  const oversellRiskProp = exampleItemKeys?.find(key => key.toLowerCase().includes('oversellrisk'));
+  
+  // Sort biggest to smallest diff
   inventoryReviewArray = arraySortByProp(inventoryReviewArray, diffProp, { descending: true });
+  // Filter out < min diff
   inventoryReviewArray = inventoryReviewArray.filter(item => item[diffProp] >= minReportableDiff);
-  const oversellRiskProp = Object.keys(inventoryReviewArray?.[0])?.find(key => key.toLowerCase().includes('oversellrisk'));
-  logDeep('oversellRiskProp', oversellRiskProp);
+  // Sort to put oversell risk at the top (more in Shopify than WMS)
   inventoryReviewArray = arraySortByProp(inventoryReviewArray, oversellRiskProp, { descending: true });
-  logDeep('inventoryReviewArray', inventoryReviewArray);
 
   if (downloadCsv) {
     const csv = await json2csv(inventoryReviewArray);
