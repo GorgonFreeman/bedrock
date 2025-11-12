@@ -53,6 +53,20 @@ const slackInteractiveStockCheck = async (req, res) => {
           },
         ],
       },
+      {
+        type: 'actions',
+        elements: [
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'Settings :gear:',
+            },
+            value: 'open',
+            action_id: `${ COMMAND_NAME }:settings`,
+          },
+        ],
+      },
     ];
 
     return respond(res, 200, {
@@ -173,6 +187,19 @@ const slackInteractiveStockCheck = async (req, res) => {
           // TODO: Summarise the sheet info in the Slack message, e.g. max diff, whether it's within expected range, etc.
         ],
       };
+      break;
+
+    case 'settings':
+      switch (actionValue) {
+        case 'open':
+          break;
+        case 'close':
+          break;
+        case 'save':
+          break;
+        default:
+          throw new Error(`Unknown actionValue: ${ actionValue }`);
+      }
       break;
       
     default:
