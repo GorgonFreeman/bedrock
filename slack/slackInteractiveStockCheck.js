@@ -193,7 +193,8 @@ const slackInteractiveStockCheck = async (req, res) => {
       const inventoryReviewResponse = await collabsInventoryReview(region, {
         ...onlyPublishedProducts ? {
           shopifyVariantsFetchQueries: [
-            'product_publication_status:published',
+            'published_status:published',
+            'product_publication_status:approved',
           ],
         } : {},
         minReportableDiff: minDiff,
