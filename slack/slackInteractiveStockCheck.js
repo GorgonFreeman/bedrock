@@ -15,23 +15,91 @@ const blocks = {
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: `Let's do a stock check! Which store do you want to do?`,
+      text: `Let's do a stock check!`,
+    },
+  },
+
+  settings: {
+    heading: {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: '*Settings*',
+      },
+    },
+    inputs: {
+      type: 'actions',
+      elements: [
+        {
+          type: 'checkboxes',
+          action_id: `${ COMMAND_NAME }:settings:only_published`,
+          options: [
+            {
+              text: {
+                type: 'plain_text',
+                text: 'Only published products',
+              },
+              value: 'only_published',
+            },
+          ],
+          initial_options: config.onlyPublishedProducts ? [
+            {
+              text: {
+                type: 'plain_text',
+                text: 'Only published products',
+              },
+              value: 'only_published',
+            },
+          ] : [],
+        },
+        {
+          type: 'static_select',
+          action_id: `${ COMMAND_NAME }:settings:min_diff`,
+          placeholder: {
+            type: 'plain_text',
+            text: 'Min diff',
+          },
+          options: Array.from({ length: 11 }, (_, i) => ({
+            text: {
+              type: 'plain_text',
+              text: String(i),
+            },
+            value: String(i),
+          })),
+          initial_option: {
+            text: {
+              type: 'plain_text',
+              text: String(config.minDiff),
+            },
+            value: String(config.minDiff),
+          },
+        },
+      ],
     },
   },
 
   region_select: {
-    type: 'actions',
-    elements: REGIONS_WF.map(region => ({
-      type: 'button',
+    heading: {
+      type: 'section',
       text: {
-        type: 'plain_text',
-        text: region.toUpperCase(),
+        type: 'mrkdwn',
+        text: '*Select your store to start the check* :hugging_face:',
       },
-      value: region,
-      action_id: `${ COMMAND_NAME }:region_select:${ region }`,
-    })),
+    },
+    buttons: {
+      type: 'actions',
+      elements: REGIONS_WF.map(region => ({
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: region.toUpperCase(),
+        },
+        value: region,
+        action_id: `${ COMMAND_NAME }:region_select:${ region }`,
+      })),
+    },
   },
-
+  
   result: (regionDisplay, sheetUrl) => {
     return {
       type: 'section',
@@ -54,7 +122,10 @@ const slackInteractiveStockCheck = async (req, res) => {
 
     const initialBlocks = [
       blocks.intro,
-      blocks.region_select,
+      blocks.settings.heading,
+      blocks.settings.inputs,
+      blocks.region_select.heading,
+      blocks.region_select.buttons,
     ];
 
     return respond(res, 200, {
