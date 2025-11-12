@@ -5,6 +5,11 @@ const { REGIONS_WF } = require('../constants');
 
 const COMMAND_NAME = 'stock_check';
 
+let config = {
+  onlyPublishedProducts: true,
+  minDiff: 3,
+};
+
 const blocks = {
   intro: {
     type: 'section',
