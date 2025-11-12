@@ -293,7 +293,37 @@ const slackInteractiveStockCheck = async (req, res) => {
           };
           break;
         case 'save':
-          // TODO: Process settings changes and alter a global config
+          // Extract settings from state
+          const stateValues = state?.values || {};
+          
+          // Find the checkbox value for only_live
+          let onlyPublishedProducts = config.onlyPublishedProducts;
+          for (const blockId in stateValues) {
+            const blockState = stateValues[blockId];
+            const onlyLiveState = blockState[`${ COMMAND_NAME }:settings:only_live`];
+            if (onlyLiveState) {
+              onlyPublishedProducts = onlyLiveState.selected_options?.some(
+                option => option.value === 'only_live'
+              ) || false;
+              break;
+            }
+          }
+          
+          // Find the static_select value for min_diff
+          let minDiff = config.minDiff;
+          for (const blockId in stateValues) {
+            const blockState = stateValues[blockId];
+            const minDiffState = blockState[`${ COMMAND_NAME }:settings:min_diff`];
+            if (minDiffState?.selected_option?.value) {
+              minDiff = parseInt(minDiffState.selected_option.value, 10);
+              break;
+            }
+          }
+          
+          // Update config
+          config.onlyPublishedProducts = onlyPublishedProducts;
+          config.minDiff = minDiff;
+          
           response = {
             replace_original: 'true',
             blocks: [
