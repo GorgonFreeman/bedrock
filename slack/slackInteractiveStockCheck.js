@@ -391,11 +391,13 @@ const slackInteractiveStockCheck = async (req, res) => {
           break;
         default:
           console.warn(`Unknown actionNodes[0]: ${ actionNodes?.[0] }`);
+          return;
       }
       break;
       
     default:
       console.warn(`Unknown actionId: ${ actionId }`);
+      return;
   }
 
   logDeep('response', response);
