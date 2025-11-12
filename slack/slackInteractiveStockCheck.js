@@ -69,7 +69,7 @@ const blocks = {
                 value: 'only_live',
               },
             ],
-            initial_options: [
+            initial_options: config.onlyPublishedProducts ? [
               {
                 text: {
                   type: 'plain_text',
@@ -77,7 +77,7 @@ const blocks = {
                 },
                 value: 'only_live',
               },
-            ],
+            ] : [],
             action_id: `${ COMMAND_NAME }:settings:only_live`,
           },
           {
@@ -96,9 +96,9 @@ const blocks = {
             initial_option: {
               text: {
                 type: 'plain_text',
-                text: '3',
+                text: String(config.minDiff),
               },
-              value: '3',
+              value: String(config.minDiff),
             },
             action_id: `${ COMMAND_NAME }:settings:min_diff`,
           },
