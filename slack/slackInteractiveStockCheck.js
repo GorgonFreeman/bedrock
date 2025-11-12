@@ -218,6 +218,14 @@ const slackInteractiveStockCheck = async (req, res) => {
         array: inventoryReviewArray,
       } = inventoryReviewResult;
 
+      if (inventoryReviewArray?.length === 0) {
+        response = {
+          replace_original: 'true',
+          text: `Huh, it's empty - I guess there are no products on ${ regionDisplay } with less than ${ minDiff } diff.`,
+        };
+        break;
+      }
+
       const sheetAddResponse = await googlesheetsSpreadsheetSheetAdd(
         {
           spreadsheetHandle: 'foxtron_stock_check',
