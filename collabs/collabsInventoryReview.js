@@ -227,10 +227,13 @@ const collabsInventoryReview = async (
       ...value,
     };
   });
+  logDeep('inventoryReviewArray', inventoryReviewArray);
   const diffProp = Object.keys(inventoryReviewArray?.[0])?.find(key => key.toLowerCase().includes('diff'));
+  logDeep('diffProp', diffProp);
   inventoryReviewArray = arraySortByProp(inventoryReviewArray, diffProp, { descending: true });
   inventoryReviewArray = inventoryReviewArray.filter(item => item[diffProp] >= minReportableDiff);
   const oversellRiskProp = Object.keys(inventoryReviewArray?.[0])?.find(key => key.toLowerCase().includes('oversellrisk'));
+  logDeep('oversellRiskProp', oversellRiskProp);
   inventoryReviewArray = arraySortByProp(inventoryReviewArray, oversellRiskProp, { descending: true });
   logDeep('inventoryReviewArray', inventoryReviewArray);
 
