@@ -32,104 +32,6 @@ const blocks = {
     })),
   },
 
-  settings: {
-    closed: {
-      type: 'actions',
-      elements: [
-        {
-          type: 'button',
-          text: {
-            type: 'plain_text',
-            text: 'Settings :gear:',
-          },
-          value: 'settings:open',
-          action_id: `${ COMMAND_NAME }:settings:open`,
-        },
-      ],
-    },
-    open: [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: '*Settings*',
-        },
-      },
-      {
-        type: 'actions',
-        elements: [
-          {
-            type: 'checkboxes',
-            options: [
-              {
-                text: {
-                  type: 'plain_text',
-                  text: 'Only live products',
-                },
-                value: 'only_live',
-              },
-            ],
-            initial_options: config.onlyPublishedProducts ? [
-              {
-                text: {
-                  type: 'plain_text',
-                  text: 'Only live products',
-                },
-                value: 'only_live',
-              },
-            ] : [],
-            action_id: `${ COMMAND_NAME }:settings:only_live`,
-          },
-          {
-            type: 'static_select',
-            placeholder: {
-              type: 'plain_text',
-              text: 'Min diff',
-            },
-            options: Array.from({ length: 11 }, (_, i) => ({
-              text: {
-                type: 'plain_text',
-                text: String(i),
-              },
-              value: String(i),
-            })),
-            initial_option: {
-              text: {
-                type: 'plain_text',
-                text: String(config.minDiff),
-              },
-              value: String(config.minDiff),
-            },
-            action_id: `${ COMMAND_NAME }:settings:min_diff`,
-          },
-        ],
-      },
-      {
-        type: 'actions',
-        elements: [
-          {
-            type: 'button',
-            text: {
-              type: 'plain_text',
-              text: 'Cancel',
-            },
-            value: 'settings:close',
-            action_id: `${ COMMAND_NAME }:settings:close`,
-          },
-          {
-            type: 'button',
-            text: {
-              type: 'plain_text',
-              text: 'Save',
-            },
-            value: 'settings:save',
-            action_id: `${ COMMAND_NAME }:settings:save`,
-          },
-        ],
-      },
-    ],
-
-  },
   result: (regionDisplay, sheetUrl) => {
     return {
       type: 'section',
@@ -153,7 +55,6 @@ const slackInteractiveStockCheck = async (req, res) => {
     const initialBlocks = [
       blocks.intro,
       blocks.region_select,
-      blocks.settings.closed,
     ];
 
     return respond(res, 200, {
@@ -268,75 +169,6 @@ const slackInteractiveStockCheck = async (req, res) => {
           // TODO: Summarise the sheet info in the Slack message, e.g. max diff, whether it's within expected range, etc.
         ],
       };
-      break;
-
-    case 'settings':
-      switch (actionNodes?.[0]) {
-        case 'open':
-          response = {
-            replace_original: 'true',
-            blocks: [
-              blocks.intro,
-              blocks.region_select,
-              ...blocks.settings.open,
-            ],
-          };
-          break;
-        case 'close':
-          response = {
-            replace_original: 'true',
-            blocks: [
-              blocks.intro,
-              blocks.region_select,
-              blocks.settings.closed,
-            ],
-          };
-          break;
-        case 'save':
-          // Extract settings from state
-          const stateValues = state?.values || {};
-          
-          // Find the checkbox value for only_live
-          let onlyPublishedProducts = config.onlyPublishedProducts;
-          for (const blockId in stateValues) {
-            const blockState = stateValues[blockId];
-            const onlyLiveState = blockState[`${ COMMAND_NAME }:settings:only_live`];
-            if (onlyLiveState) {
-              onlyPublishedProducts = onlyLiveState.selected_options?.some(
-                option => option.value === 'only_live'
-              ) || false;
-              break;
-            }
-          }
-          
-          // Find the static_select value for min_diff
-          let minDiff = config.minDiff;
-          for (const blockId in stateValues) {
-            const blockState = stateValues[blockId];
-            const minDiffState = blockState[`${ COMMAND_NAME }:settings:min_diff`];
-            if (minDiffState?.selected_option?.value) {
-              minDiff = parseInt(minDiffState.selected_option.value, 10);
-              break;
-            }
-          }
-          
-          // Update config
-          config.onlyPublishedProducts = onlyPublishedProducts;
-          config.minDiff = minDiff;
-          
-          response = {
-            replace_original: 'true',
-            blocks: [
-              blocks.intro,
-              blocks.region_select,
-              blocks.settings.closed,
-            ],
-          };
-          break;
-        default:
-          console.warn(`Unknown actionNodes[0]: ${ actionNodes?.[0] }`);
-          return;
-      }
       break;
       
     default:
