@@ -5,10 +5,12 @@ const { REGIONS_WF } = require('../constants');
 
 const COMMAND_NAME = 'stock_check';
 
-let config = {
+const DEFAULT_CONFIG = {
   onlyPublishedProducts: true,
   minDiff: 3,
 };
+
+let config = Object.fromEntries(Object.entries(DEFAULT_CONFIG));
 
 const blocks = {
   intro: {
@@ -241,6 +243,20 @@ const slackInteractiveStockCheck = async (req, res) => {
         ],
       };
       break;
+
+    case 'settings':
+      switch (actionNodes?.[0]) {
+        case 'only_published':
+          config.onlyPublishedProducts = actionValue === 'true';
+          break;
+        case 'min_diff':
+          config.minDiff = Number(actionValue);
+          break;
+
+        default:
+          console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
+      }
+      return;
       
     default:
       console.warn(`Unknown actionId: ${ actionId }`);
