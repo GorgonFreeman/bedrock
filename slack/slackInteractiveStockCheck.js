@@ -125,12 +125,17 @@ const slackInteractiveStockCheck = async (req, res) => {
         break;
       }
 
+      const {
+        object,
+        array: inventoryReviewArray,
+      } = inventoryReviewResult;
+
       const sheetAddResponse = await googlesheetsSpreadsheetSheetAdd(
         {
           spreadsheetHandle: 'foxtron_stock_check',
         }, 
         {
-          objArray: inventoryReviewResult,
+          objArray: inventoryReviewArray,
         },
         {
           sheetName: `${ regionDisplay } ${ Date.now() }`,
