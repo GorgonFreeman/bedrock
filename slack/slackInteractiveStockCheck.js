@@ -218,7 +218,9 @@ const slackInteractiveStockCheck = async (req, res) => {
         array: inventoryReviewArray,
       } = inventoryReviewResult;
 
-      if (inventoryReviewArray?.length === 0) {
+      console.log('minDiff', minDiff, config);
+
+      if (Array.isArray(inventoryReviewArray) && inventoryReviewArray.length === 0) {
         response = {
           replace_original: 'true',
           text: `Huh, it's empty - I guess there are no products on ${ regionDisplay } with less than ${ minDiff } diff.`,
@@ -268,10 +270,13 @@ const slackInteractiveStockCheck = async (req, res) => {
     case 'settings':
       switch (actionNodes?.[0]) {
         case 'only_published':
-          config.onlyPublishedProducts = actionValue === 'true';
+          const selected = action.selected_options.length !== 0;
+          config.onlyPublishedProducts = selected;
           break;
+          
         case 'min_diff':
-          config.minDiff = Number(actionValue);
+          const selectedValue = action?.selected_option?.value;
+          config.minDiff = Number(selectedValue);
           break;
 
         default:
