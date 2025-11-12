@@ -47,18 +47,174 @@ const blocks = {
   },
 
   settings: {
-    type: 'actions',
-    elements: [
-      {
-        type: 'button',
-        text: {
-          type: 'plain_text',
-          text: 'Settings :gear:',
+    closed: {
+      type: 'actions',
+      elements: [
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Settings :gear:',
+          },
+          value: 'settings:open',
+          action_id: `${ COMMAND_NAME }:settings:open`,
         },
-        value: 'open',
-        action_id: `${ COMMAND_NAME }:settings`,
+      ],
+    },
+    open: [
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: '*Settings*',
+        },
+      },
+      {
+        type: 'actions',
+        elements: [
+          {
+            type: 'checkboxes',
+            options: [
+              {
+                text: {
+                  type: 'plain_text',
+                  text: 'Only live products',
+                },
+                value: 'only_live',
+              },
+            ],
+            initial_options: [
+              {
+                text: {
+                  type: 'plain_text',
+                  text: 'Only live products',
+                },
+                value: 'only_live',
+              },
+            ],
+            action_id: `${ COMMAND_NAME }:settings:only_live`,
+          },
+          {
+            type: 'static_select',
+            placeholder: {
+              type: 'plain_text',
+              text: 'Min diff',
+            },
+            options: [
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '0',
+                },
+                value: '0',
+              },
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '1',
+                },
+                value: '1',
+              },
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '2',
+                },
+                value: '2',
+              },
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '3',
+                },
+                value: '3',
+              },
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '4',
+                },
+                value: '4',
+              },
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '5',
+                },
+                value: '5',
+              },
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '6',
+                },
+                value: '6',
+              },
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '7',
+                },
+                value: '7',
+              },
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '8',
+                },
+                value: '8',
+              },
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '9',
+                },
+                value: '9',
+              },
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '10',
+                },
+                value: '10',
+              },
+            ],
+            initial_option: {
+              text: {
+                type: 'plain_text',
+                text: '3',
+              },
+              value: '3',
+            },
+            action_id: `${ COMMAND_NAME }:settings:min_diff`,
+          },
+        ],
+      },
+      {
+        type: 'actions',
+        elements: [
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'Cancel',
+            },
+            value: 'settings:close',
+            action_id: `${ COMMAND_NAME }:settings:close`,
+          },
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'Save',
+            },
+            value: 'settings:save',
+            action_id: `${ COMMAND_NAME }:settings:save`,
+          },
+        ],
       },
     ],
+
   },
   result: (regionDisplay, sheetUrl) => {
     return {
@@ -83,7 +239,7 @@ const slackInteractiveStockCheck = async (req, res) => {
     const initialBlocks = [
       blocks.intro,
       blocks.region_select,
-      blocks.settings,
+      blocks.settings.closed,
     ];
 
     return respond(res, 200, {
@@ -201,15 +357,40 @@ const slackInteractiveStockCheck = async (req, res) => {
       break;
 
     case 'settings':
-      switch (actionValue) {
+      switch (actionNodes?.[0]) {
         case 'open':
+          response = {
+            replace_original: 'true',
+            blocks: [
+              blocks.intro,
+              blocks.region_select,
+              ...blocks.settings.open,
+            ],
+          };
           break;
         case 'close':
+          response = {
+            replace_original: 'true',
+            blocks: [
+              blocks.intro,
+              blocks.region_select,
+              blocks.settings.closed,
+            ],
+          };
           break;
         case 'save':
+          // TODO: Process settings changes and alter a global config
+          response = {
+            replace_original: 'true',
+            blocks: [
+              blocks.intro,
+              blocks.region_select,
+              blocks.settings.closed,
+            ],
+          };
           break;
         default:
-          throw new Error(`Unknown actionValue: ${ actionValue }`);
+          throw new Error(`Unknown actionNodes[0]: ${ actionNodes?.[0] }`);
       }
       break;
       
