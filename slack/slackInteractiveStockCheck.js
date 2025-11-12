@@ -134,7 +134,7 @@ const blocks = {
       },
     };
   },
-}
+};
 
 const slackInteractiveStockCheck = async (req, res) => {
   console.log('slackInteractiveStockCheck');
