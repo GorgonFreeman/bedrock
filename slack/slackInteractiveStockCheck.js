@@ -185,7 +185,19 @@ const slackInteractiveStockCheck = async (req, res) => {
       });
 
       // Run the inventory review
-      const inventoryReviewResponse = await collabsInventoryReview(region);
+      const {
+        onlyPublishedProducts,
+        minDiff,
+      } = config;
+
+      const inventoryReviewResponse = await collabsInventoryReview(region, {
+        ...onlyPublishedProducts ? {
+          shopifyVariantsFetchQueries: [
+            'product_publication_status:published',
+          ],
+        } : {},
+        minReportableDiff: minDiff,
+      });
 
       const { 
         success: inventoryReviewSuccess,
