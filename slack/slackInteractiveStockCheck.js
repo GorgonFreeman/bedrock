@@ -4,6 +4,73 @@ const { googlesheetsSpreadsheetSheetAdd } = require('../googlesheets/googlesheet
 
 const COMMAND_NAME = 'stock_check';
 
+const blocks = {
+  intro: {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: `Let's do a stock check! Which store do you want to do?`,
+    },
+  },
+
+  region_select: {
+    type: 'actions',
+    elements: [
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'AU',
+        },
+        value: 'au',
+        action_id: `${ COMMAND_NAME }:region_select:au`,
+      },
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'US',
+        },
+        value: 'us',
+        action_id: `${ COMMAND_NAME }:region_select:us`,
+      },
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'UK',
+        },
+        value: 'uk',
+        action_id: `${ COMMAND_NAME }:region_select:uk`,
+      },
+    ],
+  },
+
+  settings: {
+    type: 'actions',
+    elements: [
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Settings :gear:',
+        },
+        value: 'open',
+        action_id: `${ COMMAND_NAME }:settings`,
+      },
+    ],
+  },
+  result: (regionDisplay, sheetUrl) => {
+    return {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `Stock check for ${ regionDisplay }: <${ sheetUrl }|sheet>`,
+      },
+    };
+  },
+}
+
 const slackInteractiveStockCheck = async (req, res) => {
   console.log('slackInteractiveStockCheck');
 
@@ -14,59 +81,9 @@ const slackInteractiveStockCheck = async (req, res) => {
     console.log(`Initiation, e.g. slash command`);
 
     const initialBlocks = [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `Let's do a stock check! Which store do you want to do?`,
-        },
-      },
-      {
-        type: 'actions',
-        elements: [
-          {
-            type: 'button',
-            text: {
-              type: 'plain_text',
-              text: 'AU',
-            },
-            value: 'au',
-            action_id: `${ COMMAND_NAME }:region_select:au`,
-          },
-          {
-            type: 'button',
-            text: {
-              type: 'plain_text',
-              text: 'US',
-            },
-            value: 'us',
-            action_id: `${ COMMAND_NAME }:region_select:us`,
-          },
-          {
-            type: 'button',
-            text: {
-              type: 'plain_text',
-              text: 'UK',
-            },
-            value: 'uk',
-            action_id: `${ COMMAND_NAME }:region_select:uk`,
-          },
-        ],
-      },
-      {
-        type: 'actions',
-        elements: [
-          {
-            type: 'button',
-            text: {
-              type: 'plain_text',
-              text: 'Settings :gear:',
-            },
-            value: 'open',
-            action_id: `${ COMMAND_NAME }:settings`,
-          },
-        ],
-      },
+      blocks.intro,
+      blocks.region_select,
+      blocks.settings,
     ];
 
     return respond(res, 200, {
@@ -177,13 +194,7 @@ const slackInteractiveStockCheck = async (req, res) => {
       response = {
         replace_original: 'true',
         blocks: [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `Stock check for ${ regionDisplay }: <${ sheetUrl }|sheet>`,
-            },
-          },
+          blocks.result(regionDisplay, sheetUrl),
           // TODO: Summarise the sheet info in the Slack message, e.g. max diff, whether it's within expected range, etc.
         ],
       };
