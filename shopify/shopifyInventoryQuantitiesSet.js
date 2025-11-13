@@ -1,8 +1,9 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/inventorysetquantities
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, arrayToChunks, actionMultipleOrSingle, objHasAny } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 const {
+  MAX_PAYLOADS,
   INVENTORY_NAMES,
   INVENTORY_REASONS,
 } = require('../shopify/shopify.constants');
@@ -22,7 +23,7 @@ const defaultAttrs = `
   }
 `;
 
-const shopifyInventoryQuantitiesSet = async (
+const shopifyInventoryQuantitiesSetChunk = async (
   credsPath,
   inventoryName,
   quantities,
@@ -57,6 +58,36 @@ const shopifyInventoryQuantitiesSet = async (
       apiVersion,
     },
   );
+  logDeep(response);
+  return response;
+};
+
+const shopifyInventoryQuantitiesSet = async (
+  credsPath,
+  inventoryName,
+  quantities,
+  reason,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+
+  // Chunk quantities array by MAX_PAYLOADS
+  const chunks = arrayToChunks(quantities, MAX_PAYLOADS);
+
+  const response = await actionMultipleOrSingle(
+    chunks,
+    shopifyInventoryQuantitiesSetChunk,
+    (chunk) => ({
+      args: [credsPath, inventoryName, chunk, reason],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+  
   logDeep(response);
   return response;
 };

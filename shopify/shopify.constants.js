@@ -8,6 +8,7 @@ module.exports = {
   },
   MAX_TAG_LENGTH: 255,
   MAX_TAG_LENGTH_FOR_ORDERS: 40,
+  MAX_PAYLOADS: 250, // Currently true for inventoryQuantitiesSet, use more broadly if appropriate
   INVENTORY_NAMES: [
     'available', 
     'on_hand',
