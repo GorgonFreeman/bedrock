@@ -346,6 +346,56 @@ const slackInteractiveStockCheck = async (req, res) => {
           console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
       }
       return;
+
+    case 'settings':
+      switch (actionNodes?.[0]) {
+        case 'only_published':
+          const selected = action.selected_options.length !== 0;
+          config.onlyPublishedProducts = selected;
+          break;
+          
+        case 'min_diff':
+          const selectedValue = action?.selected_option?.value;
+          config.minDiff = Number(selectedValue);
+          break;
+
+        default:
+          console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
+      }
+      return;
+
+    case 'import':
+      switch (actionNodes?.[0]) {
+        case 'expand':
+          const currentBlocks = payload.message?.blocks || [];
+
+          const isImportExpandBlock = block => block.type === 'actions' && block.elements?.[0]?.action_id === `${ COMMAND_NAME }:import:expand`;
+          
+          // Find and replace the import.offer block with expanded blocks
+          const updatedBlocks = [];
+
+          for (const block of currentBlocks) {
+            if (isImportExpandBlock(block)) {
+              updatedBlocks.push(...[
+                blocks.import.expanded.text,
+                blocks.import.expanded.buttons,
+              ]);
+              continue;
+            }
+            updatedBlocks.push(block);
+          }
+          
+          response = {
+            replace_original: 'true',
+            blocks: updatedBlocks,
+          };
+          break;
+
+        default:
+          console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
+          return;
+      }
+      break;
       
     default:
       console.warn(`Unknown actionId: ${ actionId }`);
