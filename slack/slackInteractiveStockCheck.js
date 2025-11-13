@@ -374,13 +374,12 @@ const slackInteractiveStockCheck = async (req, res) => {
       const isImportExpandedButtonsBlock = block => block.block_id === 'import:expanded:buttons';
 
       const currentBlocks = payload.message?.blocks || [];
+      const updatedBlocks = [];
 
       switch (actionNodes?.[0]) {
         case 'expand':
           
           // Find and replace the import.offer block with expanded blocks
-          const updatedBlocks = [];
-
           for (const block of currentBlocks) {
             if (isImportExpandBlock(block)) {
               updatedBlocks.push(...[
@@ -389,6 +388,27 @@ const slackInteractiveStockCheck = async (req, res) => {
               ]);
               continue;
             }
+            updatedBlocks.push(block);
+          }
+          
+          response = {
+            replace_original: 'true',
+            blocks: updatedBlocks,
+          };
+          break;
+
+        case 'cancel':
+
+          for (const block of currentBlocks) {
+            if (isImportExpandedTextBlock(block)) {
+              updatedBlocks.push(blocks.import.offer);
+              continue;
+            }
+
+            if (isImportExpandedButtonsBlock(block)) {
+              continue;
+            }
+
             updatedBlocks.push(block);
           }
           
