@@ -94,6 +94,7 @@ const collabsInventorySync = async (
   }
   
   let wmsInventoryObj;
+  const shopifyInventoryQuantitiesSetPayloads = [];
 
   if (pvxRelevant) {
     const pvxSite = shopifyRegionToPvxSite(region);
@@ -148,13 +149,20 @@ const collabsInventorySync = async (
       continue;
     }
 
+    const { id: inventoryItemGid } = inventoryItem;
+
     // Sync inventory
+    shopifyInventoryQuantitiesSetPayloads.push({
+      inventoryItemId: inventoryItemGid,
+      locationId: `gid://shopify/Location/${ locationId }`,
+      quantity: wmsInventory,
+    });
   }
   
-  logDeep(shopifyVariants);
+  logDeep(shopifyInventoryQuantitiesSetPayloads);
   return {
     success: true,
-    result: shopifyVariants,
+    result: shopifyInventoryQuantitiesSetPayloads,
   };
 };
 
@@ -171,3 +179,6 @@ module.exports = {
 
 // Only published variants
 // curl localhost:8000/collabsInventorySync -H "Content-Type: application/json" -d '{ "region": "au", "options": { "shopifyVariantsFetchQueries": [ "published_status:published", "product_publication_status:approved" ] } }'
+
+// Min diff 10
+// curl localhost:8000/collabsInventorySync -H "Content-Type: application/json" -d '{ "region": "au", "options": { "minDiff": 10 } }'
