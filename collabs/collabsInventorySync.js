@@ -175,13 +175,15 @@ const collabsInventorySync = async (
     shopifyInventoryQuantitiesSetPayloads.push({
       inventoryItemId: inventoryItemGid,
       locationId: `gid://shopify/Location/${ locationId }`,
-      quantity: wmsInventory,
+      quantity: Number(wmsInventory),
     });
   }
 
   const shopifyInventoryQuantitiesSetResponse = await shopifyInventoryQuantitiesSet(
     region,
+    'available',
     shopifyInventoryQuantitiesSetPayloads,
+    'correction',
   );
   return shopifyInventoryQuantitiesSetResponse;
 };
