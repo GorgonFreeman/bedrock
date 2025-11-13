@@ -49,6 +49,8 @@ const collabsInventorySync = async (
   // Get the Shopify inventory item IDs and stock
   // Get the WMS inventory
 
+  // TODO: Convert to getters and processors
+
   if (!locationId) {
     const shopifyLocationsResponse = await shopifyLocationsGet(
       region,
