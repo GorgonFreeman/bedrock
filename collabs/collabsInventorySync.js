@@ -195,7 +195,7 @@ module.exports = {
 // curl localhost:8000/collabsInventorySync -H "Content-Type: application/json" -d '{ "region": "au" }'
 
 // Only published variants
-// curl localhost:8000/collabsInventorySync -H "Content-Type: application/json" -d '{ "region": "au", "options": { "shopifyVariantsFetchQueries": [ "published_status:published", "product_publication_status:approved" ] } }'
+// curl localhost:8000/collabsInventorySync -H "Content-Type: application/json" -d '{ "region": "au", "options": { "shopifyVariantsFetchQueries": ["published_status:published", "product_publication_status:approved"] } }'
 
-// Min diff 10
-// curl localhost:8000/collabsInventorySync -H "Content-Type: application/json" -d '{ "region": "au", "options": { "minDiff": 10 } }'
+// Min diff 10 + published
+// curl localhost:8000/collabsInventorySync -H "Content-Type: application/json" -d '{ "region": "au", "options": { "minDiff": 10, "shopifyVariantsFetchQueries": ["published_status:published", "product_publication_status:approved"] } }'
