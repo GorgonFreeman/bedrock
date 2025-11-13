@@ -1,4 +1,6 @@
-const { funcApi } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
+
+const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
 
 const collabsInventorySync = async (
   region,
@@ -17,11 +19,24 @@ const collabsInventorySync = async (
     };
   }
 
+  const shopifyVariantsResponse = await shopifyVariantsGet(
+    region,
+    {
+      attrs: 'sku inventoryQuantity',
+      ...(shopifyVariantsFetchQueries ? { queries: shopifyVariantsFetchQueries } : {}),
+    },
+  );
+
+  const { success: shopifyVariantsSuccess, result: shopifyVariants } = shopifyVariantsResponse;
+  if (!shopifyVariantsSuccess) {
+    return shopifyVariantsResponse;
+  }
+  
+  logDeep(shopifyVariants);
   return {
     success: true,
-    result: `Didn't do anything c:`,
+    result: shopifyVariants,
   };
-  
 };
 
 const collabsInventorySyncApi = funcApi(collabsInventorySync, {
