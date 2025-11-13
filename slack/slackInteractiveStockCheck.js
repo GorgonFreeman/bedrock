@@ -118,7 +118,7 @@ const blocks = {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `Would you like me to do an inventory import?`,
+          text: `Would you like me to do an inventory import?\n\nYou can do a Fresh or Safe import.\n\n*Fresh* will fetch all inventory matching your settings again, and import it.\n\n*Safe* will import only products where importing cannot cause an oversell - ie. Shopify has more than the WMS, or, there is no stock in Shopify (restocks).\n\nSelect your import type to kick it off, or, Cancel.`,
         },
       },
       buttons: {
@@ -128,7 +128,7 @@ const blocks = {
             type: 'button',
             text: {
               type: 'plain_text',
-              text: 'Yes, fetch fresh inventory and import',
+              text: 'Fresh',
             },
             value: 'fresh',
             action_id: `${ COMMAND_NAME }:import:fresh`,
@@ -137,7 +137,7 @@ const blocks = {
             type: 'button',
             text: {
               type: 'plain_text',
-              text: 'Yes, import only oversell risk and restocks',
+              text: 'Safe',
             },
             value: 'safe',
             action_id: `${ COMMAND_NAME }:import:safe`,
@@ -146,7 +146,7 @@ const blocks = {
             type: 'button',
             text: {
               type: 'plain_text',
-              text: 'No',
+              text: 'Cancel',
             },
             value: 'cancel',
             action_id: `${ COMMAND_NAME }:import:cancel`,
