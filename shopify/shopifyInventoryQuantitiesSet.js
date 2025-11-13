@@ -30,6 +30,7 @@ const shopifyInventoryQuantitiesSet = async (
   {
     apiVersion,
     returnAttrs = defaultAttrs,
+    ignoreCompareQuantity = true, // TODO: Consider allowing this to be set as Shopify intends.
   } = {},
 ) => {
 
@@ -41,6 +42,7 @@ const shopifyInventoryQuantitiesSet = async (
       value: {
         name: inventoryName,
         reason,
+        ignoreCompareQuantity,
         quantities,
       },
     },
