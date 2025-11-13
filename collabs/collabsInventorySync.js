@@ -3,6 +3,9 @@ const { funcApi, logDeep, gidToId } = require('../utils');
 const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
 const { shopifyLocationsGet } = require('../shopify/shopifyLocationsGet');
 
+const { shopifyRegionToPvxSite } = require('../mappings');
+const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
+
 const {
   REGIONS_PVX,
   REGIONS_LOGIWA,
@@ -82,6 +85,35 @@ const collabsInventorySync = async (
   const { success: shopifyVariantsSuccess, result: shopifyVariants } = shopifyVariantsResponse;
   if (!shopifyVariantsSuccess) {
     return shopifyVariantsResponse;
+  }
+
+  if (pvxRelevant) {
+    const pvxSite = shopifyRegionToPvxSite(region);
+
+    if (!pvxSite) {
+      return {
+        success: false,
+        error: [`No PVX site found for ${ region }`],
+      };
+    }
+
+    const pvxInventoryResponse = await peoplevoxReportGet(
+      'Item inventory summary', 
+      {
+        searchClause: `([Site reference].Equals("${ pvxSite }"))`, 
+        columns: ['Item code', 'Available'], 
+      },
+    );
+
+    const {
+      success: pvxReportSuccess,
+      result: pvxInventory,
+    } = pvxInventoryResponse;
+    if (!pvxReportSuccess) {
+      return pvxInventoryResponse;
+    }
+
+    logDeep('pvxInventory', pvxInventory);
   }
   
   logDeep(shopifyVariants);
