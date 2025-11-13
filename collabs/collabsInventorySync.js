@@ -169,6 +169,7 @@ const collabsInventorySync = async (
     const { id: inventoryItemGid } = inventoryItem;
 
     // Sync inventory
+    console.log(`Syncing ${ wmsInventory } of ${ sku }, currently ${ shopifyAvailable }`);
     shopifyInventoryQuantitiesSetPayloads.push({
       inventoryItemId: inventoryItemGid,
       locationId: `gid://shopify/Location/${ locationId }`,
