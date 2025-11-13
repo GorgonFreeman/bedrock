@@ -65,7 +65,7 @@ const shopifyInventoryQuantitiesSetApi = funcApi(shopifyInventoryQuantitiesSet, 
   argNames: ['credsPath', 'inventoryName', 'quantities', 'reason', 'options'],
   validatorsByArg: {
     inventoryName: p => INVENTORY_NAMES.includes(p),
-    quantities: Boolean,
+    quantities: p => Array.isArray(p) && p.every(i => objHasAny(i, ['inventoryItemId', 'locationId', 'quantity'])),
     reason: p => INVENTORY_REASONS.includes(p),
   },
 });
