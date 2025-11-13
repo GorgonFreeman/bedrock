@@ -22,7 +22,7 @@ const collabsInventorySync = async (
   const shopifyVariantsResponse = await shopifyVariantsGet(
     region,
     {
-      attrs: 'sku inventoryQuantity',
+      attrs: 'sku inventoryQuantity inventoryItem { id }',
       ...(shopifyVariantsFetchQueries ? { queries: shopifyVariantsFetchQueries } : {}),
     },
   );
