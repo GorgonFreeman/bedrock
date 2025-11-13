@@ -20,6 +20,13 @@ const collabsInventorySync = async (
   } = {},
 ) => {
 
+  if (skus) {
+    return {
+      success: false,
+      errors: ['Inventory sync for a list of skus is not supported yet.'],
+    };
+  }
+
   const pvxRelevant = REGIONS_PVX.includes(region);
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
   const bleckmannRelevant = REGIONS_BLECKMANN.includes(region);
@@ -63,13 +70,6 @@ const collabsInventorySync = async (
   }
 
   logDeep('locationId', locationId);
-
-  if (skus) {
-    return {
-      success: false,
-      errors: ['Inventory sync for a list of skus is not supported yet.'],
-    };
-  }
 
   const shopifyVariantsResponse = await shopifyVariantsGet(
     region,
