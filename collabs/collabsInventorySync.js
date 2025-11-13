@@ -122,6 +122,32 @@ const collabsInventorySync = async (
     wmsInventoryObj = arrayToObj(pvxInventory, { uniqueKeyProp: 'Item code', keepOnlyValueProp: 'Available' });
     logDeep('wmsInventoryObj', wmsInventoryObj);
   }
+
+  for (const variant of shopifyVariants) {
+    const { 
+      sku, 
+      inventoryQuantity: shopifyAvailable, 
+      inventoryItem,
+    } = variant;
+
+    const wmsInventory = wmsInventoryObj[sku] || 0; // TODO: Reconsider using 0 if not found in WMS
+
+    const diff = shopifyAvailable - wmsInventory;
+    const oversellRisk = diff > 0;
+    const absDiff = Math.abs(diff);
+  
+    // Always send oversell risks, even if less than min diff.
+    if (!oversellRisk && absDiff < minDiff) {
+      continue;
+    }
+
+    const safe = oversellRisk || shopifyAvailable === 0;
+    if (safeMode && !safe) {
+      continue;
+    }
+
+    // Sync inventory
+  }
   
   logDeep(shopifyVariants);
   return {
