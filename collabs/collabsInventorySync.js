@@ -3,6 +3,12 @@ const { funcApi, logDeep, gidToId } = require('../utils');
 const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
 const { shopifyLocationsGet } = require('../shopify/shopifyLocationsGet');
 
+const {
+  REGIONS_PVX,
+  REGIONS_LOGIWA,
+  REGIONS_BLECKMANN,
+} = require('../constants');
+
 const collabsInventorySync = async (
   region,
   {
@@ -13,6 +19,17 @@ const collabsInventorySync = async (
     locationId,
   } = {},
 ) => {
+
+  const pvxRelevant = REGIONS_PVX.includes(region);
+  const logiwaRelevant = REGIONS_LOGIWA.includes(region);
+  const bleckmannRelevant = REGIONS_BLECKMANN.includes(region);
+  const anyRelevant = [pvxRelevant, logiwaRelevant, bleckmannRelevant].some(Boolean);
+  if (!anyRelevant) {
+    return {
+      success: false,
+      errors: ['Region not supported'],
+    };
+  }
 
   // Get the location ID
   // Get the Shopify inventory item IDs and stock
