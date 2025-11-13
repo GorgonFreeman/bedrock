@@ -10,6 +10,13 @@ const collabsInventorySync = async (
   } = {},
 ) => {
 
+  if (skus) {
+    return {
+      success: false,
+      errors: ['Inventory sync for a list of skus is not supported yet.'],
+    };
+  }
+
   return {
     success: true,
     result: `Didn't do anything c:`,
