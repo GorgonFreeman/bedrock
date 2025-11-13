@@ -115,6 +115,7 @@ const blocks = {
   import: {
     offer: {
       type: 'actions',
+      block_id: 'import:offer',
       elements: [
         {
           type: 'button',
@@ -130,13 +131,15 @@ const blocks = {
     expanded: {
       text: {
         type: 'section',
+        block_id: 'import:expanded:text',
         text: {
           type: 'mrkdwn',
           text: `You can do a *Full* or *Safe* import.\n\n*Full* will fetch all inventory matching your settings again, and import it.\n\n*Safe* will import only products where importing is unlikely to cause an oversell - ie. Shopify has more than the WMS, or, there is no stock in Shopify (restocks).\n\nSelect your import type to kick it off, or, Cancel.`,
         },
       },
       buttons: {
-        type: 'actions',
+        type: 'actions',  
+        block_id: 'import:expanded:buttons',
         elements: [
           {
             type: 'button',
@@ -365,11 +368,15 @@ const slackInteractiveStockCheck = async (req, res) => {
       return;
 
     case 'import':
+
+      const isImportExpandBlock = block => block.block_id === 'import:offer';
+      const isImportExpandedTextBlock = block => block.block_id === 'import:expanded:text';
+      const isImportExpandedButtonsBlock = block => block.block_id === 'import:expanded:buttons';
+
+      const currentBlocks = payload.message?.blocks || [];
+
       switch (actionNodes?.[0]) {
         case 'expand':
-          const currentBlocks = payload.message?.blocks || [];
-
-          const isImportExpandBlock = block => block.type === 'actions' && block.elements?.[0]?.action_id === `${ COMMAND_NAME }:import:expand`;
           
           // Find and replace the import.offer block with expanded blocks
           const updatedBlocks = [];
