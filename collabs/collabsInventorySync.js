@@ -83,7 +83,15 @@ const collabsInventorySync = async (
   const shopifyVariantsResponse = await shopifyVariantsGet(
     region,
     {
-      attrs: 'sku inventoryQuantity inventoryItem { id }',
+      attrs: `
+        sku 
+        inventoryQuantity 
+        inventoryItem { 
+          id 
+          requiresShipping
+          tracked
+        }
+      `,
       ...(shopifyVariantsFetchQueries ? { queries: shopifyVariantsFetchQueries } : {}),
     },
   );
@@ -132,6 +140,15 @@ const collabsInventorySync = async (
       inventoryQuantity: shopifyAvailable, 
       inventoryItem,
     } = variant;
+
+    const {
+      requiresShipping,
+      tracked,
+    } = inventoryItem;
+
+    if (!requiresShipping || !tracked) {
+      continue;
+    }
 
     const wmsInventory = wmsInventoryObj[sku] || 0; // TODO: Reconsider using 0 if not found in WMS
 
