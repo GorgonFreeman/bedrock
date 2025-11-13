@@ -2,6 +2,7 @@ const { funcApi, logDeep, gidToId, askQuestion, arrayToObj } = require('../utils
 
 const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
 const { shopifyLocationsGet } = require('../shopify/shopifyLocationsGet');
+const { shopifyInventoryQuantitiesSet } = require('../shopify/shopifyInventoryQuantitiesSet');
 
 const { shopifyRegionToPvxSite } = require('../mappings');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
@@ -176,12 +177,12 @@ const collabsInventorySync = async (
       quantity: wmsInventory,
     });
   }
-  
-  logDeep(shopifyInventoryQuantitiesSetPayloads);
-  return {
-    success: true,
-    result: shopifyInventoryQuantitiesSetPayloads,
-  };
+
+  const shopifyInventoryQuantitiesSetResponse = await shopifyInventoryQuantitiesSet(
+    region,
+    shopifyInventoryQuantitiesSetPayloads,
+  );
+  return shopifyInventoryQuantitiesSetResponse;
 };
 
 const collabsInventorySyncApi = funcApi(collabsInventorySync, {
