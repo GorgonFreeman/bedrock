@@ -3,9 +3,9 @@ const { funcApi } = require('../utils');
 const collabsInventorySync = async (
   region,
   {
-    skus,
+    skus, // if provided, only sync these SKUs, and ignore other options.
     shopifyVariantsFetchQueries,
-    minDiff = 0,
+    minDiff = 0, // Only sync if the diff is greater than or equal to this value.
     safeMode, // Only sync if Shopify has more than the WMS, or, there is no stock in Shopify. These syncs are unlikely to cause oversells.
   } = {},
 ) => {
