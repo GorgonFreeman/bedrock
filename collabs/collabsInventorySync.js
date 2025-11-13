@@ -1,3 +1,4 @@
+const { HOSTED } = require('../constants');
 const { funcApi, logDeep, gidToId, askQuestion, arrayToObj } = require('../utils');
 
 const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
@@ -79,7 +80,7 @@ const collabsInventorySync = async (
     locationId = gidToId(locationGid);
   }
 
-  logDeep('locationId', locationId);
+  !HOSTED && logDeep('locationId', locationId);
 
   const shopifyVariantsResponse = await shopifyVariantsGet(
     region,
@@ -132,7 +133,7 @@ const collabsInventorySync = async (
     }
 
     wmsInventoryObj = arrayToObj(pvxInventory, { uniqueKeyProp: 'Item code', keepOnlyValueProp: 'Available' });
-    logDeep('wmsInventoryObj', wmsInventoryObj);
+    !HOSTED && logDeep('wmsInventoryObj', wmsInventoryObj);
   }
 
   for (const variant of shopifyVariants) {
@@ -170,7 +171,7 @@ const collabsInventorySync = async (
     const { id: inventoryItemGid } = inventoryItem;
 
     // Sync inventory
-    console.log(`Syncing ${ wmsInventory } of ${ sku }, currently ${ shopifyAvailable }`);
+    !HOSTED && console.log(`Syncing ${ wmsInventory } of ${ sku }, currently ${ shopifyAvailable }`);
     shopifyInventoryQuantitiesSetPayloads.push({
       inventoryItemId: inventoryItemGid,
       locationId: `gid://shopify/Location/${ locationId }`,
