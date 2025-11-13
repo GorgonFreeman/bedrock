@@ -1,18 +1,39 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/inventorysetquantities
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
+const {
+  INVENTORY_NAMES,
+  INVENTORY_REASONS,
+} = require('../shopify/shopify.constants');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `
+  inventoryAdjustmentGroup {
+    createdAt
+    reason
+    referenceDocumentUri
+    changes {
+      name
+      delta
+      item {
+        sku
+      }
+    }
+  }
+`;
 
 const shopifyInventoryQuantitiesSet = async (
   credsPath,
-  pageInput,
+  inventoryName,
+  quantities,
+  reason,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
   } = {},
 ) => {
+
+  return true;
 
   const response = await shopifyMutationDo(
     credsPath,
@@ -33,7 +54,12 @@ const shopifyInventoryQuantitiesSet = async (
 };
 
 const shopifyInventoryQuantitiesSetApi = funcApi(shopifyInventoryQuantitiesSet, {
-  argNames: ['credsPath', 'pageInput', 'options'],
+  argNames: ['credsPath', 'inventoryName', 'quantities', 'reason', 'options'],
+  validatorsByArg: {
+    inventoryName: p => INVENTORY_NAMES.includes(p),
+    quantities: Boolean,
+    reason: p => INVENTORY_REASONS.includes(p),
+  },
 });
 
 module.exports = {
