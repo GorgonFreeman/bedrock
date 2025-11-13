@@ -1,4 +1,4 @@
-const { funcApi, logDeep, gidToId } = require('../utils');
+const { funcApi, logDeep, gidToId, askQuestion, arrayToObj } = require('../utils');
 
 const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
 const { shopifyLocationsGet } = require('../shopify/shopifyLocationsGet');
@@ -90,6 +90,8 @@ const collabsInventorySync = async (
   if (!shopifyVariantsSuccess) {
     return shopifyVariantsResponse;
   }
+  
+  let wmsInventoryObj;
 
   if (pvxRelevant) {
     const pvxSite = shopifyRegionToPvxSite(region);
@@ -118,6 +120,11 @@ const collabsInventorySync = async (
     }
 
     logDeep('pvxInventory', pvxInventory);
+    await askQuestion('?');
+
+    wmsInventoryObj = arrayToObj(pvxInventory, { uniqueKeyProp: 'Item code', keepOnlyValueProp: 'Available' });
+    logDeep('wmsInventoryObj', wmsInventoryObj);
+    await askQuestion('?');
   }
   
   logDeep(shopifyVariants);
