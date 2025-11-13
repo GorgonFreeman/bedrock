@@ -119,12 +119,8 @@ const collabsInventorySync = async (
       return pvxInventoryResponse;
     }
 
-    logDeep('pvxInventory', pvxInventory);
-    await askQuestion('?');
-
     wmsInventoryObj = arrayToObj(pvxInventory, { uniqueKeyProp: 'Item code', keepOnlyValueProp: 'Available' });
     logDeep('wmsInventoryObj', wmsInventoryObj);
-    await askQuestion('?');
   }
   
   logDeep(shopifyVariants);
