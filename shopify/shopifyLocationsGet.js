@@ -1,4 +1,4 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/orders
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/locations
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyGet } = require('../shopify/shopify.utils');
@@ -15,7 +15,7 @@ const shopifyLocationsGet = async (
 
   const response = await shopifyGet(
     credsPath, 
-    'order', 
+    'location', 
     {
       attrs,
       ...options,
@@ -34,4 +34,4 @@ module.exports = {
   shopifyLocationsGetApi,
 };
 
-// curl localhost:8000/shopifyLocationsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 2 } }'
+// curl localhost:8000/shopifyLocationsGet -H "Content-Type: application/json" -d '{ "credsPath": "au" }'
