@@ -1,6 +1,7 @@
 const { funcApi, logDeep } = require('../utils');
 
 const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
+const { shopifyLocationsGet } = require('../shopify/shopifyLocationsGet');
 
 const collabsInventorySync = async (
   region,
@@ -9,12 +10,45 @@ const collabsInventorySync = async (
     shopifyVariantsFetchQueries,
     minDiff = 0, // Only sync if the diff is greater than or equal to this value.
     safeMode, // Only sync if Shopify has more than the WMS, or, there is no stock in Shopify. These syncs are unlikely to cause oversells.
+    locationId,
   } = {},
 ) => {
 
   // Get the location ID
   // Get the Shopify inventory item IDs and stock
   // Get the WMS inventory
+
+  let locationGid;
+
+  if (locationId) {
+    locationGid = `gid://shopify/Location/${ locationId }`;
+  } else {
+    const shopifyLocationsResponse = await shopifyLocationsGet(
+      region,
+      {
+        attrs: 'id name',
+      },
+    );
+
+    const { success: shopifyLocationsSuccess, result: shopifyLocations } = shopifyLocationsResponse;
+    if (!shopifyLocationsSuccess) {
+      return shopifyLocationsResponse;
+    }
+    
+    // TODO: Implement logic to choose the correct location
+    const location = shopifyLocations?.[0];
+
+    if (!location) {
+      return {
+        success: false,
+        errors: ['No location found'],
+      };
+    }
+
+    locationGid = location.id;
+  }
+
+  logDeep(locationGid);
 
   if (skus) {
     return {
