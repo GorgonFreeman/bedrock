@@ -114,11 +114,25 @@ const blocks = {
 
   import: {
     offer: {
+      type: 'actions',
+      elements: [
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Import inventory',
+          },
+          value: 'import:expand',
+          action_id: `${ COMMAND_NAME }:import:expand`,
+        },
+      ],
+    },
+    expanded: {
       text: {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `Would you like me to do an inventory import?\n\nYou can do a *Full* or *Safe* import.\n\n*Full* will fetch all inventory matching your settings again, and import it.\n\n*Safe* will import only products where importing is unlikely to cause an oversell - ie. Shopify has more than the WMS, or, there is no stock in Shopify (restocks).\n\nSelect your import type to kick it off, or, Cancel.`,
+          text: `You can do a *Full* or *Safe* import.\n\n*Full* will fetch all inventory matching your settings again, and import it.\n\n*Safe* will import only products where importing is unlikely to cause an oversell - ie. Shopify has more than the WMS, or, there is no stock in Shopify (restocks).\n\nSelect your import type to kick it off, or, Cancel.`,
         },
       },
       buttons: {
@@ -311,8 +325,7 @@ const slackInteractiveStockCheck = async (req, res) => {
           // TODO: Summarise the sheet info in the Slack message, e.g. max diff, whether it's within expected range, etc.
           // TODO: Offer to import inventory
           // TODO: Expire import offer after 5 minutes
-          blocks.import.offer.text,
-          blocks.import.offer.buttons,
+          blocks.import.offer,
         ],
       };
       break;
