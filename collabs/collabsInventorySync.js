@@ -31,9 +31,13 @@ const collabsInventorySync = async (
   }
 
   const pvxRelevant = REGIONS_PVX.includes(region);
-  const logiwaRelevant = REGIONS_LOGIWA.includes(region);
-  const bleckmannRelevant = REGIONS_BLECKMANN.includes(region);
-  const anyRelevant = [pvxRelevant, logiwaRelevant, bleckmannRelevant].some(Boolean);
+  // const logiwaRelevant = REGIONS_LOGIWA.includes(region);
+  // const bleckmannRelevant = REGIONS_BLECKMANN.includes(region);
+  const anyRelevant = [
+    pvxRelevant, 
+    // logiwaRelevant, 
+    // bleckmannRelevant,
+  ].some(Boolean);
   if (!anyRelevant) {
     return {
       success: false,
