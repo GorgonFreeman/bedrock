@@ -33,18 +33,24 @@ const shopifyInventoryQuantitiesSet = async (
   } = {},
 ) => {
 
-  return true;
+  const mutationName = 'inventorySetQuantities';
+  
+  const mutationVariables = {
+    input: {
+      type: 'InventorySetQuantitiesInput!',
+      value: {
+        name: inventoryName,
+        reason,
+        quantities,
+      },
+    },
+  };
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
-    {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
-      },
-    },
-    `page { ${ returnAttrs } }`,
+    mutationName,
+    mutationVariables,
+    returnAttrs,
     { 
       apiVersion,
     },
@@ -67,4 +73,4 @@ module.exports = {
   shopifyInventoryQuantitiesSetApi,
 };
 
-// curl http://localhost:8000/shopifyInventoryQuantitiesSet -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyInventoryQuantitiesSet -H 'Content-Type: application/json' -d '{ "credsPath": "au", "inventoryName": "available", "quantities": [{ "inventoryItemId": "gid://shopify/InventoryItem/________", "locationId": "gid://shopify/Location/________", "quantity": 25 }], "reason": "other" }'
