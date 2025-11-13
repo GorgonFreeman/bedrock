@@ -111,6 +111,50 @@ const blocks = {
       },
     };
   },
+
+  import: {
+    offer: {
+      text: {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `Would you like me to do an inventory import?`,
+        },
+      },
+      buttons: {
+        type: 'actions',
+        elements: [
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'Yes, fetch fresh inventory and import',
+            },
+            value: 'fresh',
+            action_id: `${ COMMAND_NAME }:import:fresh`,
+          },
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'Yes, import only oversell risk and restocks',
+            },
+            value: 'safe',
+            action_id: `${ COMMAND_NAME }:import:safe`,
+          },
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'No',
+            },
+            value: 'cancel',
+            action_id: `${ COMMAND_NAME }:import:cancel`,
+          },
+        ],
+      },
+    },
+  },
 };
 
 const slackInteractiveStockCheck = async (req, res) => {
@@ -264,6 +308,8 @@ const slackInteractiveStockCheck = async (req, res) => {
           blocks.result(regionDisplay, sheetUrl),
           // TODO: Summarise the sheet info in the Slack message, e.g. max diff, whether it's within expected range, etc.
           // TODO: Offer to import inventory
+          blocks.import.offer.text,
+          blocks.import.offer.buttons,
         ],
       };
       break;
