@@ -263,6 +263,7 @@ const slackInteractiveStockCheck = async (req, res) => {
         blocks: [
           blocks.result(regionDisplay, sheetUrl),
           // TODO: Summarise the sheet info in the Slack message, e.g. max diff, whether it's within expected range, etc.
+          // TODO: Offer to import inventory
         ],
       };
       break;
