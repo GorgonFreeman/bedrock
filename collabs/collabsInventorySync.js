@@ -12,6 +12,10 @@ const collabsInventorySync = async (
   } = {},
 ) => {
 
+  // Get the location ID
+  // Get the Shopify inventory item IDs and stock
+  // Get the WMS inventory
+
   if (skus) {
     return {
       success: false,
