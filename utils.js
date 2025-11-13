@@ -1610,6 +1610,15 @@ const objToArray = (obj, { keyProp = 'key', valueProp = 'value' } = {}) => {
   }));
 };
 
+// TODO: Consider allowing arrays for non-unique key props
+const arrayToObj = (arr, { uniqueKeyProp = 'key' } = {}) => {
+  return arr.reduce((obj, item) => {
+    const { [uniqueKeyProp]: key, ...rest } = item;
+    obj[key] = rest;
+    return obj;
+  }, {});
+};
+
 const randomNumber = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
@@ -1766,6 +1775,7 @@ module.exports = {
   standardRequestVerifiers,
   parseBoolean,
   objToArray,
+  arrayToObj,
   randomNumber,
   randomItem,
   convertFormDataToObject,
