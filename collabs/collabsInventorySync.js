@@ -1,4 +1,4 @@
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, gidToId } = require('../utils');
 
 const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
 const { shopifyLocationsGet } = require('../shopify/shopifyLocationsGet');
@@ -18,11 +18,7 @@ const collabsInventorySync = async (
   // Get the Shopify inventory item IDs and stock
   // Get the WMS inventory
 
-  let locationGid;
-
-  if (locationId) {
-    locationGid = `gid://shopify/Location/${ locationId }`;
-  } else {
+  if (!locationId) {
     const shopifyLocationsResponse = await shopifyLocationsGet(
       region,
       {
@@ -45,10 +41,11 @@ const collabsInventorySync = async (
       };
     }
 
-    locationGid = location.id;
+    const { id: locationGid } = location;
+    locationId = gidToId(locationGid);
   }
 
-  logDeep(locationGid);
+  logDeep('locationId', locationId);
 
   if (skus) {
     return {
