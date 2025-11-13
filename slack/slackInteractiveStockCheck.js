@@ -350,23 +350,6 @@ const slackInteractiveStockCheck = async (req, res) => {
       }
       return;
 
-    case 'settings':
-      switch (actionNodes?.[0]) {
-        case 'only_published':
-          const selected = action.selected_options.length !== 0;
-          config.onlyPublishedProducts = selected;
-          break;
-          
-        case 'min_diff':
-          const selectedValue = action?.selected_option?.value;
-          config.minDiff = Number(selectedValue);
-          break;
-
-        default:
-          console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
-      }
-      return;
-
     case 'import':
 
       const isImportExpandBlock = block => block.block_id === 'import:offer';
