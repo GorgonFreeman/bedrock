@@ -10,6 +10,8 @@ const {
   askQuestion,
 } = require("../utils");
 
+import { REGIONS_WF } from "../constants.js";
+
 const { shopifyGiftCardsGet } = require("../shopify/shopifyGiftCardsGet");
 const { shopifyGiftCardDeactivate } = require("../shopify/shopifyGiftCardDeactivate");
 const { shopifyOrderGet } = require("../shopify/shopifyOrderGet");
@@ -489,7 +491,7 @@ const processRegion = async (region, options) => {
 };
 
 const collabsGiftCardToStoreCredit = async ({
-  regions = ["au", "us"],
+  regions = REGIONS_WF,
   demo = false,
   giftCardId = null,
   subKey = SUB_KEY,
