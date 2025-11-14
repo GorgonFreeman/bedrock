@@ -337,13 +337,13 @@ const slackInteractiveStockCheck = async (req, res) => {
     case 'settings':
       switch (actionNodes?.[0]) {
         case 'only_published':
-          const selected = action.selected_options.length !== 0;
-          config.onlyPublishedProducts = selected;
+          // const selected = action.selected_options.length !== 0;
+          // config.onlyPublishedProducts = selected;
           break;
           
         case 'min_diff':
-          const selectedValue = action?.selected_option?.value;
-          config.minDiff = Number(selectedValue);
+          // const selectedValue = action?.selected_option?.value;
+          // config.minDiff = Number(selectedValue);
           break;
 
         default:
