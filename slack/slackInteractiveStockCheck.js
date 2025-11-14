@@ -256,14 +256,13 @@ const slackInteractiveStockCheck = async (req, res) => {
         body: response,
       });
 
-      logDeep(settingsBlock);
-      await askQuestion('settings');
-
       // Run the inventory review
-      // const {
-      //   onlyPublishedProducts,
-      //   minDiff,
-      // } = config;
+
+      const settingsBlock = currentBlockById('settings:inputs');
+      const minDiff = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value;
+      const onlyPublishedProducts = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false;
+      logDeep(minDiff, onlyPublishedProducts);
+      await askQuestion('?');
 
       const inventoryReviewResponse = await collabsInventoryReview(region, {
         ...onlyPublishedProducts ? {
@@ -350,13 +349,8 @@ const slackInteractiveStockCheck = async (req, res) => {
       let updatedInputsBlock;
 
       const settingsBlock = currentBlockById('settings:inputs');
-      logDeep(settingsBlock);
-      
       const currentMinDiff = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value;
       const currentOnlyPublishedProducts = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false;
-      console.log({ currentMinDiff, currentOnlyPublishedProducts });
-
-      await askQuestion('settings');
 
       switch (actionNodes?.[0]) {
         case 'only_published':
