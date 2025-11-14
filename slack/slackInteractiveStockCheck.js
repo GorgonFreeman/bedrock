@@ -28,55 +28,57 @@ const blocks = {
         text: '*Settings*',
       },
     },
-    inputs: {
-      type: 'actions',
-      block_id: 'settings:inputs',
-      elements: [
-        {
-          type: 'checkboxes',
-          action_id: `${ COMMAND_NAME }:settings:only_published`,
-          options: [
-            {
+    inputs: (onlyPublishedProducts, minDiff) => {
+      return {
+        type: 'actions',
+        block_id: 'settings:inputs',
+        elements: [
+          {
+            type: 'checkboxes',
+            action_id: `${ COMMAND_NAME }:settings:only_published`,
+            options: [
+              {
+                text: {
+                  type: 'plain_text',
+                  text: 'Only published products',
+                },
+                value: 'only_published',
+              },
+            ],
+            ...onlyPublishedProducts ? { initial_options: [
+              {
+                text: {
+                  type: 'plain_text',
+                  text: 'Only published products',
+                },
+                value: 'only_published',
+              },
+            ] } : {},
+          },
+          {
+            type: 'static_select',
+            action_id: `${ COMMAND_NAME }:settings:min_diff`,
+            placeholder: {
+              type: 'plain_text',
+              text: 'Min diff',
+            },
+            options: Array.from({ length: 11 }, (_, i) => ({
               text: {
                 type: 'plain_text',
-                text: 'Only published products',
+                text: String(i),
               },
-              value: 'only_published',
-            },
-          ],
-          initial_options: DEFAULT_CONFIG.onlyPublishedProducts ? [
-            {
+              value: String(i),
+            })),
+            initial_option: {
               text: {
                 type: 'plain_text',
-                text: 'Only published products',
+                text: String(minDiff),
               },
-              value: 'only_published',
+              value: String(minDiff),
             },
-          ] : [],
-        },
-        {
-          type: 'static_select',
-          action_id: `${ COMMAND_NAME }:settings:min_diff`,
-          placeholder: {
-            type: 'plain_text',
-            text: 'Min diff',
           },
-          options: Array.from({ length: 11 }, (_, i) => ({
-            text: {
-              type: 'plain_text',
-              text: String(i),
-            },
-            value: String(i),
-          })),
-          initial_option: {
-            text: {
-              type: 'plain_text',
-              text: String(DEFAULT_CONFIG.minDiff),
-            },
-            value: String(DEFAULT_CONFIG.minDiff),
-          },
-        },
-      ],
+        ],
+      };
     },
   },
 
@@ -188,7 +190,7 @@ const slackInteractiveStockCheck = async (req, res) => {
     const initialBlocks = [
       blocks.intro,
       blocks.settings.heading,
-      blocks.settings.inputs,
+      blocks.settings.inputs(DEFAULT_CONFIG.onlyPublishedProducts, DEFAULT_CONFIG.minDiff),
       blocks.region_select.heading,
       blocks.region_select.buttons,
     ];
@@ -235,6 +237,7 @@ const slackInteractiveStockCheck = async (req, res) => {
   const [commandName, actionName, ...actionNodes] = actionId.split(':');
 
   let response;
+  let updatedBlocks;
 
   switch (actionName) {
     case 'region_select':
@@ -253,9 +256,8 @@ const slackInteractiveStockCheck = async (req, res) => {
         body: response,
       });
 
-      const settingsBlock = currentBlockById('settings:inputs');
       logDeep(settingsBlock);
-      await askQuestion('settings');      
+      await askQuestion('settings');
 
       // Run the inventory review
       // const {
@@ -344,21 +346,48 @@ const slackInteractiveStockCheck = async (req, res) => {
       break;
 
     case 'settings':
+      
+      let updatedInputsBlock;
+
+      const settingsBlock = currentBlockById('settings:inputs');
+      logDeep(settingsBlock);
+      
+      const currentMinDiff = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value;
+      const currentOnlyPublishedProducts = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false;
+      console.log({ currentMinDiff, currentOnlyPublishedProducts });
+
+      await askQuestion('settings');
+
       switch (actionNodes?.[0]) {
         case 'only_published':
-          // const selected = action.selected_options.length !== 0;
-          // config.onlyPublishedProducts = selected;
+          const selected = action.selected_options.length !== 0;
+          const newOnlyPublishedProducts = selected;
+          updatedInputsBlock = blocks.settings.inputs(newOnlyPublishedProducts, currentMinDiff);
           break;
           
         case 'min_diff':
-          // const selectedValue = action?.selected_option?.value;
-          // config.minDiff = Number(selectedValue);
+          const selectedValue = action?.selected_option?.value;
+          const newMinDiff = Number(selectedValue);
+          updatedInputsBlock = blocks.settings.inputs(currentOnlyPublishedProducts, newMinDiff);
           break;
 
         default:
           console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
       }
-      return;
+
+      updatedBlocks = currentBlocks.map(block => {
+        if (block.block_id === 'settings:inputs') {
+          return updatedInputsBlock;
+        }
+        return block;
+      });
+
+      response = {
+        replace_original: 'true',
+        blocks: updatedBlocks,
+      };
+
+      break;
 
     case 'import':
 
@@ -366,8 +395,7 @@ const slackInteractiveStockCheck = async (req, res) => {
       const isImportExpandedTextBlock = block => block.block_id === 'import:expanded:text';
       const isImportExpandedButtonsBlock = block => block.block_id === 'import:expanded:buttons';
 
-      const currentBlocks = payload.message?.blocks || [];
-      const updatedBlocks = [];
+      updatedBlocks = [];
 
       switch (actionNodes?.[0]) {
         case 'expand':
