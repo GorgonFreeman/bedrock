@@ -11,8 +11,6 @@ const DEFAULT_CONFIG = {
   minDiff: 3,
 };
 
-let config = Object.fromEntries(Object.entries(DEFAULT_CONFIG));
-
 const blocks = {
   intro: {
     type: 'section',
@@ -32,6 +30,7 @@ const blocks = {
     },
     inputs: {
       type: 'actions',
+      block_id: 'settings:inputs',
       elements: [
         {
           type: 'checkboxes',
@@ -45,7 +44,7 @@ const blocks = {
               value: 'only_published',
             },
           ],
-          initial_options: config.onlyPublishedProducts ? [
+          initial_options: DEFAULT_CONFIG.onlyPublishedProducts ? [
             {
               text: {
                 type: 'plain_text',
@@ -72,9 +71,9 @@ const blocks = {
           initial_option: {
             text: {
               type: 'plain_text',
-              text: String(config.minDiff),
+              text: String(DEFAULT_CONFIG.minDiff),
             },
-            value: String(config.minDiff),
+            value: String(DEFAULT_CONFIG.minDiff),
           },
         },
       ],
@@ -212,7 +211,13 @@ const slackInteractiveStockCheck = async (req, res) => {
     response_url: responseUrl,
     state, 
     actions, 
+    message,
   } = payload;
+
+  const {
+    blocks: currentBlocks,
+  } = message;
+  const currentBlockById = blockId => currentBlocks.find(block => block.block_id === blockId);
 
   const action = actions?.[0];
   const { 
@@ -248,11 +253,15 @@ const slackInteractiveStockCheck = async (req, res) => {
         body: response,
       });
 
+      const settingsBlock = currentBlockById('settings:inputs');
+      logDeep(settingsBlock);
+      await askQuestion('settings');      
+
       // Run the inventory review
-      const {
-        onlyPublishedProducts,
-        minDiff,
-      } = config;
+      // const {
+      //   onlyPublishedProducts,
+      //   minDiff,
+      // } = config;
 
       const inventoryReviewResponse = await collabsInventoryReview(region, {
         ...onlyPublishedProducts ? {
@@ -282,7 +291,7 @@ const slackInteractiveStockCheck = async (req, res) => {
         array: inventoryReviewArray,
       } = inventoryReviewResult;
 
-      console.log('minDiff', minDiff, config);
+      // console.log('minDiff', minDiff, config);
 
       if (Array.isArray(inventoryReviewArray) && inventoryReviewArray.length === 0) {
         response = {
@@ -403,7 +412,6 @@ const slackInteractiveStockCheck = async (req, res) => {
           break;
 
         case 'full':
-          console.log(config);
           await askQuestion('?');
           return;
           // const fullResponse = await collabsInventorySync(region, {
@@ -412,7 +420,6 @@ const slackInteractiveStockCheck = async (req, res) => {
           break;
 
         case 'safe':
-          console.log(config);
           await askQuestion('?');
           return;
           // const safeResponse = await collabsInventorySync(region, {
