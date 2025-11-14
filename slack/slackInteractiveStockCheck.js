@@ -1,5 +1,6 @@
-const { respond, logDeep, customAxios } = require('../utils');
+const { respond, logDeep, customAxios, askQuestion } = require('../utils');
 const { collabsInventoryReview } = require('../collabs/collabsInventoryReview');
+const { collabsInventorySync } = require('../collabs/collabsInventorySync');
 const { googlesheetsSpreadsheetSheetAdd } = require('../googlesheets/googlesheetsSpreadsheetSheetAdd');
 const { REGIONS_WF } = require('../constants');
 
@@ -399,6 +400,25 @@ const slackInteractiveStockCheck = async (req, res) => {
             replace_original: 'true',
             blocks: updatedBlocks,
           };
+          break;
+
+        case 'full':
+          console.log(config);
+          await askQuestion('?');
+          return;
+          // const fullResponse = await collabsInventorySync(region, {
+          //   minReportableDiff: minDiff,
+          // });
+          break;
+
+        case 'safe':
+          console.log(config);
+          await askQuestion('?');
+          return;
+          // const safeResponse = await collabsInventorySync(region, {
+          //   minReportableDiff: minDiff,
+          //   safeMode: true,
+          // });
           break;
 
         default:
