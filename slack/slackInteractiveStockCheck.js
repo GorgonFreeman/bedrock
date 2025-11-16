@@ -221,6 +221,8 @@ const slackInteractiveStockCheck = async (req, res) => {
   } = message;
   const currentBlockById = blockId => currentBlocks.find(block => block.block_id === blockId);
 
+  const settingsBlock = currentBlockById('settings:inputs');
+
   const action = actions?.[0];
   const { 
     action_id: actionId,
@@ -258,7 +260,6 @@ const slackInteractiveStockCheck = async (req, res) => {
 
       // Run the inventory review
 
-      const settingsBlock = currentBlockById('settings:inputs');
       const minDiff = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value;
       const onlyPublishedProducts = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false;
       logDeep(minDiff, onlyPublishedProducts);
@@ -348,7 +349,6 @@ const slackInteractiveStockCheck = async (req, res) => {
       
       let updatedInputsBlock;
 
-      const settingsBlock = currentBlockById('settings:inputs');
       const currentMinDiff = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value;
       const currentOnlyPublishedProducts = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false;
 
