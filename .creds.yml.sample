@@ -117,5 +117,5 @@ swap:
     STORE_ID: _________________________
 
 stylearcade:
-  BASE_URL: https://___________________
+  BASE_URL: https://api.stylearcade.com/range-plan/v1/tenants/________/export
   API_KEY: ____________________________
