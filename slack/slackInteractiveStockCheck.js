@@ -446,21 +446,22 @@ const slackInteractiveStockCheck = async (req, res) => {
           break;
 
         case 'full':
-          await askQuestion('?');
-          return;
-          // const fullResponse = await collabsInventorySync(region, {
-          //   minReportableDiff: minDiff,
-          // });
-          break;
-
         case 'safe':
-          await askQuestion('?');
+
+          const settingsStateBlock = currentBlocksById['settings:state'];
+
+          const settingsFromState = (text) => {
+            const textParts = text.split(', ');
+            const [onlyPublishedPart, minDiffPart] = textParts;
+            const onlyPublishedProducts = onlyPublishedPart === 'Only published products';
+            const minDiff = minDiffPart?.includes('any diff') ? 0 : Number(minDiffPart?.replace('>= ', ''));
+            return { onlyPublishedProducts, minDiff };
+          };
+
+          const { onlyPublishedProducts, minDiff } = settingsFromState(settingsStateBlock?.text?.text);
+
+          await askQuestion(`${ actionNodes?.[0] } inventory sync, ${ onlyPublishedProducts ? 'only published products' : 'all products' }, ${ minDiff === 0 ? 'any diff' : `>= ${ minDiff } diff` }?`);
           return;
-          // const safeResponse = await collabsInventorySync(region, {
-          //   minReportableDiff: minDiff,
-          //   safeMode: true,
-          // });
-          break;
 
         default:
           console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
