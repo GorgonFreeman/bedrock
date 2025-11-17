@@ -463,6 +463,26 @@ const slackInteractiveStockCheck = async (req, res) => {
           await askQuestion(`${ actionNodes?.[0] } inventory sync, ${ onlyPublishedProducts ? 'only published products' : 'all products' }, ${ minDiff === 0 ? 'any diff' : `>= ${ minDiff } diff` }?`);
           return;
 
+          const inventorySyncResponse = await collabsInventorySync(region, {
+            minDiff: minDiff,
+            safeMode: actionNodes?.[0] === 'safe',
+          });
+
+          const { success: inventorySyncSuccess, result: inventorySyncResult } = inventorySyncResponse;
+          if (!inventorySyncSuccess) {
+            response = {
+              replace_original: 'true',
+              text: `Error syncing inventory: ${ JSON.stringify(inventorySyncResponse) }`,
+            };
+            break;
+          }
+
+          response = {
+            replace_original: 'true',
+            text: `${ regionDisplay } inventory synced successfully: ${ JSON.stringify(inventorySyncResult) }`,
+          };
+          break;
+
         default:
           console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
           return;
