@@ -239,8 +239,9 @@ const slackInteractiveStockCheck = async (req, res) => {
     blocks: currentBlocks,
   } = message;
   const currentBlocksById = arrayToObj(currentBlocks, { uniqueKeyProp: 'block_id' });
+
   const settingsStateBlock = currentBlocksById['settings:state'];
-  const settingsBlock = currentBlocksById['settings:inputs'];
+  const settingsInputsBlock = currentBlocksById['settings:inputs'];
 
   const action = actions?.[0];
   const { 
@@ -255,8 +256,11 @@ const slackInteractiveStockCheck = async (req, res) => {
 
   switch (actionName) {
     case 'region_select':
+
       const region = actionValue;
       const regionDisplay = region.toUpperCase();
+      const minDiff = Number(settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value);
+      const onlyPublishedProducts = settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false;
 
       // Show "Checking [REGION] stock..." message
       response = {
@@ -271,10 +275,6 @@ const slackInteractiveStockCheck = async (req, res) => {
       });
 
       // Run the inventory review
-
-      const minDiff = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value;
-      const onlyPublishedProducts = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false;
-
       const inventoryReviewResponse = await collabsInventoryReview(region, {
         ...onlyPublishedProducts ? {
           shopifyVariantsFetchQueries: [
@@ -358,8 +358,8 @@ const slackInteractiveStockCheck = async (req, res) => {
     case 'settings':
       
       // current settings - will be overwritten if changed in payload
-      let stateMinDiff = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value;
-      let stateOnlyPublishedProducts = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false;
+      let stateMinDiff = Number(settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value);
+      let stateOnlyPublishedProducts = settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false;
 
       switch (actionNodes?.[0]) {
         case 'only_published':
