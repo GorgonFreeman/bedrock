@@ -35,7 +35,7 @@ const blocks = {
         block_id: 'settings:state',
         text: {
           type: 'mrkdwn',
-          text: `${ onlyPublishedProducts ? 'Only published products' : 'All products' }, ${ Number(minDiff) === 0 ? `any diff` : `> ${ minDiff } diff` }`,
+          text: `${ onlyPublishedProducts ? 'Only published products' : 'All products' }, ${ Number(minDiff) === 0 ? `any diff` : `>= ${ minDiff } diff` }`,
         },
       };
     },
