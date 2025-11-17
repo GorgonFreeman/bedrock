@@ -1,4 +1,5 @@
-const { respond, logDeep, customAxios, askQuestion } = require('../utils');
+const { HOSTED } = require('../constants');
+const { respond, logDeep, customAxios, askQuestion, arrayToObj } = require('../utils');
 const { collabsInventoryReview } = require('../collabs/collabsInventoryReview');
 const { collabsInventorySync } = require('../collabs/collabsInventorySync');
 const { googlesheetsSpreadsheetSheetAdd } = require('../googlesheets/googlesheetsSpreadsheetSheetAdd');
@@ -227,26 +228,25 @@ const slackInteractiveStockCheck = async (req, res) => {
     message,
   } = payload;
 
+  !HOSTED && logDeep({
+    responseUrl,
+    state,
+    actionId,
+    actionValue,
+  });
+
   const {
     blocks: currentBlocks,
   } = message;
-  const currentBlockById = blockId => currentBlocks.find(block => block.block_id === blockId);
-
-  const settingsBlock = currentBlockById('settings:inputs');
-  const settingsStateBlock = currentBlockById('settings:state');
+  const currentBlocksById = arrayToObj(currentBlocks, { uniqueKeyProp: 'block_id' });
+  const settingsStateBlock = currentBlocksById['settings:state'];
+  const settingsBlock = currentBlocksById['settings:inputs'];
 
   const action = actions?.[0];
   const { 
     action_id: actionId,
     value: actionValue,
   } = action;
-
-  logDeep({
-    responseUrl,
-    state,
-    actionId,
-    actionValue,
-  });
 
   const [commandName, actionName, ...actionNodes] = actionId.split(':');
 
