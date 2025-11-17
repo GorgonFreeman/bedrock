@@ -1,5 +1,5 @@
 const { HOSTED } = require('../constants');
-const { respond, logDeep, customAxios, askQuestion, arrayToObj } = require('../utils');
+const { respond, logDeep, customAxios, askQuestion, arrayToObj, parseBoolean } = require('../utils');
 const { collabsInventoryReview } = require('../collabs/collabsInventoryReview');
 const { collabsInventorySync } = require('../collabs/collabsInventorySync');
 const { googlesheetsSpreadsheetSheetAdd } = require('../googlesheets/googlesheetsSpreadsheetSheetAdd');
@@ -29,13 +29,17 @@ const blocks = {
         text: '*Settings*',
       },
     },
-    state: (onlyPublishedProducts, minDiff) => {
+    state: (onlyPublishedProducts, minDiff, { region } = {}) => {
       return {
         type: 'section',
         block_id: 'settings:state',
         text: {
           type: 'mrkdwn',
-          text: `${ onlyPublishedProducts ? 'Only published products' : 'All products' }, ${ Number(minDiff) === 0 ? `any diff` : `>= ${ minDiff } diff` }`,
+          text: [
+            onlyPublishedProducts,
+            minDiff,
+            ...region ? [region] : [],
+          ].join('|'),
         },
       };
     },
@@ -347,7 +351,7 @@ const slackInteractiveStockCheck = async (req, res) => {
         replace_original: 'true',
         blocks: [
           blocks.result(regionDisplay, sheetUrl),
-          blocks.settings.state(onlyPublishedProducts, minDiff),
+          blocks.settings.state(onlyPublishedProducts, minDiff, { region }),
           // TODO: Summarise the sheet info in the Slack message, e.g. max diff, whether it's within expected range, etc.
           // TODO: Offer to import inventory
           // TODO: Expire import offer after 5 minutes
@@ -451,17 +455,18 @@ const slackInteractiveStockCheck = async (req, res) => {
           const settingsStateBlock = currentBlocksById['settings:state'];
 
           const settingsFromState = (text) => {
-            const textParts = text.split(', ');
-            const [onlyPublishedPart, minDiffPart] = textParts;
-            const onlyPublishedProducts = onlyPublishedPart === 'Only published products';
-            const minDiff = minDiffPart?.includes('any diff') ? 0 : Number(minDiffPart?.replace('>= ', ''));
-            return { onlyPublishedProducts, minDiff };
+            const textParts = text.split('|');
+            let [onlyPublished, minDiff, region] = textParts;
+            return {
+              onlyPublished: parseBoolean(onlyPublished),
+              minDiff: Number(minDiff),
+              region,
+            };
           };
 
-          const { onlyPublishedProducts, minDiff } = settingsFromState(settingsStateBlock?.text?.text);
+          const { onlyPublishedProducts, minDiff, region } = settingsFromState(settingsStateBlock?.text?.text);
 
           await askQuestion(`${ actionNodes?.[0] } inventory sync, ${ onlyPublishedProducts ? 'only published products' : 'all products' }, ${ minDiff === 0 ? 'any diff' : `>= ${ minDiff } diff` }?`);
-          return;
 
           const inventorySyncResponse = await collabsInventorySync(region, {
             minDiff: minDiff,
@@ -479,7 +484,7 @@ const slackInteractiveStockCheck = async (req, res) => {
 
           response = {
             replace_original: 'true',
-            text: `${ regionDisplay } inventory synced successfully: ${ JSON.stringify(inventorySyncResult) }`,
+            text: `${ region.toUpperCase() } stock synced successfully :heart_hands:`,
           };
           break;
 
