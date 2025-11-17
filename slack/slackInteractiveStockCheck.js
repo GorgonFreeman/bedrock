@@ -347,6 +347,7 @@ const slackInteractiveStockCheck = async (req, res) => {
         replace_original: 'true',
         blocks: [
           blocks.result(regionDisplay, sheetUrl),
+          blocks.settings.state(onlyPublishedProducts, minDiff),
           // TODO: Summarise the sheet info in the Slack message, e.g. max diff, whether it's within expected range, etc.
           // TODO: Offer to import inventory
           // TODO: Expire import offer after 5 minutes
