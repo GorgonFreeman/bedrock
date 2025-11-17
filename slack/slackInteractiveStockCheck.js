@@ -228,13 +228,6 @@ const slackInteractiveStockCheck = async (req, res) => {
     message,
   } = payload;
 
-  !HOSTED && logDeep({
-    responseUrl,
-    state,
-    actionId,
-    actionValue,
-  });
-
   const {
     blocks: currentBlocks,
   } = message;
@@ -248,6 +241,13 @@ const slackInteractiveStockCheck = async (req, res) => {
     action_id: actionId,
     value: actionValue,
   } = action;
+
+  !HOSTED && logDeep({
+    responseUrl,
+    state,
+    actionId,
+    actionValue,
+  });
 
   const [commandName, actionName, ...actionNodes] = actionId.split(':');
 
