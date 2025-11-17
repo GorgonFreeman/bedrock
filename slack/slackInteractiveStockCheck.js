@@ -28,6 +28,16 @@ const blocks = {
         text: '*Settings*',
       },
     },
+    state: (onlyPublishedProducts, minDiff) => {
+      return {
+        type: 'section',
+        block_id: 'settings:state',
+        text: {
+          type: 'mrkdwn',
+          text: `${ onlyPublishedProducts ? 'Only published products' : 'All products' }, ${ Number(minDiff) === 0 ? `any diff` : `> ${ minDiff } diff` }`,
+        },
+      };
+    },
     inputs: (onlyPublishedProducts, minDiff) => {
       return {
         type: 'actions',
@@ -190,6 +200,7 @@ const slackInteractiveStockCheck = async (req, res) => {
     const initialBlocks = [
       blocks.intro,
       blocks.settings.heading,
+      blocks.settings.state(DEFAULT_CONFIG.onlyPublishedProducts, DEFAULT_CONFIG.minDiff),
       blocks.settings.inputs(DEFAULT_CONFIG.onlyPublishedProducts, DEFAULT_CONFIG.minDiff),
       blocks.region_select.heading,
       blocks.region_select.buttons,
@@ -222,6 +233,7 @@ const slackInteractiveStockCheck = async (req, res) => {
   const currentBlockById = blockId => currentBlocks.find(block => block.block_id === blockId);
 
   const settingsBlock = currentBlockById('settings:inputs');
+  const settingsStateBlock = currentBlockById('settings:state');
 
   const action = actions?.[0];
   const { 
@@ -262,8 +274,6 @@ const slackInteractiveStockCheck = async (req, res) => {
 
       const minDiff = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value;
       const onlyPublishedProducts = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false;
-      logDeep(minDiff, onlyPublishedProducts);
-      await askQuestion('?');
 
       const inventoryReviewResponse = await collabsInventoryReview(region, {
         ...onlyPublishedProducts ? {
@@ -347,22 +357,19 @@ const slackInteractiveStockCheck = async (req, res) => {
 
     case 'settings':
       
-      let updatedInputsBlock;
-
-      const currentMinDiff = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value;
-      const currentOnlyPublishedProducts = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false;
+      // current settings - will be overwritten if changed in payload
+      let stateMinDiff = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value;
+      let stateOnlyPublishedProducts = settingsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false;
 
       switch (actionNodes?.[0]) {
         case 'only_published':
           const selected = action.selected_options.length !== 0;
-          const newOnlyPublishedProducts = selected;
-          updatedInputsBlock = blocks.settings.inputs(newOnlyPublishedProducts, currentMinDiff);
+          stateOnlyPublishedProducts = selected;
           break;
           
         case 'min_diff':
           const selectedValue = action?.selected_option?.value;
-          const newMinDiff = Number(selectedValue);
-          updatedInputsBlock = blocks.settings.inputs(currentOnlyPublishedProducts, newMinDiff);
+          stateMinDiff = Number(selectedValue);
           break;
 
         default:
@@ -370,10 +377,14 @@ const slackInteractiveStockCheck = async (req, res) => {
       }
 
       updatedBlocks = currentBlocks.map(block => {
-        if (block.block_id === 'settings:inputs') {
-          return updatedInputsBlock;
+        switch (block.block_id) {
+          case 'settings:inputs':
+            return blocks.settings.inputs(stateOnlyPublishedProducts, stateMinDiff);
+          case 'settings:state':
+            return blocks.settings.state(stateOnlyPublishedProducts, stateMinDiff);
+          default:
+            return block;
         }
-        return block;
       });
 
       response = {
