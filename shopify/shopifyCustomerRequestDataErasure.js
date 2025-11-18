@@ -16,7 +16,7 @@ const shopifyCustomerRequestDataErasure = async (
     'customerRequestDataErasure',
     {
       customerId: {
-        type: 'customerId!',
+        type: 'ID!',
         value: `gid://shopify/Customer/${ customerId }`,
       },
     },
