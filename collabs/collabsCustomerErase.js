@@ -1,21 +1,19 @@
 const { funcApi } = require('../utils');
 
 const collabsCustomerErase = async (
-  arg,
+  shopifyCustomerId,
   {
     option,
   } = {},
 ) => {
 
-  return { 
-    arg, 
-    option,
-  };
   
+
+  return true;
 };
 
 const collabsCustomerEraseApi = funcApi(collabsCustomerErase, {
-  argNames: ['arg', 'options'],
+  argNames: ['shopifyCustomerId', 'options'],
 });
 
 module.exports = {
@@ -23,4 +21,4 @@ module.exports = {
   collabsCustomerEraseApi,
 };
 
-// curl localhost:8000/collabsCustomerErase -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/collabsCustomerErase -H "Content-Type: application/json" -d '{ "shopifyCustomerId": "8659387940936" }'
