@@ -77,4 +77,4 @@ module.exports = {
   collabsCustomerEraseApi,
 };
 
-// curl localhost:8000/collabsCustomerErase -H "Content-Type: application/json" -d '{ "shopifyCustomerId": "8659387940936" }'
+// curl localhost:8000/collabsCustomerErase -H "Content-Type: application/json" -d '{ "shopifyRegion": "au", "shopifyCustomerId": "9135184871496" }'
