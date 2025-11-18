@@ -33,17 +33,19 @@ const collabsCustomerErase = async (
   // 2b. delete name, email, addresses, and unsubscribe from marketing
 
   if (!customerDeleted) {
+
     const shopifyRequestDataErasureResponse = await shopifyCustomerRequestDataErasure(shopifyRegion, shopifyCustomerId);
     const { 
-      success: requestDataErasureSuccess,
-      result: requestDataErasureResult,
+
+      success: shopifyRequestDataErasureSuccess,
+      result: shopifyRequestDataErasureResult,
     } = shopifyRequestDataErasureResponse;
 
-    if (!requestDataErasureSuccess) {
-      return requestDataErasureResponse;
+    if (!shopifyRequestDataErasureSuccess) {
+      return shopifyRequestDataErasureResponse;
     }
 
-    result.requestDataErasureResult = requestDataErasureResult;
+    result.shopifyRequestDataErasureResult = shopifyRequestDataErasureResult;
 
     const customerUpdateResponse = await shopifyCustomerUpdate(shopifyRegion, shopifyCustomerId, {
       firstName: null,
@@ -59,6 +61,7 @@ const collabsCustomerErase = async (
       success: updateSuccess,
       result: updateResult,
     } = customerUpdateResponse;
+
     if (!updateSuccess) {
       return customerUpdateResponse;
     }
