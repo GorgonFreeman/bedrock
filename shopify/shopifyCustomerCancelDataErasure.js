@@ -1,29 +1,26 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/customerCancelDataErasure
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
-
 const shopifyCustomerCancelDataErasure = async (
   credsPath,
-  pageInput,
+  customerId,
   {
     apiVersion,
-    returnAttrs = defaultAttrs,
   } = {},
 ) => {
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'customerCancelDataErasure',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      customerId: {
+        type: 'customerId!',
+        value: `gid://shopify/Customer/${ customerId }`,
       },
     },
-    `page { ${ returnAttrs } }`,
+    `customerId`,
     { 
       apiVersion,
     },
@@ -33,7 +30,7 @@ const shopifyCustomerCancelDataErasure = async (
 };
 
 const shopifyCustomerCancelDataErasureApi = funcApi(shopifyCustomerCancelDataErasure, {
-  argNames: ['credsPath', 'pageInput', 'options'],
+  argNames: ['credsPath', 'customerId', 'options'],
 });
 
 module.exports = {
@@ -41,4 +38,4 @@ module.exports = {
   shopifyCustomerCancelDataErasureApi,
 };
 
-// curl http://localhost:8000/shopifyCustomerCancelDataErasure -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyCustomerCancelDataErasure -H 'Content-Type: application/json' -d '{ "credsPath": "au", "customerId": "8659387940936" }'
