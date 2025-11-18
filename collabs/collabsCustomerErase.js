@@ -16,6 +16,7 @@ const collabsCustomerErase = async (
   // TODO: Support other Shopify customer identifiers, e.g. email
 
   let customerDeleted = false;
+  let result = {};
 
   const shopifyDeleteResponse = await shopifyCustomerDelete(shopifyRegion, shopifyCustomerId);
 
@@ -25,13 +26,15 @@ const collabsCustomerErase = async (
   } = shopifyDeleteResponse;
 
   customerDeleted = deleteSuccess;
+  result.deleteResult = deleteResult;
 
   // 2. If the delete fails, 
   // 2a. request data erasure
   // 2b. delete name, email, addresses, and unsubscribe from marketing
 
   if (!customerDeleted) {
-    const shopifyRequestDataErasureResponse = await shopifyCustomerRequestDataErasure(shopifyRegion, shopifyCustomerId);    const { 
+    const shopifyRequestDataErasureResponse = await shopifyCustomerRequestDataErasure(shopifyRegion, shopifyCustomerId);
+    const { 
       success: requestDataErasureSuccess,
       result: requestDataErasureResult,
     } = shopifyRequestDataErasureResponse;
@@ -39,6 +42,8 @@ const collabsCustomerErase = async (
     if (!requestDataErasureSuccess) {
       return requestDataErasureResponse;
     }
+
+    result.requestDataErasureResult = requestDataErasureResult;
 
     const customerUpdateResponse = await shopifyCustomerUpdate(shopifyRegion, shopifyCustomerId, {
       firstName: null,
@@ -58,6 +63,8 @@ const collabsCustomerErase = async (
     if (!updateSuccess) {
       return customerUpdateResponse;
     }
+
+    result.updateResult = updateResult;
   }
 
   // 3. Consider deleting from other platforms, e.g. Salesforce
