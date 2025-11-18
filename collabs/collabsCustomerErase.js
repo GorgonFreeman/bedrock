@@ -51,15 +51,14 @@ const collabsCustomerErase = async (
       email: null,
       phone: null,
       addresses: [],
-      acceptsMarketing: false,
-      acceptsSmsMarketing: false,
+      emailMarketingConsent: { marketingState: 'UNSUBSCRIBED' },
+      smsMarketingConsent: { marketingState: 'UNSUBSCRIBED' },
     });
 
     const {
       success: updateSuccess,
       result: updateResult,
     } = customerUpdateResponse;
-
     if (!updateSuccess) {
       return customerUpdateResponse;
     }
