@@ -1,0 +1,44 @@
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+
+const { funcApi, logDeep } = require('../utils');
+const { shopifyMutationDo } = require('../shopify/shopify.utils');
+
+const defaultAttrs = `id title handle`;
+
+const shopifyCustomerRequestDataErasure = async (
+  credsPath,
+  pageInput,
+  {
+    apiVersion,
+    returnAttrs = defaultAttrs,
+  } = {},
+) => {
+
+  const response = await shopifyMutationDo(
+    credsPath,
+    'pageCreate',
+    {
+      page: {
+        type: 'PageCreateInput!',
+        value: pageInput,
+      },
+    },
+    `page { ${ returnAttrs } }`,
+    { 
+      apiVersion,
+    },
+  );
+  logDeep(response);
+  return response;
+};
+
+const shopifyCustomerRequestDataErasureApi = funcApi(shopifyCustomerRequestDataErasure, {
+  argNames: ['credsPath', 'pageInput', 'options'],
+});
+
+module.exports = {
+  shopifyCustomerRequestDataErasure,
+  shopifyCustomerRequestDataErasureApi,
+};
+
+// curl http://localhost:8000/shopifyCustomerRequestDataErasure -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
