@@ -1,6 +1,7 @@
 const { funcApi } = require('../utils');
 const { shopifyCustomerDelete } = require('../shopify/shopifyCustomerDelete');
 const { shopifyCustomerRequestDataErasure } = require('../shopify/shopifyCustomerRequestDataErasure');
+const { shopifyCustomerUpdate } = require('../shopify/shopifyCustomerUpdate');
 
 const collabsCustomerErase = async (
   shopifyRegion,
@@ -30,8 +31,7 @@ const collabsCustomerErase = async (
   // 2b. delete name, email, addresses, and unsubscribe from marketing
 
   if (!customerDeleted) {
-    const shopifyRequestDataErasureResponse = await shopifyCustomerRequestDataErasure(shopifyRegion, shopifyCustomerId);
-    const { 
+    const shopifyRequestDataErasureResponse = await shopifyCustomerRequestDataErasure(shopifyRegion, shopifyCustomerId);    const { 
       success: requestDataErasureSuccess,
       result: requestDataErasureResult,
     } = shopifyRequestDataErasureResponse;
@@ -40,17 +40,31 @@ const collabsCustomerErase = async (
       return requestDataErasureResponse;
     }
 
-    // TODO: 2b
+    const customerUpdateResponse = await shopifyCustomerUpdate(shopifyRegion, shopifyCustomerId, {
+      firstName: null,
+      lastName: null,
+      email: null,
+      phone: null,
+      addresses: [],
+      acceptsMarketing: false,
+      acceptsSmsMarketing: false,
+    });
+
+    const {
+      success: updateSuccess,
+      result: updateResult,
+    } = customerUpdateResponse;
+
+    if (!updateSuccess) {
+      return customerUpdateResponse;
+    }
   }
 
   // 3. Consider deleting from other platforms, e.g. Salesforce
 
   return {
     success: true,
-    result: {
-      deleteResponse,
-      requestDataErasureResponse,
-    },
+    result,
   };
 };
 
