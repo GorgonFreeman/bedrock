@@ -1,6 +1,37 @@
 const { respond, logDeep, customAxios } = require('../utils');
+const { collabsCustomerErase } = require('../collabs/collabsCustomerErase');
 
 const COMMAND_NAME = 'customer_delete'; // slash command
+
+const blocks = {
+  email_select: {
+    ask: {
+      type: 'input',
+      block_id: 'email_input',
+      label: {
+        type: 'plain_text',
+        text: 'Email Address',
+      },
+      element: {
+        type: 'plain_text_input',
+        action_id: 'email',
+        placeholder: {
+          type: 'plain_text',
+          text: 'Enter email address',
+        },
+      },
+    },
+    display: (emailAddress) => {
+      return {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: emailAddress,
+        },
+      };
+    },
+  },
+};
 
 const slackInteractiveCustomerDelete = async (req, res) => {
   console.log('slackInteractiveCustomerDelete');
@@ -11,13 +42,7 @@ const slackInteractiveCustomerDelete = async (req, res) => {
   if (!body?.payload) {
 
     const initialBlocks = [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `I don't do anything yet :hugging_face:`,
-        },
-      },
+      blocks.email_select.ask,
     ];
 
     return respond(res, 200, {
