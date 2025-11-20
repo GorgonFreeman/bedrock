@@ -52,8 +52,8 @@ const collabsCustomerErase = async (
       lastName: null,
       phone: null,
       addresses: [],
-      emailMarketingConsent: { marketingState: 'UNSUBSCRIBED' },
-      smsMarketingConsent: { marketingState: 'UNSUBSCRIBED' },
+      // emailMarketingConsent: { marketingState: 'UNSUBSCRIBED' },
+      // smsMarketingConsent: { marketingState: 'UNSUBSCRIBED' },
     });
 
     const {
@@ -66,7 +66,6 @@ const collabsCustomerErase = async (
 
     result.updateResult = updateResult;
   }
-
   // 3. Consider deleting from other platforms, e.g. Salesforce
 
   return {
