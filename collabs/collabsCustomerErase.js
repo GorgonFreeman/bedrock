@@ -35,44 +35,24 @@ const collabsCustomerErase = async (
 
   if (!customerDeleted) {
 
-    const shopifyRequestDataErasureResponse = await shopifyCustomerRequestDataErasure(shopifyRegion, shopifyCustomerId);
-    const { 
+    const [
+      shopifyRequestDataErasureResponse,
+      customerUpdateResponse,
+      customerEmailUnsubscribeResponse,
+    ] = await Promise.all([
+      shopifyCustomerRequestDataErasure(shopifyRegion, shopifyCustomerId),
+      shopifyCustomerUpdate(shopifyRegion, shopifyCustomerId, {
+        firstName: null,
+        lastName: null,
+        phone: null,
+        addresses: [],
+      }),
+      shopifyCustomerMarketingConsentUpdateEmail(shopifyRegion, shopifyCustomerId, 'UNSUBSCRIBED'),
+    ]);
 
-      success: shopifyRequestDataErasureSuccess,
-      result: shopifyRequestDataErasureResult,
-    } = shopifyRequestDataErasureResponse;
-
-    if (!shopifyRequestDataErasureSuccess) {
-      return shopifyRequestDataErasureResponse;
-    }
-
-    result.shopifyRequestDataErasureResult = shopifyRequestDataErasureResult;
-
-    const customerUpdateResponse = await shopifyCustomerUpdate(shopifyRegion, shopifyCustomerId, {
-      firstName: null,
-      lastName: null,
-      phone: null,
-      addresses: [],
-    });
-
-    const {
-      success: updateSuccess,
-      result: updateResult,
-    } = customerUpdateResponse;
-    if (!updateSuccess) {
-      return customerUpdateResponse;
-    }
-
-    result.updateResult = updateResult;
-
-    const customerEmailUnsubResponse = await shopifyCustomerMarketingConsentUpdateEmail(shopifyRegion, shopifyCustomerId, 'UNSUBSCRIBED');
-
-    const {
-      success: emailUnsubSuccess,
-      result: emailUnsubResult,
-    } = customerEmailUnsubResponse;
-
-    result.emailUnsubResult = emailUnsubResult;    
+    result.shopifyRequestDataErasureResponse = shopifyRequestDataErasureResponse;
+    result.customerUpdateResponse = customerUpdateResponse;
+    result.customerEmailUnsubscribeResponse = customerEmailUnsubscribeResponse;
   }
 
   // 3. Consider deleting from other platforms, e.g. Salesforce
