@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 const { json2csv } = require('json-2-csv');
-const { respond, mandateParam, logDeep, askQuestion, strictlyFalsey, arraySortByProp } = require('../utils');
+const { respond, mandateParam, logDeep, askQuestion, strictlyFalsey, arraySortByProp, customNullish } = require('../utils');
 
 const {
   REGIONS_PVX,
@@ -39,10 +39,16 @@ const collabsInventoryReview = async (
     };
   }
 
+  const variantAttrs = {
+    au: 'sku inventoryQuantity',
+    us: 'sku inventoryQuantity',
+    uk: 'sku inventoryQuantity inventoryItem { inventoryLevel( locationId: "gid://shopify/Location/67148578890" ) { quantities( names: "available" ) { name quantity } } }',
+  }[region];
+
   const shopifyInventoryResponse = await shopifyVariantsGet(
     region,
     {
-      attrs: 'sku inventoryQuantity',
+      attrs: variantAttrs,
       ...(shopifyVariantsFetchQueries ? { queries: shopifyVariantsFetchQueries } : {}),
     },
   );
@@ -57,7 +63,15 @@ const collabsInventoryReview = async (
   
   const inventoryReviewObject = {};
   for (const variant of shopifyInventory) {
-    const { sku, inventoryQuantity } = variant;
+    let { sku, inventoryQuantity } = variant;
+
+    if (region === 'uk') {
+      const locationQuantity = variant?.inventoryItem?.inventoryLevel?.quantities[0]?.quantity || inventoryQuantity || null;
+      if (!customNullish(locationQuantity)) {
+        inventoryQuantity = locationQuantity;
+      }
+    }
+
     inventoryReviewObject[sku] = {
       shopifyAvailable: inventoryQuantity,
     };
@@ -201,6 +215,8 @@ const collabsInventoryReview = async (
         continue;
       }
 
+      // console.log(`${ sku }: ${ quantityTotal } - ${ quantityLocked } = ${ quantityTotal - quantityLocked }`);
+
       const bleckmannAvailable = quantityTotal - quantityLocked;
       inventoryReviewObject[sku].bleckmannAvailable = bleckmannAvailable;
     }
@@ -219,7 +235,7 @@ const collabsInventoryReview = async (
     }
   }
 
-  logDeep('inventoryReviewObject', inventoryReviewObject);
+  // logDeep('inventoryReviewObject', inventoryReviewObject);
 
   let inventoryReviewArray = Object.entries(inventoryReviewObject).map(([key, value]) => {
     return {
