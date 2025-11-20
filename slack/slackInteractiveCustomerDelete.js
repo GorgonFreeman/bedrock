@@ -1,6 +1,6 @@
 const { respond, logDeep, customAxios } = require('../utils');
 
-const COMMAND_NAME = 'slash_command'; // slash command
+const COMMAND_NAME = 'customer_delete'; // slash command
 
 const slackInteractiveCustomerDelete = async (req, res) => {
   console.log('slackInteractiveCustomerDelete');
