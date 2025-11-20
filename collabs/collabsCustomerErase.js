@@ -2,6 +2,7 @@ const { funcApi } = require('../utils');
 const { shopifyCustomerDelete } = require('../shopify/shopifyCustomerDelete');
 const { shopifyCustomerRequestDataErasure } = require('../shopify/shopifyCustomerRequestDataErasure');
 const { shopifyCustomerUpdate } = require('../shopify/shopifyCustomerUpdate');
+const { shopifyCustomerMarketingConsentUpdateEmail } = require('../shopify/shopifyCustomerMarketingConsentUpdateEmail');
 
 const collabsCustomerErase = async (
   shopifyRegion,
@@ -52,8 +53,6 @@ const collabsCustomerErase = async (
       lastName: null,
       phone: null,
       addresses: [],
-      // emailMarketingConsent: { marketingState: 'UNSUBSCRIBED' },
-      // smsMarketingConsent: { marketingState: 'UNSUBSCRIBED' },
     });
 
     const {
@@ -65,7 +64,17 @@ const collabsCustomerErase = async (
     }
 
     result.updateResult = updateResult;
+
+    const customerEmailUnsubResponse = await shopifyCustomerMarketingConsentUpdateEmail(shopifyRegion, shopifyCustomerId, 'UNSUBSCRIBED');
+
+    const {
+      success: emailUnsubSuccess,
+      result: emailUnsubResult,
+    } = customerEmailUnsubResponse;
+
+    result.emailUnsubResult = emailUnsubResult;    
   }
+
   // 3. Consider deleting from other platforms, e.g. Salesforce
 
   return {
