@@ -5,28 +5,45 @@ const COMMAND_NAME = 'customer_delete'; // slash command
 
 const blocks = {
   email_select: {
-    ask: {
-      type: 'input',
-      block_id: 'email_input',
-      label: {
-        type: 'plain_text',
-        text: 'Email Address',
-      },
-      element: {
-        type: 'plain_text_input',
-        action_id: 'email',
-        placeholder: {
+    ask: [
+      {
+        type: 'input',
+        block_id: 'email_input',
+        label: {
           type: 'plain_text',
-          text: 'Enter email address',
+          text: 'Email Address',
+        },
+        element: {
+          type: 'plain_text_input',
+          action_id: 'email',
+          placeholder: {
+            type: 'plain_text',
+            text: 'Enter email address',
+          },
         },
       },
-    },
+      {
+        type: 'actions',
+        block_id: 'email_actions',
+        elements: [
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'Save',
+            },
+            action_id: `${ COMMAND_NAME }:email:save`,
+            style: 'primary',
+          },
+        ],
+      },
+    ],
     display: (emailAddress) => {
       return {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: emailAddress,
+          text: `Email: ${ emailAddress }`,
         },
       };
     },
@@ -42,7 +59,7 @@ const slackInteractiveCustomerDelete = async (req, res) => {
   if (!body?.payload) {
 
     const initialBlocks = [
-      blocks.email_select.ask,
+      ...blocks.email_select.ask,
     ];
 
     return respond(res, 200, {
@@ -76,12 +93,35 @@ const slackInteractiveCustomerDelete = async (req, res) => {
     actionValue,
   });
 
+  const [commandName, actionName, ...actionNodes] = actionId.split(':');
+
   let response;
 
-  response = {
-    replace_original: 'true',
-    text: `I don't do anything yet :hugging_face:`,
-  };
+  switch (actionName) {
+    case 'email':
+
+      switch (actionNodes?.[0]) {
+
+        case 'save':
+          const emailAddress = state?.values?.email_input?.email?.value || '';
+          logDeep('emailAddress', emailAddress);
+          response = {
+            replace_original: 'true',
+            blocks: [
+              blocks.email_select.display(emailAddress),
+            ],
+          };
+          break;
+
+        default:
+          console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
+          return;
+      }
+      break;
+    default:
+      console.warn(`Unknown actionName: ${ actionName }`);
+      return;
+  }
 
   logDeep('response', response);
   return customAxios(responseUrl, {
