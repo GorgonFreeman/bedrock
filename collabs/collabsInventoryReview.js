@@ -66,7 +66,7 @@ const collabsInventoryReview = async (
     let { sku, inventoryQuantity } = variant;
 
     if (region === 'uk') {
-      const locationQuantity = variant?.inventoryItem?.inventoryLevel?.quantities[0]?.quantity || inventoryQuantity || null;
+      const locationQuantity = variant?.inventoryItem?.inventoryLevel?.quantities[0]?.quantity || null;
       if (!customNullish(locationQuantity)) {
         inventoryQuantity = locationQuantity;
       }
