@@ -53,6 +53,8 @@ const collabsCustomerErase = async (
     result.shopifyRequestDataErasureResponse = shopifyRequestDataErasureResponse;
     result.customerUpdateResponse = customerUpdateResponse;
     result.customerEmailUnsubscribeResponse = customerEmailUnsubscribeResponse;
+
+    // TODO: Delete gender, date of birth, wishlist, and other pertinent metafields
   }
 
   // 3. Consider deleting from other platforms, e.g. Salesforce
@@ -72,4 +74,4 @@ module.exports = {
   collabsCustomerEraseApi,
 };
 
-// curl localhost:8000/collabsCustomerErase -H "Content-Type: application/json" -d '{ "shopifyRegion": "au", "shopifyCustomerId": "9135184871496" }'
+// curl localhost:8000/collabsCustomerErase -H "Content-Type: application/json" -d '{ "shopifyRegion": "us", "shopifyCustomerId": "7548887531580" }'
