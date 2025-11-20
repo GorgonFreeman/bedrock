@@ -50,7 +50,6 @@ const collabsCustomerErase = async (
     const customerUpdateResponse = await shopifyCustomerUpdate(shopifyRegion, shopifyCustomerId, {
       firstName: null,
       lastName: null,
-      email: null,
       phone: null,
       addresses: [],
       emailMarketingConsent: { marketingState: 'UNSUBSCRIBED' },
@@ -61,7 +60,6 @@ const collabsCustomerErase = async (
       success: updateSuccess,
       result: updateResult,
     } = customerUpdateResponse;
-
     if (!updateSuccess) {
       return customerUpdateResponse;
     }
