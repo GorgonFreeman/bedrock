@@ -8,6 +8,8 @@ const { shopifyInventoryQuantitiesSet } = require('../shopify/shopifyInventoryQu
 const { shopifyRegionToPvxSite } = require('../mappings');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
+const { logiwaReportGetAvailableToPromise } = require('../logiwa/logiwaReportGetAvailableToPromise');
+
 const {
   REGIONS_PVX,
   REGIONS_LOGIWA,
@@ -33,11 +35,11 @@ const collabsInventorySync = async (
   }
 
   const pvxRelevant = REGIONS_PVX.includes(region);
-  // const logiwaRelevant = REGIONS_LOGIWA.includes(region);
+  const logiwaRelevant = REGIONS_LOGIWA.includes(region);
   // const bleckmannRelevant = REGIONS_BLECKMANN.includes(region);
   const anyRelevant = [
     pvxRelevant, 
-    // logiwaRelevant, 
+    logiwaRelevant, 
     // bleckmannRelevant,
   ].some(Boolean);
   if (!anyRelevant) {
@@ -133,6 +135,28 @@ const collabsInventorySync = async (
     }
 
     wmsInventoryObj = arrayToObj(pvxInventory, { uniqueKeyProp: 'Item code', keepOnlyValueProp: 'Available' });
+    !HOSTED && logDeep('wmsInventoryObj', wmsInventoryObj);
+  }
+
+  if (logiwaRelevant) {
+    const logiwaReportResponse = await logiwaReportGetAvailableToPromise(
+      {
+        undamagedQuantity_gt: '0',
+      },
+      {
+        apiVersion: 'v3.2',
+      },
+    );
+
+    const {
+      success: logiwaReportSuccess,
+      result: logiwaInventory,
+    } = logiwaReportResponse;
+    if (!logiwaReportSuccess) {
+      return logiwaReportResponse;
+    }
+
+    wmsInventoryObj = arrayToObj(logiwaInventory, { uniqueKeyProp: 'productSku', keepOnlyValueProp: 'sellableQuantity' });
     !HOSTED && logDeep('wmsInventoryObj', wmsInventoryObj);
   }
 
