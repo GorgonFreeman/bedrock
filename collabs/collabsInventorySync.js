@@ -203,6 +203,9 @@ const collabsInventorySync = async (
     });
   }
 
+  logDeep('shopifyInventoryQuantitiesSetPayloads', shopifyInventoryQuantitiesSetPayloads);
+  await askQuestion('?');
+
   const shopifyInventoryQuantitiesSetResponse = await shopifyInventoryQuantitiesSet(
     region,
     'available',
