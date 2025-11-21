@@ -181,6 +181,11 @@ const collabsInventorySync = async (
     const diff = shopifyAvailable - wmsInventory;
     const oversellRisk = diff > 0;
     const absDiff = Math.abs(diff);
+    
+    // If same as WMS, skip
+    if (!(absDiff > 0)) {
+      continue;
+    }
   
     // Always send oversell risks, even if less than min diff.
     if (!oversellRisk && absDiff < minDiff) {
