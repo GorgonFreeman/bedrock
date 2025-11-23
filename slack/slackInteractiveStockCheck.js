@@ -192,8 +192,8 @@ const blocks = {
     },
   },
 
-  data: (userId) => ({
-    called_by: {
+  data: {
+    called_by: (userId) => ({
       type: 'input',
       block_id: 'data:called_by',
       optional: true,
@@ -208,8 +208,8 @@ const blocks = {
         initial_value: userId,
         dispatch_action: false,
       },
-    },
-  }),
+    }),
+  },
 };
 
 const slackInteractiveStockCheck = async (req, res) => {
@@ -221,7 +221,10 @@ const slackInteractiveStockCheck = async (req, res) => {
   if (!body?.payload) {
     console.log(`Initiation, e.g. slash command`);
 
+    const { user_id: userId } = body;
+
     const initialBlocks = [
+      blocks.data.called_by(userId),
       blocks.intro,
       blocks.settings.heading,
       blocks.settings.state(DEFAULT_CONFIG.onlyPublishedProducts, DEFAULT_CONFIG.minDiff),
