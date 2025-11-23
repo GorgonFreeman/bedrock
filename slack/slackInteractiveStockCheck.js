@@ -466,7 +466,16 @@ const slackInteractiveStockCheck = async (req, res) => {
 
           const { onlyPublishedProducts, minDiff, region } = settingsFromState(settingsStateBlock?.text?.text);
 
-          await askQuestion(`${ actionNodes?.[0] } inventory sync, ${ onlyPublishedProducts ? 'only published products' : 'all products' }, ${ minDiff === 0 ? 'any diff' : `>= ${ minDiff } diff` }?`);
+          // await askQuestion(`${ actionNodes?.[0] } inventory sync, ${ onlyPublishedProducts ? 'only published products' : 'all products' }, ${ minDiff === 0 ? 'any diff' : `>= ${ minDiff } diff` }?`);
+    
+          // Send the loading message first
+          await customAxios(responseUrl, {
+            method: 'post',
+            body: {
+              replace_original: 'true',
+              text: `Importing ${ region.toUpperCase() } stock...`,
+            },
+          });
 
           const inventorySyncResponse = await collabsInventorySync(region, {
             minDiff: minDiff,
