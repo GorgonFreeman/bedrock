@@ -470,9 +470,9 @@ const slackInteractiveStockCheck = async (req, res) => {
             };
           };
 
-          const { onlyPublishedProducts, minDiff, region } = settingsFromState(settingsStateBlock?.text?.text);
+          const { onlyPublished, minDiff, region } = settingsFromState(settingsStateBlock?.text?.text);
 
-          // await askQuestion(`${ actionNodes?.[0] } inventory sync, ${ onlyPublishedProducts ? 'only published products' : 'all products' }, ${ minDiff === 0 ? 'any diff' : `>= ${ minDiff } diff` }?`);
+          // await askQuestion(`${ actionNodes?.[0] } inventory sync, ${ onlyPublished ? 'only published products' : 'all products' }, ${ minDiff === 0 ? 'any diff' : `>= ${ minDiff } diff` }?`);
     
           // Send the loading message first
           await customAxios(responseUrl, {
@@ -486,6 +486,13 @@ const slackInteractiveStockCheck = async (req, res) => {
           const inventorySyncResponse = await collabsInventorySync(region, {
             minDiff: minDiff,
             safeMode: actionNodes?.[0] === 'safe',
+            ...onlyPublished ? {
+              shopifyVariantsFetchQueries: [
+                'published_status:published',
+                'product_publication_status:approved',
+                ...region === 'us' ? ['tag_not:not_for_radial'] : [],
+              ],
+            } : {},
           });
 
           const { success: inventorySyncSuccess, result: inventorySyncResult } = inventorySyncResponse;
