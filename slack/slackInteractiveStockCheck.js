@@ -192,24 +192,6 @@ const blocks = {
     },
   },
 
-  data: {
-    called_by: (userId) => ({
-      type: 'input',
-      block_id: 'data:called_by',
-      optional: true,
-      label: {
-        type: 'plain_text',
-        text: ' ',
-        emoji: false,
-      },
-      element: {
-        type: 'plain_text_input',
-        action_id: `${ COMMAND_NAME }:data:called_by`,
-        initial_value: userId,
-        dispatch_action: false,
-      },
-    }),
-  },
 };
 
 const slackInteractiveStockCheck = async (req, res) => {
@@ -224,7 +206,6 @@ const slackInteractiveStockCheck = async (req, res) => {
     const { user_id: userId } = body;
 
     const initialBlocks = [
-      blocks.data.called_by(userId),
       blocks.intro,
       blocks.settings.heading,
       blocks.settings.state(DEFAULT_CONFIG.onlyPublishedProducts, DEFAULT_CONFIG.minDiff),
