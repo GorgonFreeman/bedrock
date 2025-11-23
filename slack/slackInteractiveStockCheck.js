@@ -191,6 +191,25 @@ const blocks = {
       },
     },
   },
+
+  data: (userId) => ({
+    called_by: {
+      type: 'input',
+      block_id: 'data:called_by',
+      optional: true,
+      label: {
+        type: 'plain_text',
+        text: ' ',
+        emoji: false,
+      },
+      element: {
+        type: 'plain_text_input',
+        action_id: `${ COMMAND_NAME }:data:called_by`,
+        initial_value: userId,
+        dispatch_action: false,
+      },
+    },
+  }),
 };
 
 const slackInteractiveStockCheck = async (req, res) => {
