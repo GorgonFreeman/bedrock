@@ -119,12 +119,12 @@ const blocks = {
     },
   },
   
-  result: (regionDisplay, sheetUrl) => {
+  result: (regionDisplay, sheetUrl, { mentionUserId } = {}) => {
     return {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `Stock check for ${ regionDisplay }: <${ sheetUrl }|:google_sheets:>`,
+        text: `${ mentionUserId ? `Hey <@${ mentionUserId }>! ` : '' }Stock check for ${ regionDisplay }: <${ sheetUrl }|:google_sheets:>`,
       },
     };
   },
@@ -233,7 +233,10 @@ const slackInteractiveStockCheck = async (req, res) => {
     state, 
     actions, 
     message,
+    user,
   } = payload;
+
+  const { id: callerUserId } = user;
 
   const {
     blocks: currentBlocks,
@@ -300,7 +303,7 @@ const slackInteractiveStockCheck = async (req, res) => {
       if (!inventoryReviewSuccess) {
         response = {
           replace_original: 'true',
-          text: `Error checking ${ regionDisplay } stock: ${ JSON.stringify(inventoryReviewResponse) }\n\nJohnnnn :pleading_face:`,
+          text: `${ callerUserId ? `<@${ callerUserId }>, ` : '' }Error checking ${ regionDisplay } stock: ${ JSON.stringify(inventoryReviewResponse) }\n\nJohnnnn :pleading_face:`,
         };
         break;
       }
@@ -341,7 +344,7 @@ const slackInteractiveStockCheck = async (req, res) => {
       if (!sheetAddSuccess) {
         response = {
           replace_original: 'true',
-          text: `Error adding sheet to spreadsheet: ${ JSON.stringify(sheetAddResponse) }`,
+          text: `${ callerUserId ? `<@${ callerUserId }>, ` : '' }Error adding sheet to spreadsheet: ${ JSON.stringify(sheetAddResponse) }`,
         };
         break;
       }
@@ -489,14 +492,14 @@ const slackInteractiveStockCheck = async (req, res) => {
           if (!inventorySyncSuccess) {
             response = {
               replace_original: 'true',
-              text: `Error syncing inventory: ${ JSON.stringify(inventorySyncResponse) }`,
+              text: `${ callerUserId ? `<@${ callerUserId }>, ` : '' }Error syncing inventory: ${ JSON.stringify(inventorySyncResponse) }`,
             };
             break;
           }
 
           response = {
             replace_original: 'true',
-            text: `${ region.toUpperCase() } stock synced successfully :heart_hands:`,
+            text: `${ callerUserId ? `Hey <@${ callerUserId }>! ` : '' }${ region.toUpperCase() } stock synced successfully :heart_hands:`,
           };
           break;
 
