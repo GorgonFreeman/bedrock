@@ -1,53 +1,26 @@
 const { funcApi, logDeep } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
+const defaultAttrs = `id name`;
 
 const shopifyLocationGetMain = async (
   credsPath,
-  arg,
   {
     apiVersion,
-    option,
+    attrs = defaultAttrs,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
+  const response = {
+    success: true,
+    result: 'true',
   };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
-      apiVersion,
-    },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
-
   logDeep(response);
   return response;
 };
 
 const shopifyLocationGetMainApi = funcApi(shopifyLocationGetMain, {
-  argNames: ['credsPath', 'arg', 'options'],
+  argNames: ['credsPath', 'options'],
 });
 
 module.exports = {
@@ -55,4 +28,4 @@ module.exports = {
   shopifyLocationGetMainApi,
 };
 
-// curl localhost:8000/shopifyLocationGetMain -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyLocationGetMain -H "Content-Type: application/json" -d '{ "credsPath": "au" }'
