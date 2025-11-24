@@ -19,7 +19,7 @@ const shopifyLocationGetMain = async (
 ) => {
 
   attrs = `
-    ${ necessaryAttrs }
+    ${ contextAttrs }
     ${ attrs }
   `;
 
