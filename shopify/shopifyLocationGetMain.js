@@ -19,11 +19,24 @@ const shopifyLocationGetMain = async (
     },
   );
 
-  logDeep(locationsResponse);
+  const { success: locationsSuccess, result: locations } = locationsResponse;
+  if (!locationsSuccess) {
+    return locationsResponse;
+  }
 
-  const response = locationsResponse;
-  logDeep(response);
-  return response;
+  if (locations.length === 1) {
+    return {
+      success: true,
+      result: locations[0],
+    };
+  }
+
+  logDeep(locations);
+
+  return {
+    success: false,
+    errors: ['Multiple locations found'],
+  };
 };
 
 const shopifyLocationGetMainApi = funcApi(shopifyLocationGetMain, {
