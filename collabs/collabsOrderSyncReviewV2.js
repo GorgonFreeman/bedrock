@@ -91,7 +91,7 @@ const collabsOrderSyncReviewV2 = async (
     await askQuestion('?');
 
     getterWms = await bleckmannPickticketsGetter({
-      createdFrom: `${ dateTimeFromNow({ minus: days(5), dateOnly: true }) }T00.00.00Z`,
+      createdFrom: `${ dateTimeFromNow({ minus: days(5), dateOnly: true }) }T00:00:00Z`,
 
       onItems: (items) => {
         piles.wms.push(...items);
