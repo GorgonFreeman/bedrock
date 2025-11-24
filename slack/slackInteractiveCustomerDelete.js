@@ -203,7 +203,8 @@ const slackInteractiveCustomerDelete = async (req, res) => {
       }
 
       logDeep('eraseResult', eraseResult);
-
+      
+      // TODO: More detailed success message with what actions were taken, e.g. delete vs request data erasure
       response = {
         replace_original: 'true',
         text: `Customer ${ emailAddress } in ${ region.toUpperCase() } erased successfully! :tada:`,
