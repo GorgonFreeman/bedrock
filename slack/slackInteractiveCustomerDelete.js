@@ -54,19 +54,15 @@ const blocks = {
       {
         type: 'actions',
         block_id: 'store_select_actions',
-        elements: [
-          {
-            type: 'checkboxes',
-            action_id: `${ COMMAND_NAME }:store_select`,
-            options: REGIONS_WF.map(region => ({
-              text: {
-                type: 'plain_text',
-                text: region.toUpperCase(),
-              },
-              value: region,
-            })),
+        elements: REGIONS_WF.map(region => ({
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: region.toUpperCase(),
           },
-        ],
+          value: region,
+          action_id: `${ COMMAND_NAME }:store_select:${ region }`,
+        })),
       },
     ],
   }
