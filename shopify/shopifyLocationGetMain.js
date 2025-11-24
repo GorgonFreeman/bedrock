@@ -1,5 +1,6 @@
 const { funcApi, logDeep, credsByPath } = require('../utils');
 const { shopifyLocationsGet } = require('../shopify/shopifyLocationsGet');
+const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 
 // don't need isActive - includeInactive is false by default
 const contextAttrs = `
@@ -22,6 +23,21 @@ const shopifyLocationGetMain = async (
   const { LOCATION_ID } = creds;
 
   if (LOCATION_ID) {
+
+    if (attrs.trim().split(/\s+/).filter(attr => attr !== 'id').length > 0) {
+      const locationResponse = await shopifyGetSingle(
+        credsPath,
+        'location',
+        LOCATION_ID,
+        {
+          attrs,
+        },
+      );
+
+      logDeep(locationResponse);
+      return locationResponse;
+    }
+
     return {
       success: true,
       result: {
