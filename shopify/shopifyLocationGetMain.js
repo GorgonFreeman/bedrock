@@ -1,4 +1,4 @@
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, credsByPath } = require('../utils');
 const { shopifyLocationsGet } = require('../shopify/shopifyLocationsGet');
 
 // don't need isActive - includeInactive is false by default
@@ -17,6 +17,18 @@ const shopifyLocationGetMain = async (
     attrs = defaultAttrs,
   } = {},
 ) => {
+
+  const creds = credsByPath(['shopify', credsPath]);
+  const { LOCATION_ID } = creds;
+
+  if (LOCATION_ID) {
+    return {
+      success: true,
+      result: {
+        id: `gid://shopify/Location/${ LOCATION_ID }`,
+      },
+    };
+  }
 
   attrs = `
     ${ contextAttrs }
