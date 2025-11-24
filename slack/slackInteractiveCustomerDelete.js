@@ -1,4 +1,4 @@
-const { respond, logDeep, customAxios, gidToId } = require('../utils');
+const { respond, logDeep, customAxios, gidToId, arrayToObj } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
 const { collabsCustomerErase } = require('../collabs/collabsCustomerErase');
@@ -43,6 +43,7 @@ const blocks = {
     display: (emailAddress) => {
       return {
         type: 'section',
+        block_id: 'state:email',
         text: {
           type: 'mrkdwn',
           text: `Email: ${ emailAddress }`,
@@ -93,6 +94,15 @@ const slackInteractiveCustomerDelete = async (req, res) => {
   const payload = JSON.parse(body.payload);
   logDeep('payload', payload);
 
+  const {
+    message,
+  } = payload;
+
+  const {
+    blocks: currentBlocks,
+  } = message;
+  const currentBlocksById = arrayToObj(currentBlocks, { uniqueKeyProp: 'block_id' });
+
   const { 
     response_url: responseUrl,
     state, 
@@ -142,6 +152,12 @@ const slackInteractiveCustomerDelete = async (req, res) => {
     case 'store_select':
 
       const region = actionNodes?.[0];
+
+      const emailDisplayBlock = currentBlocksById['state:email'];
+      logDeep('emailDisplayBlock', emailDisplayBlock);
+
+      const emailAddress = emailDisplayBlock?.text?.text?.split('Email: ')?.[1];
+      logDeep('emailAddress', emailAddress);
 
       const customerResponse = await shopifyCustomerGet(region, { email: emailAddress });
 
