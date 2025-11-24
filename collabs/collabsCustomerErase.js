@@ -3,6 +3,7 @@ const { shopifyCustomerDelete } = require('../shopify/shopifyCustomerDelete');
 const { shopifyCustomerRequestDataErasure } = require('../shopify/shopifyCustomerRequestDataErasure');
 const { shopifyCustomerUpdate } = require('../shopify/shopifyCustomerUpdate');
 const { shopifyCustomerMarketingConsentUpdateEmail } = require('../shopify/shopifyCustomerMarketingConsentUpdateEmail');
+const { shopifyMetafieldsDelete } = require('../shopify/shopifyMetafieldsDelete');
 
 const collabsCustomerErase = async (
   shopifyRegion,
@@ -39,6 +40,7 @@ const collabsCustomerErase = async (
       shopifyRequestDataErasureResponse,
       customerUpdateResponse,
       customerEmailUnsubscribeResponse,
+      customerMetafieldsDeleteResponse,
     ] = await Promise.all([
       shopifyCustomerRequestDataErasure(shopifyRegion, shopifyCustomerId),
       shopifyCustomerUpdate(shopifyRegion, shopifyCustomerId, {
@@ -48,13 +50,34 @@ const collabsCustomerErase = async (
         addresses: [],
       }),
       shopifyCustomerMarketingConsentUpdateEmail(shopifyRegion, shopifyCustomerId, 'UNSUBSCRIBED'),
+      shopifyMetafieldsDelete(shopifyRegion, [
+        {
+          namespace: 'facts',
+          key: 'birth_date',
+        },
+        {
+          namespace: 'facts',
+          key: 'province_code',
+        },
+        {
+          namespace: 'facts',
+          key: 'country_code',
+        },
+        {
+          namespace: 'facts',
+          key: 'gender',
+        },
+        {
+          namespace: 'facts',
+          key: 'zip_code',
+        },
+      ].map(mf => ({ ...mf, ownerId: shopifyCustomerId }))),
     ]);
 
     result.shopifyRequestDataErasureResponse = shopifyRequestDataErasureResponse;
     result.customerUpdateResponse = customerUpdateResponse;
     result.customerEmailUnsubscribeResponse = customerEmailUnsubscribeResponse;
-
-    // TODO: Delete gender, date of birth, wishlist, and other pertinent metafields
+    result.customerMetafieldsDeleteResponse = customerMetafieldsDeleteResponse;
   }
 
   // 3. Consider deleting from other platforms, e.g. Salesforce
@@ -74,4 +97,4 @@ module.exports = {
   collabsCustomerEraseApi,
 };
 
-// curl localhost:8000/collabsCustomerErase -H "Content-Type: application/json" -d '{ "shopifyRegion": "us", "shopifyCustomerId": "7548887531580" }'
+// curl localhost:8000/collabsCustomerErase -H "Content-Type: application/json" -d '{ "shopifyRegion": "uk", "shopifyCustomerId": "22264206098805" }'
