@@ -15,7 +15,6 @@ const shopifyLocationGetMain = async (
     credsPath,
     {
       attrs,
-      limit: 2,
       queries: [
         'active:true',
       ],
