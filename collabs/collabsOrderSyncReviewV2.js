@@ -1,4 +1,4 @@
-const { funcApi, logDeep, dateTimeFromNow, days, askQuestion, Processor, ThresholdActioner } = require('../utils');
+const { funcApi, logDeep, dateTimeFromNow, days, askQuestion, Processor, ThresholdActioner, gidToId, wait } = require('../utils');
 const { 
   HOSTED,
   REGIONS_PVX, 
@@ -102,11 +102,28 @@ const collabsOrderSyncReviewV2 = async (
     piles.wms,
     async (pile) => {
 
-      // Attempt to find orders in already fetched Shopify orders. If not found, push to the front of the array.
+      // Make the operation async so that getters can continue
+      await wait(10);
 
+      // Attempt to find orders in already fetched Shopify orders. If not found, push to the front of the array.
       const pickticket = pile.shift();
-      logDeep(pickticket);
-      await askQuestion('?');
+      const { reference } = pickticket;
+      const shopifyOrder = piles.shopify.find(order => gidToId(order.id) === reference);
+
+      if (!shopifyOrder) {
+        piles.wms.push(pickticket);
+        return;
+      }
+      
+      const orderIndex = piles.shopify.indexOf(shopifyOrder);
+      // This shouldn't happen, we just found the order in the array
+      if (orderIndex === -1) {
+        piles.wms.push(pickticket);
+        return;
+      }
+
+      piles.shopify.splice(orderIndex, 1);
+      piles.found.push(shopifyOrder);
     },
     pile => pile.length === 0,
     {
