@@ -26,6 +26,7 @@ const shopifyLocationGetMain = async (
   if (!locationsSuccess) {
     return locationsResponse;
   }
+
   if (locations.length === 1) {
     return {
       success: true,
