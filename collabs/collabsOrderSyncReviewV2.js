@@ -107,21 +107,26 @@ const collabsOrderSyncReviewV2 = async (
 
       // Attempt to find orders in already fetched Shopify orders. If not found, push to the front of the array.
       const pickticket = pile.shift();
+
+      const fail = () => {
+        piles[eagerProcessor.canFinish ? 'missing' : 'wms'].push(pickticket);
+      };
+
       const { reference } = pickticket;
       const shopifyOrder = piles.shopify.find(order => gidToId(order.id) === reference);
 
       if (!shopifyOrder) {
-        piles.wms.push(pickticket);
+        fail();
         return;
       }
       
       const orderIndex = piles.shopify.indexOf(shopifyOrder);
       // This shouldn't happen, we just found the order in the array
       if (orderIndex === -1) {
-        piles.wms.push(pickticket);
+        fail();
         return;
       }
-
+      // Remove order from Shopify pile
       piles.shopify.splice(orderIndex, 1);
       piles.found.push(shopifyOrder);
     },
