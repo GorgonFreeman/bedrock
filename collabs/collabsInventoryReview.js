@@ -4,7 +4,8 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 const { json2csv } = require('json-2-csv');
-const { respond, mandateParam, logDeep, askQuestion, strictlyFalsey, arraySortByProp } = require('../utils');
+const { HOSTED } = require('../constants');
+const { respond, mandateParam, logDeep, askQuestion, strictlyFalsey, arraySortByProp, gidToId } = require('../utils');
 
 const {
   REGIONS_PVX,
@@ -15,6 +16,7 @@ const {
 const { shopifyRegionToPvxSite } = require('../mappings');
 
 const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
+const { shopifyLocationGetMain } = require('../shopify/shopifyLocationGetMain');
 const { logiwaReportGetAvailableToPromise } = require('../logiwa/logiwaReportGetAvailableToPromise');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 const { bleckmannInventoriesGet } = require('../bleckmann/bleckmannInventoriesGet');
@@ -25,6 +27,7 @@ const collabsInventoryReview = async (
     downloadCsv = false,
     shopifyVariantsFetchQueries,
     minReportableDiff = 0,
+    locationId,
   } = {},
 ) => {
 
@@ -38,6 +41,29 @@ const collabsInventoryReview = async (
       message: 'Region not supported',
     };
   }
+
+  if (!locationId) {
+    console.log(`${ region }: Using main location`);
+
+    const locationResponse = await shopifyLocationGetMain(region);
+
+    const { success: locationSuccess, result: location } = locationResponse;
+    if (!locationSuccess) {
+      return locationResponse;
+    }
+
+    if (!location) {
+      return {
+        success: false,
+        errors: ['No location found'],
+      };
+    }
+
+    const { id: locationGid } = location;
+    locationId = gidToId(locationGid);
+  }
+
+  !HOSTED && logDeep('locationId', locationId);
 
   const shopifyInventoryResponse = await shopifyVariantsGet(
     region,
