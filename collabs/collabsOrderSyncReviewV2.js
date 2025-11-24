@@ -1,4 +1,10 @@
 const { funcApi, logDeep } = require('../utils');
+const { 
+  HOSTED,
+  REGIONS_PVX, 
+  REGIONS_BLECKMANN,
+  REGIONS_LOGIWA,
+} = require('../constants');
 
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 
@@ -8,6 +14,22 @@ const collabsOrderSyncReviewV2 = async (
     option,
   } = {},
 ) => {
+
+  const pvxRelevant = REGIONS_PVX.includes(region);
+  const logiwaRelevant = REGIONS_LOGIWA.includes(region);
+  const bleckmannRelevant = REGIONS_BLECKMANN.includes(region);
+  const anyRelevant = [
+    // pvxRelevant, 
+    // logiwaRelevant, 
+    bleckmannRelevant,
+  ].some(Boolean);
+  
+  if (!anyRelevant) {
+    return {
+      success: false,
+      message: 'Region not supported',
+    };
+  }
 
   const piles = {
     shopify: [],
