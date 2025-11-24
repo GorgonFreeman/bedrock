@@ -1,4 +1,5 @@
-const { funcApi, logDeep, credsByPath } = require('../utils');
+const { HOSTED } = require('../constants');
+const { funcApi, logDeep, credsByPath, interactiveChooseOption, gidToId } = require('../utils');
 const { shopifyLocationsGet } = require('../shopify/shopifyLocationsGet');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 
@@ -72,6 +73,23 @@ const shopifyLocationGetMain = async (
   }
 
   logDeep(locations);
+
+  if (!HOSTED) {
+    const chosenLocation = await interactiveChooseOption(
+      'Choose the main location',
+      locations,
+      {
+        nameNode: 'name',
+      },
+    );
+    logDeep(chosenLocation);
+    console.log(`Consider setting LOCATION_ID: ${ gidToId(chosenLocation.id) } in .creds.yml`);
+
+    return {
+      success: true,
+      result: chosenLocation,
+    };
+  }
 
   return {
     success: false,
