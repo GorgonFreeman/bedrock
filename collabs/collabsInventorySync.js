@@ -2,7 +2,7 @@ const { HOSTED } = require('../constants');
 const { funcApi, logDeep, gidToId, askQuestion, arrayToObj } = require('../utils');
 
 const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
-const { shopifyLocationsGet } = require('../shopify/shopifyLocationsGet');
+const { shopifyLocationGetMain } = require('../shopify/shopifyLocationGetMain');
 const { shopifyInventoryQuantitiesSet } = require('../shopify/shopifyInventoryQuantitiesSet');
 
 const { shopifyRegionToPvxSite } = require('../mappings');
@@ -56,20 +56,14 @@ const collabsInventorySync = async (
   // TODO: Convert to getters and processors
 
   if (!locationId) {
-    const shopifyLocationsResponse = await shopifyLocationsGet(
-      region,
-      {
-        attrs: 'id name',
-      },
-    );
+    console.log(`${ region }: Using main location`);
 
-    const { success: shopifyLocationsSuccess, result: shopifyLocations } = shopifyLocationsResponse;
-    if (!shopifyLocationsSuccess) {
-      return shopifyLocationsResponse;
+    const locationResponse = await shopifyLocationGetMain(region);
+
+    const { success: locationSuccess, result: location } = locationResponse;
+    if (!locationSuccess) {
+      return locationResponse;
     }
-    
-    // TODO: Implement logic to choose the correct location
-    const location = shopifyLocations?.[0];
 
     if (!location) {
       return {
