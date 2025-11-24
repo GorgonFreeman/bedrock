@@ -8,7 +8,7 @@ const {
 
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 
-const { bleckmannPickticketsGet, bleckmannPickticketsGetter } = require('../bleckmann/bleckmannPickticketsGet');
+const { bleckmannPickticketsGetter } = require('../bleckmann/bleckmannPickticketsGet');
 
 const collabsOrderSyncReviewV2 = async (
   region,
@@ -84,11 +84,6 @@ const collabsOrderSyncReviewV2 = async (
   let getterWms;
 
   if (bleckmannRelevant) {
-    await bleckmannPickticketsGet({
-      createdFrom: `${ dateTimeFromNow({ minus: days(5), dateOnly: true }) }T00.00.00Z`,
-    });
-
-    await askQuestion('?');
 
     getterWms = await bleckmannPickticketsGetter({
       createdFrom: `${ dateTimeFromNow({ minus: days(5), dateOnly: true }) }T00:00:00Z`,
@@ -99,8 +94,6 @@ const collabsOrderSyncReviewV2 = async (
 
       logFlavourText: `wms:getter:`,
     });
-
-    await askQuestion('?');
   }
 
   getters.push(getterWms);
