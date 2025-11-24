@@ -68,7 +68,18 @@ const collabsInventoryReview = async (
   const shopifyInventoryResponse = await shopifyVariantsGet(
     region,
     {
-      attrs: 'sku inventoryQuantity',
+      attrs: `
+        sku 
+        inventoryQuantity 
+        inventoryItem { 
+          inventoryLevel(locationId: "gid://shopify/Location/${ locationId }") { 
+            quantities(names: "available") { 
+              name 
+              quantity
+            } 
+          }
+        }
+      `,
       ...(shopifyVariantsFetchQueries ? { queries: shopifyVariantsFetchQueries } : {}),
     },
   );
@@ -83,9 +94,16 @@ const collabsInventoryReview = async (
   
   const inventoryReviewObject = {};
   for (const variant of shopifyInventory) {
-    const { sku, inventoryQuantity } = variant;
+    const { 
+      sku, 
+      // inventoryQuantity, 
+      inventoryItem,
+    } = variant;
+
+    const shopifyAvailable = inventoryItem?.inventoryLevel?.quantities?.find(quantity => quantity.name === 'available')?.quantity || 0;
+
     inventoryReviewObject[sku] = {
-      shopifyAvailable: inventoryQuantity,
+      shopifyAvailable,
     };
   }
   // logDeep('inventoryReviewObject', inventoryReviewObject);
