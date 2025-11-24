@@ -1,4 +1,5 @@
 const { respond, logDeep, customAxios } = require('../utils');
+const { REGIONS_WF } = require('../constants');
 const { collabsCustomerErase } = require('../collabs/collabsCustomerErase');
 
 const COMMAND_NAME = 'customer_delete'; // slash command
@@ -48,6 +49,27 @@ const blocks = {
       };
     },
   },
+  store_select: {
+    ask: [
+      {
+        type: 'actions',
+        block_id: 'store_select_actions',
+        elements: [
+          {
+            type: 'checkboxes',
+            action_id: `${ COMMAND_NAME }:store_select`,
+            options: REGIONS_WF.map(region => ({
+              text: {
+                type: 'plain_text',
+                text: region.toUpperCase(),
+              },
+              value: region,
+            })),
+          },
+        ],
+      },
+    ],
+  }
 };
 
 const slackInteractiveCustomerDelete = async (req, res) => {
@@ -109,6 +131,7 @@ const slackInteractiveCustomerDelete = async (req, res) => {
             replace_original: 'true',
             blocks: [
               blocks.email_select.display(emailAddress),
+              ...blocks.store_select.ask,
             ],
           };
           break;
