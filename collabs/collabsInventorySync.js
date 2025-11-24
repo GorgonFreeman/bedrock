@@ -202,8 +202,16 @@ const collabsInventorySync = async (
     });
   }
 
-  logDeep('shopifyInventoryQuantitiesSetPayloads', shopifyInventoryQuantitiesSetPayloads);
-  await askQuestion('?');
+  if (shopifyInventoryQuantitiesSetPayloads.length === 0) {
+    return {
+      success: true,
+      code: 204,
+      result: 'No inventory needed to be synced',
+    };
+  }
+
+  !HOSTED && logDeep('shopifyInventoryQuantitiesSetPayloads', shopifyInventoryQuantitiesSetPayloads);
+  !HOSTED && await askQuestion('?');
 
   const shopifyInventoryQuantitiesSetResponse = await shopifyInventoryQuantitiesSet(
     region,
