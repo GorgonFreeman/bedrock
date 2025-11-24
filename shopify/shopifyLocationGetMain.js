@@ -1,5 +1,5 @@
 const { funcApi, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+const { shopifyLocationsGet } = require('../shopify/shopifyLocationsGet');
 
 const defaultAttrs = `id name`;
 
@@ -11,10 +11,17 @@ const shopifyLocationGetMain = async (
   } = {},
 ) => {
 
-  const response = {
-    success: true,
-    result: 'true',
-  };
+  const locationsResponse = await shopifyLocationsGet(
+    credsPath,
+    {
+      attrs,
+      limit: 2,
+    },
+  );
+
+  logDeep(locationsResponse);
+
+  const response = locationsResponse;
   logDeep(response);
   return response;
 };
