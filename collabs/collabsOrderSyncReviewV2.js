@@ -1,4 +1,4 @@
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, dateTimeFromNow, days } = require('../utils');
 const { 
   HOSTED,
   REGIONS_PVX, 
@@ -7,6 +7,8 @@ const {
 } = require('../constants');
 
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
+
+const { bleckmannPickticketsGetter } = require('../bleckmann/bleckmannPickticketsGet');
 
 const collabsOrderSyncReviewV2 = async (
   region,
@@ -78,6 +80,22 @@ const collabsOrderSyncReviewV2 = async (
   );
 
   getters.push(getterShopify);
+
+  let getterWms;
+
+  if (bleckmannRelevant) {
+    getterWms = await bleckmannPickticketsGetter({
+      createdFrom: `${ dateTimeFromNow({ minus: days(5), dateOnly: true }) }T00.00.00Z`,
+
+      onItems: (items) => {
+        piles.wms.push(...items);
+      },
+
+      logFlavourText: `wms:getter:`,
+    });
+  }
+
+  getters.push(getterWms);
 
   await Promise.all(getters.map(getter => getter.run()));
 
