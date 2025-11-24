@@ -16,6 +16,9 @@ const shopifyLocationGetMain = async (
     {
       attrs,
       limit: 2,
+      queries: [
+        'active:true',
+      ],
     },
   );
 
@@ -23,7 +26,6 @@ const shopifyLocationGetMain = async (
   if (!locationsSuccess) {
     return locationsResponse;
   }
-
   if (locations.length === 1) {
     return {
       success: true,
