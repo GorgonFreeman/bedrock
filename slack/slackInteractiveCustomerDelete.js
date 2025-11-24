@@ -1,5 +1,6 @@
-const { respond, logDeep, customAxios } = require('../utils');
+const { respond, logDeep, customAxios, gidToId } = require('../utils');
 const { REGIONS_WF } = require('../constants');
+const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
 const { collabsCustomerErase } = require('../collabs/collabsCustomerErase');
 
 const COMMAND_NAME = 'customer_delete'; // slash command
@@ -137,6 +138,63 @@ const slackInteractiveCustomerDelete = async (req, res) => {
           return;
       }
       break;
+
+    case 'store_select':
+
+      const region = actionNodes?.[0];
+
+      const customerResponse = await shopifyCustomerGet(region, { email: emailAddress });
+
+      const {
+        success: customerGetSuccess,
+        result: shopifyCustomer,
+      } = customerResponse;
+
+      if (!customerGetSuccess) {
+        response = {
+          replace_original: 'true',
+          text: `Error getting customer: ${ JSON.stringify(customerGetResponse) }`,
+        };
+        break;
+      }
+
+      // Let user know customer was found
+      await customAxios(responseUrl, {
+        method: 'post',
+        body: {
+          replace_original: 'true',
+          text: `Found customer ${ emailAddress } in ${ region.toUpperCase() }! Deleting...`,
+        },
+      });
+
+      const { id: shopifyCustomerGid } = shopifyCustomer;
+      const shopifyCustomerId = gidToId(shopifyCustomerGid);
+      logDeep('shopifyCustomerId', shopifyCustomerId);
+
+      const eraseResponse = await collabsCustomerErase(region, shopifyCustomerId);
+
+      const { 
+        success: eraseSuccess,
+        result: eraseResult,
+      } = eraseResponse;
+
+      if (!eraseSuccess) {
+        response = {
+          replace_original: 'true',
+          text: `Error erasing customer: ${ JSON.stringify(eraseResponse) }`,
+        };
+        break;
+      }
+
+      logDeep('eraseResult', eraseResult);
+
+      response = {
+        replace_original: 'true',
+        text: `Customer ${ emailAddress } in ${ region.toUpperCase() } erased successfully! :tada:`,
+      };
+
+      break;
+
     default:
       console.warn(`Unknown actionName: ${ actionName }`);
       return;
