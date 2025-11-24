@@ -45,15 +45,6 @@ const shopifyLocationGetMain = async (
 
   logDeep(locations);
 
-  const filteredLocations = locations.filter(({ fulfillsOnlineOrders }) => fulfillsOnlineOrders);
-
-  if (filteredLocations.length === 1) {
-    return {
-      success: true,
-      result: filteredLocations[0],
-    };
-  }
-
   return {
     success: false,
     errors: ['Multiple locations found'],
