@@ -156,7 +156,7 @@ const slackInteractiveCustomerDelete = async (req, res) => {
       const emailDisplayBlock = currentBlocksById['state:email'];
       logDeep('emailDisplayBlock', emailDisplayBlock);
 
-      const emailAddress = emailDisplayBlock?.text?.text?.split('Email: ')?.[1];
+      const emailAddress = emailDisplayBlock?.text?.text?.split('Email: ')?.[1]?.split('|')?.[1]?.split('>')?.[0];
       logDeep('emailAddress', emailAddress);
 
       const customerResponse = await shopifyCustomerGet(region, { email: emailAddress });
