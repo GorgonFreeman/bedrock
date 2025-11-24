@@ -48,6 +48,7 @@ const collabsCustomerErase = async (
         lastName: null,
         phone: null,
         addresses: [],
+        note: null,
       }),
       shopifyCustomerMarketingConsentUpdateEmail(shopifyRegion, shopifyCustomerId, 'UNSUBSCRIBED'),
       shopifyMetafieldsDelete(shopifyRegion, [
