@@ -1,9 +1,9 @@
 // https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/PICKTICKET/getPicktickets
 
 const { respond, mandateParam, logDeep } = require('../utils');
-const { bleckmannGet, bleckmannNowTime } = require('../bleckmann/bleckmann.utils');
+const { bleckmannGet, bleckmannGetter, bleckmannNowTime } = require('../bleckmann/bleckmann.utils');
 
-const bleckmannPickticketsGet = async (
+const payloadMaker = (
   {
     credsPath,
     skip,
@@ -26,7 +26,7 @@ const bleckmannPickticketsGet = async (
     createdTo = bleckmannNowTime();
   }
 
-  const response = await bleckmannGet(
+  return [
     'warehousing/picktickets',
     {
       credsPath,
@@ -43,8 +43,16 @@ const bleckmannPickticketsGet = async (
       ...(perPage && { perPage }),
       ...getterOptions,
     },
-  );
-  logDeep(response);
+  ];
+};
+
+const bleckmannPickticketsGet = async (...args) => {
+  const response = await bleckmannGet(...payloadMaker(...args));
+  return response;
+};
+
+const bleckmannPickticketsGetter = async (...args) => {
+  const response = await bleckmannGetter(...payloadMaker(...args));
   return response;
 };
 
@@ -68,6 +76,7 @@ const bleckmannPickticketsGetApi = async (req, res) => {
 
 module.exports = {
   bleckmannPickticketsGet,
+  bleckmannPickticketsGetter,
   bleckmannPickticketsGetApi,
 };
 
