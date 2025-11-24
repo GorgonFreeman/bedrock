@@ -71,6 +71,7 @@ module.exports = {
   shopifyGraphqlSend: require('./shopify/shopifyGraphqlSend').shopifyGraphqlSendApi,
   shopifyInventoryItemUpdate: require('./shopify/shopifyInventoryItemUpdate').shopifyInventoryItemUpdateApi,
   shopifyInventoryQuantitiesSet: require('./shopify/shopifyInventoryQuantitiesSet').shopifyInventoryQuantitiesSetApi,
+  shopifyLocationGetMain: require('./shopify/shopifyLocationGetMain').shopifyLocationGetMainApi,
   shopifyLocationsGet: require('./shopify/shopifyLocationsGet').shopifyLocationsGetApi,
   shopifyMetafieldGet: require('./shopify/shopifyMetafieldGet').shopifyMetafieldGetApi,
   shopifyMetafieldsSet: require('./shopify/shopifyMetafieldsSet').shopifyMetafieldsSetApi,
