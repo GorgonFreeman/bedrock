@@ -7,6 +7,7 @@ shopify:
   store:
     STORE_URL: shopify-store
     SHOPIFY_API_KEY: shpat_____________
+    LOCATION_ID: ______________________
     DISCOUNT_CLASS_TAGS:
       - discountable
       - sale
