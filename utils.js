@@ -1722,6 +1722,21 @@ const dateFromNow = ({
   return adjustedDateIso;
 };
 
+class ThresholdActioner {
+  constructor(threshold, action) {
+    this.threshold = threshold;
+    this.action = action;
+    this.count = 0;
+  }
+
+  increment() {
+    this.count++;
+    if (this.count >= this.threshold) {
+      this.action();
+    }
+  }
+}
+
 module.exports = {
 
   // Really core
@@ -1792,4 +1807,5 @@ module.exports = {
   Getter,
   Processor,
   ProcessorPipeline,
+  ThresholdActioner,
 };

@@ -1,4 +1,4 @@
-const { funcApi, logDeep, dateTimeFromNow, days, askQuestion } = require('../utils');
+const { funcApi, logDeep, dateTimeFromNow, days, askQuestion, Processor, ThresholdActioner } = require('../utils');
 const { 
   HOSTED,
   REGIONS_PVX, 
@@ -98,7 +98,34 @@ const collabsOrderSyncReviewV2 = async (
 
   getters.push(getterWms);
 
-  await Promise.all(getters.map(getter => getter.run()));
+  const eagerProcessor = new Processor(
+    piles.wms,
+    async (pile) => {
+
+      // Attempt to find orders in already fetched Shopify orders. If not found, push to the front of the array.
+
+      const pickticket = pile.shift();
+      logDeep(pickticket);
+      await askQuestion('?');
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+      logFlavourText: `eager:`,
+    },
+  );
+
+  const gettersFinishedActioner = new ThresholdActioner(getters.length, () => {
+    eagerProcessor.canFinish = true;
+  });
+  getters.forEach(getter => {
+    getter.on('done', gettersFinishedActioner.increment);
+  });
+
+  await Promise.all([
+    ...getters.map(getter => getter.run()),
+    eagerProcessor.run(),
+  ]);
 
   logDeep(piles);
 
