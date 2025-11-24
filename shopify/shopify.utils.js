@@ -143,6 +143,8 @@ const shopifyGetter = async (
     ownerGid,
     // https://shopify.dev/docs/api/admin-graphql/latest/objects/fulfillmentOrder#queries
     includeClosed,
+    // https://shopify.dev/docs/api/admin-graphql/latest/queries/locations#arguments-includeLegacy
+    includeLegacy,
     // https://shopify.dev/docs/api/admin-graphql/latest/queries/metaobjects
     type,
     
@@ -174,6 +176,7 @@ const shopifyGetter = async (
     ...pinnedStatus ? ['$pinnedStatus: MetafieldDefinitionPinnedStatus,'] : [],
     ...ownerGid ? ['$owner: ID!,'] : [],
     ...includeClosed ? ['$includeClosed: Boolean,'] : [],
+    ...includeLegacy ? ['$includeLegacy: Boolean,'] : [],
     ...type ? ['$type: String!,'] : [],
   ].join('\n');
 
@@ -193,6 +196,7 @@ const shopifyGetter = async (
     ...pinnedStatus ? ['pinnedStatus: $pinnedStatus'] : [],
     ...ownerGid ? ['owner: $owner'] : [],
     ...includeClosed ? ['includeClosed: $includeClosed'] : [],
+    ...includeLegacy ? ['includeLegacy: $includeLegacy'] : [],
     ...type ? ['type: $type'] : [],
   ].join('\n');
 
@@ -232,6 +236,7 @@ const shopifyGetter = async (
     ...pinnedStatus && { pinnedStatus },
     ...ownerGid && { owner: ownerGid },
     ...includeClosed && { includeClosed },
+    ...includeLegacy && { includeLegacy },
     ...type && { type },
   };
 

@@ -27,6 +27,7 @@ const shopifyLocationGetMain = async (
     credsPath,
     {
       attrs,
+      includeLegacy: true,
     },
   );
 
