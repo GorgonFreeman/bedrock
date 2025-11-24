@@ -1,10 +1,10 @@
 const { funcApi, logDeep } = require('../utils');
 const { shopifyLocationsGet } = require('../shopify/shopifyLocationsGet');
 
+// don't need isActive - includeInactive is false by default
 const contextAttrs = `
   fulfillsOnlineOrders
   hasActiveInventory
-  isActive
   isFulfillmentService
   shipsInventory
 `;
