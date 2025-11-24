@@ -1,6 +1,13 @@
 const { funcApi, logDeep } = require('../utils');
 const { shopifyLocationsGet } = require('../shopify/shopifyLocationsGet');
 
+const contextAttrs = `
+  fulfillsOnlineOrders
+  hasActiveInventory
+  isActive
+  isFulfillmentService
+  shipsInventory
+`;
 const defaultAttrs = `id name`;
 
 const shopifyLocationGetMain = async (
@@ -10,6 +17,11 @@ const shopifyLocationGetMain = async (
     attrs = defaultAttrs,
   } = {},
 ) => {
+
+  attrs = `
+    ${ necessaryAttrs }
+    ${ attrs }
+  `;
 
   const locationsResponse = await shopifyLocationsGet(
     credsPath,
@@ -35,9 +47,21 @@ const shopifyLocationGetMain = async (
 
   logDeep(locations);
 
+  const filteredLocations = locations.filter(({ fulfillsOnlineOrders, shipsInventory }) => fulfillsOnlineOrders && shipsInventory);
+
+  if (filteredLocations.length === 1) {
+    return {
+      success: true,
+      result: filteredLocations[0],
+    };
+  }
+
   return {
     success: false,
     errors: ['Multiple locations found'],
+    data: {
+      locations,
+    },
   };
 };
 
@@ -50,4 +74,4 @@ module.exports = {
   shopifyLocationGetMainApi,
 };
 
-// curl localhost:8000/shopifyLocationGetMain -H "Content-Type: application/json" -d '{ "credsPath": "au" }'
+// curl localhost:8000/shopifyLocationGetMain -H "Content-Type: application/json" -d '{ "credsPath": "uk" }'
