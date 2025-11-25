@@ -305,13 +305,13 @@ const collabsOrderSyncReviewV2 = async (
   });
 
   await Promise.all([
-    ...getters.map(getter => getter.run()),
-    eagerProcessor.run(),
+    ...getters.map(getter => typeof getter.run === 'function' ? getter?.run() : getter()),
+    typeof eagerProcessor.run === 'function' ? eagerProcessor?.run() : eagerProcessor(),
     tagger.run(),
   ]);
 
   if (thoroughProcessor) {
-    await thoroughProcessor.run();
+    await thoroughProcessor?.run() || thoroughProcessor();
   }
   
   tagger.canFinish = true;
