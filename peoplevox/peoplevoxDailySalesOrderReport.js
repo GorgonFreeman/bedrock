@@ -9,7 +9,7 @@ const { slackMessagePost } = require("../slack/slackMessagePost");
 
 const peoplevoxDailySalesOrderReport = async ({
   dateFilter,
-  userId = "U042STM5B3R", // U042STM5B3R Arther - U0723SZKSQ0 Benny
+  userId = "C0A07UT729F", // U042STM5B3R Arther - U0723SZKSQ0 Benny
   credsPath,
 } = {}) => {
   try {
