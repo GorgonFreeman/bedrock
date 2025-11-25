@@ -176,7 +176,7 @@ const collabsOrderSyncReviewV2 = async (
       },
       pile => pile.length === 0,
       {
-        canFinish: false,
+        canFinish: true,
         logFlavourText: `thorough:`,
       },
     );
@@ -269,7 +269,7 @@ const collabsOrderSyncReviewV2 = async (
       },
       pile => pile.length === 0,
       {
-        canFinish: false,
+        canFinish: true,
         logFlavourText: `thorough:`,
       },
     );
