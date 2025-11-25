@@ -234,9 +234,9 @@ const collabsOrderSyncReviewV2 = async (
       {
         canFinish: false,
         logFlavourText: `eager:`,
-        // runOptions: {
-        //   verbose: false,
-        // },
+        runOptions: {
+          verbose: false,
+        },
       },
     );
 
