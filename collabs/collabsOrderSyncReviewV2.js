@@ -36,6 +36,7 @@ const collabsOrderSyncReviewV2 = async (
   const piles = {
     shopify: [],
     wms: [],
+    discarded: [],
     found: [],
     missing: [],
   };
@@ -109,7 +110,7 @@ const collabsOrderSyncReviewV2 = async (
       const pickticket = pile.shift();
 
       const fail = () => {
-        piles[eagerProcessor.canFinish ? 'missing' : 'wms'].push(pickticket);
+        piles[eagerProcessor.canFinish ? 'discarded' : 'wms'].push(pickticket);
       };
 
       const { reference } = pickticket;
