@@ -12,6 +12,9 @@ const { shopifyTagsAdd } = require('../shopify/shopifyTagsAdd');
 const { bleckmannPickticketsGetter } = require('../bleckmann/bleckmannPickticketsGet');
 const { bleckmannPickticketGet } = require('../bleckmann/bleckmannPickticketGet');
 
+const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
+const { peoplevoxOrdersGetById } = require('../peoplevox/peoplevoxOrdersGetById');
+
 const collabsOrderSyncReviewV2 = async (
   region,
   {
@@ -23,7 +26,7 @@ const collabsOrderSyncReviewV2 = async (
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
   const bleckmannRelevant = REGIONS_BLECKMANN.includes(region);
   const anyRelevant = [
-    // pvxRelevant, 
+    pvxRelevant, 
     // logiwaRelevant, 
     bleckmannRelevant,
   ].some(Boolean);
@@ -170,6 +173,94 @@ const collabsOrderSyncReviewV2 = async (
         }
   
         piles.found.push(order);
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: false,
+        logFlavourText: `thorough:`,
+      },
+    );
+  }
+
+  if (pvxRelevant) {
+    getterWms = await bleckmannPickticketsGetter({
+      createdFrom: `${ dateTimeFromNow({ minus: days(5), dateOnly: true }) }T00:00:00Z`,
+
+      onItems: (items) => {
+        piles.wms.push(...items);
+      },
+
+      logFlavourText: `wms:getter:`,
+    });
+
+    eagerProcessor = new Processor(
+      piles.wms,
+      async (pile) => {
+  
+        // Make the operation async so that getters can continue
+        await wait(1);
+  
+        // Attempt to find orders in already fetched Shopify orders. If not found, push to the front of the array.
+        const peoplevoxOrder = pile.shift();
+  
+        const fail = () => {
+          piles[eagerProcessor.canFinish ? 'discarded' : 'wms'].push(peoplevoxOrder);
+        };
+  
+        const { reference } = pickticket;
+        const shopifyOrder = piles.shopify.find(order => gidToId(order.id) === reference);
+  
+        if (!shopifyOrder) {
+          fail();
+          return;
+        }
+        
+        const orderIndex = piles.shopify.indexOf(shopifyOrder);
+        // This shouldn't happen, we just found the order in the array
+        if (orderIndex === -1) {
+          fail();
+          return;
+        }
+        // Remove order from Shopify pile
+        piles.shopify.splice(orderIndex, 1);
+        piles.found.push(shopifyOrder);
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: false,
+        logFlavourText: `eager:`,
+        // runOptions: {
+        //   verbose: false,
+        // },
+      },
+    );
+
+    thoroughProcessor = new Processor(
+      piles.shopify,
+      async (pile) => {
+
+        const orders = pile.splice(0);
+        const peoplevoxOrdersResponse = await peoplevoxOrdersGetById(orders.map(o => gidToId(o.id)));
+
+        const { success: peoplevoxOrdersSuccess, result: peoplevoxOrders } = peoplevoxOrdersResponse;
+        if (!peoplevoxOrdersSuccess) {
+          piles.errors.push(...orders);
+          return;
+        }
+
+        const peoplevoxOrderIds = new Set(peoplevoxOrders.map(o => o.SalesOrderNumber));
+
+        for (const order of orders) {
+          const { id: orderGid } = order;
+          const orderId = gidToId(orderGid);
+
+          if (peoplevoxOrderIds.has(orderId)) {
+            piles.found.push(order);
+            continue;
+          }
+          
+          piles.missing.push(order);
+        }
       },
       pile => pile.length === 0,
       {
