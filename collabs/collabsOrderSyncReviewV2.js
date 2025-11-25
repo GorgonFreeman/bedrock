@@ -7,6 +7,7 @@ const {
 } = require('../constants');
 
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
+const { shopifyTagsAdd } = require('../shopify/shopifyTagsAdd');
 
 const { bleckmannPickticketsGetter } = require('../bleckmann/bleckmannPickticketsGet');
 const { bleckmannPickticketGet } = require('../bleckmann/bleckmannPickticketGet');
@@ -41,6 +42,7 @@ const collabsOrderSyncReviewV2 = async (
     found: [],
     missing: [],
     errors: [],
+    results: [],
   };
 
   const shopifyQueriesByRegion = {
@@ -179,6 +181,31 @@ const collabsOrderSyncReviewV2 = async (
 
   getters.push(getterWms);
 
+  const tagger = new Processor(
+    piles.found,
+    async (pile) => {
+      const orderGids = pile.splice(0).map(o => o.id);
+
+      const tagResponse = await shopifyTagsAdd(
+        region,
+        orderGids,
+        ['sync_confirmed'],
+        {
+          queueRunOptions: {
+            interval: 20,
+          },
+        },
+      );
+
+      piles.results.push(tagResponse);
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+      logFlavourText: `tagger:`,
+    },
+  );
+
   const gettersFinishedActioner = new ThresholdActioner(getters.length, () => {
     eagerProcessor.canFinish = true;
   });
@@ -189,10 +216,14 @@ const collabsOrderSyncReviewV2 = async (
   await Promise.all([
     ...getters.map(getter => getter.run()),
     eagerProcessor.run(),
+    tagger.run(),
   ]);
+
   if (thoroughProcessor) {
     await thoroughProcessor.run();
   }
+  
+  tagger.canFinish = true;
 
   logDeep(piles);
   logDeep(surveyNestedArrays(piles));
