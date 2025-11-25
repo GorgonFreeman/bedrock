@@ -308,18 +308,24 @@ const collabsOrderSyncReviewV2 = async (
   getters.filter(g => g instanceof Getter).forEach(getter => {
     getter.on('done', gettersFinishedActioner.increment);
   });
-
+  
   await Promise.all([
     ...getters.map(getter => typeof getter.run === 'function' ? getter?.run() : getter(gettersFinishedActioner.increment)),
     typeof eagerProcessor.run === 'function' ? eagerProcessor?.run() : eagerProcessor(),
-    tagger.run(),
   ]);
 
   if (thoroughProcessor) {
-    await thoroughProcessor?.run() || thoroughProcessor();
+    thoroughProcessor.on('done', () => {
+      tagger.canFinish = true;
+    });
+  } else {
+    tagger.canFinish = true;
   }
-  
-  tagger.canFinish = true;
+
+  await Promise.all([
+    tagger.run(),
+    ...thoroughProcessor ? [thoroughProcessor?.run() || thoroughProcessor()] : [],
+  ]);
 
   logDeep(piles);
   logDeep(surveyNestedArrays(piles));
