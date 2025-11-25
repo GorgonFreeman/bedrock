@@ -84,7 +84,9 @@ const collabsOrderSyncReviewV2 = async (
 
   getters.push(getterShopify);
 
-  let getterWms;
+  let getterWms; // getter that fetches orders from the WMS in bulk
+  let eagerProcessor; // processor that checks the fetched orders for both Shopify and the WMS and resolves any that can be resolved
+  let thoroughProcessor; // processor that goes through the remaining unresolved Shopify orders and attempts to fetch orders from the WMS individually
 
   if (bleckmannRelevant) {
 
@@ -97,85 +99,85 @@ const collabsOrderSyncReviewV2 = async (
 
       logFlavourText: `wms:getter:`,
     });
+
+    eagerProcessor = new Processor(
+      piles.wms,
+      // TODO: Consider pushing orders to another pile while eager, and only pushing back to the original pile when exhausted.
+      async (pile) => {
+  
+        // Make the operation async so that getters can continue
+        await wait(1);
+  
+        // Attempt to find orders in already fetched Shopify orders. If not found, push to the front of the array.
+        const pickticket = pile.shift();
+  
+        const fail = () => {
+          piles[eagerProcessor.canFinish ? 'discarded' : 'wms'].push(pickticket);
+        };
+  
+        const { reference } = pickticket;
+        const shopifyOrder = piles.shopify.find(order => gidToId(order.id) === reference);
+  
+        if (!shopifyOrder) {
+          fail();
+          return;
+        }
+        
+        const orderIndex = piles.shopify.indexOf(shopifyOrder);
+        // This shouldn't happen, we just found the order in the array
+        if (orderIndex === -1) {
+          fail();
+          return;
+        }
+        // Remove order from Shopify pile
+        piles.shopify.splice(orderIndex, 1);
+        piles.found.push(shopifyOrder);
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: false,
+        logFlavourText: `eager:`,
+        // runOptions: {
+        //   verbose: false,
+        // },
+      },
+    );
+
+    thoroughProcessor = new Processor(
+      piles.shopify,
+      async (pile) => {
+  
+        const order = pile.shift();
+        const { id: orderGid } = order;
+        const orderId = gidToId(orderGid);
+  
+        const pickticketResponse = await bleckmannPickticketGet({ pickticketReference: orderId });
+  
+        const { success, result: pickticket } = pickticketResponse;
+        if (!success) {
+          piles.errors.push({
+            ...order,
+            pickticketResponse,
+          });
+          return;
+        }
+  
+        if (!pickticket) {
+          piles.missing.push(order);
+          return;
+        }
+  
+        piles.found.push(order);
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: false,
+        logFlavourText: `thorough:`,
+      },
+    );
   }
 
   getters.push(getterWms);
-
-  const eagerProcessor = new Processor(
-    piles.wms,
-    // TODO: Consider pushing orders to another pile while eager, and only pushing back to the original pile when exhausted.
-    async (pile) => {
-
-      // Make the operation async so that getters can continue
-      await wait(1);
-
-      // Attempt to find orders in already fetched Shopify orders. If not found, push to the front of the array.
-      const pickticket = pile.shift();
-
-      const fail = () => {
-        piles[eagerProcessor.canFinish ? 'discarded' : 'wms'].push(pickticket);
-      };
-
-      const { reference } = pickticket;
-      const shopifyOrder = piles.shopify.find(order => gidToId(order.id) === reference);
-
-      if (!shopifyOrder) {
-        fail();
-        return;
-      }
-      
-      const orderIndex = piles.shopify.indexOf(shopifyOrder);
-      // This shouldn't happen, we just found the order in the array
-      if (orderIndex === -1) {
-        fail();
-        return;
-      }
-      // Remove order from Shopify pile
-      piles.shopify.splice(orderIndex, 1);
-      piles.found.push(shopifyOrder);
-    },
-    pile => pile.length === 0,
-    {
-      canFinish: false,
-      logFlavourText: `eager:`,
-      runOptions: {
-        verbose: false,
-      },
-    },
-  );
-
-  const thoroughProcessor = new Processor(
-    piles.shopify,
-    async (pile) => {
-
-      const order = pile.shift();
-      const { id: orderGid } = order;
-      const orderId = gidToId(orderGid);
-
-      const pickticketResponse = await bleckmannPickticketGet({ pickticketReference: orderId });
-
-      const { success, result: pickticket } = pickticketResponse;
-      if (!success) {
-        piles.errors.push({
-          ...order,
-          pickticketResponse,
-        });
-        return;
-      }
-
-      if (!pickticket) {
-        piles.missing.push(order);
-        return;
-      }
-
-      piles.found.push(order);
-    },
-    pile => pile.length === 0,
-    {
-      canFinish: false,
-      logFlavourText: `thorough:`,
-    },
-  );
 
   const gettersFinishedActioner = new ThresholdActioner(getters.length, () => {
     eagerProcessor.canFinish = true;
@@ -188,7 +190,9 @@ const collabsOrderSyncReviewV2 = async (
     ...getters.map(getter => getter.run()),
     eagerProcessor.run(),
   ]);
-  await thoroughProcessor.run();
+  if (thoroughProcessor) {
+    await thoroughProcessor.run();
+  }
 
   logDeep(piles);
   logDeep(surveyNestedArrays(piles));
