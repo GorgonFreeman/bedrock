@@ -201,7 +201,9 @@ const collabsOrderSyncReviewV2 = async (
       async (pile) => {
   
         // Make the operation async so that getters can continue
-        await wait(1);
+        if (!eagerProcessor.canFinish) {
+          await wait(1);
+        }
   
         // Attempt to find orders in already fetched Shopify orders. If not found, push to the front of the array.
         const peoplevoxOrder = pile.shift();
