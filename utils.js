@@ -1727,6 +1727,7 @@ class ThresholdActioner {
     this.threshold = threshold;
     this.action = action;
     this.count = 0;
+    this.increment = this.increment.bind(this);
   }
 
   increment() {

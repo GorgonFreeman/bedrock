@@ -1,4 +1,4 @@
-const { funcApi, logDeep, dateTimeFromNow, days, askQuestion, Processor, ThresholdActioner, gidToId, wait, surveyNestedArrays } = require('../utils');
+const { funcApi, logDeep, dateTimeFromNow, days, askQuestion, Processor, Getter, ThresholdActioner, gidToId, wait, surveyNestedArrays } = require('../utils');
 const { 
   HOSTED,
   REGIONS_PVX, 
@@ -183,15 +183,20 @@ const collabsOrderSyncReviewV2 = async (
   }
 
   if (pvxRelevant) {
-    getterWms = await bleckmannPickticketsGetter({
-      createdFrom: `${ dateTimeFromNow({ minus: days(5), dateOnly: true }) }T00:00:00Z`,
+    getterWms = async (callback) => {
+      const peoplevoxReportResponse = await peoplevoxReportGet('Orders Last 2 Days');
+      const { success: peoplevoxReportSuccess, result: pvxReportOrders } = peoplevoxReportResponse;
 
-      onItems: (items) => {
-        piles.wms.push(...items);
-      },
+      if (!peoplevoxReportSuccess) {
+        logDeep(peoplevoxReportResponse);
+        throw new Error('Failed to get Peoplevox orders');
+      }
 
-      logFlavourText: `wms:getter:`,
-    });
+      piles.wms.push(...pvxReportOrders);
+      logDeep('piles.wms', piles.wms);
+      await askQuestion('?');
+      callback();
+    };
 
     eagerProcessor = new Processor(
       piles.wms,
@@ -207,9 +212,9 @@ const collabsOrderSyncReviewV2 = async (
           piles[eagerProcessor.canFinish ? 'discarded' : 'wms'].push(peoplevoxOrder);
         };
   
-        const { reference } = pickticket;
-        const shopifyOrder = piles.shopify.find(order => gidToId(order.id) === reference);
-  
+        const { 'Sales order no.': salesOrderNumber } = peoplevoxOrder;
+        const shopifyOrder = piles.shopify.find(order => gidToId(order.id) === salesOrderNumber);
+
         if (!shopifyOrder) {
           fail();
           return;
@@ -300,12 +305,12 @@ const collabsOrderSyncReviewV2 = async (
   const gettersFinishedActioner = new ThresholdActioner(getters.length, () => {
     eagerProcessor.canFinish = true;
   });
-  getters.forEach(getter => {
+  getters.filter(g => g instanceof Getter).forEach(getter => {
     getter.on('done', gettersFinishedActioner.increment);
   });
 
   await Promise.all([
-    ...getters.map(getter => typeof getter.run === 'function' ? getter?.run() : getter()),
+    ...getters.map(getter => typeof getter.run === 'function' ? getter?.run() : getter(gettersFinishedActioner.increment)),
     typeof eagerProcessor.run === 'function' ? eagerProcessor?.run() : eagerProcessor(),
     tagger.run(),
   ]);
