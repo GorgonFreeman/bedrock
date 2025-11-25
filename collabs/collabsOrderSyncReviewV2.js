@@ -193,8 +193,6 @@ const collabsOrderSyncReviewV2 = async (
       }
 
       piles.wms.push(...pvxReportOrders);
-      logDeep('piles.wms', piles.wms);
-      await askQuestion('?');
       callback();
     };
 
