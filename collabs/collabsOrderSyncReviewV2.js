@@ -1,4 +1,4 @@
-const { funcApi, logDeep, dateTimeFromNow, days, askQuestion, Processor, ThresholdActioner, gidToId, wait } = require('../utils');
+const { funcApi, logDeep, dateTimeFromNow, days, askQuestion, Processor, ThresholdActioner, gidToId, wait, surveyNestedArrays } = require('../utils');
 const { 
   HOSTED,
   REGIONS_PVX, 
@@ -9,6 +9,7 @@ const {
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 
 const { bleckmannPickticketsGetter } = require('../bleckmann/bleckmannPickticketsGet');
+const { bleckmannPickticketGet } = require('../bleckmann/bleckmannPickticketGet');
 
 const collabsOrderSyncReviewV2 = async (
   region,
@@ -39,6 +40,7 @@ const collabsOrderSyncReviewV2 = async (
     discarded: [],
     found: [],
     missing: [],
+    errors: [],
   };
 
   const shopifyQueriesByRegion = {
@@ -142,6 +144,39 @@ const collabsOrderSyncReviewV2 = async (
     },
   );
 
+  const thoroughProcessor = new Processor(
+    piles.shopify,
+    async (pile) => {
+
+      const order = pile.shift();
+      const { id: orderGid } = order;
+      const orderId = gidToId(orderGid);
+
+      const pickticketResponse = await bleckmannPickticketGet({ pickticketReference: orderId });
+
+      const { success, result: pickticket } = pickticketResponse;
+      if (!success) {
+        piles.errors.push({
+          ...order,
+          pickticketResponse,
+        });
+        return;
+      }
+
+      if (!pickticket) {
+        piles.missing.push(order);
+        return;
+      }
+
+      piles.found.push(order);
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+      logFlavourText: `thorough:`,
+    },
+  );
+
   const gettersFinishedActioner = new ThresholdActioner(getters.length, () => {
     eagerProcessor.canFinish = true;
   });
@@ -153,8 +188,10 @@ const collabsOrderSyncReviewV2 = async (
     ...getters.map(getter => getter.run()),
     eagerProcessor.run(),
   ]);
+  await thoroughProcessor.run();
 
   logDeep(piles);
+  logDeep(surveyNestedArrays(piles));
 
   return { 
     region, 
