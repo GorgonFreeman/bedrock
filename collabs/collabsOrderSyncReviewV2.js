@@ -101,6 +101,7 @@ const collabsOrderSyncReviewV2 = async (
 
   const eagerProcessor = new Processor(
     piles.wms,
+    // TODO: Consider pushing orders to another pile while eager, and only pushing back to the original pile when exhausted.
     async (pile) => {
 
       // Make the operation async so that getters can continue
