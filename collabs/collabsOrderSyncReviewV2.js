@@ -104,7 +104,7 @@ const collabsOrderSyncReviewV2 = async (
     async (pile) => {
 
       // Make the operation async so that getters can continue
-      await wait(10);
+      await wait(1);
 
       // Attempt to find orders in already fetched Shopify orders. If not found, push to the front of the array.
       const pickticket = pile.shift();
@@ -135,6 +135,9 @@ const collabsOrderSyncReviewV2 = async (
     {
       canFinish: false,
       logFlavourText: `eager:`,
+      runOptions: {
+        verbose: false,
+      },
     },
   );
 
