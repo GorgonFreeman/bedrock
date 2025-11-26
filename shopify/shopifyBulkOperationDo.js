@@ -46,6 +46,7 @@ const shopifyBulkOperationDo = async (
   const bulkOperationId = gidToId(bulkOperationGid);
 
   let runningOpStatus;
+  let runningOpResult;
 
   do {
     await wait(seconds(5));
@@ -73,12 +74,26 @@ const shopifyBulkOperationDo = async (
     } = runningBulkOperation;
 
     runningOpStatus = status;
+    runningOpResult = runningBulkOperation;
 
   } while (['CREATED', 'RUNNING'].includes(runningOpStatus));
 
   if (runningOpStatus === 'COMPLETED') {
     // TODO: Get and return data from bulk operation
-    return bulkOperationResponse;
+    logDeep('runningOpResult', runningOpResult);
+
+    const {
+      url, 
+      objectCount,
+    } = runningOpResult;
+
+    return {
+      success: true,
+      result: {
+        url,
+        objectCount,
+      },
+    };
   }
 
   return {
