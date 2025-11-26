@@ -394,6 +394,7 @@ const shopifyJsonlInterpret = (jsonl) => {
   }).filter(obj => obj);
 
   const objectMaps = new Map();
+  let topLevelObjectType;
 
   for (const object of objects) {
     const {
@@ -404,8 +405,19 @@ const shopifyJsonlInterpret = (jsonl) => {
     // e.g. gid://shopify/InventoryLevel/11111111?inventory_item_id=22222222
     const [objectType, id] = gid.split('gid://shopify/')[1].split(/[^a-zA-Z0-9]+/);
     logDeep(objectType, id);
-
-    const parentType = parentGid.split('gid://shopify/')[1].split(/[^a-zA-Z0-9]+/)[0];
+    
+    let parentType;
+    if (parentGid) {
+      parentType = parentGid.split('gid://shopify/')[1].split(/[^a-zA-Z0-9]+/)[0];
+    } else {
+      if (!topLevelObjectType) {
+        topLevelObjectType = objectType;
+      } else {
+        if (topLevelObjectType !== objectType) {
+          throw new Error(`Top level object type mismatch, which I don't think should ever happen: ${ topLevelObjectType } !== ${ objectType }`);
+        }
+      }
+    }
 
     if (!objectMaps.has(objectType)) {
       objectMaps.set(objectType, new Map());
@@ -413,11 +425,12 @@ const shopifyJsonlInterpret = (jsonl) => {
     const typeMap = objectMaps.get(objectType);
     typeMap.set(gid, {
       ...object,
-      parentType,
+      ...parentType ? { parentType } : {},
     });
   }
   
   logDeep(objectMaps);
+  console.log(topLevelObjectType);
   return objectMaps;
 };
 
