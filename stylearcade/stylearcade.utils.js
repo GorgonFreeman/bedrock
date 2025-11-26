@@ -10,7 +10,7 @@ const stylearcadeRequestSetup = ({ credsPath } = {}) => {
   return {
     baseUrl: BASE_URL,
     headers: {
-      Authorization: `Bearer ${ API_KEY }`,
+      'Api-Key': API_KEY,
     },
   };
 };
