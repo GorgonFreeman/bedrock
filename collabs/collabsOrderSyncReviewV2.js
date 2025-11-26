@@ -421,8 +421,8 @@ const collabsOrderSyncReviewV2 = async (
   logDeep(surveyNestedArrays(piles));
 
   return { 
-    region, 
-    option,
+    success: true,
+    result: surveyNestedArrays(piles),
   };
   
 };
