@@ -1100,7 +1100,7 @@ class Getter extends EventEmitter {
   }
 }
 
-const gidToId = (gid) => gid?.split('/')?.pop();
+const gidToId = (gid) => gid?.split('/')?.pop()?.split('?')?.shift();
 
 const surveyObjects = (objArr) => {
   if (!Array.isArray(objArr) || objArr.length === 0) {
