@@ -88,12 +88,16 @@ const shopifyBulkOperationDo = async (
       objectCount,
     } = runningOpResult;
 
-    const bulkOperationResults = await customAxios(url);
-    const bulkOperationResultsJson = shopifyJsonlInterpret(bulkOperationResults);
+    const resultsResponse = await customAxios(url);
+    const { success: resultsSuccess, result: bulkOperationResultsJsonl } = resultsResponse;
+    if (!resultsSuccess) {
+      return resultsResponse;
+    }
+    const bulkOperationResults = shopifyJsonlInterpret(bulkOperationResultsJsonl);
 
     return {
       success: true,
-      result: bulkOperationResultsJson,
+      result: bulkOperationResults,
     };
   }
 
