@@ -117,3 +117,4 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyBulkOperationDo -H "Content-Type: application/json" -d '{ "credsPath": "au", "type": "query", "payload": "{ products { edges { node { id title handle } } } }" }'
+// curl localhost:8000/shopifyBulkOperationDo -H "Content-Type: application/json" -d '{ "credsPath": "au", "type": "query", "payload": "{ products { edges { node { id title handle variants { edges { node { id sku title price inventoryItem { id tracked inventoryLevels { edges { node { id quantities(names: [\"available\", \"committed\", \"on_hand\"]) { name quantity } location { id name } } } } } } } } } } } }" }'
