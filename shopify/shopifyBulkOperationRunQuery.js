@@ -1,5 +1,6 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/bulkoperationrunquery
 
+const { HOSTED } = require('../constants');
 const { funcApi, logDeep, customNullish } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
@@ -35,7 +36,7 @@ const shopifyBulkOperationRunQuery = async (
       apiVersion,
     },
   );
-  logDeep(response);
+  !HOSTED && logDeep(response);
   return response;
 };
 
