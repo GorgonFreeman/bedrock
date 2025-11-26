@@ -1,4 +1,4 @@
-const { funcApi, logDeep, askQuestion } = require('../utils');
+const { funcApi, logDeep, askQuestion, wait, seconds } = require('../utils');
 
 const { shopifyBulkOperationRunQuery } = require('../shopify/shopifyBulkOperationRunQuery');
 const { shopifyBulkOperationGet } = require('../shopify/shopifyBulkOperationGet');
@@ -42,28 +42,37 @@ const shopifyBulkOperationDo = async (
     id: bulkOperationId,
   } = bulkOperation;
 
-  const runningBulkOperationResponse = await shopifyBulkOperationGet(
-    credsPath,
-    bulkOperationId,
-    {
-      apiVersion: 'unstable', // TODO: Change this when the API is stable
-    },
-  );
+  let runningOpStatus;
 
-  const {
-    success: runningSuccess,
-    result: runningBulkOperation,
-  } = runningBulkOperationResponse;
+  do {
+    await wait(seconds(3));
 
-  if (!runningSuccess) {
-    return runningBulkOperationResponse;
-  }
+    const runningBulkOperationResponse = await shopifyBulkOperationGet(
+      credsPath,
+      bulkOperationId,
+      {
+        apiVersion: 'unstable', // TODO: Change this when the API is stable
+      },
+    );
+  
+    const {
+      success: runningSuccess,
+      result: runningBulkOperation,
+    } = runningBulkOperationResponse;
+  
+    if (!runningSuccess) {
+      return runningBulkOperationResponse;
+    }
 
-  logDeep(runningBulkOperation);
-  await askQuestion('?');
+    const {
+      status,
+    } = runningBulkOperation;
 
-  logDeep(bulkOperationResponse);
-  return bulkOperationResponse;
+    runningOpStatus = status;
+    logDeep(runningBulkOperation);
+    await askQuestion('?');
+
+  } while (runningOpStatus);
 };
 
 const shopifyBulkOperationDoApi = funcApi(shopifyBulkOperationDo, {
