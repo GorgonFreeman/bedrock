@@ -46,7 +46,7 @@ const shopifyBulkOperationDo = async (
     credsPath,
     bulkOperationId,
     {
-      apiVersion,
+      apiVersion: 'unstable', // TODO: Change this when the API is stable
     },
   );
 
