@@ -357,6 +357,10 @@ const collabsOrderSyncReviewV2 = async (
       {
         canFinish: true,
         logFlavourText: `thorough:`,
+        runOptions: {
+          interval: 100,
+        },
+        maxInFlightRequests: 50,
       },
     );
   }
