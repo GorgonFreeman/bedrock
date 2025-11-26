@@ -10,41 +10,48 @@ const shopifyBulkOperationDo = async (
   payload,
   {
     apiVersion,
+    resumeBulkOperationId,
   } = {},
 ) => {
+  
+  let bulkOperationId;
 
-  const bulkOperationRunner = type === 'query' ? shopifyBulkOperationRunQuery : null;
+  if (!resumeBulkOperationId) {
+    const bulkOperationRunner = type === 'query' ? shopifyBulkOperationRunQuery : null;
 
-  if (!bulkOperationRunner) {
-    return {
-      success: false,
-      error: `Type "${ type }" is not supported.`,
-    };
+    if (!bulkOperationRunner) {
+      return {
+        success: false,
+        error: `Type "${ type }" is not supported.`,
+      };
+    }
+
+    const bulkOperationResponse = await bulkOperationRunner(
+      credsPath,
+      payload,
+      {
+        apiVersion,
+      },
+    );
+
+    const {
+      success: runSuccess,
+      result: runResult,
+    } = bulkOperationResponse;
+    // TODO: Consider supporting a resultsNodePath as an array in shopifyMutationDo > shopifyClient
+    const { bulkOperation } = runResult || {};
+
+    if (!runSuccess || !bulkOperation) {
+      return bulkOperationResponse;
+    }
+
+    const {
+      id: bulkOperationGid,
+    } = bulkOperation;
+    bulkOperationId = gidToId(bulkOperationGid);
+  } else {
+    bulkOperationId = resumeBulkOperationId;
   }
-
-  const bulkOperationResponse = await bulkOperationRunner(
-    credsPath,
-    payload,
-    {
-      apiVersion,
-    },
-  );
-
-  const {
-    success: runSuccess,
-    result: runResult,
-  } = bulkOperationResponse;
-  // TODO: Consider supporting a resultsNodePath as an array in shopifyMutationDo > shopifyClient
-  const { bulkOperation } = runResult || {};
-
-  if (!runSuccess || !bulkOperation) {
-    return bulkOperationResponse;
-  }
-
-  const {
-    id: bulkOperationGid,
-  } = bulkOperation;
-  const bulkOperationId = gidToId(bulkOperationGid);
 
   let runningOpStatus;
   let runningOpResult;
@@ -118,3 +125,4 @@ module.exports = {
 
 // curl localhost:8000/shopifyBulkOperationDo -H "Content-Type: application/json" -d '{ "credsPath": "au", "type": "query", "payload": "{ products { edges { node { id title handle } } } }" }'
 // curl localhost:8000/shopifyBulkOperationDo -H "Content-Type: application/json" -d '{ "credsPath": "au", "type": "query", "payload": "{ products { edges { node { id title handle variants { edges { node { id sku title price inventoryItem { id tracked inventoryLevels { edges { node { id quantities(names: [\"available\", \"committed\", \"on_hand\"]) { name quantity } location { id name } } } } } } } } } } } }" }'
+// curl localhost:8000/shopifyBulkOperationDo -H "Content-Type: application/json" -d '{ "credsPath": "au", "type": " ", "payload": " ", "options": { "resumeBulkOperationId": "3527051673672" } }'
