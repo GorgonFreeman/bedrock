@@ -48,4 +48,4 @@ module.exports = {
   shopifyBulkOperationRunQueryApi,
 };
 
-// curl http://localhost:8000/shopifyBulkOperationRunQuery -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyBulkOperationRunQuery -H 'Content-Type: application/json' -d '{ "credsPath": "au", "query": "{ products { edges { node { id title handle } } } }", "options": { "returnAttrs": "id type status objectCount url", "groupObjects": true } }'
