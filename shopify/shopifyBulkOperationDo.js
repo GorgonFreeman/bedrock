@@ -1,4 +1,4 @@
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, askQuestion } = require('../utils');
 
 const { shopifyBulkOperationRunQuery } = require('../shopify/shopifyBulkOperationRunQuery');
 const { shopifyBulkOperationGet } = require('../shopify/shopifyBulkOperationGet');
@@ -37,6 +37,30 @@ const shopifyBulkOperationDo = async (
   if (!runSuccess) {
     return bulkOperationResponse;
   }
+
+  const {
+    id: bulkOperationId,
+  } = bulkOperation;
+
+  const runningBulkOperationResponse = await shopifyBulkOperationGet(
+    credsPath,
+    bulkOperationId,
+    {
+      apiVersion,
+    },
+  );
+
+  const {
+    success: runningSuccess,
+    result: runningBulkOperation,
+  } = runningBulkOperationResponse;
+
+  if (!runningSuccess) {
+    return runningBulkOperationResponse;
+  }
+
+  logDeep(runningBulkOperation);
+  await askQuestion('?');
 
   logDeep(bulkOperationResponse);
   return bulkOperationResponse;
