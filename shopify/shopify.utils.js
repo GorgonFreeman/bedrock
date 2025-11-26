@@ -410,6 +410,27 @@ const shopifyJsonlInterpret = (jsonl) => {
       ...parentGid ? { parentGid } : {},
     });
   }
+
+  for (const [gid, obj] of objectsMap) {
+    for (const [key, value] of Object.entries(obj)) {
+      if (!value) continue;
+  
+      // Single child reference
+      if (typeof value === "string" && value.startsWith("gid://")) {
+        const child = objectsMap.get(value);
+        if (child) obj[key] = child; // replace ID with object
+        continue;
+      }
+  
+      // Array of references
+      if (Array.isArray(value)) {
+        const anyGidStrings = value.some(v => typeof v === "string" && v.startsWith("gid://"));
+        if (!anyGidStrings) continue;
+  
+        obj[key] = value.map(v => (objectsMap.get(v) ?? v));
+      }
+    }
+  }
   
   logDeep(objectsMap);
   return objectsMap;
