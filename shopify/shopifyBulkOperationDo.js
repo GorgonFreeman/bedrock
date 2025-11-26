@@ -31,10 +31,11 @@ const shopifyBulkOperationDo = async (
 
   const {
     success: runSuccess,
-    result: bulkOperation,
+    result: runResult,
   } = bulkOperationResponse;
+  const { bulkOperation } = runResult || {};
 
-  if (!runSuccess) {
+  if (!runSuccess || !bulkOperation) {
     return bulkOperationResponse;
   }
 
