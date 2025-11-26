@@ -129,7 +129,7 @@ const customAxios = async (url, {
         const waitTime = headers?.['retry-after'] 
           ? seconds(headers['retry-after'])
           : waitSecondsFromMessage
-            ? seconds(waitSecondsFromMessage)
+            ? seconds(waitSecondsFromMessage + 2) // add a small buffer
             : cooldown;
         verbose && console.log(`Retry attempt #${ retryAttempt }, waiting ${ waitTime }`);
         await wait(waitTime);
