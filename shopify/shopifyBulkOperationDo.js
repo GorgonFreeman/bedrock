@@ -1,4 +1,4 @@
-const { funcApi, logDeep, askQuestion, wait, seconds } = require('../utils');
+const { funcApi, logDeep, askQuestion, wait, seconds, gidToId } = require('../utils');
 
 const { shopifyBulkOperationRunQuery } = require('../shopify/shopifyBulkOperationRunQuery');
 const { shopifyBulkOperationGet } = require('../shopify/shopifyBulkOperationGet');
@@ -39,8 +39,9 @@ const shopifyBulkOperationDo = async (
   }
 
   const {
-    id: bulkOperationId,
+    id: bulkOperationGid,
   } = bulkOperation;
+  const bulkOperationId = gidToId(bulkOperationGid);
 
   let runningOpStatus;
 
