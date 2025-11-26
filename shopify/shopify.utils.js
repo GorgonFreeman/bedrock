@@ -2,7 +2,7 @@ require('dotenv').config();
 const { env } = process;
 const debug = env.DEBUG === 'true';
 
-const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey, logDeep, furthestNode, objHasAll, customNullish, objToArray, surveyNestedArrays } = require('../utils');
+const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey, logDeep, furthestNode, objHasAll, customNullish, objToArray, surveyNestedArrays, sentenceCaseString, gidToId } = require('../utils');
 
 const shopifyRequestSetup = ({ 
   credsPath,
@@ -412,7 +412,7 @@ const shopifyJsonlInterpret = (jsonl) => {
     });
   }
 
-  const objectTypeToProperty = (objectType) => `${ objectType[0].toLowerCase() }${ objectType.slice(1) }s`;
+  const objectTypeToProperty = (objectType) => `${ sentenceCaseString(objectType) }s`;
 
   for (const [gid, obj] of objectsMap) {
     const { 
@@ -426,12 +426,32 @@ const shopifyJsonlInterpret = (jsonl) => {
 
     const objectProperty = objectTypeToProperty(selfType);
     
-    const parentObject = objectsMap.get(parentGid);
+    let parentObject = objectsMap.get(parentGid);
 
     if (!parentObject) {
       continue;
     }
+    
+    const nestedParent = gid.split('?')?.[1];
 
+    let nestedParentType;
+    let nestedParentId;
+    
+    if (nestedParent) {
+      [nestedParentType, nestedParentId ] = nestedParent.split('=');
+      nestedParentType = nestedParentType
+        .replaceAll('_id', '')
+        .split('_')
+        .map(word => word[0].toUpperCase() + word.slice(1))
+        .join('')
+      ;
+      nestedParentType = sentenceCaseString(nestedParentType);
+    }
+
+    if (nestedParentType && nestedParentId) {
+      parentObject = parentObject[nestedParentType];
+    }
+    
     parentObject[objectProperty] = parentObject[objectProperty] || [];
     parentObject[objectProperty].push(objectsMap.get(gid));
   }

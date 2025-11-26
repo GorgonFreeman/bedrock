@@ -193,6 +193,7 @@ const writeFileYaml = async (filePath, json) => {
 };
 
 const capitaliseString = (string) => `${ string[0].toUpperCase() }${ string.slice(1) }`;
+const sentenceCaseString = (string) => `${ string[0].toLowerCase() }${ string.slice(1) }`;
 
 const credsByPath = (path) => {
 
@@ -1769,6 +1770,7 @@ module.exports = {
   readFileYaml,
   writeFileYaml,
   capitaliseString,
+  sentenceCaseString,
   arrayStandardResponse,
   ifTextThenSpace,
   stripEdgesAndNodes,
