@@ -1,29 +1,36 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/bulkoperationrunquery
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, customNullish } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `id type status objectCount`;
 
 const shopifyBulkOperationRunQuery = async (
   credsPath,
-  pageInput,
+  query,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
+    groupObjects,
   } = {},
 ) => {
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'bulkOperationRunQuery',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      query: {
+        type: 'String!',
+        value: query,
+      },
+      ...!customNullish(groupObjects) && {
+        groupObjects: {
+          type: 'Boolean!',
+          value: groupObjects,
+        },
       },
     },
-    `page { ${ returnAttrs } }`,
+    `bulkOperation { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -33,7 +40,7 @@ const shopifyBulkOperationRunQuery = async (
 };
 
 const shopifyBulkOperationRunQueryApi = funcApi(shopifyBulkOperationRunQuery, {
-  argNames: ['credsPath', 'pageInput', 'options'],
+  argNames: ['credsPath', 'query', 'options'],
 });
 
 module.exports = {
