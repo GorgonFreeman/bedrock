@@ -23,8 +23,7 @@ const shopifyBulkOperationGetSingle = async (
       attrs,
     },
   );
-  
-  logDeep(response);
+
   return response;
 };
 
@@ -48,7 +47,6 @@ const shopifyBulkOperationGet = async (
     },
   );
   
-  logDeep(response);
   return response;
 };
 

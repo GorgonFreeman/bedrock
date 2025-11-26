@@ -28,7 +28,7 @@ const shopifyBulkOperationCancel = async (
       apiVersion,
     },
   );
-  logDeep(response);
+
   return response;
 };
 
