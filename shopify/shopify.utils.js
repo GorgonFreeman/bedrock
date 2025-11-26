@@ -398,18 +398,23 @@ const shopifyJsonlInterpret = (jsonl) => {
   for (const object of objects) {
     const {
       id: gid,
-      __parentId: parentId,
+      __parentId: parentGid,
     } = object;
     
     // e.g. gid://shopify/InventoryLevel/11111111?inventory_item_id=22222222
     const [objectType, id] = gid.split('gid://shopify/')[1].split(/[^a-zA-Z0-9]+/);
     logDeep(objectType, id);
 
+    const parentType = parentGid.split('gid://shopify/')[1].split(/[^a-zA-Z0-9]+/)[0];
+
     if (!objectMaps.has(objectType)) {
       objectMaps.set(objectType, new Map());
     }
     const typeMap = objectMaps.get(objectType);
-    typeMap.set(gid, object);
+    typeMap.set(gid, {
+      ...object,
+      parentType,
+    });
   }
   
   logDeep(objectMaps);
