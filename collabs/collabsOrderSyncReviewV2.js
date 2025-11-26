@@ -108,7 +108,11 @@ const collabsOrderSyncReviewV2 = async (
 
       logFlavourText: `wms:getter:`,
     });
-
+    
+    // TODO: Consider refactoring so that the eager processor works through WMS orders while Shopify is fetching, and Shopify orders once they are all in.
+    // This is the ideal setup because initially, WMS is slow, so iterating through those results is more likely to find a match.
+    // However, once the Shopify fetch finishes, that's a better source of truth, and we don't iterate through unneeded orders.
+    // Alternatively, work through Shopify orders in both cases, because Processors can only use one pile.
     eagerProcessor = new Processor(
       piles.wms,
       async (pile) => {
