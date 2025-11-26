@@ -33,6 +33,7 @@ const shopifyBulkOperationDo = async (
     success: runSuccess,
     result: runResult,
   } = bulkOperationResponse;
+  // TODO: Consider supporting a resultsNodePath as an array in shopifyMutationDo > shopifyClient
   const { bulkOperation } = runResult || {};
 
   if (!runSuccess || !bulkOperation) {
