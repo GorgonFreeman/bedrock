@@ -29,6 +29,15 @@ const shopifyBulkOperationDo = async (
     },
   );
 
+  const {
+    success: runSuccess,
+    result: bulkOperation,
+  } = bulkOperationResponse;
+
+  if (!runSuccess) {
+    return bulkOperationResponse;
+  }
+
   logDeep(bulkOperationResponse);
   return bulkOperationResponse;
 };
