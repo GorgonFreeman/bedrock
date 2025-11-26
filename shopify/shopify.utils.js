@@ -407,12 +407,39 @@ const shopifyJsonlInterpret = (jsonl) => {
 
     objectsMap.set(gid, {
       ...object,
+      selfType: objectType,
       ...parentGid ? { parentGid } : {},
     });
   }
+
+  const objectTypeToProperty = (objectType) => `${ objectType[0].toLowerCase() }${ objectType.slice(1) }s`;
+
+  for (const [gid, obj] of objectsMap) {
+    const { 
+      selfType,
+      parentGid,
+    } = obj;
+
+    if (!parentGid) {
+      continue;
+    }
+
+    const objectProperty = objectTypeToProperty(selfType);
+    
+    const parentObject = objectsMap.get(parentGid);
+
+    if (!parentObject) {
+      continue;
+    }
+
+    parentObject[objectProperty] = parentObject[objectProperty] || [];
+    parentObject[objectProperty].push(objectsMap.get(gid));
+  }
+
+  const topLevelObjects = Array.from(objectsMap.values()).filter(obj => !obj?.parentGid);
   
-  logDeep(objectsMap);
-  return objectsMap;
+  logDeep(topLevelObjects);
+  return topLevelObjects;
 };
 
 module.exports = {
