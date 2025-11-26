@@ -52,6 +52,7 @@ const shopifyBulkOperationDo = async (
       bulkOperationId,
       {
         apiVersion,
+        attrs: 'id status objectCount url',
       },
     );
   
