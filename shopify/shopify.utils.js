@@ -385,8 +385,14 @@ const shopifyCredsPathDistill = (credsPath) => {
 
 const shopifyJsonlInterpret = (jsonl) => {
   
-  const jsonLines = jsonl.split('\n');
-  logDeep(jsonLines);
+  const objects = jsonl.split('\n').map(line => {
+    try {
+      return JSON.parse(line);
+    } catch (err) {
+      return null;
+    }
+  }).filter(obj => obj);
+  logDeep(objects);
 
 
   return jsonl;
