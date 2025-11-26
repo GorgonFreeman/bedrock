@@ -393,7 +393,7 @@ const shopifyJsonlInterpret = (jsonl) => {
     }
   }).filter(obj => obj);
 
-  const objectArrays = {};
+  const objectMaps = new Map();
 
   for (const object of objects) {
     const {
@@ -405,13 +405,15 @@ const shopifyJsonlInterpret = (jsonl) => {
     const [objectType, id] = gid.split('gid://shopify/')[1].split(/[^a-zA-Z0-9]+/);
     logDeep(objectType, id);
 
-    objectArrays[objectType] = objectArrays[objectType] || [];
-    objectArrays[objectType].push(object);
+    if (!objectMaps.has(objectType)) {
+      objectMaps.set(objectType, new Map());
+    }
+    const typeMap = objectMaps.get(objectType);
+    typeMap.set(gid, object);
   }
   
-  logDeep(objectArrays);
-  logDeep(surveyNestedArrays(objectArrays));
-  return jsonl;
+  logDeep(objectMaps);
+  return objectMaps;
 };
 
 module.exports = {
