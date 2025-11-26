@@ -1,53 +1,40 @@
 const { funcApi, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
+const { shopifyBulkOperationRunQuery } = require('../shopify/shopifyBulkOperationRunQuery');
+const { shopifyBulkOperationGet } = require('../shopify/shopifyBulkOperationGet');
 
 const shopifyBulkOperationDo = async (
   credsPath,
-  arg,
+  type,
+  payload,
   {
     apiVersion,
-    option,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
+  const bulkOperationRunner = type === 'query' ? shopifyBulkOperationRunQuery : null;
 
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
+  if (!bulkOperationRunner) {
+    return {
+      success: false,
+      error: `Type "${ type }" is not supported.`,
+    };
+  }
 
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
+  const bulkOperationResponse = await bulkOperationRunner(
+    credsPath,
+    payload,
+    {
       apiVersion,
     },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
+  );
 
-  logDeep(response);
-  return response;
+  logDeep(bulkOperationResponse);
+  return bulkOperationResponse;
 };
 
 const shopifyBulkOperationDoApi = funcApi(shopifyBulkOperationDo, {
-  argNames: ['credsPath', 'arg', 'options'],
+  argNames: ['credsPath', 'type', 'payload', 'options'],
 });
 
 module.exports = {
@@ -55,4 +42,4 @@ module.exports = {
   shopifyBulkOperationDoApi,
 };
 
-// curl localhost:8000/shopifyBulkOperationDo -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyBulkOperationDo -H "Content-Type: application/json" -d '{ "credsPath": "au", "type": "query", "payload": "{ products { edges { node { id title handle } } } }" }'
