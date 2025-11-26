@@ -9,7 +9,7 @@ const shopifyBulkOperationGetSingle = async (
   credsPath,
   bulkOperationId,
   {
-    apiVersion,
+    apiVersion = 'unstable', // TODO: Remove default when the API is stable
     attrs = defaultAttrs,
   } = {},
 ) => {
