@@ -384,7 +384,11 @@ const shopifyCredsPathDistill = (credsPath) => {
 };
 
 const shopifyJsonlInterpret = (jsonl) => {
-  logDeep(jsonl);
+  
+  const jsonLines = jsonl.split('\n');
+  logDeep(jsonLines);
+
+
   return jsonl;
 };
 
