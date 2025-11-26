@@ -413,6 +413,27 @@ const shopifyJsonlInterpret = (jsonl) => {
   }
 
   const objectTypeToProperty = (objectType) => `${ sentenceCaseString(objectType) }s`;
+  
+  // Not used, to maintain references
+  /*
+  const bulkObjectCleanse = (obj) => {
+
+    const {
+      selfType,
+      parentGid,
+      __parentId,
+      id: gid,
+      ...rest
+    } = obj;
+
+    const cleansedGid = gid.split('?').shift();
+
+    return {
+      ...rest,
+      id: cleansedGid,
+    };
+  }
+  */
 
   for (const [gid, obj] of objectsMap) {
     const { 
