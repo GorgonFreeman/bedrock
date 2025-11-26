@@ -41,4 +41,4 @@ module.exports = {
   shopifyBulkOperationCancelApi,
 };
 
-// curl http://localhost:8000/shopifyBulkOperationCancel -H 'Content-Type: application/json' -d '{ "credsPath": "au", "bulkOperationId": "" }'
+// curl http://localhost:8000/shopifyBulkOperationCancel -H 'Content-Type: application/json' -d '{ "credsPath": "au", "bulkOperationId": "3525975375944" }'
