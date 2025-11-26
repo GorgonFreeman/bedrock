@@ -48,7 +48,7 @@ const shopifyBulkOperationDo = async (
   let runningOpStatus;
 
   do {
-    await wait(seconds(3));
+    await wait(seconds(5));
 
     const runningBulkOperationResponse = await shopifyBulkOperationGet(
       credsPath,
@@ -73,10 +73,18 @@ const shopifyBulkOperationDo = async (
     } = runningBulkOperation;
 
     runningOpStatus = status;
-    logDeep(runningBulkOperation);
-    await askQuestion('?');
 
-  } while (runningOpStatus);
+  } while (['CREATED', 'RUNNING'].includes(runningOpStatus));
+
+  if (runningOpStatus === 'COMPLETED') {
+    // TODO: Get and return data from bulk operation
+    return bulkOperationResponse;
+  }
+
+  return {
+    success: false,
+    error: [`Bulk operation failed with status: ${ runningOpStatus }`],
+  };
 };
 
 const shopifyBulkOperationDoApi = funcApi(shopifyBulkOperationDo, {
