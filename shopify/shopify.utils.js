@@ -2,7 +2,7 @@ require('dotenv').config();
 const { env } = process;
 const debug = env.DEBUG === 'true';
 
-const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey, logDeep, furthestNode, objHasAll, customNullish, objToArray } = require('../utils');
+const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseString, askQuestion, getterAsGetFunction, strictlyFalsey, logDeep, furthestNode, objHasAll, customNullish, objToArray, surveyNestedArrays } = require('../utils');
 
 const shopifyRequestSetup = ({ 
   credsPath,
@@ -392,9 +392,25 @@ const shopifyJsonlInterpret = (jsonl) => {
       return null;
     }
   }).filter(obj => obj);
-  logDeep(objects);
 
+  const objectArrays = {};
 
+  for (const object of objects) {
+    const {
+      id: gid,
+      __parentId: parentId,
+    } = object;
+    
+    // e.g. gid://shopify/InventoryLevel/11111111?inventory_item_id=22222222
+    const [objectType, id] = gid.split('gid://shopify/')[1].split(/[^a-zA-Z0-9]+/);
+    logDeep(objectType, id);
+
+    objectArrays[objectType] = objectArrays[objectType] || [];
+    objectArrays[objectType].push(object);
+  }
+  
+  logDeep(objectArrays);
+  logDeep(surveyNestedArrays(objectArrays));
   return jsonl;
 };
 
