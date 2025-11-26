@@ -383,6 +383,11 @@ const shopifyCredsPathDistill = (credsPath) => {
   };
 };
 
+const shopifyJsonlInterpret = (jsonl) => {
+  logDeep(jsonl);
+  return jsonl;
+};
+
 module.exports = {
   shopifyClient,
   shopifyGetter,
@@ -390,4 +395,5 @@ module.exports = {
   shopifyMutationDo,
   shopifyFulfillmentLineItemsFromExternalLineItems,
   shopifyCredsPathDistill,
+  shopifyJsonlInterpret,
 };

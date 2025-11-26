@@ -1,4 +1,5 @@
 const { funcApi, logDeep, askQuestion, wait, seconds, gidToId, customAxios } = require('../utils');
+const { shopifyJsonlInterpret } = require('../shopify/shopify.utils');
 
 const { shopifyBulkOperationRunQuery } = require('../shopify/shopifyBulkOperationRunQuery');
 const { shopifyBulkOperationGet } = require('../shopify/shopifyBulkOperationGet');
@@ -88,14 +89,11 @@ const shopifyBulkOperationDo = async (
     } = runningOpResult;
 
     const bulkOperationResults = await customAxios(url);
-    logDeep('bulkOperationResults', bulkOperationResults);
+    const bulkOperationResultsJson = shopifyJsonlInterpret(bulkOperationResults);
 
     return {
       success: true,
-      result: {
-        url,
-        objectCount,
-      },
+      result: bulkOperationResultsJson,
     };
   }
 
