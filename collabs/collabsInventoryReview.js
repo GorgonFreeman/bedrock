@@ -15,7 +15,7 @@ const {
 
 const { shopifyRegionToPvxSite } = require('../mappings');
 
-const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
+const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
 const { shopifyLocationGetMain } = require('../shopify/shopifyLocationGetMain');
 const { logiwaReportGetAvailableToPromise } = require('../logiwa/logiwaReportGetAvailableToPromise');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
@@ -65,24 +65,32 @@ const collabsInventoryReview = async (
 
   !HOSTED && logDeep('locationId', locationId);
 
-  const shopifyInventoryResponse = await shopifyVariantsGet(
-    region,
-    {
-      attrs: `
-        sku 
-        inventoryQuantity 
-        inventoryItem { 
-          inventoryLevel(locationId: "gid://shopify/Location/${ locationId }") { 
-            quantities(names: "available") { 
-              name 
-              quantity
-            } 
+  const variantQuery = `{
+    productVariants${ shopifyVariantsFetchQueries ? `(query: "${ shopifyVariantsFetchQueries.join(' AND ') }")` : '' } {
+      edges {
+        node {
+          sku 
+          inventoryQuantity 
+          inventoryItem { 
+            inventoryLevel(locationId: "gid://shopify/Location/${ locationId }") { 
+              quantities(names: "available") { 
+                name 
+                quantity
+              } 
+            }
           }
         }
-      `,
-      ...(shopifyVariantsFetchQueries ? { queries: shopifyVariantsFetchQueries } : {}),
-    },
+      }
+    }
+  }`;
+
+  const shopifyInventoryResponse = await shopifyBulkOperationDo(
+    region,
+    'query',
+    variantQuery,
   );
+
+  logDeep('shopifyInventoryResponse', shopifyInventoryResponse);
 
   const { 
     success: shopifyInventorySuccess, 
