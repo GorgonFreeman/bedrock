@@ -1,13 +1,13 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/order
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/bulkoperation
 
 const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 
-const defaultAttrs = `id name`;
+const defaultAttrs = `id status objectCount url`;
 
 const shopifyBulkOperationGetSingle = async (
   credsPath,
-  thingId,
+  bulkOperationId,
   {
     apiVersion,
     attrs = defaultAttrs,
@@ -16,8 +16,8 @@ const shopifyBulkOperationGetSingle = async (
   
   const response = await shopifyGetSingle(
     credsPath,
-    'thing',
-    thingId,
+    'bulkOperation',
+    bulkOperationId,
     {
       apiVersion,
       attrs,
@@ -30,17 +30,17 @@ const shopifyBulkOperationGetSingle = async (
 
 const shopifyBulkOperationGet = async (
   credsPath,
-  thingId,
+  bulkOperationId,
   {
     queueRunOptions,
     ...options
   } = {},
 ) => {
   const response = await actionMultipleOrSingle(
-    thingId,
+    bulkOperationId,
     shopifyBulkOperationGetSingle,
-    (thingId) => ({
-      args: [credsPath, thingId],
+    (bulkOperationId) => ({
+      args: [credsPath, bulkOperationId],
       options,
     }),
     {
@@ -53,7 +53,7 @@ const shopifyBulkOperationGet = async (
 };
 
 const shopifyBulkOperationGetApi = funcApi(shopifyBulkOperationGet, {
-  argNames: ['credsPath', 'thingId', 'options'],
+  argNames: ['credsPath', 'bulkOperationId', 'options'],
 });
 
 module.exports = {
@@ -61,4 +61,4 @@ module.exports = {
   shopifyBulkOperationGetApi,
 };
 
-// curl localhost:8000/shopifyBulkOperationGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "thingId": "7012222266312" }'
+// curl localhost:8000/shopifyBulkOperationGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "bulkOperationId": "3525975375944" }'
