@@ -394,6 +394,7 @@ const shopifyJsonlInterpret = (jsonl) => {
   }).filter(obj => obj);
 
   const objectsMap = new Map();
+  const objectsWithoutStitching = [];
 
   for (const object of objects) {
     const {
@@ -401,6 +402,11 @@ const shopifyJsonlInterpret = (jsonl) => {
       __parentId: parentGid,
     } = object;
     
+    if (!gid) {
+      objectsWithoutStitching.push(object);
+      continue; // TODO: Consider using break or a conditional further up - not sure if the absence of gids implies no stitching is needed
+    }
+
     // e.g. gid://shopify/InventoryLevel/11111111?inventory_item_id=22222222
     const [objectType, id] = gid.split('gid://shopify/')[1].split(/[^a-zA-Z0-9]+/);
     logDeep(objectType, id);
@@ -480,7 +486,10 @@ const shopifyJsonlInterpret = (jsonl) => {
   const topLevelObjects = Array.from(objectsMap.values()).filter(obj => !obj?.parentGid);
   
   logDeep(topLevelObjects);
-  return topLevelObjects;
+  return [
+    ...topLevelObjects,
+    ...objectsWithoutStitching,
+  ];
 };
 
 module.exports = {
