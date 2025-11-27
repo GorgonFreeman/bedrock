@@ -152,6 +152,7 @@ const collabsInventoryReviewV2 = async (
     logDeep('wmsExport', wmsExport);
 
     if (logiwaRelevant) {
+      // Export from: https://fasttrack.radial.com/en/wms/report/available-to-promise
       for (const item of wmsExport) {
         const {
           'SKU': sku,
