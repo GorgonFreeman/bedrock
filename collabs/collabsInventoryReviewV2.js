@@ -195,7 +195,7 @@ const collabsInventoryReviewV2 = async (
           continue;
         }
 
-        wmsInventoryObj[sku].wmsQty = wmsQty;
+        wmsInventoryObj[sku] = wmsQty;
       }
     }
 
@@ -234,6 +234,38 @@ const collabsInventoryReviewV2 = async (
         } = inventoryItem;
 
         wmsInventoryObj[sku] = wmsQty;
+      }
+    }
+
+    if (bleckmannRelevant) {
+      const bleckmannInventoryResponse = await bleckmannInventoriesGet();
+
+      const {
+        success: bleckmannInventorySuccess,
+        result: bleckmannInventory,
+      } = bleckmannInventoryResponse;
+      if (!bleckmannInventorySuccess) {
+        return bleckmannInventoryResponse;
+      }
+
+      // logDeep('bleckmannInventory', bleckmannInventory);
+      // await askQuestion('?');
+
+      for (const inventoryItem of bleckmannInventory) {
+        const { 
+          skuId: sku, 
+          inventoryType,
+          quantityTotal,
+          quantityLocked,
+        } = inventoryItem;
+        
+        // Avoid damaged inventory locations
+        if (inventoryType !== 'OK1') {
+          continue;
+        }
+
+        const bleckmannAvailable = quantityTotal - quantityLocked;
+        wmsInventoryObj[sku] = bleckmannAvailable;
       }
     }
   }
