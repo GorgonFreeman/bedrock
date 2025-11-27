@@ -190,16 +190,50 @@ const collabsInventoryReviewV2 = async (
           sellableQuantity: wmsQty,
         } = inventoryItem;
 
-        if (!shopifyInventoryObj[sku]) {
-          continue;
-        }
-
         if (wmsInventoryObj[sku]) {
           wmsInventoryObj[sku] += wmsQty;
           continue;
         }
 
         wmsInventoryObj[sku].wmsQty = wmsQty;
+      }
+    }
+
+    if (pvxRelevant) {
+      const pvxSite = shopifyRegionToPvxSite(region);
+
+      if (!pvxSite) {
+        return {
+          success: false,
+          error: [`No PVX site found for ${ region }`],
+        };
+      }
+
+      const pvxInventoryResponse = await peoplevoxReportGet(
+        'Item inventory summary', 
+        {
+          searchClause: `([Site reference].Equals("${ pvxSite }"))`, 
+          columns: ['Item code', 'Available'], 
+        },
+      );
+
+      const {
+        success: pvxReportSuccess,
+        result: pvxInventory,
+      } = pvxInventoryResponse;
+      if (!pvxReportSuccess) {
+        return pvxInventoryResponse;
+      }
+
+      logDeep('pvxInventory', pvxInventory);
+
+      for (const inventoryItem of pvxInventory) {
+        const { 
+          'Item code': sku, 
+          'Available': wmsQty,
+        } = inventoryItem;
+
+        wmsInventoryObj[sku] = wmsQty;
       }
     }
   }
