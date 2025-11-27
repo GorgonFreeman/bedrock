@@ -12,6 +12,7 @@ const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
 const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 const { peoplevoxDespatchesGetBySalesOrderNumber } = require('../peoplevox/peoplevoxDespatchesGetBySalesOrderNumber');
+const { bleckmannPickticketGet } = require('../bleckmann/bleckmannPickticketGet');
 
 const { bedrock_unlisted_slackErrorPost } = require('../bedrock_unlisted/bedrock_unlisted_slackErrorPost');
 
@@ -309,7 +310,27 @@ const collabsFulfillmentSweepV3 = async (
       async (pile) => {
 
         const order = pile.shift();
-        logDeep(order);
+        // logDeep(order);
+        // await askQuestion('?');
+
+        const { id: orderGid } = order;
+        const orderId = gidToId(orderGid);
+
+        const bleckmannOrderResponse = await bleckmannPickticketGet({ pickticketReference: orderId });
+
+        const {
+          success: bleckmannOrderSuccess,
+          result: bleckmannOrder,
+        } = bleckmannOrderResponse;
+        if (!bleckmannOrderSuccess) {
+          piles[region].error.push({
+            ...order,
+            reason: 'Failed to retrieve order from Bleckmann',
+          });
+          return;
+        }
+
+        logDeep(order, bleckmannOrder);
         await askQuestion('?');
 
       },
@@ -380,3 +401,4 @@ module.exports = {
 };
 
 // curl localhost:8000/collabsFulfillmentSweepV3 -H "Content-Type: application/json" -d '{ "options": { "regions": ["au", "baddest"] } }'
+// curl localhost:8000/collabsFulfillmentSweepV3 -H "Content-Type: application/json" -d '{ "options": { "regions": ["uk"] } }'
