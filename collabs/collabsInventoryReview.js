@@ -5,7 +5,9 @@ const path = require('path');
 require('dotenv').config();
 const { json2csv } = require('json-2-csv');
 const { HOSTED } = require('../constants');
-const { respond, mandateParam, logDeep, askQuestion, strictlyFalsey, arraySortByProp, gidToId } = require('../utils');
+const { respond, mandateParam, logDeep, askQuestion, strictlyFalsey, arraySortByProp, gidToId, Timer } = require('../utils');
+
+const SAMPLE_SIZE = 5;
 
 const {
   REGIONS_PVX,
@@ -33,6 +35,8 @@ const collabsInventoryReview = async (
     wmsExportSheetIdentifier,
   } = {},
 ) => {
+
+  const timer = new Timer();
 
   const pvxRelevant = REGIONS_PVX.includes(region);
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
@@ -103,7 +107,7 @@ const collabsInventoryReview = async (
     return shopifyInventoryResponse;
   }
   
-  const inventoryReviewObject = {};
+  const shopifyInventoryObj = {};
   for (const variant of shopifyInventory) {
     const { 
       sku, 
@@ -113,14 +117,30 @@ const collabsInventoryReview = async (
 
     const shopifyAvailable = inventoryItem?.inventoryLevel?.quantities?.find(quantity => quantity.name === 'available')?.quantity || 0;
 
-    inventoryReviewObject[sku] = {
-      shopifyAvailable,
-    };
+    shopifyInventoryObj[sku] = shopifyAvailable;
   }
-  // logDeep('inventoryReviewObject', inventoryReviewObject);
-  // await askQuestion('?');
 
-  if (wmsExportSpreadsheetIdentifier && wmsExportSheetIdentifier) {
+  // logDeep('shopifyInventoryObj', shopifyInventoryObj);
+  // await askQuestion('?');
+  
+  const wmsInventoryObj = {};
+
+  const usingExport = wmsExportSpreadsheetIdentifier && wmsExportSheetIdentifier;
+
+  if (usingExport) {
+
+    const canUseExport = [
+      logiwaRelevant,
+      bleckmannRelevant,
+    ].some(Boolean);
+
+    if (!canUseExport) {
+      return {
+        success: false,
+        error: ['Region not supported for export'],
+      };
+    }
+
     const wmsExportResponse = await googlesheetsSpreadsheetSheetGetData(
       wmsExportSpreadsheetIdentifier,
       wmsExportSheetIdentifier,
@@ -132,200 +152,216 @@ const collabsInventoryReview = async (
     }
 
     logDeep('wmsExport', wmsExport);
-  }
 
-  if (logiwaRelevant) {
-    const logiwaInventoryResponse = await logiwaReportGetAvailableToPromise(
-      {
-        undamagedQuantity_gt: '0',
-      },
-      {
-        apiVersion: 'v3.2',
-      },
-    );
-
-    const {
-      success: logiwaInventorySuccess,
-      result: logiwaInventory,
-    } = logiwaInventoryResponse;
-    if (!logiwaInventorySuccess) {
-      return logiwaInventoryResponse;
-    }
-
-    // logDeep('logiwaInventory', logiwaInventory);
-    // await askQuestion('?');
-
-    for (const inventoryItem of logiwaInventory) {
-      const { 
-        productSku: sku, 
-        sellableQuantity,
-      } = inventoryItem;
-
-      if (!inventoryReviewObject[sku]) {
-        continue;
-      }
-
-      if (inventoryReviewObject[sku].logiwaSellable) {
-        inventoryReviewObject[sku].logiwaSellable += sellableQuantity;
-        continue;
-      }
-
-      inventoryReviewObject[sku].logiwaSellable = sellableQuantity;
-    }
-
-    for (const [key, value] of Object.entries(inventoryReviewObject)) {
-
-      if (strictlyFalsey(inventoryReviewObject[key].logiwaSellable)) {
-        inventoryReviewObject[key].logiwaSellable = 0;
-      }
-
-      const { shopifyAvailable, logiwaSellable } = value;
-
-      const diff = shopifyAvailable - logiwaSellable;
-      inventoryReviewObject[key].logiwaOversellRisk = diff > 0;
-      inventoryReviewObject[key].logiwaDiff = Math.abs(diff);
-    }
-  }
-
-  if (pvxRelevant) {
-    const pvxSite = shopifyRegionToPvxSite(region);
-
-    if (!pvxSite) {
-      return {
-        success: false,
-        error: [`No PVX site found for ${ region }`],
-      };
-    }
-
-    const pvxInventoryResponse = await peoplevoxReportGet(
-      'Item inventory summary', 
-      {
-        searchClause: `([Site reference].Equals("${ pvxSite }"))`, 
-        columns: ['Item code', 'Available'], 
-      },
-    );
+    if (logiwaRelevant) {
+      // Export from: https://fasttrack.radial.com/en/wms/report/available-to-promise
+      for (const item of wmsExport) {
+        const {
+          'SKU': sku,
+          'Current ATP': wmsQty,
+        } = item;
   
-    console.log(pvxInventoryResponse);
-
-    const {
-      success: pvxReportSuccess,
-      result: pvxInventory,
-    } = pvxInventoryResponse;
-    if (!pvxReportSuccess) {
-      return pvxInventoryResponse;
+        if (!sku || !wmsQty) {
+          continue;
+        }
+  
+        wmsInventoryObj[sku] = Number(wmsQty);
+      }
     }
 
-    logDeep('pvxInventory', pvxInventory);
+    if (bleckmannRelevant) {
+      for (const item of wmsExport) {
+        const {
+          'INV_SKU_ID': sku,
+          'INV_CONDITION_ID': condition,
+          'INV_FREE_INV': wmsQty,
+        } = item;
+  
+        if (!sku || !wmsQty) {
+          continue;
+        }
 
-    for (const inventoryItem of pvxInventory) {
-      const { 
-        'Item code': sku, 
-        'Available': pvxAvailable,
-      } = inventoryItem;
-
-      if (!inventoryReviewObject[sku]) {
-        continue;
+        if (condition !== 'OK1') {
+          continue;
+        }
+  
+        wmsInventoryObj[sku] = Number(wmsQty);
       }
-
-      inventoryReviewObject[sku].pvxAvailable = pvxAvailable;
     }
 
-    for (const [key, value] of Object.entries(inventoryReviewObject)) {
+  } else {
+    // Using API
 
-      if (strictlyFalsey(inventoryReviewObject[key].pvxAvailable)) {
-        inventoryReviewObject[key].pvxAvailable = 0;
+    if (logiwaRelevant) {
+      const logiwaInventoryResponse = await logiwaReportGetAvailableToPromise(
+        {
+          undamagedQuantity_gt: '0',
+        },
+        {
+          apiVersion: 'v3.2',
+        },
+      );
+
+      const {
+        success: logiwaInventorySuccess,
+        result: logiwaInventory,
+      } = logiwaInventoryResponse;
+      if (!logiwaInventorySuccess) {
+        return logiwaInventoryResponse;
       }
 
-      const { shopifyAvailable, pvxAvailable } = value;
+      for (const inventoryItem of logiwaInventory) {
+        const { 
+          productSku: sku, 
+          sellableQuantity: wmsQty,
+        } = inventoryItem;
 
-      const diff = shopifyAvailable - pvxAvailable;
-      inventoryReviewObject[key].pvxOversellRisk = diff > 0;
-      inventoryReviewObject[key].pvxDiff = Math.abs(diff);
+        if (wmsInventoryObj[sku]) {
+          wmsInventoryObj[sku] += wmsQty;
+          continue;
+        }
+
+        wmsInventoryObj[sku] = wmsQty;
+      }
+    }
+
+    if (pvxRelevant) {
+      const pvxSite = shopifyRegionToPvxSite(region);
+
+      if (!pvxSite) {
+        return {
+          success: false,
+          error: [`No PVX site found for ${ region }`],
+        };
+      }
+
+      const pvxInventoryResponse = await peoplevoxReportGet(
+        'Item inventory summary', 
+        {
+          searchClause: `([Site reference].Equals("${ pvxSite }"))`, 
+          columns: ['Item code', 'Available'], 
+        },
+      );
+
+      const {
+        success: pvxReportSuccess,
+        result: pvxInventory,
+      } = pvxInventoryResponse;
+      if (!pvxReportSuccess) {
+        return pvxInventoryResponse;
+      }
+
+      logDeep('pvxInventory', pvxInventory);
+
+      for (const inventoryItem of pvxInventory) {
+        const { 
+          'Item code': sku, 
+          'Available': wmsQty,
+        } = inventoryItem;
+
+        wmsInventoryObj[sku] = wmsQty;
+      }
+    }
+
+    if (bleckmannRelevant) {
+      const bleckmannInventoryResponse = await bleckmannInventoriesGet();
+
+      const {
+        success: bleckmannInventorySuccess,
+        result: bleckmannInventory,
+      } = bleckmannInventoryResponse;
+      if (!bleckmannInventorySuccess) {
+        return bleckmannInventoryResponse;
+      }
+
+      // logDeep('bleckmannInventory', bleckmannInventory);
+      // await askQuestion('?');
+
+      for (const inventoryItem of bleckmannInventory) {
+        const { 
+          skuId: sku, 
+          inventoryType,
+          quantityTotal,
+          quantityLocked,
+        } = inventoryItem;
+        
+        // Avoid damaged inventory locations
+        if (inventoryType !== 'OK1') {
+          continue;
+        }
+
+        const bleckmannAvailable = quantityTotal - quantityLocked;
+        wmsInventoryObj[sku] = bleckmannAvailable;
+      }
     }
   }
+  
+  const inventoryReviewObj = {};
 
-  if (bleckmannRelevant) {
-    const bleckmannInventoryResponse = await bleckmannInventoriesGet();
+  for (const [sku, shopifyQty] of Object.entries(shopifyInventoryObj)) {
+    const wmsQty = wmsInventoryObj[sku] || 0; // If inventory wasn't found in WMS, set to 0
+    const diff = shopifyQty - wmsQty;
+    const oversellRisk = diff > 0;
+    const absDiff = Math.abs(diff);
+    const safeToImport = oversellRisk || shopifyQty === 0;
 
-    const {
-      success: bleckmannInventorySuccess,
-      result: bleckmannInventory,
-    } = bleckmannInventoryResponse;
-    if (!bleckmannInventorySuccess) {
-      return bleckmannInventoryResponse;
-    }
-
-    // logDeep('bleckmannInventory', bleckmannInventory);
-    // await askQuestion('?');
-
-    for (const inventoryItem of bleckmannInventory) {
-      const { 
-        skuId: sku, 
-        inventoryType,
-        quantityTotal,
-        quantityLocked,
-      } = inventoryItem;
-
-      if (!inventoryReviewObject[sku] || inventoryType !== 'OK1') {
-        continue;
-      }
-
-      const bleckmannAvailable = quantityTotal - quantityLocked;
-      inventoryReviewObject[sku].bleckmannAvailable = bleckmannAvailable;
-    }
-
-    for (const [key, value] of Object.entries(inventoryReviewObject)) {
-
-      if (strictlyFalsey(inventoryReviewObject[key].bleckmannAvailable)) {
-        inventoryReviewObject[key].bleckmannAvailable = 0;
-      }
-
-      const { shopifyAvailable, bleckmannAvailable } = value;
-
-      const diff = shopifyAvailable - bleckmannAvailable;
-      inventoryReviewObject[key].bleckmannOversellRisk = diff > 0;
-      inventoryReviewObject[key].bleckmannDiff = Math.abs(diff);
-    }
+    inventoryReviewObj[sku] = {
+      shopifyQty,
+      wmsQty,
+      oversellRisk,
+      absDiff,
+      safeToImport,
+    };
   }
 
-  logDeep('inventoryReviewObject', inventoryReviewObject);
-
-  let inventoryReviewArray = Object.entries(inventoryReviewObject).map(([key, value]) => {
+  let inventoryReviewArray = Object.entries(inventoryReviewObj).map(([sku, value]) => {
     return {
-      sku: key,
+      sku,
       ...value,
     };
   });
- 
-  const exampleItem = inventoryReviewArray?.[0];
-  const exampleItemKeys = Object.keys(exampleItem);
 
-  const diffProp = exampleItemKeys?.find(key => key.toLowerCase().includes('diff'));
-  const oversellRiskProp = exampleItemKeys?.find(key => key.toLowerCase().includes('oversellrisk'));
-  
-  // Sort biggest to smallest diff
-  inventoryReviewArray = arraySortByProp(inventoryReviewArray, diffProp, { descending: true });
   // Filter out < min diff
-  inventoryReviewArray = inventoryReviewArray.filter(item => item[diffProp] >= minReportableDiff);
+  inventoryReviewArray = inventoryReviewArray.filter(item => item.absDiff >= minReportableDiff);
+  // Sort biggest to smallest diff
+  inventoryReviewArray = arraySortByProp(inventoryReviewArray, 'absDiff', { descending: true });
+  const biggestDiffSample = inventoryReviewArray.slice(0, SAMPLE_SIZE);
   // Sort to put oversell risk at the top (more in Shopify than WMS)
-  inventoryReviewArray = arraySortByProp(inventoryReviewArray, oversellRiskProp, { descending: true });
+  inventoryReviewArray = arraySortByProp(inventoryReviewArray, 'oversellRisk', { descending: true });
+  const oversellRiskSample = inventoryReviewArray.slice(0, SAMPLE_SIZE);
 
-  if (downloadCsv) {
-    const csv = await json2csv(inventoryReviewArray);
-    const downloadsPath = process.env.DOWNLOADS_PATH || '.';
-    const filePath = path.join(downloadsPath, 'collabsInventoryReview.csv');
-    fs.writeFileSync(filePath, csv);
+  // if (downloadCsv) {
+  //   const csv = await json2csv(inventoryReviewArray);
+  //   const downloadsPath = process.env.DOWNLOADS_PATH || '.';
+  //   const filePath = path.join(downloadsPath, 'collabsInventoryReview.csv');
+  //   fs.writeFileSync(filePath, csv);
     
-    // Open the downloads folder once the file is complete
-    const { exec } = require('child_process');
-    exec(`open "${ downloadsPath }"`);
-  }
+  //   // Open the downloads folder once the file is complete
+  //   const { exec } = require('child_process');
+  //   exec(`open "${ downloadsPath }"`);
+  // }
+
+  const metadata = {
+    items: inventoryReviewArray.length,
+    biggestDiff: inventoryReviewArray[0]?.absDiff,
+    oversellRiskCount: inventoryReviewArray.filter(item => item.oversellRisk).length,
+    timeTaken: timer.getTime({ readable: true }),
+  };
+  logDeep('metadata', metadata);
+
+  const samples = {
+    biggestDiff: biggestDiffSample,
+    oversellRisk: oversellRiskSample,
+  };
+  logDeep('samples', samples);
 
   return { 
     success: true, 
     result: {
-      object: inventoryReviewObject,
+      object: inventoryReviewObj,
       array: inventoryReviewArray,
+      metadata,
+      samples,
     },
   };
   
@@ -358,3 +394,11 @@ module.exports = {
 
 // curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "us" }'
 // curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "us", "options": { "shopifyVariantsFetchQueries": ["tag_not:not_for_radial", "published_status:published", "product_publication_status:approved"], "minReportableDiff": 3, "downloadCsv": true } }'
+// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "us", "options": { "shopifyVariantsFetchQueries": ["tag_not:not_for_radial", "published_status:published", "product_publication_status:approved"], "minReportableDiff": 3, "wmsExportSpreadsheetIdentifier": { "spreadsheetId": "1ICbx-3g7Kqhge_Wkt9fi_9m7NGjgOGCOBHyEf0i3mP8" }, "wmsExportSheetIdentifier": { "sheetName": "Sheet 1" } } }'
+
+// curl localhost:8100/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "au", "options": { "minReportableDiff": 3, "shopifyVariantsFetchQueries": ["published_status:published", "product_publication_status:approved"] } }'
+// curl localhost:8101/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "us", "options": { "minReportableDiff": 3, "shopifyVariantsFetchQueries": ["published_status:published", "product_publication_status:approved", "tag_not:not_for_radial"] } }'
+// curl localhost:8102/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "uk", "options": { "minReportableDiff": 3, "shopifyVariantsFetchQueries": ["published_status:published", "product_publication_status:approved"] } }'
+
+// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "us", "options": { "minReportableDiff": 3, "shopifyVariantsFetchQueries": ["published_status:published", "product_publication_status:approved", "tag_not:not_for_radial"], "wmsExportSpreadsheetIdentifier": { "spreadsheetId": "1ICbx-3g7Kqhge_Wkt9fi_9m7NGjgOGCOBHyEf0i3mP8" }, "wmsExportSheetIdentifier": { "sheetName": "Logiwa 2" } } }'
+// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "uk", "options": { "minReportableDiff": 3, "shopifyVariantsFetchQueries": ["published_status:published", "product_publication_status:approved"], "wmsExportSpreadsheetIdentifier": { "spreadsheetId": "1ICbx-3g7Kqhge_Wkt9fi_9m7NGjgOGCOBHyEf0i3mP8" }, "wmsExportSheetIdentifier": { "sheetName": "Bleckmann" } } }'
