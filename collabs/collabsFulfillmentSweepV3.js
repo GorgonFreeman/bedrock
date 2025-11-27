@@ -338,6 +338,15 @@ const collabsFulfillmentSweepV3 = async (
           return;
         }
 
+        const { status } = bleckmannOrder;
+        if (status !== 'SHIPPED') {
+          piles[region].disqualified.push({
+            ...order,
+            reason: 'Not shipped',
+          });
+          return;
+        }
+
         logDeep(order, bleckmannOrder);
         await askQuestion('?');
 
