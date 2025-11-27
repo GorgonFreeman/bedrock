@@ -330,6 +330,14 @@ const collabsFulfillmentSweepV3 = async (
           return;
         }
 
+        if (!bleckmannOrder) {
+          piles[region].disqualified.push({
+            ...order,
+            reason: 'Not synced to Bleckmann',
+          });
+          return;
+        }
+
         logDeep(order, bleckmannOrder);
         await askQuestion('?');
 
