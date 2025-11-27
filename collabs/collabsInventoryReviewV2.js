@@ -116,8 +116,8 @@ const collabsInventoryReviewV2 = async (
     shopifyInventoryObj[sku] = shopifyAvailable;
   }
 
-  logDeep('shopifyInventoryObj', shopifyInventoryObj);
-  await askQuestion('?');
+  // logDeep('shopifyInventoryObj', shopifyInventoryObj);
+  // await askQuestion('?');
   
   const wmsInventoryObj = {};
 
