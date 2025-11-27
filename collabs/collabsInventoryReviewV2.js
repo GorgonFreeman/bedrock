@@ -7,6 +7,8 @@ const { json2csv } = require('json-2-csv');
 const { HOSTED } = require('../constants');
 const { respond, mandateParam, logDeep, askQuestion, strictlyFalsey, arraySortByProp, gidToId } = require('../utils');
 
+const SAMPLE_SIZE = 5;
+
 const {
   REGIONS_PVX,
   REGIONS_LOGIWA,
@@ -295,20 +297,21 @@ const collabsInventoryReviewV2 = async (
     };
   });
 
-  // Sort biggest to smallest diff
-  inventoryReviewArray = arraySortByProp(inventoryReviewArray, 'absDiff', { descending: true });
   // Filter out < min diff
   inventoryReviewArray = inventoryReviewArray.filter(item => item.absDiff >= minReportableDiff);
+  // Sort biggest to smallest diff
+  inventoryReviewArray = arraySortByProp(inventoryReviewArray, 'absDiff', { descending: true });
+  const biggestDiffSample = inventoryReviewArray.slice(0, SAMPLE_SIZE);
   // Sort to put oversell risk at the top (more in Shopify than WMS)
   inventoryReviewArray = arraySortByProp(inventoryReviewArray, 'oversellRisk', { descending: true });
+  const oversellRiskSample = inventoryReviewArray.slice(0, SAMPLE_SIZE);
 
   // if (downloadCsv) {
   //   const csv = await json2csv(inventoryReviewArray);
   //   const downloadsPath = process.env.DOWNLOADS_PATH || '.';
   //   const filePath = path.join(downloadsPath, 'collabsInventoryReviewV2.csv');
   //   fs.writeFileSync(filePath, csv);
-    
-  //   // Open the downloads folder once the file is complete
+      //   // Open the downloads folder once the file is complete
   //   const { exec } = require('child_process');
   //   exec(`open "${ downloadsPath }"`);
   // }
@@ -320,12 +323,19 @@ const collabsInventoryReviewV2 = async (
   };
   logDeep('metadata', metadata);
 
+  const samples = {
+    biggestDiff: biggestDiffSample,
+    oversellRisk: oversellRiskSample,
+  };
+  logDeep('samples', samples);
+
   return { 
     success: true, 
     result: {
       object: inventoryReviewObj,
       array: inventoryReviewArray,
       metadata,
+      samples,
     },
   };
   
