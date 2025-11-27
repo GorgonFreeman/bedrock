@@ -148,6 +148,21 @@ const collabsInventoryReviewV2 = async (
 
     logDeep('wmsExport', wmsExport);
 
+    if (logiwaRelevant) {
+      for (const item of wmsExport) {
+        const {
+          'SKU': sku,
+          'Current ATP': wmsQty,
+        } = item;
+  
+        if (!sku || !wmsQty) {
+          continue;
+        }
+  
+        wmsInventoryObj[sku] = Number(wmsQty);
+      }
+    }
+
   } else {
     // Using API
   }
