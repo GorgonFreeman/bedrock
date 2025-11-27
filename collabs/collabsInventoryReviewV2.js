@@ -115,13 +115,27 @@ const collabsInventoryReviewV2 = async (
 
     shopifyInventoryObj[sku] = shopifyAvailable;
   }
-  
+
   logDeep('shopifyInventoryObj', shopifyInventoryObj);
   await askQuestion('?');
+  
+  const wmsInventoryObj = {};
 
   const usingExport = wmsExportSpreadsheetIdentifier && wmsExportSheetIdentifier;
 
   if (usingExport) {
+
+    const canUseExport = [
+      logiwaRelevant,
+    ].some(Boolean);
+
+    if (!canUseExport) {
+      return {
+        success: false,
+        error: ['Region not supported for export'],
+      };
+    }
+
     const wmsExportResponse = await googlesheetsSpreadsheetSheetGetData(
       wmsExportSpreadsheetIdentifier,
       wmsExportSheetIdentifier,
