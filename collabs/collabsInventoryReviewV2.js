@@ -200,3 +200,4 @@ module.exports = {
 
 // curl localhost:8000/collabsInventoryReviewV2 -H "Content-Type: application/json" -d '{ "region": "us" }'
 // curl localhost:8000/collabsInventoryReviewV2 -H "Content-Type: application/json" -d '{ "region": "us", "options": { "shopifyVariantsFetchQueries": ["tag_not:not_for_radial", "published_status:published", "product_publication_status:approved"], "minReportableDiff": 3, "downloadCsv": true } }'
+// curl localhost:8000/collabsInventoryReviewV2 -H "Content-Type: application/json" -d '{ "region": "us", "options": { "shopifyVariantsFetchQueries": ["tag_not:not_for_radial", "published_status:published", "product_publication_status:approved"], "minReportableDiff": 3, "wmsExportSpreadsheetIdentifier": "1ICbx-3g7Kqhge_Wkt9fi_9m7NGjgOGCOBHyEf0i3mP8", "wmsExportSheetIdentifier": "Sheet 1" } }'
