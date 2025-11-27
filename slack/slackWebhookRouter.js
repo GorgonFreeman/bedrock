@@ -48,6 +48,8 @@ const slackWebhookRouterApi = async (req, res) => {
 
   }
 
+  commandName = commandName.replaceAll('dev__', '');
+
   if (credsPath === null) { // '' is a valid return for base path
     return respond(res, 400, { error: `No creds path found for team domain` });
   }
