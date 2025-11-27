@@ -147,6 +147,8 @@ const customAxios = async (url, {
 };
 
 const arrayFromIntRange = (start, end, { step = 1 } = {}) => {
+  start = parseInt(start);
+  end = parseInt(end);
   return [...Array(end - start + 1).keys()].map(i => (i * step) + start);
 };
 
