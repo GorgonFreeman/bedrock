@@ -5,7 +5,7 @@ const path = require('path');
 require('dotenv').config();
 const { json2csv } = require('json-2-csv');
 const { HOSTED } = require('../constants');
-const { respond, mandateParam, logDeep, askQuestion, strictlyFalsey, arraySortByProp, gidToId } = require('../utils');
+const { respond, mandateParam, logDeep, askQuestion, strictlyFalsey, arraySortByProp, gidToId, Timer } = require('../utils');
 
 const SAMPLE_SIZE = 5;
 
@@ -35,6 +35,8 @@ const collabsInventoryReviewV2 = async (
     wmsExportSheetIdentifier,
   } = {},
 ) => {
+
+  const timer = new Timer();
 
   const pvxRelevant = REGIONS_PVX.includes(region);
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
@@ -343,6 +345,7 @@ const collabsInventoryReviewV2 = async (
     items: inventoryReviewArray.length,
     biggestDiff: inventoryReviewArray[0]?.absDiff,
     oversellRiskCount: inventoryReviewArray.filter(item => item.oversellRisk).length,
+    timeTaken: timer.getTime({ readable: true }),
   };
   logDeep('metadata', metadata);
 

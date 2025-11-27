@@ -1741,6 +1741,21 @@ class ThresholdActioner {
   }
 }
 
+class Timer {
+  constructor() {
+    this.start = Date.now();
+  }
+
+  getTime({ readable = false } = {}) {
+    const diff = Date.now() - this.start;
+    return readable ? readableTimeFromMs(diff) : diff;
+  }
+  
+  reset() {
+    this.start = Date.now();
+  }
+}
+
 module.exports = {
 
   // Really core
@@ -1813,4 +1828,5 @@ module.exports = {
   Processor,
   ProcessorPipeline,
   ThresholdActioner,
+  Timer,
 };
