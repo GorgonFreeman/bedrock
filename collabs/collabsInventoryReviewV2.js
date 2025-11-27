@@ -166,6 +166,38 @@ const collabsInventoryReviewV2 = async (
   } else {
     // Using API
   }
+  
+  const inventoryReviewObj = {};
+
+  for (const [sku, shopifyQty] of Object.entries(shopifyInventoryObj)) {
+    const wmsQty = wmsInventoryObj[sku] || 0;
+    const diff = shopifyQty - wmsQty;
+    const oversellRisk = diff > 0;
+    const absDiff = Math.abs(diff);
+    const safeToImport = oversellRisk || shopifyQty === 0;
+
+    inventoryReviewObj[sku] = {
+      shopifyQty,
+      wmsQty,
+      oversellRisk,
+      absDiff,
+      safeToImport,
+    };
+  }
+
+  let inventoryReviewArray = Object.entries(inventoryReviewObj).map(([sku, value]) => {
+    return {
+      sku,
+      ...value,
+    };
+  });
+
+  // Sort biggest to smallest diff
+  inventoryReviewArray = arraySortByProp(inventoryReviewArray, 'absDiff', { descending: true });
+  // Filter out < min diff
+  inventoryReviewArray = inventoryReviewArray.filter(item => item.absDiff >= minReportableDiff);
+  // Sort to put oversell risk at the top (more in Shopify than WMS)
+  inventoryReviewArray = arraySortByProp(inventoryReviewArray, 'oversellRisk', { descending: true });
 
   // if (downloadCsv) {
   //   const csv = await json2csv(inventoryReviewArray);
@@ -178,13 +210,13 @@ const collabsInventoryReviewV2 = async (
   //   exec(`open "${ downloadsPath }"`);
   // }
 
-  // return { 
-  //   success: true, 
-  //   result: {
-  //     object: inventoryReviewObject,
-  //     array: inventoryReviewArray,
-  //   },
-  // };
+  return { 
+    success: true, 
+    result: {
+      object: inventoryReviewObj,
+      array: inventoryReviewArray,
+    },
+  };
   
 };
 
