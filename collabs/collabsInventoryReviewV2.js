@@ -215,6 +215,11 @@ const collabsInventoryReviewV2 = async (
     result: {
       object: inventoryReviewObj,
       array: inventoryReviewArray,
+      metadata: {
+        items: inventoryReviewArray.length,
+        biggestDiff: inventoryReviewArray[0]?.absDiff,
+        oversellRiskCount: inventoryReviewArray.filter(item => item.oversellRisk).length,
+      },
     },
   };
   
