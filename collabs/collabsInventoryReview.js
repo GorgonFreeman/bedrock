@@ -20,6 +20,7 @@ const { shopifyLocationGetMain } = require('../shopify/shopifyLocationGetMain');
 const { logiwaReportGetAvailableToPromise } = require('../logiwa/logiwaReportGetAvailableToPromise');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 const { bleckmannInventoriesGet } = require('../bleckmann/bleckmannInventoriesGet');
+const { googlesheetsSpreadsheetSheetGetData } = require('../googlesheets/googlesheetsSpreadsheetSheetGetData');
 
 const collabsInventoryReview = async (
   region,
@@ -28,6 +29,8 @@ const collabsInventoryReview = async (
     shopifyVariantsFetchQueries,
     minReportableDiff = 0,
     locationId,
+    wmsExportSpreadsheetIdentifier,
+    wmsExportSheetIdentifier,
   } = {},
 ) => {
 
@@ -116,6 +119,20 @@ const collabsInventoryReview = async (
   }
   // logDeep('inventoryReviewObject', inventoryReviewObject);
   // await askQuestion('?');
+
+  if (wmsExportSpreadsheetIdentifier && wmsExportSheetIdentifier) {
+    const wmsExportResponse = await googlesheetsSpreadsheetSheetGetData(
+      wmsExportSpreadsheetIdentifier,
+      wmsExportSheetIdentifier,
+    );
+
+    const { success: sheetSuccess, result: wmsExport } = wmsExportResponse;
+    if (!sheetSuccess) {
+      return wmsExportResponse;
+    }
+
+    logDeep('wmsExport', wmsExport);
+  }
 
   if (logiwaRelevant) {
     const logiwaInventoryResponse = await logiwaReportGetAvailableToPromise(
