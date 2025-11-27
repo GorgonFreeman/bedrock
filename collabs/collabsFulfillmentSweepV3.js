@@ -29,13 +29,13 @@ const collabsFulfillmentSweepV3 = async (
     regionsPeoplevox = regions.filter(region => REGIONS_PVX.includes(region));
   }
   // const regionsLogiwa = regions.filter(region => REGIONS_LOGIWA.includes(region));
-  // const regionsBleckmann = regions.filter(region => REGIONS_BLECKMANN.includes(region));
+  const regionsBleckmann = regions.filter(region => REGIONS_BLECKMANN.includes(region));
   const regionsStarshipit = regions.filter(region => REGIONS_STARSHIPIT.includes(region));
 
   const anyRelevant = [
     regionsPeoplevox, 
     // regionsLogiwa, 
-    // regionsBleckmann, 
+    regionsBleckmann, 
     regionsStarshipit,
   ].some(r => r?.length);
 
@@ -49,7 +49,7 @@ const collabsFulfillmentSweepV3 = async (
   const unsupportedRegions = regions.filter(region => ![
     regionsPeoplevox, 
     // regionsLogiwa, 
-    // regionsBleckmann, 
+    regionsBleckmann, 
     regionsStarshipit,
   ].some(r => r.includes(region)));
   if (unsupportedRegions.length > 0) {
@@ -300,6 +300,28 @@ const collabsFulfillmentSweepV3 = async (
     );
 
     processors.push(peoplevoxProcessor);
+  }
+
+  for (const region of regionsBleckmann) {
+
+    const bleckmannProcessor = new Processor(
+      piles[region].in,
+      async (pile) => {
+
+        const order = pile.shift();
+        logDeep(order);
+        await askQuestion('?');
+
+      },
+      arrayExhaustedCheck,
+      {
+        canFinish: false,
+        onDone: processorFinish,
+        logFlavourText: `${ region }:bleckmann:`,
+      },
+    );
+
+    processors.push(bleckmannProcessor);
   }
 
   const orderFulfiller = new Processor(
