@@ -1,4 +1,5 @@
-const { funcApi, objHasAny } = require('../utils');
+const { HOSTED } = require('../constants');
+const { funcApi, objHasAny, logDeep } = require('../utils');
 const { getGoogleSheetsClient } = require('../googlesheets/googlesheets.utils');
 const { spreadsheetHandleToSpreadsheetId } = require('../bedrock_unlisted/mappings');
 
@@ -108,6 +109,7 @@ const googlesheetsSpreadsheetSheetGetData = async (
     return obj;
   });
 
+  !HOSTED && logDeep(result);
   return {
     success: true,
     result,
@@ -127,5 +129,5 @@ module.exports = {
   googlesheetsSpreadsheetSheetGetDataApi,
 };
 
-// curl localhost:8000/googlesheetsSpreadsheetSheetGetData -H "Content-Type: application/json" -d '{ "spreadsheetIdentifier": { "spreadsheetId": "1RuI7MrZ0VPGBLd4EXRIfDy7DVdtcdDKKbA8C5UBJQTM" }, "sheetIdentifier": { "sheetName": "Sheet1" } }'
+// curl localhost:8000/googlesheetsSpreadsheetSheetGetData -H "Content-Type: application/json" -d '{ "spreadsheetIdentifier": { "spreadsheetId": "1ICbx-3g7Kqhge_Wkt9fi_9m7NGjgOGCOBHyEf0i3mP8" }, "sheetIdentifier": { "sheetName": "Sheet 1" } }'
 
