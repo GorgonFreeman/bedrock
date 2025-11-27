@@ -313,32 +313,33 @@ const collabsInventoryReviewV2 = async (
   //   exec(`open "${ downloadsPath }"`);
   // }
 
+  const metadata = {
+    items: inventoryReviewArray.length,
+    biggestDiff: inventoryReviewArray[0]?.absDiff,
+    oversellRiskCount: inventoryReviewArray.filter(item => item.oversellRisk).length,
+  };
+  logDeep('metadata', metadata);
+
   return { 
     success: true, 
     result: {
       object: inventoryReviewObj,
       array: inventoryReviewArray,
-      metadata: {
-        items: inventoryReviewArray.length,
-        biggestDiff: inventoryReviewArray[0]?.absDiff,
-        oversellRiskCount: inventoryReviewArray.filter(item => item.oversellRisk).length,
-      },
+      metadata,
     },
   };
   
 };
 
 const collabsInventoryReviewV2Api = async (req, res) => {
-  const { 
-    region,
+  const {     region,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'region', region),
   ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
+  if (paramsValid.some(valid => valid === false)) {    return;
   }
 
   const result = await collabsInventoryReviewV2(
