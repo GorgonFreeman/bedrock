@@ -8,6 +8,11 @@ const googlesheetsSpreadsheetSheetGetData = async (
     spreadsheetHandle,
   },
   {
+    sheetName,
+    sheetId,
+    sheetIndex,
+  },
+  {
     credsPath,
   } = {},
 ) => {
@@ -33,9 +38,10 @@ const googlesheetsSpreadsheetSheetGetData = async (
 };
 
 const googlesheetsSpreadsheetSheetGetDataApi = funcApi(googlesheetsSpreadsheetSheetGetData, {
-  argNames: ['spreadsheetIdentifier', 'options'],
+  argNames: ['spreadsheetIdentifier', 'sheetIdentifier', 'options'],
   validatorsByArg: {
     spreadsheetIdentifier: p => objHasAny(p, ['spreadsheetId', 'spreadsheetHandle']),
+    sheetIdentifier: p => objHasAny(p, ['sheetName', 'sheetId', 'sheetIndex']),
   },
 });
 
@@ -44,5 +50,5 @@ module.exports = {
   googlesheetsSpreadsheetSheetGetDataApi,
 };
 
-// curl localhost:8000/googlesheetsSpreadsheetSheetGetData -H "Content-Type: application/json" -d '{ "spreadsheetIdentifier": { "spreadsheetId": "1RuI7MrZ0VPGBLd4EXRIfDy7DVdtcdDKKbA8C5UBJQTM" } }'
+// curl localhost:8000/googlesheetsSpreadsheetSheetGetData -H "Content-Type: application/json" -d '{ "spreadsheetIdentifier": { "spreadsheetId": "1RuI7MrZ0VPGBLd4EXRIfDy7DVdtcdDKKbA8C5UBJQTM" }, "sheetIdentifier": { "sheetName": "Sheet1" } }'
 
