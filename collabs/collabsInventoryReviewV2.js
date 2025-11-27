@@ -129,6 +129,7 @@ const collabsInventoryReviewV2 = async (
 
     const canUseExport = [
       logiwaRelevant,
+      bleckmannRelevant,
     ].some(Boolean);
 
     if (!canUseExport) {
@@ -158,6 +159,26 @@ const collabsInventoryReviewV2 = async (
         } = item;
   
         if (!sku || !wmsQty) {
+          continue;
+        }
+  
+        wmsInventoryObj[sku] = Number(wmsQty);
+      }
+    }
+
+    if (bleckmannRelevant) {
+      for (const item of wmsExport) {
+        const {
+          'INV_SKU_ID': sku,
+          'INV_CONDITION_ID': condition,
+          'INV_FREE_INV': wmsQty,
+        } = item;
+  
+        if (!sku || !wmsQty) {
+          continue;
+        }
+
+        if (condition !== 'OK1') {
           continue;
         }
   
