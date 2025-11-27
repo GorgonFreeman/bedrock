@@ -311,7 +311,8 @@ const collabsInventoryReviewV2 = async (
   //   const downloadsPath = process.env.DOWNLOADS_PATH || '.';
   //   const filePath = path.join(downloadsPath, 'collabsInventoryReviewV2.csv');
   //   fs.writeFileSync(filePath, csv);
-      //   // Open the downloads folder once the file is complete
+    
+  //   // Open the downloads folder once the file is complete
   //   const { exec } = require('child_process');
   //   exec(`open "${ downloadsPath }"`);
   // }
@@ -342,14 +343,16 @@ const collabsInventoryReviewV2 = async (
 };
 
 const collabsInventoryReviewV2Api = async (req, res) => {
-  const {     region,
+  const { 
+    region,
     options,
   } = req.body;
 
   const paramsValid = await Promise.all([
     mandateParam(res, 'region', region),
   ]);
-  if (paramsValid.some(valid => valid === false)) {    return;
+  if (paramsValid.some(valid => valid === false)) {
+    return;
   }
 
   const result = await collabsInventoryReviewV2(
