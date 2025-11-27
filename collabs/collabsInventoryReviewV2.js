@@ -103,7 +103,7 @@ const collabsInventoryReviewV2 = async (
     return shopifyInventoryResponse;
   }
   
-  const inventoryReviewObject = {};
+  const shopifyInventoryObj = {};
   for (const variant of shopifyInventory) {
     const { 
       sku, 
@@ -113,14 +113,15 @@ const collabsInventoryReviewV2 = async (
 
     const shopifyAvailable = inventoryItem?.inventoryLevel?.quantities?.find(quantity => quantity.name === 'available')?.quantity || 0;
 
-    inventoryReviewObject[sku] = {
-      shopifyAvailable,
-    };
+    shopifyInventoryObj[sku] = shopifyAvailable;
   }
-  // logDeep('inventoryReviewObject', inventoryReviewObject);
-  // await askQuestion('?');
+  
+  logDeep('shopifyInventoryObj', shopifyInventoryObj);
+  await askQuestion('?');
 
-  if (wmsExportSpreadsheetIdentifier && wmsExportSheetIdentifier) {
+  const usingExport = wmsExportSpreadsheetIdentifier && wmsExportSheetIdentifier;
+
+  if (usingExport) {
     const wmsExportResponse = await googlesheetsSpreadsheetSheetGetData(
       wmsExportSpreadsheetIdentifier,
       wmsExportSheetIdentifier,
@@ -133,205 +134,28 @@ const collabsInventoryReviewV2 = async (
 
     logDeep('wmsExport', wmsExport);
 
-    if (logiwaRelevant) {
-      
-    }
+  } else {
+    // Using API
   }
 
-  if (logiwaRelevant) {
-    const logiwaInventoryResponse = await logiwaReportGetAvailableToPromise(
-      {
-        undamagedQuantity_gt: '0',
-      },
-      {
-        apiVersion: 'v3.2',
-      },
-    );
-
-    const {
-      success: logiwaInventorySuccess,
-      result: logiwaInventory,
-    } = logiwaInventoryResponse;
-    if (!logiwaInventorySuccess) {
-      return logiwaInventoryResponse;
-    }
-
-    // logDeep('logiwaInventory', logiwaInventory);
-    // await askQuestion('?');
-
-    for (const inventoryItem of logiwaInventory) {
-      const { 
-        productSku: sku, 
-        sellableQuantity,
-      } = inventoryItem;
-
-      if (!inventoryReviewObject[sku]) {
-        continue;
-      }
-
-      if (inventoryReviewObject[sku].logiwaSellable) {
-        inventoryReviewObject[sku].logiwaSellable += sellableQuantity;
-        continue;
-      }
-
-      inventoryReviewObject[sku].logiwaSellable = sellableQuantity;
-    }
-
-    for (const [key, value] of Object.entries(inventoryReviewObject)) {
-
-      if (strictlyFalsey(inventoryReviewObject[key].logiwaSellable)) {
-        inventoryReviewObject[key].logiwaSellable = 0;
-      }
-
-      const { shopifyAvailable, logiwaSellable } = value;
-
-      const diff = shopifyAvailable - logiwaSellable;
-      inventoryReviewObject[key].logiwaOversellRisk = diff > 0;
-      inventoryReviewObject[key].logiwaDiff = Math.abs(diff);
-    }
-  }
-
-  if (pvxRelevant) {
-    const pvxSite = shopifyRegionToPvxSite(region);
-
-    if (!pvxSite) {
-      return {
-        success: false,
-        error: [`No PVX site found for ${ region }`],
-      };
-    }
-
-    const pvxInventoryResponse = await peoplevoxReportGet(
-      'Item inventory summary', 
-      {
-        searchClause: `([Site reference].Equals("${ pvxSite }"))`, 
-        columns: ['Item code', 'Available'], 
-      },
-    );
-  
-    console.log(pvxInventoryResponse);
-
-    const {
-      success: pvxReportSuccess,
-      result: pvxInventory,
-    } = pvxInventoryResponse;
-    if (!pvxReportSuccess) {
-      return pvxInventoryResponse;
-    }
-
-    logDeep('pvxInventory', pvxInventory);
-
-    for (const inventoryItem of pvxInventory) {
-      const { 
-        'Item code': sku, 
-        'Available': pvxAvailable,
-      } = inventoryItem;
-
-      if (!inventoryReviewObject[sku]) {
-        continue;
-      }
-
-      inventoryReviewObject[sku].pvxAvailable = pvxAvailable;
-    }
-
-    for (const [key, value] of Object.entries(inventoryReviewObject)) {
-
-      if (strictlyFalsey(inventoryReviewObject[key].pvxAvailable)) {
-        inventoryReviewObject[key].pvxAvailable = 0;
-      }
-
-      const { shopifyAvailable, pvxAvailable } = value;
-
-      const diff = shopifyAvailable - pvxAvailable;
-      inventoryReviewObject[key].pvxOversellRisk = diff > 0;
-      inventoryReviewObject[key].pvxDiff = Math.abs(diff);
-    }
-  }
-
-  if (bleckmannRelevant) {
-    const bleckmannInventoryResponse = await bleckmannInventoriesGet();
-
-    const {
-      success: bleckmannInventorySuccess,
-      result: bleckmannInventory,
-    } = bleckmannInventoryResponse;
-    if (!bleckmannInventorySuccess) {
-      return bleckmannInventoryResponse;
-    }
-
-    // logDeep('bleckmannInventory', bleckmannInventory);
-    // await askQuestion('?');
-
-    for (const inventoryItem of bleckmannInventory) {
-      const { 
-        skuId: sku, 
-        inventoryType,
-        quantityTotal,
-        quantityLocked,
-      } = inventoryItem;
-
-      if (!inventoryReviewObject[sku] || inventoryType !== 'OK1') {
-        continue;
-      }
-
-      const bleckmannAvailable = quantityTotal - quantityLocked;
-      inventoryReviewObject[sku].bleckmannAvailable = bleckmannAvailable;
-    }
-
-    for (const [key, value] of Object.entries(inventoryReviewObject)) {
-
-      if (strictlyFalsey(inventoryReviewObject[key].bleckmannAvailable)) {
-        inventoryReviewObject[key].bleckmannAvailable = 0;
-      }
-
-      const { shopifyAvailable, bleckmannAvailable } = value;
-
-      const diff = shopifyAvailable - bleckmannAvailable;
-      inventoryReviewObject[key].bleckmannOversellRisk = diff > 0;
-      inventoryReviewObject[key].bleckmannDiff = Math.abs(diff);
-    }
-  }
-
-  logDeep('inventoryReviewObject', inventoryReviewObject);
-
-  let inventoryReviewArray = Object.entries(inventoryReviewObject).map(([key, value]) => {
-    return {
-      sku: key,
-      ...value,
-    };
-  });
- 
-  const exampleItem = inventoryReviewArray?.[0];
-  const exampleItemKeys = Object.keys(exampleItem);
-
-  const diffProp = exampleItemKeys?.find(key => key.toLowerCase().includes('diff'));
-  const oversellRiskProp = exampleItemKeys?.find(key => key.toLowerCase().includes('oversellrisk'));
-  
-  // Sort biggest to smallest diff
-  inventoryReviewArray = arraySortByProp(inventoryReviewArray, diffProp, { descending: true });
-  // Filter out < min diff
-  inventoryReviewArray = inventoryReviewArray.filter(item => item[diffProp] >= minReportableDiff);
-  // Sort to put oversell risk at the top (more in Shopify than WMS)
-  inventoryReviewArray = arraySortByProp(inventoryReviewArray, oversellRiskProp, { descending: true });
-
-  if (downloadCsv) {
-    const csv = await json2csv(inventoryReviewArray);
-    const downloadsPath = process.env.DOWNLOADS_PATH || '.';
-    const filePath = path.join(downloadsPath, 'collabsInventoryReviewV2.csv');
-    fs.writeFileSync(filePath, csv);
+  // if (downloadCsv) {
+  //   const csv = await json2csv(inventoryReviewArray);
+  //   const downloadsPath = process.env.DOWNLOADS_PATH || '.';
+  //   const filePath = path.join(downloadsPath, 'collabsInventoryReviewV2.csv');
+  //   fs.writeFileSync(filePath, csv);
     
-    // Open the downloads folder once the file is complete
-    const { exec } = require('child_process');
-    exec(`open "${ downloadsPath }"`);
-  }
+  //   // Open the downloads folder once the file is complete
+  //   const { exec } = require('child_process');
+  //   exec(`open "${ downloadsPath }"`);
+  // }
 
-  return { 
-    success: true, 
-    result: {
-      object: inventoryReviewObject,
-      array: inventoryReviewArray,
-    },
-  };
+  // return { 
+  //   success: true, 
+  //   result: {
+  //     object: inventoryReviewObject,
+  //     array: inventoryReviewArray,
+  //   },
+  // };
   
 };
 
