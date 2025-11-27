@@ -1,7 +1,7 @@
 const { HOSTED } = require('../constants');
 const { funcApi, logDeep, gidToId, askQuestion, arrayToObj } = require('../utils');
 
-const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
+const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
 const { shopifyLocationGetMain } = require('../shopify/shopifyLocationGetMain');
 const { shopifyInventoryQuantitiesSet } = require('../shopify/shopifyInventoryQuantitiesSet');
 
@@ -78,20 +78,26 @@ const collabsInventorySync = async (
 
   !HOSTED && logDeep('locationId', locationId);
 
-  const shopifyVariantsResponse = await shopifyVariantsGet(
-    region,
-    {
-      attrs: `
-        sku 
-        inventoryQuantity 
-        inventoryItem { 
-          id 
-          requiresShipping
-          tracked
+  const variantQuery = `{
+    productVariants${ shopifyVariantsFetchQueries ? `(query: "${ shopifyVariantsFetchQueries.join(' AND ') }")` : '' } {
+      edges {
+        node {
+          sku 
+          inventoryQuantity 
+          inventoryItem { 
+            id 
+            requiresShipping
+            tracked
+          }
         }
-      `,
-      ...(shopifyVariantsFetchQueries ? { queries: shopifyVariantsFetchQueries } : {}),
-    },
+      }
+    }
+  }`;
+
+  const shopifyVariantsResponse = await shopifyBulkOperationDo(
+    region,
+    'query',
+    variantQuery,
   );
 
   const { success: shopifyVariantsSuccess, result: shopifyVariants } = shopifyVariantsResponse;
