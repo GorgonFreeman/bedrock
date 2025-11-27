@@ -165,12 +165,49 @@ const collabsInventoryReviewV2 = async (
 
   } else {
     // Using API
+
+    if (logiwaRelevant) {
+      const logiwaInventoryResponse = await logiwaReportGetAvailableToPromise(
+        {
+          undamagedQuantity_gt: '0',
+        },
+        {
+          apiVersion: 'v3.2',
+        },
+      );
+
+      const {
+        success: logiwaInventorySuccess,
+        result: logiwaInventory,
+      } = logiwaInventoryResponse;
+      if (!logiwaInventorySuccess) {
+        return logiwaInventoryResponse;
+      }
+
+      for (const inventoryItem of logiwaInventory) {
+        const { 
+          productSku: sku, 
+          sellableQuantity: wmsQty,
+        } = inventoryItem;
+
+        if (!shopifyInventoryObj[sku]) {
+          continue;
+        }
+
+        if (wmsInventoryObj[sku]) {
+          wmsInventoryObj[sku] += wmsQty;
+          continue;
+        }
+
+        wmsInventoryObj[sku].wmsQty = wmsQty;
+      }
+    }
   }
   
   const inventoryReviewObj = {};
 
   for (const [sku, shopifyQty] of Object.entries(shopifyInventoryObj)) {
-    const wmsQty = wmsInventoryObj[sku] || 0;
+    const wmsQty = wmsInventoryObj[sku] || 0; // If inventory wasn't found in WMS, set to 0
     const diff = shopifyQty - wmsQty;
     const oversellRisk = diff > 0;
     const absDiff = Math.abs(diff);
