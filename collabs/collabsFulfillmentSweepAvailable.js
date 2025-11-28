@@ -72,6 +72,8 @@ const collabsFulfillmentSweepAvailable = async (
   );
 
   getters.push(getterShopify);
+  
+  let wmsGetters = [];
 
   if (bleckmannRelevant) {
     const shippedPickticketsGetter = await bleckmannPickticketsGetter(
@@ -87,8 +89,10 @@ const collabsFulfillmentSweepAvailable = async (
       },
     );
 
-    getters.push(shippedPickticketsGetter);
+    wmsGetters.push(shippedPickticketsGetter);
   }
+
+  getters.push(...wmsGetters);
 
   await Promise.all([
     ...getters.map(getter => getter.run()),
