@@ -22,8 +22,14 @@ const collabsInventorySync = async (
     skus, // if provided, only sync these SKUs, and ignore other options.
     shopifyVariantsFetchQueries,
     minDiff = 0, // Only sync if the diff is greater than or equal to this value.
-    safeMode, // Only sync if Shopify has more than the WMS, or, there is no stock in Shopify. These syncs are unlikely to cause oversells.
     locationId,
+
+    mode = 'full', 
+    /* Valid values:
+      full: Sync all inventory.
+      safe: Only sync if Shopify has more than the WMS, or, there is no stock in Shopify. These syncs are unlikely to cause oversells.
+      overs: Only sync if Shopify has more than the WMS. Almost always safe, the only risk is that inventory being moved is taken offline before it's available again in the WMS.
+    */
   } = {},
 ) => {
 
@@ -192,9 +198,20 @@ const collabsInventorySync = async (
       continue;
     }
 
-    const safe = oversellRisk || shopifyAvailable === 0;
-    if (safeMode && !safe) {
-      continue;
+    switch (mode) {
+      case 'safe':
+        const safe = oversellRisk || shopifyAvailable === 0;
+        if (!safe) {
+          continue;
+        }
+        break;
+      case 'overs':
+        if (!oversellRisk) {
+          continue;
+        }
+        break;
+      default:
+        // Do nothing
     }
 
     const { id: inventoryItemGid } = inventoryItem;
