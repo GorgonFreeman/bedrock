@@ -1,6 +1,6 @@
 // Actions the fulfillments that are easiest to get from the WMS
 
-const { funcApi, logDeep, surveyNestedArrays } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, dateTimeFromNow, days } = require('../utils');
 
 const {
   REGIONS_PVX,
@@ -74,7 +74,20 @@ const collabsFulfillmentSweepAvailable = async (
   getters.push(getterShopify);
 
   if (bleckmannRelevant) {
+    const shippedPickticketsGetter = await bleckmannPickticketsGetter(
+      {
+        createdFrom: `${ dateTimeFromNow({ minus: days(5), dateOnly: true }) }T00:00:00Z`,
+        status: 'SHIPPED',
 
+        onItems: (items) => {
+          piles.wms.push(...items);
+        },
+
+        logFlavourText: `bleckmann:getter:`,
+      },
+    );
+
+    getters.push(shippedPickticketsGetter);
   }
 
   await Promise.all([
