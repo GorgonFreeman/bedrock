@@ -231,6 +231,7 @@ module.exports = {
   collabsCustomsDataCleanse: require('./collabs/collabsCustomsDataCleanse').collabsCustomsDataCleanseApi,
   collabsCustomsDataSweep: require('./collabs/collabsCustomsDataSweep').collabsCustomsDataSweepApi,
   collabsFulfillmentSweep: require('./collabs/collabsFulfillmentSweep').collabsFulfillmentSweepApi,
+  collabsFulfillmentSweepAvailable: require('./collabs/collabsFulfillmentSweepAvailable').collabsFulfillmentSweepAvailableApi,
   collabsFulfillmentSweepRecent: require('./collabs/collabsFulfillmentSweepRecent').collabsFulfillmentSweepRecentApi,
   collabsFulfillmentSweepV2: require('./collabs/collabsFulfillmentSweepV2').collabsFulfillmentSweepV2Api,
   collabsFulfillmentSweepV3: require('./collabs/collabsFulfillmentSweepV3').collabsFulfillmentSweepV3Api,
