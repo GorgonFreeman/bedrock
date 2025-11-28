@@ -1,5 +1,7 @@
 // Actions the fulfillments that are easiest to get from the WMS
 
+// Note: This function is currently useless because you cannot fulfill third-party fulfillment orders.
+
 const { funcApi, logDeep, surveyNestedArrays, dateTimeFromNow, days, Processor, askQuestion, ThresholdActioner, Getter, wait, gidToId } = require('../utils');
 
 const {
