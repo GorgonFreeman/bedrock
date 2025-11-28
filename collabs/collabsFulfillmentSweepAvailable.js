@@ -179,7 +179,7 @@ const collabsFulfillmentSweepAvailable = async (
   
           piles.shopifyFulfillmentOrderFulfill.push([
             'uk', // Bleckmann, therefore UK
-            pickticketId,
+            pickticketId, // = Shopify fulfillment order ID
             {
               externalLineItems: lines,
               externalLineItemsConfig: {
