@@ -199,6 +199,8 @@ const collabsFulfillmentSweepAvailable = async (
                 url: trackingUrl,
                 company: carrierName,
               },
+
+              apiVersion: '2024-07',
             },
           ]);
         }
