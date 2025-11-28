@@ -10,6 +10,7 @@ const {
 
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 const { bleckmannPickticketsGetter } = require('../bleckmann/bleckmannPickticketsGet');
+const { bleckmannParcelsGet } = require('../bleckmann/bleckmannParcelsGet');
 
 const collabsFulfillmentSweepAvailable = async (
   region,
@@ -75,6 +76,7 @@ const collabsFulfillmentSweepAvailable = async (
   
   let wmsGetters = [];
   let eagerProcessor;
+  let fulfillmentPreparer;
 
   if (bleckmannRelevant) {
     const shippedPickticketsGetter = await bleckmannPickticketsGetter(
@@ -139,6 +141,23 @@ const collabsFulfillmentSweepAvailable = async (
         },
       },
     );
+
+    fulfillmentPreparer = new Processor(
+      piles.fulfillable,
+      async (pile) => {
+        
+        const { shopifyOrder, bleckmannPickticket } = pile.shift();
+
+        logDeep(shopifyOrder, bleckmannPickticket);
+        await askQuestion('?');
+        
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: false,
+        logFlavourText: `bleckmann:preparer:`,
+      },
+    );
   }
 
   getters.push(...wmsGetters);
@@ -150,9 +169,14 @@ const collabsFulfillmentSweepAvailable = async (
     getter.on('done', gettersFinishedActioner.increment);
   });
 
+  eagerProcessor.on('done', () => {
+    fulfillmentPreparer.canFinish = true;
+  });
+
   await Promise.all([
     ...getters.map(getter => getter.run()),
     eagerProcessor.run(),
+    fulfillmentPreparer.run(),
   ]);
 
   logDeep(surveyNestedArrays(piles));
