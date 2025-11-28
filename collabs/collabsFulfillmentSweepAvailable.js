@@ -1,6 +1,6 @@
 // Actions the fulfillments that are easiest to get from the WMS
 
-const { funcApi, logDeep, surveyNestedArrays, dateTimeFromNow, days, Processor, askQuestion, ThresholdActioner, Getter } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, dateTimeFromNow, days, Processor, askQuestion, ThresholdActioner, Getter, wait, gidToId } = require('../utils');
 
 const {
   REGIONS_PVX,
@@ -37,6 +37,8 @@ const collabsFulfillmentSweepAvailable = async (
   const piles = {
     shopify: [],
     wms: [],
+    discarded: [],
+    fulfillable: [],
   };
 
   const getters = [];
@@ -93,14 +95,48 @@ const collabsFulfillmentSweepAvailable = async (
     eagerProcessor = new Processor(
       piles.wms,
       async (pile) => {
+
+        if (!eagerProcessor.canFinish) {
+          await wait(1);
+        }
+
         const pickticket = pile.shift();
-        logDeep(pickticket);
-        await askQuestion('?');
+
+        const fail = () => {
+          piles[eagerProcessor.canFinish ? 'discarded' : 'wms'].push(pickticket);
+        };
+
+        const { reference } = pickticket;
+        const shopifyOrder = piles.shopify.find(order => gidToId(order.id) === reference);
+  
+        if (!shopifyOrder) {
+          fail();
+          return;
+        }
+        
+        const orderIndex = piles.shopify.indexOf(shopifyOrder);
+        // This shouldn't happen, we just found the order in the array
+        if (orderIndex === -1) {
+          fail();
+          return;
+        }
+
+        // Remove order from Shopify pile
+        piles.shopify.splice(orderIndex, 1);
+        piles.fulfillable.push({
+          shopifyOrder,
+          bleckmannPickticket: pickticket,
+        });
+
+        logDeep(piles.fulfillable);
       },
       pile => pile.length === 0,
       {
         canFinish: false,
         logFlavourText: `bleckmann:eager:`,
+        runOptions: {
+          verbose: false,
+        },
       },
     );
   }
