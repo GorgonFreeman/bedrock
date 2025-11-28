@@ -152,11 +152,10 @@ const collabsFulfillmentSweepAvailable = async (
         const { shopifyOrder, bleckmannPickticket } = pile.shift();
         const { pickticketId } = bleckmannPickticket;
 
-        const bleckmannParcelsResponse = await bleckmannParcelsGet({ pickticketId }, { includeDetails: true });
-
-        const { success: parcelsSuccess, result: parcels } = bleckmannParcelsResponse;
+        const parcelsResponse = await bleckmannParcelsGet({ pickticketId }, { includeDetails: true });
+        const { success: parcelsSuccess, result: parcels } = parcelsResponse;
         if (!parcelsSuccess || !parcels?.length) {
-          piles.errors.push(bleckmannParcelsResponse);
+          piles.errors.push(parcelsResponse);
           return;
         }
 
