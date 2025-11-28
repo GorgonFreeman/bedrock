@@ -149,13 +149,8 @@ const blocks = {
   },
 
   sample_display: (title, samples) => {
-    return {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `*${ title }*:\n${ samples.map(s => JSON.stringify(s)).join('\n') }`,
-      },
-    };
+    // TODO: Add title
+    return slackArrayToTableBlock(samples);
   },
 
   import: {

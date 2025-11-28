@@ -136,9 +136,58 @@ const slackGetter = async (
 
 const slackGet = getterAsGetFunction(slackGetter);
 
+const slackArrayToTableBlock = (array) => {
+  // https://app.slack.com/block-kit-builder/TAK738ZT9#%7B%22blocks%22:%5B%7B%22type%22:%22table%22,%22rows%22:%5B%5B%7B%22type%22:%22rich_text%22,%22elements%22:%5B%7B%22type%22:%22rich_text_section%22,%22elements%22:%5B%7B%22type%22:%22text%22,%22text%22:%22Header%201%22,%22style%22:%7B%22bold%22:true%7D%7D%5D%7D%5D%7D,%7B%22type%22:%22rich_text%22,%22elements%22:%5B%7B%22type%22:%22rich_text_section%22,%22elements%22:%5B%7B%22type%22:%22text%22,%22text%22:%22Header%202%22,%22style%22:%7B%22bold%22:true%7D%7D%5D%7D%5D%7D%5D,%5B%7B%22type%22:%22rich_text%22,%22elements%22:%5B%7B%22type%22:%22rich_text_section%22,%22elements%22:%5B%7B%22type%22:%22text%22,%22text%22:%22Datum%201%22%7D%5D%7D%5D%7D,%7B%22type%22:%22rich_text%22,%22elements%22:%5B%7B%22type%22:%22rich_text_section%22,%22elements%22:%5B%7B%22type%22:%22text%22,%22text%22:%22Datum%202%22%7D%5D%7D%5D%7D%5D%5D%7D%5D%7D
+  // TODO: Support items with varying props
+  const headers = Object.keys(array?.[0]);
+  return {
+    type: 'table',
+    rows: [
+      ...headers.map(header => {
+        return {
+          type: 'rich_text',
+          elements: [
+            {
+              type: 'rich_text_section',
+              elements: [
+                {
+                  type: 'text',
+                  text: header,
+                  style: {
+                    bold: true,
+                  },
+                },
+              ],
+            },
+          ],
+        };
+      }),
+      ...array.map(item => {
+        return Object.values(item).map(v => {
+          return {
+            type: 'rich_text',
+            elements: [
+              {
+                type: 'rich_text_section',
+                elements: [
+                  {
+                    type: 'text',
+                    text: v,
+                  },
+                ],
+              },
+            ],
+          };
+        });
+      }),
+    ],
+  };
+};
+
 module.exports = {
   slackClient,
   slackGetter,
   slackGet,
   slackChannelNameToId,
+  slackArrayToTableBlock,
 };
