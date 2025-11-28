@@ -39,7 +39,10 @@ const collabsFulfillmentSweepAvailable = async (
     shopify: [],
     wms: [],
     discarded: [],
+    errors: [],
+    disqualified: [],
     fulfillable: [],
+    fulfill: [],
   };
 
   const getters = [];
@@ -147,9 +150,28 @@ const collabsFulfillmentSweepAvailable = async (
       async (pile) => {
         
         const { shopifyOrder, bleckmannPickticket } = pile.shift();
+        const { pickticketId } = bleckmannPickticket;
 
-        logDeep(shopifyOrder, bleckmannPickticket);
+        const bleckmannParcelsResponse = await bleckmannParcelsGet({ pickticketId }, { includeDetails: true });
+
+        const { success: parcelsSuccess, result: parcels } = bleckmannParcelsResponse;
+        if (!parcelsSuccess || !parcels?.length) {
+          piles.errors.push(bleckmannParcelsResponse);
+          return;
+        }
+
+        logDeep(shopifyOrder, bleckmannPickticket, parcels);
         await askQuestion('?');
+
+        for (const parcel of parcels) {
+          const { trackingNumber } = parcel;
+          if (!trackingNumber) {
+            piles.disqualified.push(parcel);
+            continue;
+          }
+
+          // piles.fulfill.push( ... );
+        }
         
       },
       pile => pile.length === 0,
