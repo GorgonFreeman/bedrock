@@ -1756,6 +1756,13 @@ class Timer {
   }
 }
 
+const camelToReadable = (str) => {
+  return str
+    .replace(/([A-Z])/g, ' $1')
+    .toLowerCase()
+    .replace(/^./, (firstLetter) => firstLetter.toUpperCase());
+};
+
 module.exports = {
 
   // Really core
@@ -1819,6 +1826,7 @@ module.exports = {
   arrayExhaustedCheck,
   surveyNestedArrays,
   groupObjectsByFields,
+  camelToReadable,
   
   // Classes
   CustomAxiosClient,

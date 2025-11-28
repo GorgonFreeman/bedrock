@@ -1,5 +1,6 @@
 const { HOSTED } = require('../constants');
-const { respond, logDeep, customAxios, askQuestion, arrayToObj, parseBoolean } = require('../utils');
+const { respond, logDeep, customAxios, askQuestion, arrayToObj, parseBoolean, camelToReadable } = require('../utils');
+const { slackArrayToTableBlock } = require('../slack/slack.utils');
 const { collabsInventoryReview } = require('../collabs/collabsInventoryReview');
 const { collabsInventorySync } = require('../collabs/collabsInventorySync');
 const { googlesheetsSpreadsheetSheetAdd } = require('../googlesheets/googlesheetsSpreadsheetSheetAdd');
@@ -142,8 +143,7 @@ const blocks = {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        // TODO: Generalise to just whatever is in the metadata payload
-        text: `*Metadata*:\nCount: ${ count }\nBiggest diff: ${ biggestDiff }\nOversell risk count: ${ oversellRiskCount }\nTime taken: ${ timeTaken }`,
+        text: `*Metadata*:\n${ Object.entries(metadata).map(([prop, value]) => `${ camelToReadable(prop) }: ${ value }`).join('\n') }`,
       },
     };
   },
