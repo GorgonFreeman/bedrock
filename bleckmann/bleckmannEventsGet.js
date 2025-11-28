@@ -59,4 +59,4 @@ module.exports = {
   bleckmannEventsGetApi,
 };
 
-// curl localhost:8000/bleckmannEventsGet -H "Content-Type: application/json" -d '{ "createdFrom": "2025-07-01T00:00:00+01:00", "createdTo": "2025-07-02T00:00:00+01:00" }'
+// curl localhost:8000/bleckmannEventsGet -H "Content-Type: application/json" -d '{ "createdFrom": "2025-11-25T00:00:00+01:00", "createdTo": "2025-11-28T00:00:00+01:00" }'
