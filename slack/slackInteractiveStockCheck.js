@@ -502,6 +502,7 @@ const slackInteractiveStockCheck = async (req, res) => {
 
         case 'full':
         case 'safe':
+        case 'overs':
 
           const settingsStateBlock = currentBlocksById['settings:state'];
 
