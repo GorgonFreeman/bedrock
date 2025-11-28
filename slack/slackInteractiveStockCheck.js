@@ -175,7 +175,7 @@ const blocks = {
         block_id: 'import:expanded:text',
         text: {
           type: 'mrkdwn',
-          text: `You can do a *Full* or *Safe* import.\n\n*Full* will fetch all inventory matching your settings again, and import it.\n\n*Safe* will import only products where importing is unlikely to cause an oversell - ie. Shopify has more than the WMS, or, there is no stock in Shopify (restocks).\n\nSelect your import type to kick it off, or, Cancel.`,
+          text: `You can do a *Full* or *Safe* import, or just fix *Overs*.\n\n*Full* will fetch all inventory matching your settings again, and import it.\n\n*Safe* will import only products where importing is unlikely to cause an oversell - ie. Shopify has more than the WMS, or, there is no stock in Shopify (restocks).\n\nSelect your import type to kick it off, or, Cancel.`,
         },
       },
       buttons: {
@@ -200,6 +200,15 @@ const blocks = {
             },
             value: 'safe',
             action_id: `${ COMMAND_NAME }:import:safe`,
+          },
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'Overs',
+            },
+            value: 'overs',
+            action_id: `${ COMMAND_NAME }:import:overs`,
           },
           {
             type: 'button',
@@ -521,7 +530,7 @@ const slackInteractiveStockCheck = async (req, res) => {
 
           const inventorySyncResponse = await collabsInventorySync(region, {
             minDiff: minDiff,
-            safeMode: actionNodes?.[0] === 'safe',
+            mode: actionNodes?.[0],
             ...onlyPublished ? {
               shopifyVariantsFetchQueries: [
                 'published_status:published',
