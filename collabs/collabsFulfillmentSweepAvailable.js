@@ -1,6 +1,6 @@
 // Actions the fulfillments that are easiest to get from the WMS
 
-const { funcApi, logDeep, surveyNestedArrays, dateTimeFromNow, days } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, dateTimeFromNow, days, Processor, askQuestion } = require('../utils');
 
 const {
   REGIONS_PVX,
@@ -74,6 +74,7 @@ const collabsFulfillmentSweepAvailable = async (
   getters.push(getterShopify);
   
   let wmsGetters = [];
+  let eagerProcessor;
 
   if (bleckmannRelevant) {
     const shippedPickticketsGetter = await bleckmannPickticketsGetter(
@@ -90,6 +91,20 @@ const collabsFulfillmentSweepAvailable = async (
     );
 
     wmsGetters.push(shippedPickticketsGetter);
+
+    eagerProcessor = new Processor(
+      piles.wms,
+      async (pile) => {
+        const pickticket = pile.shift();
+        logDeep(pickticket);
+        await askQuestion('?');
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: false,
+        logFlavourText: `bleckmann:eager:`,
+      },
+    );
   }
 
   getters.push(...wmsGetters);
