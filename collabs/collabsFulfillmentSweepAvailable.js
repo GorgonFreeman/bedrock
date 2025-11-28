@@ -9,6 +9,7 @@ const {
 } = require('../constants');
 
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
+const { shopifyFulfillmentOrderFulfill } = require('../shopify/shopifyFulfillmentOrderFulfill');
 const { bleckmannPickticketsGetter } = require('../bleckmann/bleckmannPickticketsGet');
 const { bleckmannParcelsGet } = require('../bleckmann/bleckmannParcelsGet');
 
@@ -42,7 +43,8 @@ const collabsFulfillmentSweepAvailable = async (
     errors: [],
     disqualified: [],
     fulfillable: [],
-    fulfill: [],
+    shopifyFulfillmentOrderFulfill: [],
+    results: [],
   };
 
   const getters = [];
@@ -133,7 +135,7 @@ const collabsFulfillmentSweepAvailable = async (
           bleckmannPickticket: pickticket,
         });
 
-        logDeep(piles.fulfillable);
+        // logDeep(piles.fulfillable);
       },
       pile => pile.length === 0,
       {
@@ -159,17 +161,46 @@ const collabsFulfillmentSweepAvailable = async (
           return;
         }
 
-        logDeep(shopifyOrder, bleckmannPickticket, parcels);
-        await askQuestion('?');
+        // logDeep(shopifyOrder, bleckmannPickticket, parcels);
+        // await askQuestion('?');
 
         for (const parcel of parcels) {
-          const { trackingNumber } = parcel;
+          const {
+            trackingNumber,
+            trackingUrl,
+            carrierName,
+            lines,
+          } = parcel;
+  
           if (!trackingNumber) {
             piles.disqualified.push(parcel);
             continue;
           }
-
-          // piles.fulfill.push( ... );
+  
+          piles.shopifyFulfillmentOrderFulfill.push([
+            'uk', // Bleckmann, therefore UK
+            pickticketId,
+            {
+              externalLineItems: lines,
+              externalLineItemsConfig: {
+                extSkuProp: 'skuId',
+                shopifyQuantityProp: 'quantity',
+              },
+  
+              notifyCustomer: true,
+  
+              originAddress: {
+                // Bleckmann, therefore GB
+                countryCode: 'GB',
+              },
+  
+              trackingInfo: {
+                number: trackingNumber,
+                url: trackingUrl,
+                company: carrierName,
+              },
+            },
+          ]);
         }
         
       },
@@ -180,6 +211,28 @@ const collabsFulfillmentSweepAvailable = async (
       },
     );
   }
+
+  const shopifyFulfillmentOrderFulfillProcessor = new Processor(
+    piles.shopifyFulfillmentOrderFulfill,
+    async (pile) => {
+      const args = pile.shift();
+      const fulfillResponse = await shopifyFulfillmentOrderFulfill(...args);
+
+      logDeep('fulfillResponse', fulfillResponse);
+      await askQuestion('?');
+
+      piles.results.push(fulfillResponse);
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+      maxInFlightRequests: 0,
+      runOptions: {
+        interval: 20,
+      },
+      logFlavourText: 'fulfillmentfulfiller:',
+    },
+  );
 
   getters.push(...wmsGetters);
 
@@ -194,10 +247,15 @@ const collabsFulfillmentSweepAvailable = async (
     fulfillmentPreparer.canFinish = true;
   });
 
+  fulfillmentPreparer.on('done', () => {
+    shopifyFulfillmentOrderFulfillProcessor.canFinish = true;
+  });
+
   await Promise.all([
     ...getters.map(getter => getter.run()),
     eagerProcessor.run(),
     fulfillmentPreparer.run(),
+    shopifyFulfillmentOrderFulfillProcessor.run(),
   ]);
 
   logDeep(surveyNestedArrays(piles));
