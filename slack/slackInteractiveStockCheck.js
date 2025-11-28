@@ -385,11 +385,14 @@ const slackInteractiveStockCheck = async (req, res) => {
           blocks.result(regionDisplay, sheetUrl, { mentionUserId: callerUserId }),
           ...metadata ? [blocks.metadata(metadata)] : [],
           // Note: only one table is allowed per message.
+          // Notes: Currently not working.
+          /*
           ...samples ? (
             samples?.oversellRisk
               ? [slackArrayToTableBlock(samples.oversellRisk)] 
               : [slackArrayToTableBlock(...Object.entries(samples)[0])]
            ) : [],
+          */
           blocks.settings.state(onlyPublishedProducts, minDiff, { region }),
           // TODO: Summarise the sheet info in the Slack message, e.g. max diff, whether it's within expected range, etc.
           // TODO: Offer to import inventory
