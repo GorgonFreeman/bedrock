@@ -1,6 +1,6 @@
 // Actions the fulfillments that are easiest to get from the WMS
 
-const { funcApi, logDeep, surveyNestedArrays, dateTimeFromNow, days, Processor, askQuestion } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, dateTimeFromNow, days, Processor, askQuestion, ThresholdActioner, Getter } = require('../utils');
 
 const {
   REGIONS_PVX,
@@ -65,8 +65,6 @@ const collabsFulfillmentSweepAvailable = async (
         piles.shopify.push(...items);
       },
 
-      // onDone: getterFinish,
-
       logFlavourText: `shopify:getter:`,
     },
   );
@@ -109,8 +107,16 @@ const collabsFulfillmentSweepAvailable = async (
 
   getters.push(...wmsGetters);
 
+  const gettersFinishedActioner = new ThresholdActioner(getters.length, () => {
+    eagerProcessor.canFinish = true;
+  });
+  getters.filter(g => g instanceof Getter).forEach(getter => {
+    getter.on('done', gettersFinishedActioner.increment);
+  });
+
   await Promise.all([
     ...getters.map(getter => getter.run()),
+    eagerProcessor.run(),
   ]);
 
   logDeep(surveyNestedArrays(piles));
