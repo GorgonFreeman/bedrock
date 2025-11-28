@@ -342,7 +342,7 @@ const collabsInventoryReview = async (
   // }
 
   const metadata = {
-    items: inventoryReviewArray.length,
+    count: inventoryReviewArray.length,
     biggestDiff: inventoryReviewArray[0]?.absDiff,
     oversellRiskCount: inventoryReviewArray.filter(item => item.oversellRisk).length,
     timeTaken: timer.getTime({ readable: true }),

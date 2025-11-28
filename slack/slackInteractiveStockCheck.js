@@ -129,6 +129,25 @@ const blocks = {
     };
   },
 
+  metadata: (metadata) => {
+
+    const {
+      count,
+      biggestDiff,
+      oversellRiskCount,
+      timeTaken
+    } = metadata;
+
+    return {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        // TODO: Generalise to just whatever is in the metadata payload
+        text: `*Metadata*:\nCount: ${ count }\nBiggest diff: ${ biggestDiff }\nOversell risk count: ${ oversellRiskCount }\nTime taken: ${ timeTaken }`,
+      },
+    };
+  },
+
   import: {
     offer: {
       type: 'actions',
@@ -311,6 +330,7 @@ const slackInteractiveStockCheck = async (req, res) => {
       const {
         object,
         array: inventoryReviewArray,
+        metadata,
       } = inventoryReviewResult;
 
       // console.log('minDiff', minDiff, config);
@@ -357,6 +377,7 @@ const slackInteractiveStockCheck = async (req, res) => {
         replace_original: 'true',
         blocks: [
           blocks.result(regionDisplay, sheetUrl, { mentionUserId: callerUserId }),
+          ...metadata ? [blocks.metadata(metadata)] : [],
           blocks.settings.state(onlyPublishedProducts, minDiff, { region }),
           // TODO: Summarise the sheet info in the Slack message, e.g. max diff, whether it's within expected range, etc.
           // TODO: Offer to import inventory
