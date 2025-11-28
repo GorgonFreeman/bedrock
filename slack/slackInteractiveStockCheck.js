@@ -148,6 +148,16 @@ const blocks = {
     };
   },
 
+  sample_display: (title, samples) => {
+    return {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `*${ title }*:\n${ samples.map(s => JSON.stringify(s)).join('\n') }`,
+      },
+    };
+  },
+
   import: {
     offer: {
       type: 'actions',
@@ -331,6 +341,7 @@ const slackInteractiveStockCheck = async (req, res) => {
         object,
         array: inventoryReviewArray,
         metadata,
+        samples,
       } = inventoryReviewResult;
 
       // console.log('minDiff', minDiff, config);
@@ -378,6 +389,7 @@ const slackInteractiveStockCheck = async (req, res) => {
         blocks: [
           blocks.result(regionDisplay, sheetUrl, { mentionUserId: callerUserId }),
           ...metadata ? [blocks.metadata(metadata)] : [],
+          ...samples ? Object.entries(samples).map(([title, samples]) => blocks.sample_display(title, samples)) : [],
           blocks.settings.state(onlyPublishedProducts, minDiff, { region }),
           // TODO: Summarise the sheet info in the Slack message, e.g. max diff, whether it's within expected range, etc.
           // TODO: Offer to import inventory
