@@ -6,10 +6,10 @@ const { logiwaClient } = require('../logiwa/logiwa.utils');
 
 const logiwaAsyncReportCreate = async (
   reportTypeCode,
+  filter,
   {
     credsPath,
     apiVersion = 'v3.1',
-    filter,
   } = {},
 ) => {
 
@@ -18,7 +18,7 @@ const logiwaAsyncReportCreate = async (
     url: `/Report/async-report`,
     body: {
       reportTypeCode,
-      ...filter ? { filter } : {},
+      filter,
     },
   });
   logDeep(response);
@@ -28,6 +28,7 @@ const logiwaAsyncReportCreate = async (
 const logiwaAsyncReportCreateApi = funcApi(logiwaAsyncReportCreate, {
   argNames: [ 
     'reportTypeCode',
+    'filter',
     'options',
   ],
 });
@@ -37,4 +38,4 @@ module.exports = {
   logiwaAsyncReportCreateApi,
 };
 
-// curl localhost:8000/logiwaAsyncReportCreate -H "Content-Type: application/json" -d '{ "reportTypeCode": "available_to_promise" }'
+// curl localhost:8000/logiwaAsyncReportCreate -H "Content-Type: application/json" -d '{ "reportTypeCode": "available_to_promise", "filter": "WarehouseIdentifier.eq=cfbdf154-3052-4e18-84f3-b93b7cde2875" }'
