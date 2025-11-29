@@ -1,6 +1,7 @@
 const { funcApi, logDeep, wait, seconds, objHasAll, customAxios } = require('../utils');
 const { logiwaAsyncReportCreate } = require('../logiwa/logiwaAsyncReportCreate');
 const { logiwaAsyncReportGet } = require('../logiwa/logiwaAsyncReportGet');
+const zlib = require('zlib');
 
 const logiwaAsyncReportDo = async (
   {
@@ -68,7 +69,7 @@ const logiwaAsyncReportDo = async (
     };
   }
 
-  const resultsResponse = await customAxios(url);
+  const resultsResponse = await customAxios(url, { responseType: 'arraybuffer' });
   const { 
     success: resultsSuccess, 
     result: reportFileContent, 
@@ -77,11 +78,11 @@ const logiwaAsyncReportDo = async (
     return resultsResponse;
   }
 
-  logDeep(reportFileContent);
+  const csvData = zlib.gunzipSync(reportFileContent).toString('utf-8');
 
   const response = {
     success: true,
-    result: url,
+    result: csvData,
   };
   logDeep(response);
   return response;
