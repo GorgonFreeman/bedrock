@@ -208,6 +208,13 @@ const collabsInventoryReview = async (
         return logiwaInventoryResponse;
       }
 
+      if (!logiwaInventory?.length) {
+        return {
+          success: false,
+          error: ['Logiwa inventory report messed up'],
+        };
+      }
+
       for (const inventoryItem of logiwaInventory) {
         const { 
           'ProductSku': sku, 
@@ -391,7 +398,7 @@ module.exports = {
 };
 
 // curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "us" }'
-// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "us", "options": { "shopifyVariantsFetchQueries": ["tag_not:not_for_radial", "published_status:published", "product_publication_status:approved"], "minReportableDiff": 3, "downloadCsv": true } }'
+// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "us", "options": { "shopifyVariantsFetchQueries": ["tag_not:not_for_radial", "published_status:published", "product_publication_status:approved"], "minReportableDiff": 3 } }'
 // curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "us", "options": { "shopifyVariantsFetchQueries": ["tag_not:not_for_radial", "published_status:published", "product_publication_status:approved"], "minReportableDiff": 3, "wmsExportSpreadsheetIdentifier": { "spreadsheetId": "1ICbx-3g7Kqhge_Wkt9fi_9m7NGjgOGCOBHyEf0i3mP8" }, "wmsExportSheetIdentifier": { "sheetName": "Sheet 1" } } }'
 
 // curl localhost:8100/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "au", "options": { "minReportableDiff": 3, "shopifyVariantsFetchQueries": ["published_status:published", "product_publication_status:approved"] } }'
