@@ -20,8 +20,11 @@ const logiwaAsyncReportCreate = async (
       reportTypeCode,
       filter,
     },
-    context: {
-      resultsNode: 'value',
+    interpreter: (response) => {
+      return {
+        ...response,
+        ...response?.result?.value ? { result: response.result.value } : {},
+      };
     },
   });
   logDeep(response);
