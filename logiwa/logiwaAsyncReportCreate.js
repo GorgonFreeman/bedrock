@@ -1,3 +1,6 @@
+// https://intercom.help/mylogiwa/en/articles/12182902-asynchronous-report-exports
+// https://mydeveloper.logiwa.com/#tag/Report/paths/~1v3.1~1Report~1async-report/post
+
 const { funcApi, logDeep } = require('../utils');
 const { logiwaClient } = require('../logiwa/logiwa.utils');
 
