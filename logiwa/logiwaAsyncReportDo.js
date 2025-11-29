@@ -1,24 +1,72 @@
-const { funcApi, logDeep } = require('../utils');
-const { logiwaClient } = require('../logiwa/logiwa.utils');
+const { funcApi, logDeep, wait, seconds } = require('../utils');
+const { logiwaAsyncReportCreate } = require('../logiwa/logiwaAsyncReportCreate');
+const { logiwaAsyncReportGet } = require('../logiwa/logiwaAsyncReportGet');
 
 const logiwaAsyncReportDo = async (
-  orderId,
+  reportTypeCode,
+  filter,
   {
     credsPath,
     apiVersion = 'v3.1',
   } = {},
 ) => {
 
-  const response = await logiwaClient.fetch({
-    method: 'get',
-    url: `/ShipmentOrder/${ orderId }`,
-  });
+  const createResponse = await logiwaAsyncReportCreate(reportTypeCode, filter, { credsPath, apiVersion });
+
+  const {
+    success: createSuccess,
+    result: reportId,
+  } = createResponse;
+  if (!createSuccess) {
+    return createResponse;
+  }
+
+  let finished;
+  let finalReportResult;
+
+  do {
+    await wait(seconds(5));
+
+    const getResponse = await logiwaAsyncReportGet(reportId, { credsPath, apiVersion });
+
+    const {
+      success: getSuccess,
+      result: getResult,
+    } = getResponse;
+    if (!getSuccess) {
+      return getResponse;
+    }
+
+    const {
+      // statusCode,
+      completedDateTime,
+    } = getResult;
+
+    finished = completedDateTime !== null;
+    finalReportResult = getResult;
+  } while (!finished);
+
+  const {
+    url,
+  } = finalReportResult;
+
+  if (!url) {
+    return {
+      success: false,
+      error: [finalReportResult],
+    };
+  }
+
+  const response = {
+    success: true,
+    result: url,
+  };
   logDeep(response);
   return response;
 };
 
 const logiwaAsyncReportDoApi = funcApi(logiwaAsyncReportDo, {
-  argNames: ['orderId', 'options'],
+  argNames: ['reportTypeCode', 'filter', 'options'],
 });
 
 module.exports = {
@@ -26,4 +74,4 @@ module.exports = {
   logiwaAsyncReportDoApi,
 };
 
-// curl localhost:8000/logiwaAsyncReportDo -H "Content-Type: application/json" -d '{ "orderId": "9ce5f6f0-c461-4d1c-93df-261a2188d652" }'
+// curl localhost:8000/logiwaAsyncReportDo -H "Content-Type: application/json" -d '{ "reportTypeCode": "available_to_promise", "filter": "WarehouseIdentifier.eq=cfbdf154-3052-4e18-84f3-b93b7cde2875" }'
