@@ -43,13 +43,16 @@ const logiwaAsyncReportDo = async (
       success: getSuccess,
       result: getResult,
     } = getResponse;
-    if (!getSuccess) {      return getResponse;
+    
+    if (!getSuccess) {
+      return getResponse;
     }
 
     const {
       // statusCode,
       completedDateTime,
     } = getResult;
+
     finished = completedDateTime !== null;
     finalReportResult = getResult;
   } while (!finished);
