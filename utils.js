@@ -38,6 +38,8 @@ const customAxios = async (url, {
   
   verbose,
   omitRequestId = false,
+
+  ...axiosOptions
 } = {}) => {
   
   // Generate a request ID if not provided
@@ -54,6 +56,7 @@ const customAxios = async (url, {
   const axiosConfig = {
     ...(headers && { headers }),
     ...(params && { params }),
+    ...axiosOptions,
   };
   
   let response;
