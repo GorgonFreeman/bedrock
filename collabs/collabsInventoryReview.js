@@ -19,7 +19,7 @@ const { shopifyRegionToPvxSite } = require('../mappings');
 
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
 const { shopifyLocationGetMain } = require('../shopify/shopifyLocationGetMain');
-const { logiwaReportGetAvailableToPromise } = require('../logiwa/logiwaReportGetAvailableToPromise');
+const { logiwaAsyncReportDo } = require('../logiwa/logiwaAsyncReportDo');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 const { bleckmannInventoriesGet } = require('../bleckmann/bleckmannInventoriesGet');
 const { googlesheetsSpreadsheetSheetGetData } = require('../googlesheets/googlesheetsSpreadsheetSheetGetData');
@@ -193,12 +193,10 @@ const collabsInventoryReview = async (
     // Using API
 
     if (logiwaRelevant) {
-      const logiwaInventoryResponse = await logiwaReportGetAvailableToPromise(
+      const logiwaInventoryResponse = await logiwaAsyncReportDo(
         {
-          undamagedQuantity_gt: '0',
-        },
-        {
-          apiVersion: 'v3.2',
+          reportTypeCode: 'available_to_promise',
+          filter: 'WarehouseIdentifier.eq=cfbdf154-3052-4e18-84f3-b93b7cde2875', // TODO: Move this into creds with a function getting fallback
         },
       );
 
@@ -212,8 +210,8 @@ const collabsInventoryReview = async (
 
       for (const inventoryItem of logiwaInventory) {
         const { 
-          productSku: sku, 
-          sellableQuantity: wmsQty,
+          'ProductSku': sku, 
+          'SellableQuantity': wmsQty,
         } = inventoryItem;
 
         if (wmsInventoryObj[sku]) {
