@@ -173,6 +173,7 @@ module.exports = {
   loopDestinationsGet: require('./loop/loopDestinationsGet').loopDestinationsGetApi,
   loopReturnGet: require('./loop/loopReturnGet').loopReturnGetApi,
   loopReturnsGet: require('./loop/loopReturnsGet').loopReturnsGetApi,
+  logiwaAsyncReportCreate: require('./logiwa/logiwaAsyncReportCreate').logiwaAsyncReportCreateApi,
   logiwaAuthGet: require('./logiwa/logiwaAuthGet').logiwaAuthGetApi,
   logiwaInventoriesGet: require('./logiwa/logiwaInventoriesGet').logiwaInventoriesGetApi,
   logiwaOrderGet: require('./logiwa/logiwaOrderGet').logiwaOrderGetApi,

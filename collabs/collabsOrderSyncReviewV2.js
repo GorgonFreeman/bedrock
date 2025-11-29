@@ -381,7 +381,7 @@ const collabsOrderSyncReviewV2 = async (
         ['sync_confirmed'],
         {
           queueRunOptions: {
-            interval: 20,
+            interval: 100,
           },
         },
       );
@@ -439,4 +439,8 @@ module.exports = {
   collabsOrderSyncReviewV2Api,
 };
 
-// curl localhost:8000/collabsOrderSyncReviewV2 -H "Content-Type: application/json" -d '{ "region": "uk" }'
+// curl localhost:8000/collabsOrderSyncReviewV2 -H "Content-Type: application/json" -d '{ "region": "au" }'
+
+// curl localhost:8100/collabsOrderSyncReviewV2 -H "Content-Type: application/json" -d '{ "region": "au" }'
+// curl localhost:8101/collabsOrderSyncReviewV2 -H "Content-Type: application/json" -d '{ "region": "us" }'
+// curl localhost:8102/collabsOrderSyncReviewV2 -H "Content-Type: application/json" -d '{ "region": "uk" }'
