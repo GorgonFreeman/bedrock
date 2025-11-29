@@ -1,4 +1,4 @@
-const { funcApi, logDeep, wait, seconds, objHasAll } = require('../utils');
+const { funcApi, logDeep, wait, seconds, objHasAll, customAxios } = require('../utils');
 const { logiwaAsyncReportCreate } = require('../logiwa/logiwaAsyncReportCreate');
 const { logiwaAsyncReportGet } = require('../logiwa/logiwaAsyncReportGet');
 
@@ -67,6 +67,17 @@ const logiwaAsyncReportDo = async (
       error: [finalReportResult],
     };
   }
+
+  const resultsResponse = await customAxios(url);
+  const { 
+    success: resultsSuccess, 
+    result: reportFileContent, 
+  } = resultsResponse;
+  if (!resultsSuccess) {
+    return resultsResponse;
+  }
+
+  logDeep(reportFileContent);
 
   const response = {
     success: true,
