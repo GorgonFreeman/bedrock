@@ -1,8 +1,10 @@
+// https://mydeveloper.logiwa.com/#tag/Report/paths/~1v3.1~1Report~1async-report~1%7Bidentifier%7D/get
+
 const { funcApi, logDeep } = require('../utils');
 const { logiwaClient } = require('../logiwa/logiwa.utils');
 
 const logiwaAsyncReportGet = async (
-  orderId,
+  reportId,
   {
     credsPath,
     apiVersion = 'v3.1',
@@ -11,14 +13,14 @@ const logiwaAsyncReportGet = async (
 
   const response = await logiwaClient.fetch({
     method: 'get',
-    url: `/ShipmentOrder/${ orderId }`,
+    url: `/Report/async-report/${ reportId }`,
   });
   logDeep(response);
   return response;
 };
 
 const logiwaAsyncReportGetApi = funcApi(logiwaAsyncReportGet, {
-  argNames: ['orderId', 'options'],
+  argNames: ['reportId', 'options'],
 });
 
 module.exports = {
@@ -26,4 +28,4 @@ module.exports = {
   logiwaAsyncReportGetApi,
 };
 
-// curl localhost:8000/logiwaAsyncReportGet -H "Content-Type: application/json" -d '{ "orderId": "9ce5f6f0-c461-4d1c-93df-261a2188d652" }'
+// curl localhost:8000/logiwaAsyncReportGet -H "Content-Type: application/json" -d '{ "reportId": "13569c9d-c526-4257-a70e-f88024a03112" }'
