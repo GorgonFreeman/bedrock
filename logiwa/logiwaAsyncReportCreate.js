@@ -5,16 +5,21 @@ const { funcApi, logDeep } = require('../utils');
 const { logiwaClient } = require('../logiwa/logiwa.utils');
 
 const logiwaAsyncReportCreate = async (
-  arg,
+  reportTypeCode,
   {
     credsPath,
     apiVersion = 'v3.1',
+    filter,
   } = {},
 ) => {
 
   const response = await logiwaClient.fetch({
     method: 'post',
     url: `/Report/async-report`,
+    body: {
+      reportTypeCode,
+      ...filter ? { filter } : {},
+    },
   });
   logDeep(response);
   return response;
@@ -22,7 +27,7 @@ const logiwaAsyncReportCreate = async (
 
 const logiwaAsyncReportCreateApi = funcApi(logiwaAsyncReportCreate, {
   argNames: [ 
-    'arg',
+    'reportTypeCode',
     'options',
   ],
 });
@@ -32,4 +37,4 @@ module.exports = {
   logiwaAsyncReportCreateApi,
 };
 
-// curl localhost:8000/logiwaAsyncReportCreate -H "Content-Type: application/json" -d '{ "arg": true }'
+// curl localhost:8000/logiwaAsyncReportCreate -H "Content-Type: application/json" -d '{ "reportTypeCode": "available_to_promise" }'
