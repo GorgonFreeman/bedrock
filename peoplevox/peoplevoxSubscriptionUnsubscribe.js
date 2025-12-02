@@ -63,3 +63,5 @@ module.exports = {
 };
 
 // curl localhost:8000/peoplevoxSubscriptionUnsubscribe -H "Content-Type: application/json" -d '{ "subscriptionId": "1060" }'
+// curl localhost:8000/peoplevoxSubscriptionUnsubscribe -H "Content-Type: application/json" -d '{ "subscriptionId": ["1000", "1001", "1002", ...] }'
+
