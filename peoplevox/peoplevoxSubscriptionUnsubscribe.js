@@ -1,14 +1,16 @@
+// https://peoplevox.help.descartesservices.com/en/integrations/peoplevox-api-guide/event-subscriptions~7394583284341177322#unsubscribeevent
+
 const { funcApi, logDeep } = require('../utils');
 const { peoplevoxClient, peoplevoxStandardInterpreter } = require('../peoplevox/peoplevox.utils');
 
 const peoplevoxSubscriptionUnsubscribe = async (
-  salesOrderNumber,
+  subscriptionId,
   {
     credsPath,
   } = {},
 ) => {
 
-  const action = 'GetData';
+  const action = 'UnsubscribeEvent';
 
   const response = await peoplevoxClient.fetch({
     headers: {
@@ -16,9 +18,8 @@ const peoplevoxSubscriptionUnsubscribe = async (
     },
     method: 'post',
     body: {
-      getRequest: {
-        TemplateName: 'Sales orders',
-        SearchClause: `SalesOrderNumber.Equals("${ salesOrderNumber }")`,
+      UnsubscribeEvent: {
+        subscriptionId,
       },
     },
     context: { 
@@ -33,7 +34,7 @@ const peoplevoxSubscriptionUnsubscribe = async (
 };
 
 const peoplevoxSubscriptionUnsubscribeApi = funcApi(peoplevoxSubscriptionUnsubscribe, {
-  argNames: ['salesOrderNumber', 'options'],
+  argNames: ['subscriptionId', 'options'],
 });
 
 module.exports = {
@@ -41,4 +42,4 @@ module.exports = {
   peoplevoxSubscriptionUnsubscribeApi,
 };
 
-// curl localhost:8000/peoplevoxSubscriptionUnsubscribe -H "Content-Type: application/json" -d '{ "salesOrderNumber": "5977690603592" }'
+// curl localhost:8000/peoplevoxSubscriptionUnsubscribe -H "Content-Type: application/json" -d '{ "subscriptionId": "1060" }'
