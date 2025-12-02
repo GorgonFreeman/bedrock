@@ -1,9 +1,9 @@
 // https://peoplevox.help.descartesservices.com/en/integrations/peoplevox-api-guide/event-subscriptions~7394583284341177322#unsubscribeevent
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { peoplevoxClient, peoplevoxStandardInterpreter } = require('../peoplevox/peoplevox.utils');
 
-const peoplevoxSubscriptionUnsubscribe = async (
+const peoplevoxSubscriptionUnsubscribeSingle = async (
   subscriptionId,
   {
     credsPath,
@@ -31,6 +31,26 @@ const peoplevoxSubscriptionUnsubscribe = async (
   logDeep(response);
   return response;
   
+};
+
+const peoplevoxSubscriptionUnsubscribe = async (
+  subscriptionId,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  return actionMultipleOrSingle(
+    subscriptionId,
+    peoplevoxSubscriptionUnsubscribeSingle,
+    (subscriptionId) => ({
+      args: [subscriptionId],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
 };
 
 const peoplevoxSubscriptionUnsubscribeApi = funcApi(peoplevoxSubscriptionUnsubscribe, {
