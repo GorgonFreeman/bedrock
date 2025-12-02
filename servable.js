@@ -168,6 +168,7 @@ module.exports = {
   peoplevoxOrdersGet: require('./peoplevox/peoplevoxOrdersGet').peoplevoxOrdersGetApi,
   peoplevoxOrdersGetById: require('./peoplevox/peoplevoxOrdersGetById').peoplevoxOrdersGetByIdApi,
   peoplevoxReportGet: require('./peoplevox/peoplevoxReportGet').peoplevoxReportGetApi,
+  peoplevoxSubscriptionUnsubscribe: require('./peoplevox/peoplevoxSubscriptionUnsubscribe').peoplevoxSubscriptionUnsubscribeApi,
   loopAllowlistItemsGet: require('./loop/loopAllowlistItemsGet').loopAllowlistItemsGetApi,
   loopBlocklistItemsGet: require('./loop/loopBlocklistItemsGet').loopBlocklistItemsGetApi,
   loopDestinationsGet: require('./loop/loopDestinationsGet').loopDestinationsGetApi,
