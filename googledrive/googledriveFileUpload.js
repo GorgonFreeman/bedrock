@@ -1,10 +1,14 @@
 const fs = require('fs').promises;
 const path = require('path');
 const { Readable } = require('stream');
+
 const { funcApi, objHasAny, logDeep } = require('../utils');
+const { driveFolderHandleToId } = require('../bedrock_unlisted/mappings');
 const { getGoogleDriveClient } = require('../googledrive/googledrive.utils');
 
 const googledriveFileUpload = async (
+
+  // fileData
   {
     filePath,
 
@@ -16,13 +20,29 @@ const googledriveFileUpload = async (
       } = {},
     } = {},
   },
+
+  // folderIdentifier
+  { 
+    folderId, 
+    folderHandle,
+  } = {},
+
   {
     credsPath,
-
     mimeType = 'application/octet-stream',
-    folderId,
   } = {},
 ) => {
+
+  if (folderHandle) {
+    folderId = driveFolderHandleToId[folderHandle];
+  }
+
+  if (!folderId) {
+    return {
+      success: false,
+      error: ['Couldn\'t get a folder ID from folderIdentifier'],
+    };
+  }
 
   if (filePath) {
     fileName = path.basename(filePath);
@@ -82,9 +102,10 @@ const googledriveFileUpload = async (
 };
 
 const googledriveFileUploadApi = funcApi(googledriveFileUpload, {
-  argNames: ['fileData', 'options'],
+  argNames: ['fileData', 'folderIdentifier', 'options'],
   validatorsByArg: {
     fileData: p => objHasAny(p, ['filePath', 'filePayload']),
+    folderIdentifier: p => objHasAny(p, ['folderId', 'folderHandle']),
   },
 });
 
@@ -93,4 +114,4 @@ module.exports = {
   googledriveFileUploadApi,
 };
 
-// curl localhost:8000/googledriveFileUpload -H "Content-Type: application/json" -d '{ "fileData": { "filePath": "/.../_______.mp3" } }'
+// curl localhost:8000/googledriveFileUpload -H "Content-Type: application/json" -d '{ "fileData": { "filePath": "/.../.../________.mp3" }, "folderIdentifier": { "folderHandle": "test" } }'
