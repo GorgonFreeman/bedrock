@@ -53,11 +53,6 @@ const googledriveFileUpload = async (
 
   const driveClient = getGoogleDriveClient({ credsPath });
 
-  let fileData = fileSource;
-  if (typeof fileData === 'string') {
-    fileData = Buffer.from(fileData, 'utf8');
-  }
-
   const requestPayload = {
     supportsAllDrives: true,
     requestBody: {
@@ -65,7 +60,7 @@ const googledriveFileUpload = async (
       ...folderId && { parents: [folderId] },
     },
     media: { 
-      body: Readable.from(fileData), 
+      body: Readable.from(fileSource), 
       mimeType,
     },
   };
