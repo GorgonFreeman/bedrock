@@ -43,14 +43,14 @@ const googledriveFileUpload = async (
   }
 
   const requestPayload = {
+    supportsAllDrives: true,
     requestBody: {
       name: fileName,
       ...folderId && { parents: [folderId] },
     },
     media: { 
       body: Readable.from(fileData), 
-      mimeType,
-    },
+      mimeType,    },
   };
   
   try {
