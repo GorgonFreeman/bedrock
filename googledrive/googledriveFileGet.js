@@ -1,19 +1,23 @@
 const { funcApi } = require('../utils');
 const { getGoogleDriveClient } = require('../googledrive/googledrive.utils');
 
+const defaultAttrs = `id, name, mimeType, size, createdTime, modifiedTime, webViewLink`;
+
 const googledriveFileGet = async (
   fileId,
   {
     credsPath,
+    attrs = defaultAttrs,
   } = {},
 ) => {
 
   const driveClient = getGoogleDriveClient({ credsPath });
   
   try {
-    const clientResponse = await driveClient.files.delete({
+    const clientResponse = await driveClient.files.get({
       supportsAllDrives: true,
       fileId,
+      fields: attrs,
     });
     
     return {
@@ -37,4 +41,4 @@ module.exports = {
   googledriveFileGetApi,
 };
 
-// curl localhost:8000/googledriveFileGet -H "Content-Type: application/json" -d '{ "fileId": "11Dm4Hf9CBqDmAV933fe8voTUi_igdv8a" }'
+// curl localhost:8000/googledriveFileGet -H "Content-Type: application/json" -d '{ "fileId": "1YWzBt28D9ikWpreifWwo-2xdOQ4FATcA" }'
