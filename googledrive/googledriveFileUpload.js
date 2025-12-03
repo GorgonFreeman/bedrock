@@ -1,15 +1,14 @@
 const fs = require('fs').promises;
 const path = require('path');
 const { Readable } = require('stream');
-const { funcApi, objHasAny } = require('../utils');
+const { funcApi, objHasAny, logDeep } = require('../utils');
 const { getGoogleDriveClient } = require('../googledrive/googledrive.utils');
 
 const googledriveFileUpload = async (
   {
     filePath,
 
-    filePayload: {
-      fileName,
+    filePayload: {      fileName,
       fileSource: {
         fileContent,
         fileBuffer,
