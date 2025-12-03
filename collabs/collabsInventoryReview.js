@@ -194,7 +194,7 @@ const collabsInventoryReview = async (
 
     if (logiwaRelevant) {
 
-      const creds = credsByPath(['logiwa', credsPath]);
+      const creds = credsByPath(['logiwa']);
       const { CLIENT_ID } = creds;
       if (!CLIENT_ID) {
         return {
