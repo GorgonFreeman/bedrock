@@ -2,29 +2,35 @@ const { funcApi, objHasAny } = require('../utils');
 const { getGoogleDriveClient } = require('../googledrive/googledrive.utils');
 
 const googledriveFileDelete = async (
-  {
-    // Add your parameters here
-  },
+  // TODO: Support file name as identifier
+  fileId,
   {
     credsPath,
   } = {},
 ) => {
 
   const driveClient = getGoogleDriveClient({ credsPath });
-
-  // Your implementation here
-
-  return {
-    success: true,
-    result: {},
-  };
+  
+  try {
+    const clientResponse = await driveClient.files.delete({
+      supportsAllDrives: true,
+      fileId,
+    });
+    
+    return {
+      success: true,
+      result: clientResponse,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: [error],
+    };
+  }
 };
 
 const googledriveFileDeleteApi = funcApi(googledriveFileDelete, {
-  argNames: ['arg', 'options'],
-  validatorsByArg: {
-    arg: p => objHasAny(p, []), // Add required fields
-  },
+  argNames: ['fileId', 'options'],
 });
 
 module.exports = {
@@ -32,6 +38,4 @@ module.exports = {
   googledriveFileDeleteApi,
 };
 
-// curl localhost:8000/googledriveFileDelete -H "Content-Type: application/json" -d '{ "arg": {} }'
-
-
+// curl localhost:8000/googledriveFileDelete -H "Content-Type: application/json" -d '{ "fileId": "11Dm4Hf9CBqDmAV933fe8voTUi_igdv8a" }'
