@@ -53,13 +53,20 @@ const googledriveFileUpload = async (
       mimeType,
     },
   };
-
-  const response = await driveClient.files.create(requestPayload);
-  logDeep(response);
-  return {
-    success: true,
-    result: response,
-  };
+  
+  try {
+    const response = await driveClient.files.create(requestPayload);
+    logDeep(response);
+    return {
+      success: true,
+      result: response,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: [error],
+    };
+  }
 };
 
 const googledriveFileUploadApi = funcApi(googledriveFileUpload, {
