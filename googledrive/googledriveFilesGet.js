@@ -1,19 +1,40 @@
 const { funcApi } = require('../utils');
+const { driveFolderHandleToId } = require('../bedrock_unlisted/mappings');
 const { getGoogleDriveClient } = require('../googledrive/googledrive.utils');
 
 const googledriveFilesGet = async (
-  fileId,
   {
     credsPath,
+    folderIdentifier: {
+      folderHandle,
+      folderId,
+    } = {},
   } = {},
 ) => {
+
+  if (folderHandle) {
+    folderId = driveFolderHandleToId[folderHandle];
+  }
+
+  if (!folderId) {
+    return {
+      success: false,
+      error: [`Couldn't get a folder ID from folderIdentifier`],
+    };
+  }
 
   const driveClient = getGoogleDriveClient({ credsPath });
   
   try {
-    const clientResponse = await driveClient.files.delete({
+    const clientResponse = await driveClient.files.list({
       supportsAllDrives: true,
-      fileId,
+      includeItemsFromAllDrives: true,
+      q: [
+        'trashed=false',
+        ...folderId && [`'${ folderId }' in parents`],
+      ].join(' and '),
+      pageSize: 100,
+      fields: 'nextPageToken, files(id, name, mimeType, size, createdTime, modifiedTime, webViewLink)',
     });
     
     return {
@@ -29,7 +50,7 @@ const googledriveFilesGet = async (
 };
 
 const googledriveFilesGetApi = funcApi(googledriveFilesGet, {
-  argNames: ['fileId', 'options'],
+  argNames: ['options'],
 });
 
 module.exports = {
@@ -37,4 +58,5 @@ module.exports = {
   googledriveFilesGetApi,
 };
 
-// curl localhost:8000/googledriveFilesGet -H "Content-Type: application/json" -d '{ "fileId": "11Dm4Hf9CBqDmAV933fe8voTUi_igdv8a" }'
+// curl localhost:8000/googledriveFilesGet
+// curl localhost:8000/googledriveFilesGet -H "Content-Type: application/json" -d '{ "options": { "folderIdentifier": { "folderHandle": "test" } } }'
