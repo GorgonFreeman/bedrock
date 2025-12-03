@@ -56,11 +56,22 @@ const googledriveFileUpload = async (
   };
   
   try {
-    const response = await driveClient.files.create(requestPayload);
-    logDeep(response);
+    const clientResponse = await driveClient.files.create(requestPayload);
+    logDeep('clientResponse', clientResponse);
+    
+    const fileId = clientResponse.data.id;
+    const fileUrl = `https://drive.google.com/file/d/${ fileId }/view`;
+    const folderUrl = folderId ? `https://drive.google.com/drive/folders/${ folderId }` : null;
+    
     return {
       success: true,
-      result: response,
+      result: {
+        ...clientResponse,
+        customData: {
+          fileUrl,
+          ...folderUrl && { folderUrl },
+        },
+      },
     };
   } catch (error) {
     return {
