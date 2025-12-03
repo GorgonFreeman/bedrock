@@ -196,6 +196,7 @@ module.exports = {
   googlesheetsSpreadsheetTrim: require('./googlesheets/googlesheetsSpreadsheetTrim').googlesheetsSpreadsheetTrimApi,
   googledriveFileDelete: require('./googledrive/googledriveFileDelete').googledriveFileDeleteApi,
   googledriveFileUpload: require('./googledrive/googledriveFileUpload').googledriveFileUploadApi,
+  googledriveFilesGet: require('./googledrive/googledriveFilesGet').googledriveFilesGetApi,
   etsyAccessTokenRefresh: require('./etsy/etsyAccessTokenRefresh').etsyAccessTokenRefreshApi,
   etsyAccessTokenRequest: require('./etsy/etsyAccessTokenRequest').etsyAccessTokenRequestApi,
   etsyAllListingsGetActive: require('./etsy/etsyAllListingsGetActive').etsyAllListingsGetActiveApi,
