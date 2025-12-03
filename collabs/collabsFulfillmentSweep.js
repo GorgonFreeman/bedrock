@@ -164,17 +164,16 @@ const collabsFulfillmentSweep = async (
   // piles used: resolved, continue, disqualified
   const logiwaOrderDecider = (piles, order, logiwaOrder) => {
 
-    if (!objHasAll(piles, ['resolved', 'continue', 'disqualified'])) {
-      throw new Error('piles must have resolved, continue, and disqualified');
-    }
+    // if (!objHasAll(piles, ['resolved', 'disqualified']) || !Array.isArray(piles.continue)) {
+    //   throw new Error('piles must have resolved, continue (array), and disqualified');
+    // }
 
     const {
       currentTrackingNumber,
       trackingNumbers,
       products,
       shipmentOrderStatusName,
-      shipmentOrderStatusId,
-    } = logiwaOrder;
+      shipmentOrderStatusId,    } = logiwaOrder;
 
     let trackingNumber = currentTrackingNumber;
     if (!trackingNumber && trackingNumbers?.length === 1) {
@@ -694,4 +693,4 @@ module.exports = {
 };
 
 // curl localhost:8100/collabsFulfillmentSweep
-// curl localhost:8000/collabsFulfillmentSweep -H "Content-Type: application/json" -d '{ "options": { "shopifyRegions": ["us"], "notifyCustomers": false } }'
+// curl localhost:8100/collabsFulfillmentSweep -H "Content-Type: application/json" -d '{ "options": { "shopifyRegions": ["us"], "notifyCustomers": true } }'
