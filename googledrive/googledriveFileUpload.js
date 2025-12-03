@@ -19,7 +19,7 @@ const googledriveFileUpload = async (
   {
     credsPath,
 
-    mimeType,
+    mimeType = 'application/octet-stream',
     folderId,
   } = {},
 ) => {
@@ -50,7 +50,7 @@ const googledriveFileUpload = async (
     },
     media: { 
       body: Readable.from(fileData), 
-      ...mimeType && { mimeType },
+      mimeType,
     },
   };
 
