@@ -2,6 +2,8 @@ const { funcApi } = require('../utils');
 const { driveFolderHandleToId } = require('../bedrock_unlisted/mappings');
 const { getGoogleDriveClient } = require('../googledrive/googledrive.utils');
 
+// TODO: Implement as getter pattern with pagination
+
 const googledriveFilesGet = async (
   {
     credsPath,
