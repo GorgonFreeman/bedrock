@@ -1,93 +1,71 @@
+const fs = require('fs').promises;
+const path = require('path');
+const { Readable } = require('stream');
 const { funcApi, objHasAny } = require('../utils');
 const { getGoogleDriveClient } = require('../googledrive/googledrive.utils');
 
 const googledriveFileUpload = async (
   {
-    fileName,
-    fileContent,
-    fileBuffer,
-    mimeType,
-    folderId,
-    parentFolderId,
+    filePath,
+
+    filePayload: {
+      fileName,
+      fileSource: {
+        fileContent,
+        fileBuffer,
+      } = {},
+    } = {},
   },
   {
     credsPath,
+
+    mimeType,
+    folderId,
   } = {},
 ) => {
 
-  if (!fileName) {
-    return {
-      success: false,
-      errors: ['fileName is required'],
-    };
+  if (filePath) {
+    fileName = path.basename(filePath);
+    fileContent = await fs.readFile(filePath);
   }
 
-  if (!fileContent && !fileBuffer) {
+  if (!(fileName && (fileContent || fileBuffer))) {
     return {
       success: false,
-      errors: ['Either fileContent or fileBuffer is required'],
+      error: ['Reconsider filePayload'],
     };
   }
 
   const driveClient = getGoogleDriveClient({ credsPath });
 
-  // Use parentFolderId if provided, otherwise use folderId for backward compatibility
-  const parentId = parentFolderId || folderId;
+  let fileData = fileContent || fileBuffer;
+  if (typeof fileData === 'string') {
+    fileData = Buffer.from(fileData, 'utf8');
+  }
 
-  // Prepare file metadata
-  const fileMetadata = {
-    name: fileName,
+  const requestPayload = {
+    requestBody: {
+      name: fileName,
+      ...folderId && { parents: [folderId] },
+    },
+    media: { 
+      body: Readable.from(fileData), 
+      ...mimeType && { mimeType },
+    },
   };
 
-  if (parentId) {
-    fileMetadata.parents = [parentId];
-  }
-
-  // Handle file content
-  // - fileBuffer: Buffer object or base64 string (will be decoded)
-  // - fileContent: plain text string
-  let fileBody;
-  if (fileBuffer) {
-    // If fileBuffer is a string, treat it as base64; otherwise use as Buffer
-    if (typeof fileBuffer === 'string') {
-      fileBody = Buffer.from(fileBuffer, 'base64');
-    } else {
-      fileBody = fileBuffer;
-    }
-  } else {
-    // fileContent is treated as plain text
-    fileBody = Buffer.from(fileContent);
-  }
-
-  // Prepare media
-  const media = {
-    mimeType: mimeType || 'application/octet-stream',
-    body: fileBody,
+  const response = await driveClient.files.create(requestPayload);
+  logDeep(response);
+  return {
+    success: true,
+    result: response,
   };
-
-  try {
-    const response = await driveClient.files.create({
-      requestBody: fileMetadata,
-      media: media,
-      fields: 'id, name, mimeType, webViewLink, webContentLink',
-    });
-
-    return {
-      success: true,
-      result: response.data,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      errors: [error.message || 'Failed to upload file to Google Drive'],
-    };
-  }
 };
 
 const googledriveFileUploadApi = funcApi(googledriveFileUpload, {
   argNames: ['fileData', 'options'],
   validatorsByArg: {
-    fileData: p => objHasAny(p, ['fileName']),
+    fileData: p => objHasAny(p, ['filePath', 'filePayload']),
   },
 });
 
@@ -96,6 +74,4 @@ module.exports = {
   googledriveFileUploadApi,
 };
 
-// curl localhost:8000/googledriveFileUpload -H "Content-Type: application/json" -d '{ "fileData": { "fileName": "test.txt", "fileContent": "Hello World", "mimeType": "text/plain", "folderId": "your-folder-id" } }'
-// curl localhost:8000/googledriveFileUpload -H "Content-Type: application/json" -d '{ "fileData": { "fileName": "image.png", "fileBuffer": "base64EncodedStringHere", "mimeType": "image/png", "parentFolderId": "your-folder-id" } }'
-
+// curl localhost:8000/googledriveFileUpload -H "Content-Type: application/json" -d '{ "fileData": { "filePath": "/.../_______.mp3" } }'
