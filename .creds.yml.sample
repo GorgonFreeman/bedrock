@@ -50,6 +50,7 @@ logiwa:
   LOGIN_EMAIL: ________________________
   LOGIN_PASSWORD: _____________________
   AUTH_TOKEN: _________________________
+  CLIENT_ID: __________________________
 
 bleckmann:
   BASE_URL: https://apis.bleckmann.com

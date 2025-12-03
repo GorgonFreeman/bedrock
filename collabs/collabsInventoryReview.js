@@ -5,7 +5,7 @@ const path = require('path');
 require('dotenv').config();
 const { json2csv } = require('json-2-csv');
 const { HOSTED } = require('../constants');
-const { respond, mandateParam, logDeep, askQuestion, strictlyFalsey, arraySortByProp, gidToId, Timer } = require('../utils');
+const { respond, mandateParam, logDeep, askQuestion, strictlyFalsey, arraySortByProp, gidToId, Timer, credsByPath } = require('../utils');
 
 const SAMPLE_SIZE = 5;
 
@@ -193,10 +193,20 @@ const collabsInventoryReview = async (
     // Using API
 
     if (logiwaRelevant) {
+
+      const creds = credsByPath(['logiwa', credsPath]);
+      const { CLIENT_ID } = creds;
+      if (!CLIENT_ID) {
+        return {
+          success: false,
+          error: ['No client ID found, add to logiwa creds'],
+        };
+      }
+
       const logiwaInventoryResponse = await logiwaAsyncReportDo(
         {
           reportTypeCode: 'available_to_promise',
-          filter: 'WarehouseIdentifier.eq=cfbdf154-3052-4e18-84f3-b93b7cde2875', // TODO: Move this into creds with a function getting fallback
+          filter: `ClientIdentifier.eq=${ CLIENT_ID }`,
         },
       );
 
