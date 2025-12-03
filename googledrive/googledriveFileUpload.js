@@ -8,7 +8,8 @@ const googledriveFileUpload = async (
   {
     filePath,
 
-    filePayload: {      fileName,
+    filePayload: {
+      fileName,
       fileSource: {
         fileContent,
         fileBuffer,
@@ -50,7 +51,8 @@ const googledriveFileUpload = async (
     },
     media: { 
       body: Readable.from(fileData), 
-      mimeType,    },
+      mimeType,
+    },
   };
   
   try {
