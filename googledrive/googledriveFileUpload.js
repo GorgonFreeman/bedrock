@@ -2,7 +2,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const { Readable } = require('stream');
 
-const { funcApi, objHasAny, logDeep } = require('../utils');
+const { funcApi, objHasAny, objHasAll, logDeep } = require('../utils');
 const { driveFolderHandleToId } = require('../bedrock_unlisted/mappings');
 const { getGoogleDriveClient } = require('../googledrive/googledrive.utils');
 
@@ -12,13 +12,8 @@ const googledriveFileUpload = async (
   {
     filePath,
 
-    filePayload: {
-      fileName,
-      fileSource: {
-        fileContent,
-        fileBuffer,
-      } = {},
-    } = {},
+    fileName,
+    fileSource, // string or buffer
   },
 
   // folderIdentifier
@@ -46,10 +41,10 @@ const googledriveFileUpload = async (
 
   if (filePath) {
     fileName = path.basename(filePath);
-    fileContent = await fs.readFile(filePath);
+    fileSource = await fs.readFile(filePath);
   }
 
-  if (!(fileName && (fileContent || fileBuffer))) {
+  if (!(fileName && fileSource)) {
     return {
       success: false,
       error: ['Reconsider filePayload'],
@@ -58,7 +53,7 @@ const googledriveFileUpload = async (
 
   const driveClient = getGoogleDriveClient({ credsPath });
 
-  let fileData = fileContent || fileBuffer;
+  let fileData = fileSource;
   if (typeof fileData === 'string') {
     fileData = Buffer.from(fileData, 'utf8');
   }
@@ -104,7 +99,7 @@ const googledriveFileUpload = async (
 const googledriveFileUploadApi = funcApi(googledriveFileUpload, {
   argNames: ['fileData', 'folderIdentifier', 'options'],
   validatorsByArg: {
-    fileData: p => objHasAny(p, ['filePath', 'filePayload']),
+    fileData: p => p?.filePath || objHasAll(p, ['fileName', 'fileSource']),
     folderIdentifier: p => objHasAny(p, ['folderId', 'folderHandle']),
   },
 });
