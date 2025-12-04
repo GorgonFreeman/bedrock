@@ -34,6 +34,10 @@ const collabsFulfillmentSweepV4 = async (
 
   const piles = {
     shopify: [],
+    shopifyOrderFulfill: [],
+    shopifyFulfillmentOrderFulfill: [],
+    results: [],
+    errors: [],
   };
 
   const shopifyGetter = await shopifyOrdersGetter(
