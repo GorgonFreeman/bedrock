@@ -1,4 +1,4 @@
-const { funcApi, logDeep, surveyNestedArrays } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor } = require('../utils');
 
 const {
   REGIONS_PVX,
@@ -7,6 +7,8 @@ const {
 } = require('../constants');
 
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
+const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
+const { shopifyFulfillmentOrderFulfill } = require('../shopify/shopifyFulfillmentOrderFulfill');
 
 const collabsFulfillmentSweepV4 = async (
   store,
@@ -67,8 +69,38 @@ const collabsFulfillmentSweepV4 = async (
     },
   );
 
+  const shopifyOrderFulfiller = new Processor(
+    piles.shopifyOrderFulfill,
+    async (pile) => {
+      const order = pile.shift();
+      const result = await shopifyOrderFulfill(order);
+      piles.results.push(result);
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+      logFlavourText: `${ store }:shopifyOrderFulfiller:`,
+    },
+  );
+
+  const shopifyFulfillmentOrderFulfiller = new Processor(
+    piles.shopifyFulfillmentOrderFulfill,
+    async (pile) => {
+      const order = pile.shift();
+      const result = await shopifyFulfillmentOrderFulfill(order);
+      piles.results.push(result);
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+      logFlavourText: `${ store }:shopifyFulfillmentOrderFulfiller:`,
+    },
+  );
+
   await Promise.all([
     shopifyGetter.run(),
+    shopifyOrderFulfiller.run(),
+    shopifyFulfillmentOrderFulfiller.run(),
   ]);
 
   logDeep(surveyNestedArrays(piles));
