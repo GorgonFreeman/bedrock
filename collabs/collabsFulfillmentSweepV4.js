@@ -72,7 +72,7 @@ const collabsFulfillmentSweepV4 = async (
         piles.shopify.push(...items);
       },
 
-      logFlavourText: `${ store }:shopify:getter:`,
+      logFlavourText: `${ store }:shopifyGetter:`,
     },
   );
 
@@ -89,7 +89,7 @@ const collabsFulfillmentSweepV4 = async (
       onItems: (items) => {
         piles.logiwaBulk.push(...items);
       },
-      logFlavourText: `${ store }:logiwaBulk:getter:`,
+      logFlavourText: `${ store }:logiwaBulkGetter:`,
     });
 
     wmsGetters.push(logiwaBulkGetter);
@@ -162,7 +162,7 @@ const collabsFulfillmentSweepV4 = async (
       pile => pile.length === 0,
       {
         canFinish: false,
-        logFlavourText: `${ store }:logiwaBulk:assessor:`,
+        logFlavourText: `${ store }:logiwaBulkAssessor:`,
       },
     );
 
@@ -244,7 +244,7 @@ const collabsFulfillmentSweepV4 = async (
       pile => pile.length === 0,
       {
         canFinish: false,
-        logFlavourText: `${ store }:logiwaThorough:assessor:`,
+        logFlavourText: `${ store }:logiwaThoroughAssessor:`,
       },
     );
 
