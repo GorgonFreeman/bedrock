@@ -1,4 +1,4 @@
-const { funcApi, logDeep, surveyNestedArrays, Processor, dateTimeFromNow, days, askQuestion, ThresholdActioner } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor, dateTimeFromNow, days, askQuestion, ThresholdActioner, wait } = require('../utils');
 
 const {
   REGIONS_PVX,
@@ -96,6 +96,11 @@ const collabsFulfillmentSweepV4 = async (
     const logiwaBulkAssessor = new Processor(
       piles.logiwaBulk,
       async (pile) => {
+
+        if (!logiwaBulkAssessor.canFinish) {
+          await wait(1);
+        }
+
         const shippedLogiwaOrder = pile.shift();
 
         const shopifyOrder = piles.shopify.find(o => o.name === shippedLogiwaOrder.code);
