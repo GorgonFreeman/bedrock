@@ -1,4 +1,4 @@
-const { funcApi, logDeep, surveyNestedArrays, Processor, dateTimeFromNow, days } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor, dateTimeFromNow, days, askQuestion } = require('../utils');
 
 const {
   REGIONS_PVX,
@@ -88,10 +88,26 @@ const collabsFulfillmentSweepV4 = async (
       onItems: (items) => {
         piles.logiwaBulk.push(...items);
       },
-      logFlavourText: `${ store }:logiwa:getter:`,
+      logFlavourText: `${ store }:logiwaBulk:getter:`,
     });
 
     wmsGetters.push(logiwaBulkGetter);
+
+    const logiwaBulkAssessor = new Processor(
+      piles.logiwaBulk,
+      async (pile) => {
+        const logiwaOrder = pile.shift();
+        logDeep(logiwaOrder);
+        await askQuestion('?');
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: false,
+        logFlavourText: `${ store }:logiwaBulk:assessor:`,
+      },
+    );
+
+    assessors.push(logiwaBulkAssessor);
   }
 
   const shopifyOrderFulfiller = new Processor(
@@ -125,6 +141,7 @@ const collabsFulfillmentSweepV4 = async (
   await Promise.all([
     shopifyGetter.run(),
     ...wmsGetters.map(getter => getter.run()),
+    ...assessors.map(assessor => assessor.run()),
     shopifyOrderFulfiller.run(),
     shopifyFulfillmentOrderFulfiller.run(),
   ]);
