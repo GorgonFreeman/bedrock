@@ -110,15 +110,17 @@ const collabsFulfillmentSweepV4 = async (
           }
           return;
         }
-
+        
         const {
           trackingNumbers,
           products,
         } = shippedLogiwaOrder;
-
+        
+        // TODO: Revisit handling of multiple tracking numbers
         if (trackingNumbers?.length !== 1) {
           console.error(shippedLogiwaOrder);
-          throw new Error(`Oh no, ${ trackingNumbers?.length } tracking numbers found for ${ shippedLogiwaOrder.code }`);
+          console.error(`Oh no, ${ trackingNumbers?.length } tracking numbers found for ${ shippedLogiwaOrder.code }`);
+          return;
         }
 
         const trackingNumber = trackingNumbers[0];
