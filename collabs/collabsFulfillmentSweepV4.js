@@ -69,6 +69,23 @@ const collabsFulfillmentSweepV4 = async (
     },
   );
 
+  let wmsGetters = [];
+
+  if (logiwaRelevant) {
+
+    piles.logiwa = piles.logiwa || [];
+
+    const logiwaGetter = await logiwaOrdersGetter({
+      status_eq: logiwaStatusToStatusId('Shipped'),
+      onItems: (items) => {
+        piles.logiwa.push(...items);
+      },
+      logFlavourText: `${ store }:logiwa:getter:`,
+    });
+
+    wmsGetters.push(logiwaGetter);
+  }
+
   const shopifyOrderFulfiller = new Processor(
     piles.shopifyOrderFulfill,
     async (pile) => {
@@ -99,6 +116,7 @@ const collabsFulfillmentSweepV4 = async (
 
   await Promise.all([
     shopifyGetter.run(),
+    ...wmsGetters.map(getter => getter.run()),
     shopifyOrderFulfiller.run(),
     shopifyFulfillmentOrderFulfiller.run(),
   ]);
