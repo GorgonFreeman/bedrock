@@ -80,13 +80,13 @@ const collabsFulfillmentSweepV4 = async (
 
   if (logiwaRelevant) {
 
-    piles.logiwa = piles.logiwa || [];
+    piles.logiwaBulk = piles.logiwaBulk || [];
 
     const logiwaBulkGetter = await logiwaOrdersGetter({
       createdDateTime_bt: `${ new Date(bulkStartDate).toISOString() },${ new Date().toISOString() }`,
       status_eq: logiwaStatusToStatusId('Shipped'),
       onItems: (items) => {
-        piles.logiwa.push(...items);
+        piles.logiwaBulk.push(...items);
       },
       logFlavourText: `${ store }:logiwa:getter:`,
     });
