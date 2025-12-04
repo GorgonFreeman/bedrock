@@ -33,6 +33,8 @@ const logiwaOrderGetSingle = async (
     credsPath,
     apiVersion,
     code_eq: orderCode,
+
+    verbose: false, // Avoid 0 +0 noise
   });
 
   const { success, result } = response;
@@ -84,7 +86,7 @@ const logiwaOrderGet = async (
       ...(options?.queueRunOptions ? { queueRunOptions: options.queueRunOptions } : {}),
     },
   );
-  logDeep(response);
+  // logDeep(response);
   return response;
 };
 
