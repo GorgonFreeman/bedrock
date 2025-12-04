@@ -1,6 +1,7 @@
 const { funcApi, logDeep, surveyNestedArrays, Processor, dateTimeFromNow, days, askQuestion, ThresholdActioner, wait } = require('../utils');
 
 const {
+  HOSTED,
   REGIONS_PVX,
   REGIONS_LOGIWA,
   REGIONS_BLECKMANN,
@@ -261,6 +262,7 @@ const collabsFulfillmentSweepV4 = async (
     piles.shopifyOrderFulfill,
     async (pile) => {
       const args = pile.shift();
+      logDeep('shopifyOrderFulfiller', args);
       const result = await shopifyOrderFulfill(...args);
       piles.results.push(result);
     },
@@ -294,11 +296,11 @@ const collabsFulfillmentSweepV4 = async (
   fulfillerBlockers.forEach(blocker => blocker.on('done', fulfillerFinishPermitter.increment));
 
   await Promise.all([
-    shopifyGetter.run(),
-    ...wmsGetters.map(getter => getter.run()),
+    shopifyGetter.run({ verbose: !HOSTED }),
+    ...wmsGetters.map(getter => getter.run({ verbose: !HOSTED })),
     ...assessors.map(assessor => assessor.run({ verbose: false })),
-    shopifyOrderFulfiller.run(),
-    shopifyFulfillmentOrderFulfiller.run(),
+    shopifyOrderFulfiller.run({ verbose: !HOSTED }),
+    shopifyFulfillmentOrderFulfiller.run({ verbose: !HOSTED }),
   ]);
 
   logDeep(surveyNestedArrays(piles));
