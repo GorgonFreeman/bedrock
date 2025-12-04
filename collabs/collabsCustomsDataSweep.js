@@ -146,7 +146,7 @@ const collabsCustomsDataSweep = async () => {
         af62: countryCodeOfOrigin = 'CN', // Default to China
       } = stylearcadeProduct;
 
-      if (!(hsCodeUs && hsCodeUk && customsDescription)) {
+      if (!(hsCodeUs && hsCodeUk)) {
         piles.dataIncomplete.push(stylearcadeProduct);
         return;
       }
@@ -197,7 +197,7 @@ const collabsCustomsDataSweep = async () => {
             !HOSTED && logDeep(`[Peoplevox Update] SKU: ${ pvxSku }, Field: Country of Origin, Current: "${ pvxCountryOfOrigin }", Expected: "${ countryOfOrigin }"`);
             updatePayload.Attribute6 = countryOfOrigin;
           }
-          if (pvxCustomsDescription !== customsDescription) {
+          if (customsDescription && (pvxCustomsDescription !== customsDescription)) {
             !HOSTED && logDeep(`[Peoplevox Update] SKU: ${ pvxSku }, Field: Customs Description, Current: "${ pvxCustomsDescription }", Expected: "${ customsDescription }"`);
             updatePayload.Attribute8 = customsDescription;
           }
@@ -227,13 +227,18 @@ const collabsCustomsDataSweep = async () => {
             mid: starshipitMid,
           } = starshipitItem;
   
-          if (!(starshipitHsCode === hsCodeUs && starshipitCustomsDescription === customsDescription && starshipitCountry === countryOfOrigin && starshipitMid === mid)) {
+          if (!(
+            starshipitHsCode === hsCodeUs 
+            && (starshipitCustomsDescription === customsDescription) || !customsDescription 
+            && starshipitCountry === countryOfOrigin 
+            && starshipitMid === mid
+          )) {
             
             if (!HOSTED) {
               if (starshipitHsCode !== hsCodeUs) {
                 logDeep(`[Starshipit Update] SKU: ${ sku }, Field: HS Code, Current: "${ starshipitHsCode }", Expected: "${ hsCodeUs }"`);
               }
-              if (starshipitCustomsDescription !== customsDescription) {
+              if (customsDescription && (starshipitCustomsDescription !== customsDescription)) {
                 logDeep(`[Starshipit Update] SKU: ${ sku }, Field: Customs Description, Current: "${ starshipitCustomsDescription }", Expected: "${ customsDescription }"`);
               }
               if (starshipitCountry !== countryOfOrigin) {
@@ -250,7 +255,7 @@ const collabsCustomsDataSweep = async () => {
               sku,
               {
                 hs_code: hsCodeUs,
-                customs_description: customsDescription,
+                ...customsDescription && { customs_description: customsDescription },
                 country: countryOfOrigin,
                 mid,
               },
@@ -270,7 +275,7 @@ const collabsCustomsDataSweep = async () => {
               missingSku,
               {
                 hsCode: hsCodeUs,
-                customsDescription: customsDescription,
+                ...customsDescription && { customsDescription: customsDescription },
                 country: countryOfOrigin,
                 mid,
               },
