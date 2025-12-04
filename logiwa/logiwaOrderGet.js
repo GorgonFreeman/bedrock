@@ -33,8 +33,6 @@ const logiwaOrderGetSingle = async (
     credsPath,
     apiVersion,
     code_eq: orderCode,
-
-    verbose: false, // Avoid 0 +0 noise
   });
 
   const { success, result } = response;
