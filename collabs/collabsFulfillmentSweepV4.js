@@ -209,7 +209,7 @@ const collabsFulfillmentSweepV4 = async (
   await Promise.all([
     shopifyGetter.run(),
     ...wmsGetters.map(getter => getter.run()),
-    ...assessors.map(assessor => assessor.run()),
+    ...assessors.map(assessor => assessor.run({ verbose: false })),
     shopifyOrderFulfiller.run(),
     shopifyFulfillmentOrderFulfiller.run(),
   ]);
