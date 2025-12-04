@@ -1,10 +1,12 @@
-const { funcApi } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays } = require('../utils');
 
 const {
   REGIONS_PVX,
   REGIONS_LOGIWA,
   REGIONS_BLECKMANN,
 } = require('../constants');
+
+const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 
 const collabsFulfillmentSweepV4 = async (
   store,
@@ -29,6 +31,43 @@ const collabsFulfillmentSweepV4 = async (
       message: 'Store not supported',
     };
   }
+
+  const piles = {
+    shopify: [],
+  };
+
+  const shopifyGetter = await shopifyOrdersGetter(
+    store, 
+    {
+      attrs: `
+        id
+        name
+        shippingLine {
+          title
+        }
+      `,
+      queries: [
+        'created_at:>2025-10-01',
+        'fulfillment_status:unshipped',
+        'status:open',
+        'delivery_method:shipping',
+      ],
+      sortKey: 'CREATED_AT',
+      reverse: true,
+
+      onItems: (items) => {
+        piles.shopify.push(...items);
+      },
+
+      logFlavourText: `${ store }:shopify:getter:`,
+    },
+  );
+
+  await Promise.all([
+    shopifyGetter.run(),
+  ]);
+
+  logDeep(surveyNestedArrays(piles));
 
   return { 
     store, 
