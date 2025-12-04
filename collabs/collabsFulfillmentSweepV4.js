@@ -12,6 +12,7 @@ const { shopifyFulfillmentOrderFulfill } = require('../shopify/shopifyFulfillmen
 
 const { logiwaStatusToStatusId } = require('../logiwa/logiwa.utils');
 const { logiwaOrdersGetter } = require('../logiwa/logiwaOrdersGet');
+const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
 
 const collabsFulfillmentSweepV4 = async (
   store,
@@ -152,7 +153,11 @@ const collabsFulfillmentSweepV4 = async (
         ]);
 
         // Remove shopify order
-        piles.shopify.splice(piles.shopify.indexOf(shopifyOrder), 1);
+        const shopifyOrderIndex = piles.shopify.indexOf(shopifyOrder);
+        if (shopifyOrderIndex === -1) {
+          return;
+        }
+        piles.shopify.splice(shopifyOrderIndex, 1);
       },
       pile => pile.length === 0,
       {
@@ -168,6 +173,42 @@ const collabsFulfillmentSweepV4 = async (
       logiwaBulkAssessor.canFinish = true;
     });
     bulkAssessorBlockers.forEach(blocker => blocker.on('done', bulkAssessorFinishPermitter.increment));
+
+    const logiwaThoroughAssessor = new Processor(
+      piles.shopify,
+      async (pile) => {
+        const shopifyOrder = pile.shift();
+        const { name } = shopifyOrder;
+
+        const logiwaOrderResponse = await logiwaOrderGet({ orderCode: name });
+        const { success: logiwaOrderSuccess, result: logiwaOrder } = logiwaOrderResponse;
+        if (!logiwaOrderSuccess) {
+          piles.errors.push(shopifyOrder);
+          return;
+        }
+        
+        if (!logiwaOrder) {
+          piles.errors.push(shopifyOrder);
+          return;
+        }
+
+        logDeep(logiwaOrder);
+        await askQuestion('?');
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: false,
+        logFlavourText: `${ store }:logiwaThorough:assessor:`,
+      },
+    );
+
+    assessors.push(logiwaThoroughAssessor);
+
+    const thoroughAssessorBlockers = [shopifyGetter];
+    const thoroughAssessorFinishPermitter = new ThresholdActioner(thoroughAssessorBlockers.length, () => {
+      logiwaThoroughAssessor.canFinish = true;
+    });
+    thoroughAssessorBlockers.forEach(blocker => blocker.on('done', thoroughAssessorFinishPermitter.increment));
   }
 
   const shopifyOrderFulfiller = new Processor(
