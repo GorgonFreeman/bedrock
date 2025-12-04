@@ -114,6 +114,29 @@ const collabsFulfillmentSweepV4 = async (
     
         const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
     
+        if (!trackingNumber || !allShipped) {
+          logDeep(`Logiwa something wrong`, { trackingNumber, allShipped }, shippedLogiwaOrder);
+          return;
+        }
+    
+        const fulfillPayload = {
+          originAddress: {
+            // Logiwa, therefore US
+            countryCode: 'US',
+          },
+          trackingInfo: {
+            number: trackingNumber,
+          },
+        };
+    
+        piles.shopifyOrderFulfill.push([
+          store,
+          { orderName: shippedLogiwaOrder.code },
+          {
+            notifyCustomer: true,
+            ...fulfillPayload,
+          },
+        ]);
       },
       pile => pile.length === 0,
       {
@@ -128,8 +151,8 @@ const collabsFulfillmentSweepV4 = async (
   const shopifyOrderFulfiller = new Processor(
     piles.shopifyOrderFulfill,
     async (pile) => {
-      const order = pile.shift();
-      const result = await shopifyOrderFulfill(order);
+      const args = pile.shift();
+      const result = await shopifyOrderFulfill(...args);
       piles.results.push(result);
     },
     pile => pile.length === 0,
@@ -142,8 +165,8 @@ const collabsFulfillmentSweepV4 = async (
   const shopifyFulfillmentOrderFulfiller = new Processor(
     piles.shopifyFulfillmentOrderFulfill,
     async (pile) => {
-      const order = pile.shift();
-      const result = await shopifyFulfillmentOrderFulfill(order);
+      const args = pile.shift();
+      const result = await shopifyFulfillmentOrderFulfill(...args);
       piles.results.push(result);
     },
     pile => pile.length === 0,
