@@ -96,8 +96,8 @@ const collabsFulfillmentSweepV4 = async (
     const logiwaBulkAssessor = new Processor(
       piles.logiwaBulk,
       async (pile) => {
-        const logiwaOrder = pile.shift();
-        logDeep(logiwaOrder);
+        const shippedLogiwaOrder = pile.shift();
+        logDeep(shippedLogiwaOrder);
         await askQuestion('?');
       },
       pile => pile.length === 0,
