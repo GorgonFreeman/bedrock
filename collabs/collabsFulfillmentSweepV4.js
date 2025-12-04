@@ -99,6 +99,17 @@ const collabsFulfillmentSweepV4 = async (
         const shippedLogiwaOrder = pile.shift();
         logDeep(shippedLogiwaOrder);
         await askQuestion('?');
+
+        const {
+          trackingNumbers,
+        } = shippedLogiwaOrder;
+
+        if (trackingNumbers?.length !== 1) {
+          console.error(shippedLogiwaOrder);
+          throw new Error(`Oh no, ${ trackingNumbers?.length } tracking numbers found for ${ shippedLogiwaOrder.code }`);
+        }
+
+        const trackingNumber = trackingNumbers[0];
       },
       pile => pile.length === 0,
       {
