@@ -1,4 +1,4 @@
-const { funcApi, logDeep, surveyNestedArrays, Processor } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor, dateTimeFromNow, days } = require('../utils');
 
 const {
   REGIONS_PVX,
@@ -9,6 +9,9 @@ const {
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
 const { shopifyFulfillmentOrderFulfill } = require('../shopify/shopifyFulfillmentOrderFulfill');
+
+const { logiwaStatusToStatusId } = require('../logiwa/logiwa.utils');
+const { logiwaOrdersGetter } = require('../logiwa/logiwaOrdersGet');
 
 const collabsFulfillmentSweepV4 = async (
   store,
@@ -33,6 +36,9 @@ const collabsFulfillmentSweepV4 = async (
       message: 'Store not supported',
     };
   }
+  
+  // Arbitrary date for bulk fetching to start from to get probably-relevant results
+  const bulkStartDate = dateTimeFromNow({ minus: days(5), dateOnly: true });
 
   const piles = {
     shopify: [],
@@ -70,12 +76,14 @@ const collabsFulfillmentSweepV4 = async (
   );
 
   let wmsGetters = [];
+  let assessors = [];
 
   if (logiwaRelevant) {
 
     piles.logiwa = piles.logiwa || [];
 
-    const logiwaGetter = await logiwaOrdersGetter({
+    const logiwaBulkGetter = await logiwaOrdersGetter({
+      createdDateTime_bt: `${ new Date(bulkStartDate).toISOString() },${ new Date().toISOString() }`,
       status_eq: logiwaStatusToStatusId('Shipped'),
       onItems: (items) => {
         piles.logiwa.push(...items);
@@ -83,7 +91,7 @@ const collabsFulfillmentSweepV4 = async (
       logFlavourText: `${ store }:logiwa:getter:`,
     });
 
-    wmsGetters.push(logiwaGetter);
+    wmsGetters.push(logiwaBulkGetter);
   }
 
   const shopifyOrderFulfiller = new Processor(
