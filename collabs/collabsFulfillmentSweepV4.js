@@ -192,8 +192,54 @@ const collabsFulfillmentSweepV4 = async (
           return;
         }
 
-        logDeep(logiwaOrder);
-        await askQuestion('?');
+        const {
+          shipmentOrderStatusName,
+        } = logiwaOrder;
+
+        if (shipmentOrderStatusName !== 'Shipped') {
+          return;
+        }
+        
+        // TODO: Deduplicate this logic
+        const {
+          trackingNumbers,
+          products,
+        } = logiwaOrder;
+        
+        // TODO: Revisit handling of multiple tracking numbers
+        if (trackingNumbers?.length !== 1) {
+          console.error(logiwaOrder);
+          console.error(`Oh no, ${ trackingNumbers?.length } tracking numbers found for ${ logiwaOrder.code }`);
+          return;
+        }
+
+        const trackingNumber = trackingNumbers[0];
+    
+        const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
+    
+        if (!trackingNumber || !allShipped) {
+          logDeep(`Logiwa something wrong`, { trackingNumber, allShipped }, logiwaOrder);
+          return;
+        }
+    
+        const fulfillPayload = {
+          originAddress: {
+            // Logiwa, therefore US
+            countryCode: 'US',
+          },
+          trackingInfo: {
+            number: trackingNumber,
+          },
+        };
+    
+        piles.shopifyOrderFulfill.push([
+          store,
+          { orderName: logiwaOrder.code },
+          {
+            notifyCustomer: true,
+            ...fulfillPayload,
+          },
+        ]);        
       },
       pile => pile.length === 0,
       {
