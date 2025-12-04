@@ -1,4 +1,4 @@
-const { funcApi, logDeep, surveyNestedArrays, Processor, dateTimeFromNow, days, askQuestion } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor, dateTimeFromNow, days, askQuestion, ThresholdActioner } = require('../utils');
 
 const {
   REGIONS_PVX,
@@ -146,6 +146,12 @@ const collabsFulfillmentSweepV4 = async (
     );
 
     assessors.push(logiwaBulkAssessor);
+    
+    const bulkAssessorBlockers = [shopifyGetter, logiwaBulkGetter];
+    const bulkAssessorFinishPermitter = new ThresholdActioner(bulkAssessorBlockers.length, () => {
+      logiwaBulkAssessor.canFinish = true;
+    });
+    bulkAssessorBlockers.forEach(blocker => blocker.on('done', bulkAssessorFinishPermitter.increment));
   }
 
   const shopifyOrderFulfiller = new Processor(
@@ -175,6 +181,14 @@ const collabsFulfillmentSweepV4 = async (
       logFlavourText: `${ store }:shopifyFulfillmentOrderFulfiller:`,
     },
   );
+  
+  // TODO: Helper function that does this, taking blockers and a blockee
+  const fulfillerBlockers = assessors;
+  const fulfillerFinishPermitter = new ThresholdActioner(fulfillerBlockers.length, () => {
+    shopifyOrderFulfiller.canFinish = true;
+    shopifyFulfillmentOrderFulfiller.canFinish = true;
+  });
+  fulfillerBlockers.forEach(blocker => blocker.on('done', fulfillerFinishPermitter.increment));
 
   await Promise.all([
     shopifyGetter.run(),
