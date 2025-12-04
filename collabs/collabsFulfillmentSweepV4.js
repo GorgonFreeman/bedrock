@@ -97,8 +97,14 @@ const collabsFulfillmentSweepV4 = async (
       piles.logiwaBulk,
       async (pile) => {
         const shippedLogiwaOrder = pile.shift();
-        logDeep(shippedLogiwaOrder);
-        await askQuestion('?');
+
+        const shopifyOrder = piles.shopify.find(o => o.name === shippedLogiwaOrder.code);
+        if (!shopifyOrder) {
+          if (!logiwaBulkAssessor.canFinish) {
+            piles.logiwaBulk.push(shippedLogiwaOrder);
+          }
+          return;
+        }
 
         const {
           trackingNumbers,
@@ -137,6 +143,9 @@ const collabsFulfillmentSweepV4 = async (
             ...fulfillPayload,
           },
         ]);
+
+        // Remove shopify order
+        piles.shopify.splice(piles.shopify.indexOf(shopifyOrder), 1);
       },
       pile => pile.length === 0,
       {
