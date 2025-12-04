@@ -102,6 +102,7 @@ const collabsFulfillmentSweepV4 = async (
 
         const {
           trackingNumbers,
+          products,
         } = shippedLogiwaOrder;
 
         if (trackingNumbers?.length !== 1) {
@@ -110,6 +111,9 @@ const collabsFulfillmentSweepV4 = async (
         }
 
         const trackingNumber = trackingNumbers[0];
+    
+        const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
+    
       },
       pile => pile.length === 0,
       {
