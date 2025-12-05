@@ -246,6 +246,9 @@ const collabsFulfillmentSweepV4 = async (
       {
         canFinish: false,
         logFlavourText: `${ store }:logiwaThoroughAssessor:`,
+        runOptions: {
+          interval: 20,
+        },
       },
     );
 
