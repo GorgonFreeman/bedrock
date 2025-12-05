@@ -40,7 +40,7 @@ const collabsFulfillmentSweepV4 = async (
   }
   
   // Arbitrary date for bulk fetching to start from to get probably-relevant results
-  const bulkStartDate = dateTimeFromNow({ minus: days(5), dateOnly: true });
+  const bulkStartDate = dateTimeFromNow({ minus: days(20), dateOnly: true });
 
   const piles = {
     shopify: [],
