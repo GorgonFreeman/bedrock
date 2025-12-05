@@ -269,6 +269,7 @@ module.exports = {
   bleckmannReturnsGet: require('./bleckmann/bleckmannReturnsGet').bleckmannReturnsGetApi,
   bleckmannSkuGet: require('./bleckmann/bleckmannSkuGet').bleckmannSkuGetApi,
   bleckmannSkusGet: require('./bleckmann/bleckmannSkusGet').bleckmannSkusGetApi,
+  bedrock_unlistedShopifyOrdersTagMultipleShipppingFulfillments: require('./bedrock_unlisted/bedrock_unlistedShopifyOrdersTagMultipleShipppingFulfillments').bedrock_unlistedShopifyOrdersTagMultipleShipppingFulfillmentsApi,
   bedrock_unlisted_bootsDiscountCodeMarkUsed: require('./bedrock_unlisted/bedrock_unlisted_bootsDiscountCodeMarkUsed').bedrock_unlisted_bootsDiscountCodeMarkUsedApi,
   bedrock_unlisted_bootsDiscountCodeReserve: require('./bedrock_unlisted/bedrock_unlisted_bootsDiscountCodeReserve').bedrock_unlisted_bootsDiscountCodeReserveApi,
   bedrock_unlisted_bootsFormProcess: require('./bedrock_unlisted/bedrock_unlisted_bootsFormProcess').bedrock_unlisted_bootsFormProcessApi,
