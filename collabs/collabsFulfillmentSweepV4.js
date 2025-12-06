@@ -159,6 +159,8 @@ const collabsFulfillmentSweepV4 = async (
           return;
         }
         piles.shopify.splice(shopifyOrderIndex, 1);
+
+        console.log(`${ store }:logiwaBulkAssessor:`, piles.shopify.length);
       },
       pile => pile.length === 0,
       {
@@ -179,6 +181,7 @@ const collabsFulfillmentSweepV4 = async (
       piles.shopify,
       async (pile) => {
         const shopifyOrder = pile.shift();
+        console.log(`${ store }:logiwaThoroughAssessor:`, piles.shopify.length);
         const { name } = shopifyOrder;
 
         const logiwaOrderResponse = await logiwaOrderGet({ orderCode: name });
