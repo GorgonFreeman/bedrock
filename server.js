@@ -1,4 +1,5 @@
 const http = require('http');
+const fs = require('fs').promises;
 
 const functions = require('./servable');
 const { respond, arrayFromIntRange, logDeep } = require('./utils');
@@ -8,6 +9,15 @@ const createServer = () => {
   const server = http.createServer(async (req, res) => {
     
     const { url, headers } = req;
+
+    // Handle UI
+    const pathNodes = url.split('/').filter(n => n);
+    if (pathNodes[0] === 'ui') {
+      // Convert URL path to file system path (e.g., '/ui/hi' -> './ui/hi.html')
+      const filePath = `./${ pathNodes.join('/') }.html`;
+      const htmlContent = await fs.readFile(filePath, 'utf8');
+      return respond(res, 200, htmlContent, { contentType: 'text/html' });
+    }
   
     const body = await getRequestBody(req);
     // console.log('body', body);
