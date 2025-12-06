@@ -8,7 +8,7 @@ module.exports = async (req, res) => {
   <title>Login</title>
 </head>
 <body>
-  <button>I'm cool</button>
+  <button onclick="window.location.href='/ui/app/authenticate'">I'm cool</button>
 </body>
 </html>`;
 
