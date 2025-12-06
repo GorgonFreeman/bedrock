@@ -13,6 +13,14 @@ const createServer = () => {
     // Handle UI
     const pathNodes = url.split('/').filter(n => n);
     if (pathNodes[0] === 'ui') {
+      
+      // Try getting JS
+      try {
+        return require(`./${ pathNodes.join('/') }.js`)(req, res);
+      } catch (err) {
+        console.error(err);
+      }
+      
       // Convert URL path to file system path (e.g., '/ui/hi' -> './ui/hi.html')
       const filePath = `./${ pathNodes.join('/') }.html`;
       const htmlContent = await fs.readFile(filePath, 'utf8');
