@@ -1,8 +1,8 @@
-const { funcApi, logDeep, surveyNestedArrays, Processor, dateTimeFromNow, days, askQuestion, ThresholdActioner, wait } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor, dateTimeFromNow, days, askQuestion, ThresholdActioner, wait, gidToId } = require('../utils');
 
 const {
   HOSTED,
-  REGIONS_PVX,
+  REGIONS_STARSHIPIT,
   REGIONS_LOGIWA,
   REGIONS_BLECKMANN,
 } = require('../constants');
@@ -15,6 +15,9 @@ const { logiwaStatusToStatusId } = require('../logiwa/logiwa.utils');
 const { logiwaOrdersGetter } = require('../logiwa/logiwaOrdersGet');
 const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
 
+const { shopifyRegionToStarshipitAccount } = require('../mappings');
+const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
+
 const collabsFulfillmentSweepV4 = async (
   store,
   {
@@ -22,12 +25,12 @@ const collabsFulfillmentSweepV4 = async (
   } = {},
 ) => {
 
-  const peoplevoxRelevant = REGIONS_PVX.includes(store);
+  const starshipitRelevant = REGIONS_STARSHIPIT.includes(store);
   const logiwaRelevant = REGIONS_LOGIWA.includes(store);
   const bleckmannRelevant = REGIONS_BLECKMANN.includes(store);
 
   const anyRelevant = [
-    // peoplevoxRelevant, 
+    starshipitRelevant, 
     logiwaRelevant, 
     // bleckmannRelevant,
   ].some(Boolean);
@@ -264,6 +267,103 @@ const collabsFulfillmentSweepV4 = async (
     thoroughAssessorBlockers.forEach(blocker => blocker.on('done', thoroughAssessorFinishPermitter.increment));
   }
 
+  if (starshipitRelevant) {
+    const starshipitThoroughAssessor = new Processor(
+      piles.shopify,
+      async (pile) => {
+
+        const shopifyOrder = pile.shift();
+        const { 
+          id: orderGid, 
+          shippingLine,
+        } = shopifyOrder;
+        const orderId = gidToId(orderGid);
+        const shippingMethod = shippingLine?.title;
+
+        console.log(`${ store }:starshipitThoroughAssessor:`, piles.shopify.length);
+
+        const starshipitAccount = shopifyRegionToStarshipitAccount(store, shippingMethod);
+
+        if (!starshipitAccount) {
+          console.error(`No Starshipit account found for ${ store }:${ shippingMethod } (${ orderId })`);
+          throw new Error(`No Starshipit account found for ${ store }:${ shippingMethod } (${ orderId })`);
+          return;
+        }
+
+        const starshipitOrderResponse = await starshipitOrderGet(starshipitAccount, { orderNumber: orderId });
+        const { success, result: starshipitOrder } = starshipitOrderResponse;
+        if (!success || !starshipitOrder) {
+          console.error(`Failed to retrieve order from Starshipit for ${ store }:${ shippingMethod } (${ orderId })`);
+          piles.errors.push(`Failed to retrieve order from Starshipit for ${ store }:${ shippingMethod } (${ orderId })`);
+          return;
+        }
+
+        const {
+          packages,
+          manifested,
+        } = starshipitOrder;
+
+        if (!manifested) {
+          console.log(`Not manifested`);
+          return;
+        }
+
+        const package = packages?.[0];
+
+        if (!package) {
+          console.log(`No package`);
+          return;
+        }
+
+        const {
+          tracking_number: trackingNumber,
+          tracking_url: trackingUrl,
+        } = package;
+
+        if (!trackingNumber) {
+          console.log(`No tracking number`);
+          return;
+        }
+
+        const fulfillPayload = {
+          originAddress: {
+            // Starshipit, therefore AU
+            countryCode: 'AU',
+          },
+          trackingInfo: {
+            number: trackingNumber,
+            url: trackingUrl,
+          },
+        };
+
+        piles.shopifyOrderFulfill.push([
+          store,
+          { orderId },
+          {
+            notifyCustomer: true, // TODO: Consider setting to true if recent order
+            ...fulfillPayload,
+          },
+        ]);
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: false,
+        logFlavourText: `${ store }:starshipitThoroughAssessor:`,
+        runOptions: {
+          interval: 20,
+        },
+      },
+    );
+
+    assessors.push(starshipitThoroughAssessor);
+
+    const thoroughAssessorBlockers = [shopifyGetter];
+    const thoroughAssessorFinishPermitter = new ThresholdActioner(thoroughAssessorBlockers.length, () => {
+      starshipitThoroughAssessor.canFinish = true;
+    });
+    thoroughAssessorBlockers.forEach(blocker => blocker.on('done', thoroughAssessorFinishPermitter.increment));
+  }
+
   const shopifyOrderFulfiller = new Processor(
     piles.shopifyOrderFulfill,
     async (pile) => {
@@ -328,3 +428,4 @@ module.exports = {
 };
 
 // curl localhost:8000/collabsFulfillmentSweepV4 -H "Content-Type: application/json" -d '{ "store": "us" }'
+// curl localhost:8000/collabsFulfillmentSweepV4 -H "Content-Type: application/json" -d '{ "store": "au" }'
