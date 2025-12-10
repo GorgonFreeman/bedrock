@@ -114,4 +114,4 @@ module.exports = {
 };
 
 // curl localhost:8000/pipe17InventoryItemsGet -H "Content-Type: application/json" -d '{ "options": { "limit": 300 } }'
-// curl localhost:8000/pipe17InventoryItemsGet -H "Content-Type: application/json" -d '{ "options": { "sku": ["WFMD94-2-S", "FSBOM172-15-S", "EXKM199-1-XXS"] } }'
+// curl localhost:8000/pipe17InventoryItemsGet -H "Content-Type: application/json" -d '{ "options": { "sku": "WFMD94-2-S,FSBOM172-15-S,EXKM199-1-XXS" } }'
