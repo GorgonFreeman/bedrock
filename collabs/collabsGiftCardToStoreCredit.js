@@ -10,7 +10,7 @@ const {
   askQuestion,
 } = require("../utils");
 
-import { REGIONS_WF } from "../constants.js";
+const { REGIONS_WF } = require("../constants.js");
 
 const { shopifyGiftCardsGet } = require("../shopify/shopifyGiftCardsGet");
 const { shopifyGiftCardDeactivate } = require("../shopify/shopifyGiftCardDeactivate");
