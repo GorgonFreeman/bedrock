@@ -1,6 +1,8 @@
 const { respond, logDeep, customAxios } = require('../utils');
+const { SLACK_CHANNELS_MANAGERS } = require('../bedrock_unlisted/constants');
 
 const COMMAND_NAME = 'staff_onboard'; // slash command
+const ALLOWED_CHANNELS = SLACK_CHANNELS_MANAGERS;
 
 const slackInteractiveStaffOnboard = async (req, res) => {
   console.log('slackInteractiveStaffOnboard');
@@ -9,6 +11,15 @@ const slackInteractiveStaffOnboard = async (req, res) => {
   
   // If no payload, this is an initiation, e.g. slash command - send the initial blocks
   if (!body?.payload) {
+
+    const { channel_name: channelName } = body;
+    
+    if (!ALLOWED_CHANNELS.includes(channelName)) {
+      return respond(res, 200, {
+        response_type: 'ephemeral',
+        text: `Hey, you can't use this command in this channel.`,
+      });
+    }
 
     const initialBlocks = [
       {
