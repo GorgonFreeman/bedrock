@@ -7,6 +7,7 @@ const commandNameToFunc = {
   'suggestion_box': require('../slack/slackInteractiveSuggestionBox'),
   'stock_check': require('../slack/slackInteractiveStockCheck'),
   'customer_delete': require('../slack/slackInteractiveCustomerDelete'),
+  'staff_onboard': require('../slack/slackInteractiveStaffOnboard'),
 };
 
 const slackWebhookRouterApi = async (req, res) => {
