@@ -184,6 +184,30 @@ const slackArrayToTableBlock = (array) => {
   };
 };
 
+const slackCommandRestrictToChannels = (
+  req,
+  res,
+  allowedChannelNames, 
+  {
+    forbiddenMessage = `Hey, you can't use this command in this channel.`,
+    informUserOfAllowedChannels = false,
+  },
+) => {
+  const { body } = req;
+  const { channel_name: channelName } = body;
+
+  if (allowedChannelNames.includes(channelName)) {
+    return true;
+  }
+
+  respond(res, 200, {
+    response_type: 'ephemeral',
+    text: forbiddenMessage,
+  });
+
+  return false;
+};
+
 module.exports = {
   slackClient,
   slackGetter,
