@@ -191,7 +191,7 @@ const slackCommandRestrictToChannels = (
   {
     forbiddenMessage = `Hey, you can't use this command in this channel.`,
     informUserOfAllowedChannels = false,
-  } = {},
+  },
 ) => {
   const { body } = req;
   const { channel_name: channelName } = body;
@@ -202,12 +202,7 @@ const slackCommandRestrictToChannels = (
 
   respond(res, 200, {
     response_type: 'ephemeral',
-    text: [
-      forbiddenMessage,
-      ...(informUserOfAllowedChannels ? [
-        `Allowed channels: ${ allowedChannelNames.join(', ') }`,
-      ] : []),
-    ].join('\n'),
+    text: forbiddenMessage,
   });
 
   return false;
