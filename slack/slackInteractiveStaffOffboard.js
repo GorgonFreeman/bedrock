@@ -1,6 +1,6 @@
 const { respond, logDeep, customAxios } = require('../utils');
 
-const COMMAND_NAME = 'slash_command'; // slash command
+const COMMAND_NAME = 'staff_offboard'; // slash command
 
 const slackInteractiveStaffOffboard = async (req, res) => {
   console.log('slackInteractiveStaffOffboard');
