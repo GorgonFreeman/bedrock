@@ -182,7 +182,7 @@ const slackInteractiveStaffOnboard = async (req, res) => {
 
       response = {
         replace_original: 'true',
-        text: `Staff onboarded successfully: ${ JSON.stringify(callResponse) }`,
+        text: `Staff onboarded successfully 🫡`,
       };
       break;
 
