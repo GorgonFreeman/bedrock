@@ -154,16 +154,20 @@ const slackInteractiveStaffOnboard = async (req, res) => {
       break;
 
     case 'submit':
-      const emailHandle = state?.values?.form_handle?.email_handle?.value;
-      const firstName = state?.values?.form_first_name?.first_name?.value;
-      const lastName = state?.values?.form_last_name?.last_name?.value;
-      const addClothingAllowance = state?.values?.form_clothing_allowance?.selected_options?.length !== 0;
+      const emailHandle = state?.values?.form_handle?.[`${ COMMAND_NAME }:email_handle`]?.value;
+      const firstName = state?.values?.form_first_name?.[`${ COMMAND_NAME }:first_name`]?.value;
+      const lastName = state?.values?.form_last_name?.[`${ COMMAND_NAME }:last_name`]?.value;
+      const addClothingAllowance = state?.values?.form_clothing_allowance?.[`${ COMMAND_NAME }:add_clothing_allowance`]?.selected_options?.length !== 0;
 
-      const callResponse = await bedrock_unlisted_shopifyStaffCustomerOnboard('au', emailHandle, {
-        ...firstName && { firstName },
-        ...lastName && { lastName },
-        ...addClothingAllowance && { addStoreCredit: true },
-      });
+      const callResponse = await bedrock_unlisted_shopifyStaffCustomerOnboard(
+        'au', 
+        emailHandle, 
+        {
+          ...firstName && { firstName },
+          ...lastName && { lastName },
+          ...addClothingAllowance && { addStoreCredit: true },
+        },
+      );
 
       const { success, result } = callResponse;
       if (!success) {
