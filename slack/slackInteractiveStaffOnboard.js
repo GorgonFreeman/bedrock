@@ -1,3 +1,5 @@
+// TODO: Handle account already existing more explicitly
+
 const { respond, logDeep, customAxios, credsByPath } = require('../utils');
 const { slackCommandRestrictToChannels } = require('../slack/slack.utils');
 const { SLACK_CHANNELS_MANAGERS } = require('../bedrock_unlisted/constants');
