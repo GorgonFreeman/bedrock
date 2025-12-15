@@ -190,7 +190,7 @@ const slackInteractiveStaffOnboard = async (req, res) => {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `Staff onboarded successfully <https://admin.shopify.com/store/${ STORE_URL }/customers?search=${ emailHandle.split('@').shift() }%40whitefoxboutique.com|:technologist:>`,
+              text: `${ firstName || 'Staff' }${ firstName && lastName ? ` ${ lastName }` : '' } onboarded successfully <https://admin.shopify.com/store/${ STORE_URL }/customers?search=${ emailHandle.split('@').shift() }%40whitefoxboutique.com|:technologist:>`,
             },
           },
         ],
