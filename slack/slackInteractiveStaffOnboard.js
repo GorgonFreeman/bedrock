@@ -148,6 +148,10 @@ const slackInteractiveStaffOnboard = async (req, res) => {
         delete_original: 'true',
       };
       break;
+
+    default:
+      console.warn(`Unknown actionName: ${ actionName }`);
+      return;
   }
 
   logDeep('response', response);
