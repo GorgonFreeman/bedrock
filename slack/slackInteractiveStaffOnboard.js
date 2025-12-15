@@ -1,4 +1,4 @@
-const { respond, logDeep, customAxios } = require('../utils');
+const { respond, logDeep, customAxios, credsByPath } = require('../utils');
 const { slackCommandRestrictToChannels } = require('../slack/slack.utils');
 const { SLACK_CHANNELS_MANAGERS } = require('../bedrock_unlisted/constants');
 
@@ -6,6 +6,7 @@ const { bedrock_unlisted_shopifyStaffCustomerOnboard } = require('../bedrock_unl
 
 const COMMAND_NAME = 'staff_onboard'; // slash command
 const ALLOWED_CHANNELS = [...SLACK_CHANNELS_MANAGERS, 'foxtron_testing'];
+const STAFF_STORE = 'au';
 
 // TODO: Migrate to modal for inbuilt submit/cancel and form validation
 
@@ -160,7 +161,7 @@ const slackInteractiveStaffOnboard = async (req, res) => {
       const addClothingAllowance = state?.values?.form_clothing_allowance?.[`${ COMMAND_NAME }:add_clothing_allowance`]?.selected_options?.length !== 0;
 
       const callResponse = await bedrock_unlisted_shopifyStaffCustomerOnboard(
-        'au', 
+        STAFF_STORE, 
         emailHandle, 
         {
           ...firstName && { firstName },
@@ -179,10 +180,20 @@ const slackInteractiveStaffOnboard = async (req, res) => {
       }
   
       // TODO: link to customer account in Shopify admin  
+      const creds = credsByPath(['shopify', STAFF_STORE]);
+      const { STORE_URL } = creds;
       
       response = {
         replace_original: 'true',
-        text: `Staff onboarded successfully 🫡`,
+        blocks: [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `Staff onboarded successfully <https://admin.shopify.com/store/${ STORE_URL }/customers?search=${ emailHandle.split('@').shift() }%40whitefoxboutique.com|:technologist:>`,
+            },
+          },
+        ],
       };
       break;
 
