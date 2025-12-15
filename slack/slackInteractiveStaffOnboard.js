@@ -5,6 +5,96 @@ const { SLACK_CHANNELS_MANAGERS } = require('../bedrock_unlisted/constants');
 const COMMAND_NAME = 'staff_onboard'; // slash command
 const ALLOWED_CHANNELS = SLACK_CHANNELS_MANAGERS;
 
+const blocks = {
+  form: [
+    {
+      type: 'input',
+      block_id: 'form_handle',
+      label: {
+        type: 'plain_text',
+        text: `Email Handle, e.g. 'olivia'`,
+      },
+      element: {
+        type: 'plain_text_input',
+        action_id: `${ COMMAND_NAME }:email_handle`,
+        placeholder: {
+          type: 'plain_text',
+          text: 'olivia',
+        },
+      },
+    },
+    {
+      type: 'input',
+      block_id: 'form_first_name',
+      label: {
+        type: 'plain_text',
+        text: 'First name',
+      },
+      element: {
+        type: 'plain_text_input',
+        action_id: `${ COMMAND_NAME }:first_name`,
+        placeholder: {
+          type: 'plain_text',
+          text: 'Enter first name',
+        },
+      },
+    },
+    {
+      type: 'input',
+      block_id: 'form_last_name',
+      label: {
+        type: 'plain_text',
+        text: 'Last name',
+      },
+      element: {
+        type: 'plain_text_input',
+        action_id: `${ COMMAND_NAME }:last_name`,
+        placeholder: {
+          type: 'plain_text',
+          text: 'Enter last name',
+        },
+      },
+    },
+    {
+      type: 'input',
+      block_id: 'form_clothing_allowance',
+      label: {
+        type: 'plain_text',
+        text: 'Clothing allowance',
+      },
+      optional: true,
+      element: {
+        type: 'checkboxes',
+        action_id: `${ COMMAND_NAME }:add_clothing_allowance`,
+        options: [
+          {
+            text: {
+              type: 'plain_text',
+              text: 'Add initial clothing allowance?',
+            },
+            value: 'add_clothing_allowance',
+          },
+        ],
+      },
+    },
+    {
+      type: 'actions',
+      block_id: 'form_submit',
+      elements: [
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Submit',
+          },
+          action_id: `${ COMMAND_NAME }:submit`,
+          style: 'primary',
+        },
+      ],
+    },
+  ],
+};
+
 const slackInteractiveStaffOnboard = async (req, res) => {
   console.log('slackInteractiveStaffOnboard');
 
@@ -18,13 +108,7 @@ const slackInteractiveStaffOnboard = async (req, res) => {
     }
 
     const initialBlocks = [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `I don't do anything yet :hugging_face:`,
-        },
-      },
+      ...blocks.form,
     ];
 
     return respond(res, 200, {
