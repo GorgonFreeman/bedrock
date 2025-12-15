@@ -5,6 +5,8 @@ const { SLACK_CHANNELS_MANAGERS } = require('../bedrock_unlisted/constants');
 const COMMAND_NAME = 'staff_onboard'; // slash command
 const ALLOWED_CHANNELS = SLACK_CHANNELS_MANAGERS;
 
+// TODO: Migrate to modal for inbuilt submit/cancel and form validation
+
 const blocks = {
   form: [
     {
