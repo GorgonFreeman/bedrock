@@ -177,9 +177,9 @@ const slackInteractiveStaffOnboard = async (req, res) => {
         };
         break;
       }
-
-      // const { customerId } = result;  
-
+  
+      // TODO: link to customer account in Shopify admin  
+      
       response = {
         replace_original: 'true',
         text: `Staff onboarded successfully 🫡`,
