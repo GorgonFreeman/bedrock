@@ -1,6 +1,6 @@
 const { respond, logDeep, customAxios } = require('../utils');
 
-const COMMAND_NAME = 'slash_command'; // slash command
+const COMMAND_NAME = 'order_sync_check'; // slash command
 
 const slackInteractiveOrderSyncCheck = async (req, res) => {
   console.log('slackInteractiveOrderSyncCheck');
