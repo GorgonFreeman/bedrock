@@ -78,6 +78,14 @@ const blocks = {
           action_id: `${ COMMAND_NAME }:submit`,
           style: 'primary',
         },
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Cancel',
+          },
+          action_id: `${ COMMAND_NAME }:cancel`,
+        },
       ],
     },
   ],
