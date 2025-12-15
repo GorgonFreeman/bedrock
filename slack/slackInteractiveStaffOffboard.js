@@ -1,6 +1,10 @@
 const { respond, logDeep, customAxios } = require('../utils');
+const { slackCommandRestrictToChannels } = require('../slack/slack.utils');
+const { SLACK_CHANNELS_MANAGERS } = require('../bedrock_unlisted/constants');
 
 const COMMAND_NAME = 'staff_offboard'; // slash command
+const ALLOWED_CHANNELS = [...SLACK_CHANNELS_MANAGERS, 'foxtron_testing'];
+const STAFF_STORE = 'au';
 
 const slackInteractiveStaffOffboard = async (req, res) => {
   console.log('slackInteractiveStaffOffboard');
@@ -9,6 +13,10 @@ const slackInteractiveStaffOffboard = async (req, res) => {
   
   // If no payload, this is an initiation, e.g. slash command - send the initial blocks
   if (!body?.payload) {
+
+    if (!slackCommandRestrictToChannels(req, res, ALLOWED_CHANNELS)) {
+      return;
+    }
 
     const initialBlocks = [
       {
