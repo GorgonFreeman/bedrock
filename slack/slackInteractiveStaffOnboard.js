@@ -155,9 +155,9 @@ const slackInteractiveStaffOnboard = async (req, res) => {
       break;
 
     case 'submit':
-      const emailHandle = state?.values?.form_handle?.[`${ COMMAND_NAME }:email_handle`]?.value;
-      const firstName = state?.values?.form_first_name?.[`${ COMMAND_NAME }:first_name`]?.value;
-      const lastName = state?.values?.form_last_name?.[`${ COMMAND_NAME }:last_name`]?.value;
+      const emailHandle = state?.values?.form_handle?.[`${ COMMAND_NAME }:email_handle`]?.value?.trim();
+      const firstName = state?.values?.form_first_name?.[`${ COMMAND_NAME }:first_name`]?.value?.trim();
+      const lastName = state?.values?.form_last_name?.[`${ COMMAND_NAME }:last_name`]?.value?.trim();
       const addClothingAllowance = state?.values?.form_clothing_allowance?.[`${ COMMAND_NAME }:add_clothing_allowance`]?.selected_options?.length !== 0;
 
       const callResponse = await bedrock_unlisted_shopifyStaffCustomerOnboard(
