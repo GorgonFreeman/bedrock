@@ -3,7 +3,7 @@ const { slackCommandRestrictToChannels } = require('../slack/slack.utils');
 const { SLACK_CHANNELS_MANAGERS } = require('../bedrock_unlisted/constants');
 
 const COMMAND_NAME = 'staff_onboard'; // slash command
-const ALLOWED_CHANNELS = SLACK_CHANNELS_MANAGERS;
+const ALLOWED_CHANNELS = [...SLACK_CHANNELS_MANAGERS, 'foxtron_testing'];
 
 // TODO: Migrate to modal for inbuilt submit/cancel and form validation
 
