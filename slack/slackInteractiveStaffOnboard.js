@@ -12,15 +12,11 @@ const blocks = {
       block_id: 'form_handle',
       label: {
         type: 'plain_text',
-        text: `Email Handle, e.g. 'olivia'`,
+        text: `Email Handle, e.g. 'bailey'`,
       },
       element: {
         type: 'plain_text_input',
         action_id: `${ COMMAND_NAME }:email_handle`,
-        placeholder: {
-          type: 'plain_text',
-          text: 'olivia',
-        },
       },
     },
     {
@@ -33,10 +29,6 @@ const blocks = {
       element: {
         type: 'plain_text_input',
         action_id: `${ COMMAND_NAME }:first_name`,
-        placeholder: {
-          type: 'plain_text',
-          text: 'Enter first name',
-        },
       },
     },
     {
@@ -49,10 +41,6 @@ const blocks = {
       element: {
         type: 'plain_text_input',
         action_id: `${ COMMAND_NAME }:last_name`,
-        placeholder: {
-          type: 'plain_text',
-          text: 'Enter last name',
-        },
       },
     },
     {
