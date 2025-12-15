@@ -266,6 +266,7 @@ module.exports = {
   collabsInventoryReview: require('./collabs/collabsInventoryReview').collabsInventoryReviewApi,
   collabsInventorySync: require('./collabs/collabsInventorySync').collabsInventorySyncApi,
   collabsOrderFulfillmentFind: require('./collabs/collabsOrderFulfillmentFind').collabsOrderFulfillmentFindApi,
+  collabsOrderSyncCheck: require('./collabs/collabsOrderSyncCheck').collabsOrderSyncCheckApi,
   collabsOrderSyncMark: require('./collabs/collabsOrderSyncMark').collabsOrderSyncMarkApi,
   collabsOrderSyncReview: require('./collabs/collabsOrderSyncReview').collabsOrderSyncReviewApi,
   collabsOrderSyncReviewV2: require('./collabs/collabsOrderSyncReviewV2').collabsOrderSyncReviewV2Api,
