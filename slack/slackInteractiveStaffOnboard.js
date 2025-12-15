@@ -2,6 +2,8 @@ const { respond, logDeep, customAxios } = require('../utils');
 const { slackCommandRestrictToChannels } = require('../slack/slack.utils');
 const { SLACK_CHANNELS_MANAGERS } = require('../bedrock_unlisted/constants');
 
+const { bedrock_unlisted_shopifyStaffCustomerOnboard } = require('../bedrock_unlisted/bedrock_unlisted_shopifyStaffCustomerOnboard');
+
 const COMMAND_NAME = 'staff_onboard'; // slash command
 const ALLOWED_CHANNELS = [...SLACK_CHANNELS_MANAGERS, 'foxtron_testing'];
 
@@ -148,6 +150,35 @@ const slackInteractiveStaffOnboard = async (req, res) => {
     case 'cancel':
       response = {
         delete_original: 'true',
+      };
+      break;
+
+    case 'submit':
+      const emailHandle = state?.values?.form_handle?.email_handle?.value;
+      const firstName = state?.values?.form_first_name?.first_name?.value;
+      const lastName = state?.values?.form_last_name?.last_name?.value;
+      const addClothingAllowance = state?.values?.form_clothing_allowance?.selected_options?.length !== 0;
+
+      const callResponse = await bedrock_unlisted_shopifyStaffCustomerOnboard('au', emailHandle, {
+        ...firstName && { firstName },
+        ...lastName && { lastName },
+        ...addClothingAllowance && { addStoreCredit: true },
+      });
+
+      const { success, result } = callResponse;
+      if (!success) {
+        response = {
+          replace_original: 'true',
+          text: `Failed to onboard staff: ${ JSON.stringify(callResponse) }`,
+        };
+        break;
+      }
+
+      // const { customerId } = result;  
+
+      response = {
+        replace_original: 'true',
+        text: `Staff onboarded successfully: ${ JSON.stringify(callResponse) }`,
       };
       break;
 
