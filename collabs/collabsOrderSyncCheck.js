@@ -34,6 +34,10 @@ const collabsOrderSyncCheck = async (
   }
 
   if (pvxRelevant) {
+    const pvxColumns = ['Sales order no.','Order date'];
+    const pvxOrdersResponse = await peoplevoxReportGet('Orders Last 2 Days', { columns: pvxColumns });
+    logDeep(pvxOrdersResponse);
+    await askQuestion('?');
   }
 
   if (logiwaRelevant) {
@@ -42,10 +46,18 @@ const collabsOrderSyncCheck = async (
   if (bleckmannRelevant) {
   }
 
+  return {
+    success: true,
+    result: {},
+  };
 };
 
 const collabsOrderSyncCheckApi = funcApi(collabsOrderSyncCheck, {
+  requireHostedApiKey: true,
   argNames: ['region', 'options'],
+  validatorsByArg: {
+    region: Boolean,
+  },
 });
 
 module.exports = {
