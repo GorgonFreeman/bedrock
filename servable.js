@@ -280,6 +280,7 @@ module.exports = {
   bedrock_unlisted_shopifyStaffCustomerOffboard: require('./bedrock_unlisted/bedrock_unlisted_shopifyStaffCustomerOffboard').bedrock_unlisted_shopifyStaffCustomerOffboardApi,
   bedrock_unlisted_shopifyStaffCustomerOnboard: require('./bedrock_unlisted/bedrock_unlisted_shopifyStaffCustomerOnboard').bedrock_unlisted_shopifyStaffCustomerOnboardApi,
   bedrock_unlisted_shopifyTagCustomersWithNewWishlists: require('./bedrock_unlisted/bedrock_unlisted_shopifyTagCustomersWithNewWishlists').bedrock_unlisted_shopifyTagCustomersWithNewWishlistsApi,
+  bedrock_unlisted_shopifyTagsReview: require('./bedrock_unlisted/bedrock_unlisted_shopifyTagsReview').bedrock_unlisted_shopifyTagsReviewApi,
   bedrock_unlisted_shopifyWishlistDataMigrateIwishToCustom: require('./bedrock_unlisted/bedrock_unlisted_shopifyWishlistDataMigrateIwishToCustom').bedrock_unlisted_shopifyWishlistDataMigrateIwishToCustomApi,
   bedrock_unlisted_slackErrorPost: require('./bedrock_unlisted/bedrock_unlisted_slackErrorPost').bedrock_unlisted_slackErrorPostApi,
 };
