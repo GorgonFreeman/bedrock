@@ -67,7 +67,21 @@ const blocks = {
         })),
       },
     ],
-  }
+  },
+  cancel: {
+    type: 'actions',
+    elements: [
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Cancel',
+        },
+        value: 'cancel',
+        action_id: `${ COMMAND_NAME }:cancel`,
+      },
+    ],
+  },
 };
 
 const slackInteractiveCustomerDelete = async (req, res) => {
@@ -80,6 +94,7 @@ const slackInteractiveCustomerDelete = async (req, res) => {
 
     const initialBlocks = [
       ...blocks.email_select.ask,
+      blocks.cancel,
     ];
 
     return respond(res, 200, {
@@ -139,6 +154,7 @@ const slackInteractiveCustomerDelete = async (req, res) => {
             blocks: [
               blocks.email_select.display(emailAddress),
               ...blocks.store_select.ask,
+              blocks.cancel,
             ],
           };
           break;
@@ -210,6 +226,12 @@ const slackInteractiveCustomerDelete = async (req, res) => {
         text: `Customer ${ emailAddress } in ${ region.toUpperCase() } erased successfully! :tada:`,
       };
 
+      break;
+
+    case 'cancel':
+      response = {
+        delete_original: 'true',
+      };
       break;
 
     default:
