@@ -22,6 +22,12 @@ const collabsOrderSyncCheck = async (
   } = {},
 ) => {
 
+  const regionToShopifyStore = {
+    au: 'white-fox-boutique-aus',
+    us: 'white-fox-boutique-usa',
+    uk: 'white-fox-boutique-uk',
+  };
+
   const pvxRelevant = REGIONS_PVX.includes(region);
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
   const bleckmannRelevant = REGIONS_BLECKMANN.includes(region);
@@ -34,10 +40,44 @@ const collabsOrderSyncCheck = async (
   }
 
   if (pvxRelevant) {
-    const pvxColumns = ['Sales order no.','Order date'];
-    const pvxOrdersResponse = await peoplevoxReportGet('Orders Last 2 Days', { columns: pvxColumns });
-    logDeep(pvxOrdersResponse);
-    await askQuestion('?');
+
+    // Fetch peoplevox orders
+    const pvxOrdersResponse = await peoplevoxReportGet('Zwe: Order Sync Check');
+    const { success: pvxOrdersSuccess, result: pvxOrders } = pvxOrdersResponse;
+    if (!pvxOrdersSuccess) {
+      return {
+        success: false,
+        error: ['Failed to get Peoplevox orders'],
+      };
+    }
+    
+    // Get the latest sales order number
+    const latestSalesOrder = pvxOrders[pvxOrders.length - 1];
+
+    // Fetch the Shopify order
+    const shopifyOrdersResponse = await shopifyOrderGet(region, { orderId: latestSalesOrder['Sales order no.']}, { attrs: 'id name createdAt' });
+    const { success: shopifyOrdersSuccess, result: shopifyOrder } = shopifyOrdersResponse;
+    if (!shopifyOrdersSuccess) {
+      return {
+        success: false,
+        error: ['Failed to get latest Shopify order in PVX'],
+      };
+    }
+
+    const { id: shopifyOrderId, name: shopifyOrderName, createdAt: shopifyOrderCreatedAt } = shopifyOrder;
+    const orderDateTimeString = `${ new Date(shopifyOrderCreatedAt) }`;
+
+    return {
+      success: true,
+      result: {
+        latestNewOrder: {
+          name: shopifyOrderName,
+          id: shopifyOrderId,
+          link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ shopifyOrderId }`,
+          createdAtString: orderDateTimeString,
+        },
+      },
+    };
   }
 
   if (logiwaRelevant) {
