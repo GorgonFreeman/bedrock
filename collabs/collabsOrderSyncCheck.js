@@ -1,6 +1,6 @@
 // Check the latest WMS orders to establish how far behind the sync is
 
-const { funcApi, gidToId, askQuestion, logDeep } = require('../utils');
+const { funcApi, gidToId, askQuestion, logDeep, dateTimeFromNow, hours } = require('../utils');
 const {
   REGIONS_PVX,
   REGIONS_LOGIWA,
@@ -11,9 +11,7 @@ const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
-const { bleckmannPickticketsGetter } = require('../bleckmann/bleckmannPickticketsGet');
-
-const { logiwaOrdersGetter } = require('../logiwa/logiwaOrdersGet');
+const { logiwaOrdersGet } = require('../logiwa/logiwaOrdersGet');
 
 const collabsOrderSyncCheck = async (
   region,
@@ -64,6 +62,7 @@ const collabsOrderSyncCheck = async (
       };
     }
 
+    // Get the order details and format them for output
     const { id: shopifyOrderId, name: shopifyOrderName, createdAt: shopifyOrderCreatedAt } = shopifyOrder;
     const orderDateTimeString = `${ new Date(shopifyOrderCreatedAt) }`;
 
@@ -81,6 +80,58 @@ const collabsOrderSyncCheck = async (
   }
 
   if (logiwaRelevant) {
+
+    // Fetch logiwa orders
+    const logiwaOrdersResponse = await logiwaOrdersGet({
+      createdDateTime_bt: `${ dateTimeFromNow({ minus: hours(1) }) },${ dateTimeFromNow() }`,
+    });
+    const { success: logiwaOrdersSuccess, result: logiwaOrders } = logiwaOrdersResponse;
+    if (!logiwaOrdersSuccess) {
+      return {
+        success: false,
+        error: ['Failed to get logiwa orders'],
+      };
+    }
+
+    // Find the latest logiwa order by createdDateTime
+    const latestLogiwaOrder = logiwaOrders.reduce((latest, curr) => {
+      if (!latest) return curr;
+      return new Date(curr.createdDateTime) > new Date(latest.createdDateTime) ? curr : latest;
+    }, null);
+
+    if (!latestLogiwaOrder) {
+      return {
+        success: false,
+        error: ['Error finding latest logiwa order'],
+      };
+    }
+    const { code: logiwaOrderCode } = latestLogiwaOrder;
+
+    // Fetch the Shopify order
+    const shopifyOrderResponse = await shopifyOrderGet(region, { orderName: logiwaOrderCode }, { attrs: 'id name createdAt' });
+    const { success: shopifyOrderSuccess, result: shopifyOrder } = shopifyOrderResponse;
+    if (!shopifyOrderSuccess) {
+      return {
+        success: false,
+        error: ['Failed to get latest Shopify order in Logiwa'],
+      };
+    }
+
+    // Get the order details and format them for output
+    const { id: shopifyOrderId, name: shopifyOrderName, createdAt: shopifyOrderCreatedAt } = shopifyOrder;
+    const orderDateTimeString = `${ new Date(shopifyOrderCreatedAt) }`;
+
+    return {
+      success: true,
+      result: {
+        latestNewOrder: {
+          name: shopifyOrderName,
+          id: shopifyOrderId,
+          link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ shopifyOrderId }`,
+          createdAtString: orderDateTimeString,
+        },
+      },
+    };
   }
 
   if (bleckmannRelevant) {
