@@ -13,6 +13,8 @@ const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
 const { logiwaOrdersGet } = require('../logiwa/logiwaOrdersGet');
 
+const { bleckmannPickticketsGet } = require('../bleckmann/bleckmannPickticketsGet');
+
 const collabsOrderSyncCheck = async (
   region,
   {
@@ -135,6 +137,59 @@ const collabsOrderSyncCheck = async (
   }
 
   if (bleckmannRelevant) {
+
+    // Fetch bleckmann picktickets
+    const bleckmannPickticketsResponse = await bleckmannPickticketsGet({
+      createdFrom: `${ dateTimeFromNow({ minus: hours(1) }) }`.replace(/\.\d{3}Z$/, 'Z'),
+    });
+    const { success: bleckmannPickticketsSuccess, result: bleckmannPicktickets } = bleckmannPickticketsResponse;
+    if (!bleckmannPickticketsSuccess) {
+      return {
+        success: false,
+        error: ['Failed to get bleckmann picktickets'],
+      };
+    }
+
+    // Find the order with the max creationDateTime (parse as date for comparison)
+    const latestBleckmannOrder = bleckmannPicktickets.reduce((latest, curr) => {
+      if (!latest) return curr;
+      const latestDate = new Date(latest.creationDateTime);
+      const currDate = new Date(curr.creationDateTime);
+      return currDate > latestDate ? curr : latest;
+    }, null);
+    if (!latestBleckmannOrder) {
+      return {
+        success: false,
+        error: ['Error finding latest bleckmann order'],
+      };
+    }
+    const { reference: bleckmannOrderReference } = latestBleckmannOrder;
+
+    // Fetch the Shopify order
+    const shopifyOrderResponse = await shopifyOrderGet(region, { orderId: bleckmannOrderReference }, { attrs: 'id name createdAt' });
+    const { success: shopifyOrderSuccess, result: shopifyOrder } = shopifyOrderResponse;
+    if (!shopifyOrderSuccess) {
+      return {
+        success: false,
+        error: ['Failed to get latest Shopify order in Bleckmann'],
+      };
+    }
+
+    // Get the order details and format them for output
+    const { id: shopifyOrderId, name: shopifyOrderName, createdAt: shopifyOrderCreatedAt } = shopifyOrder;
+    const orderDateTimeString = `${ new Date(shopifyOrderCreatedAt) }`;
+
+    return {
+      success: true,
+      result: {
+        latestNewOrder: {
+          name: shopifyOrderName,
+          id: shopifyOrderId,
+          link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ shopifyOrderId }`,
+          createdAtString: orderDateTimeString,
+        },
+      },
+    };
   }
 
   return {
