@@ -195,26 +195,25 @@ const collabsInventoryReview = async (
     if (logiwaRelevant) {
 
       const creds = credsByPath(['logiwa']);
-      const { CLIENT_ID } = creds;
-      if (!CLIENT_ID) {
+      const { WAREHOUSE_ID } = creds;
+      if (!WAREHOUSE_ID) {
         return {
           success: false,
-          error: ['No client ID found, add to logiwa creds'],
+          error: ['No warehouse ID found, add to logiwa creds'],
         };
       }
 
       const logiwaInventoryResponse = await logiwaAsyncReportDo(
         {
           reportTypeCode: 'available_to_promise',
-          filter: `ClientIdentifier.eq=${ CLIENT_ID }`,
+          filter: `WarehouseIdentifier.eq=${ WAREHOUSE_ID }`,
         },
       );
 
       const {
         success: logiwaInventorySuccess,
         result: logiwaInventory,
-      } = logiwaInventoryResponse;
-      if (!logiwaInventorySuccess) {
+      } = logiwaInventoryResponse;      if (!logiwaInventorySuccess) {
         return logiwaInventoryResponse;
       }
 
