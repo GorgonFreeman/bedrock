@@ -8,6 +8,7 @@ const {
 } = require('../constants');
 
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
+const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
 
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
@@ -26,6 +27,19 @@ const collabsOrderSyncCheck = async (
     au: 'white-fox-boutique-aus',
     us: 'white-fox-boutique-usa',
     uk: 'white-fox-boutique-uk',
+  };
+
+  const shopifyFetchLastFulfilledOrder = async (region) => {
+    const shopifyOrdersResponse = await shopifyOrdersGet(region, {
+      attrs: 'id name displayFulfillmentStatus createdAt updatedAt processedAt metafield (namespace: "shipping", key: "method") { value }',
+      queries: [
+        'fulfillment_status:fulfilled',
+        `updated_at:>${ dateTimeFromNow({ minus: hours(1) }) }`,
+      ],
+      sortKey:'PROCESSED_AT',
+      reverse: true,
+    });
+    return shopifyOrdersResponse;
   };
 
   const pvxRelevant = REGIONS_PVX.includes(region);
@@ -68,14 +82,50 @@ const collabsOrderSyncCheck = async (
     const { id: shopifyOrderId, name: shopifyOrderName, createdAt: shopifyOrderCreatedAt } = shopifyOrder;
     const orderDateTimeString = `${ new Date(shopifyOrderCreatedAt) }`;
 
+    // Fetch the Shopify orders that have been fulfilled
+    const shopifyRecentFulfilledOrdersResponse = await shopifyFetchLastFulfilledOrder(region);
+    const { success: shopifyRecentFulfilledOrdersSuccess, result: shopifyRecentFulfilledOrders } = shopifyRecentFulfilledOrdersResponse;
+    if (!shopifyRecentFulfilledOrdersSuccess) {
+      return {
+        success: false,
+        error: ['Failed to get recent fulfilled Shopify orders'],
+      };
+    }
+
+    // Find the last fulfilled order that has a shipping method metafield
+    const shopifyLastFulfilledOrder = shopifyRecentFulfilledOrders.find(order => order.metafield?.value !== null);
+    if (!shopifyLastFulfilledOrder) {
+      return {
+        success: false,
+        error: [`No orders fulfilled in the last hour ${ region.toUpperCase() }`],
+      };
+    }
+
+    const {
+      id: shopifyLastFulfilledOrderId,
+      name: shopifyLastFulfilledOrderName,
+      displayFulfillmentStatus: shopifyLastFulfilledOrderDisplayFulfillmentStatus,
+      createdAt: shopifyLastFulfilledOrderCreatedAt,
+      processedAt: shopifyLastFulfilledOrderProcessedAt,
+    } = shopifyLastFulfilledOrder;
+    const lastFulfilledOrderCreatedAtString = `${ new Date(shopifyLastFulfilledOrderCreatedAt) }`;
+    const lastFulfilledOrderProcessedAtString = `${ new Date(shopifyLastFulfilledOrderProcessedAt) }`;
+
     return {
       success: true,
       result: {
         latestNewOrder: {
           name: shopifyOrderName,
-          id: shopifyOrderId,
-          link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ shopifyOrderId }`,
+          id: gidToId(shopifyOrderId),
+          link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyOrderId) }`,
           createdAtString: orderDateTimeString,
+        },
+        lastFulfilledOrder: {
+          name: shopifyLastFulfilledOrderName,
+          id: gidToId(shopifyLastFulfilledOrderId),
+          link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyLastFulfilledOrderId) }`,
+          createdAtString: lastFulfilledOrderCreatedAtString,
+          processedAtString: lastFulfilledOrderProcessedAtString,
         },
       },
     };
