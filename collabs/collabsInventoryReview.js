@@ -313,15 +313,17 @@ const collabsInventoryReview = async (
   const inventoryReviewObj = {};
 
   for (const [sku, shopifyQty] of Object.entries(shopifyInventoryObj)) {
+    const shopifyQtyNormalised = Math.max(0, Number(shopifyQty));
     const wmsQty = wmsInventoryObj[sku] || 0; // If inventory wasn't found in WMS, set to 0
-    const diff = shopifyQty - wmsQty;
+    const wmsQtyNormalised = Math.max(0, Number(wmsQty));
+    const diff = shopifyQtyNormalised - wmsQtyNormalised;
     const oversellRisk = diff > 0;
     const absDiff = Math.abs(diff);
-    const safeToImport = oversellRisk || shopifyQty === 0;
+    const safeToImport = oversellRisk || shopifyQtyNormalised === 0;
 
     inventoryReviewObj[sku] = {
-      shopifyQty,
-      wmsQty,
+      shopifyQty: shopifyQtyNormalised,
+      wmsQty: wmsQtyNormalised,
       oversellRisk,
       absDiff,
       safeToImport,
