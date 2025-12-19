@@ -228,7 +228,7 @@ const collabsInventoryReview = async (
       for (const inventoryItem of logiwaInventory) {
         const { 
           'ProductSku': sku, 
-          'CurrentATPQuantity': wmsQty,
+          'SellableQuantity': wmsQty,
         } = inventoryItem;
 
         if (wmsInventoryObj[sku]) {

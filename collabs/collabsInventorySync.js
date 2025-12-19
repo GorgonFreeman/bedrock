@@ -162,7 +162,7 @@ const collabsInventorySync = async (
       return logiwaReportResponse;
     }
 
-    wmsInventoryObj = arrayToObj(logiwaInventory, { uniqueKeyProp: 'productSku', keepOnlyValueProp: 'inventoryATPQuantity' });
+    wmsInventoryObj = arrayToObj(logiwaInventory, { uniqueKeyProp: 'productSku', keepOnlyValueProp: 'sellableQuantity' });
     !HOSTED && logDeep('wmsInventoryObj', wmsInventoryObj);
   }
 
