@@ -213,7 +213,8 @@ const collabsInventoryReview = async (
       const {
         success: logiwaInventorySuccess,
         result: logiwaInventory,
-      } = logiwaInventoryResponse;      if (!logiwaInventorySuccess) {
+      } = logiwaInventoryResponse;
+      if (!logiwaInventorySuccess) {
         return logiwaInventoryResponse;
       }
 
@@ -250,8 +251,7 @@ const collabsInventoryReview = async (
       }
 
       const pvxInventoryResponse = await peoplevoxReportGet(
-        'Item inventory summary', 
-        {
+        'Item inventory summary',         {
           searchClause: `([Site reference].Equals("${ pvxSite }"))`, 
           columns: ['Item code', 'Available'], 
         },
@@ -304,8 +304,7 @@ const collabsInventoryReview = async (
           continue;
         }
 
-        const bleckmannAvailable = quantityTotal - quantityLocked;
-        wmsInventoryObj[sku] = bleckmannAvailable;
+        const bleckmannAvailable = quantityTotal - quantityLocked;        wmsInventoryObj[sku] = bleckmannAvailable;
       }
     }
   }
