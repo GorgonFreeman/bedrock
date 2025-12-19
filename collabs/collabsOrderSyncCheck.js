@@ -30,11 +30,18 @@ const collabsOrderSyncCheck = async (
   };
 
   const shopifyFetchLastFulfilledOrder = async (region) => {
+
+    const startDateTime = {
+      au: `${ dateTimeFromNow({ minus: hours(1) }) }`, // AEDT - 1 hour ago
+      uk: `${ dateTimeFromNow({ minus: hours(12) }) }`, // GMT - AEDT is 11 hours behind, -12 hours accounts for -1 hour AEDT
+      us: `${ dateTimeFromNow({ minus: hours(16) }) }`, // EST - AEDT is 15 hours behind, -16 hours accounts for -1 hour AEDT
+    };
+
     const shopifyOrdersResponse = await shopifyOrdersGet(region, {
       attrs: 'id name displayFulfillmentStatus createdAt updatedAt processedAt metafield (namespace: "shipping", key: "method") { value }',
       queries: [
         'fulfillment_status:fulfilled',
-        `updated_at:>${ dateTimeFromNow({ minus: hours(1) }) }`,
+        `processed_at:>${ startDateTime[region] }`,
       ],
       sortKey:'PROCESSED_AT',
       reverse: true,
@@ -157,7 +164,9 @@ const collabsOrderSyncCheck = async (
         error: ['Error finding latest logiwa order'],
       };
     }
-    const { code: logiwaOrderCode } = latestLogiwaOrder;
+    let { code: logiwaOrderCode } = latestLogiwaOrder;
+    // Remove trailing digits from the code if present
+    logiwaOrderCode = logiwaOrderCode.replace(/([.-])\d+$/, '');
 
     // Fetch the Shopify order
     const shopifyOrderResponse = await shopifyOrderGet(region, { orderName: logiwaOrderCode }, { attrs: 'id name createdAt' });
@@ -173,14 +182,49 @@ const collabsOrderSyncCheck = async (
     const { id: shopifyOrderId, name: shopifyOrderName, createdAt: shopifyOrderCreatedAt } = shopifyOrder;
     const orderDateTimeString = `${ new Date(shopifyOrderCreatedAt) }`;
 
+    // Fetch the Shopify orders that have been fulfilled
+    const shopifyRecentFulfilledOrdersResponse = await shopifyFetchLastFulfilledOrder(region);
+    const { success: shopifyRecentFulfilledOrdersSuccess, result: shopifyRecentFulfilledOrders } = shopifyRecentFulfilledOrdersResponse;
+    if (!shopifyRecentFulfilledOrdersSuccess) {
+      return {
+        success: false,
+        error: ['Failed to get recent fulfilled Shopify orders'],
+      };
+    }
+
+    // Find the last fulfilled order that has a shipping method metafield
+    const shopifyLastFulfilledOrder = shopifyRecentFulfilledOrders.find(order => order.metafield?.value !== null);
+    if (!shopifyLastFulfilledOrder) {
+      return {
+        success: false,
+        error: [`No orders fulfilled in the last hour ${ region.toUpperCase() }`],
+      };
+    }
+
+    const {
+      id: shopifyLastFulfilledOrderId,
+      name: shopifyLastFulfilledOrderName,
+      createdAt: shopifyLastFulfilledOrderCreatedAt,
+      processedAt: shopifyLastFulfilledOrderProcessedAt,
+    } = shopifyLastFulfilledOrder;
+    const lastFulfilledOrderCreatedAtString = `${ new Date(shopifyLastFulfilledOrderCreatedAt) }`;
+    const lastFulfilledOrderProcessedAtString = `${ new Date(shopifyLastFulfilledOrderProcessedAt) }`;
+
     return {
       success: true,
       result: {
         latestNewOrder: {
           name: shopifyOrderName,
           id: shopifyOrderId,
-          link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ shopifyOrderId }`,
+          link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyOrderId) }`,
           createdAtString: orderDateTimeString,
+        },
+        lastFulfilledOrder: {
+          name: shopifyLastFulfilledOrderName,
+          id: gidToId(shopifyLastFulfilledOrderId),
+          link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyLastFulfilledOrderId) }`,
+          createdAtString: lastFulfilledOrderCreatedAtString,
+          processedAtString: lastFulfilledOrderProcessedAtString,
         },
       },
     };
@@ -229,14 +273,49 @@ const collabsOrderSyncCheck = async (
     const { id: shopifyOrderId, name: shopifyOrderName, createdAt: shopifyOrderCreatedAt } = shopifyOrder;
     const orderDateTimeString = `${ new Date(shopifyOrderCreatedAt) }`;
 
+    // Fetch the Shopify orders that have been fulfilled
+    const shopifyRecentFulfilledOrdersResponse = await shopifyFetchLastFulfilledOrder(region);
+    const { success: shopifyRecentFulfilledOrdersSuccess, result: shopifyRecentFulfilledOrders } = shopifyRecentFulfilledOrdersResponse;
+    if (!shopifyRecentFulfilledOrdersSuccess) {
+      return {
+        success: false,
+        error: ['Failed to get recent fulfilled Shopify orders'],
+      };
+    }
+
+    // Find the last fulfilled order that has a shipping method metafield
+    const shopifyLastFulfilledOrder = shopifyRecentFulfilledOrders.find(order => order.metafield?.value !== null);
+    if (!shopifyLastFulfilledOrder) {
+      return {
+        success: false,
+        error: [`No orders fulfilled in the last hour ${ region.toUpperCase() }`],
+      };
+    }
+
+    const {
+      id: shopifyLastFulfilledOrderId,
+      name: shopifyLastFulfilledOrderName,
+      createdAt: shopifyLastFulfilledOrderCreatedAt,
+      processedAt: shopifyLastFulfilledOrderProcessedAt,
+    } = shopifyLastFulfilledOrder;
+    const lastFulfilledOrderCreatedAtString = `${ new Date(shopifyLastFulfilledOrderCreatedAt) }`;
+    const lastFulfilledOrderProcessedAtString = `${ new Date(shopifyLastFulfilledOrderProcessedAt) }`;
+
     return {
       success: true,
       result: {
         latestNewOrder: {
           name: shopifyOrderName,
           id: shopifyOrderId,
-          link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ shopifyOrderId }`,
+          link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyOrderId) }`,
           createdAtString: orderDateTimeString,
+        },
+        lastFulfilledOrder: {
+          name: shopifyLastFulfilledOrderName,
+          id: gidToId(shopifyLastFulfilledOrderId),
+          link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyLastFulfilledOrderId) }`,
+          createdAtString: lastFulfilledOrderCreatedAtString,
+          processedAtString: lastFulfilledOrderProcessedAtString,
         },
       },
     };
