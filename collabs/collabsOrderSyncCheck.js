@@ -1,4 +1,4 @@
-// Check the latest WMS orders to establish how far behind the sync is
+// Check the last sales order to establish how far behind the sync is
 
 const { funcApi, gidToId, askQuestion, logDeep, dateTimeFromNow, hours } = require('../utils');
 const {
@@ -76,16 +76,16 @@ const collabsOrderSyncCheck = async (
       };
     }
     
-    // Get the latest sales order number
-    const latestSalesOrder = pvxOrders[pvxOrders.length - 1];
+    // Get the last sales order number
+    const lastSalesOrder = pvxOrders[pvxOrders.length - 1];
 
     // Fetch the Shopify order
-    const shopifyOrdersResponse = await shopifyOrderGet(region, { orderId: latestSalesOrder['Sales order no.']}, { attrs: 'id name createdAt' });
+    const shopifyOrdersResponse = await shopifyOrderGet(region, { orderId: lastSalesOrder['Sales order no.']}, { attrs: 'id name createdAt' });
     const { success: shopifyOrdersSuccess, result: shopifyOrder } = shopifyOrdersResponse;
     if (!shopifyOrdersSuccess) {
       return {
         success: false,
-        error: ['Failed to get latest Shopify order in PVX'],
+        error: ['Failed to get last Shopify order in PVX'],
       };
     }
 
@@ -122,7 +122,7 @@ const collabsOrderSyncCheck = async (
     return {
       success: true,
       result: {
-        latestNewOrder: {
+        lastNewOrder: {
           name: shopifyOrderName,
           id: gidToId(shopifyOrderId),
           link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyOrderId) }`,
@@ -153,19 +153,19 @@ const collabsOrderSyncCheck = async (
       };
     }
 
-    // Find the latest logiwa order by createdDateTime
-    const latestLogiwaOrder = logiwaOrders.reduce((latest, curr) => {
-      if (!latest) return curr;
-      return new Date(curr.createdDateTime) > new Date(latest.createdDateTime) ? curr : latest;
+    // Find the last logiwa order by createdDateTime
+    const lastLogiwaOrder = logiwaOrders.reduce((last, curr) => {
+      if (!last) return curr;
+      return new Date(curr.createdDateTime) > new Date(last.createdDateTime) ? curr : last;
     }, null);
 
-    if (!latestLogiwaOrder) {
+    if (!lastLogiwaOrder) {
       return {
         success: false,
-        error: ['Error finding latest logiwa order'],
+        error: ['Error finding last logiwa order'],
       };
     }
-    let { code: logiwaOrderCode } = latestLogiwaOrder;
+    let { code: logiwaOrderCode } = lastLogiwaOrder;
     // Remove trailing digits from the code if present
     logiwaOrderCode = logiwaOrderCode.replace(/([.-])\d+$/, '');
 
@@ -175,7 +175,7 @@ const collabsOrderSyncCheck = async (
     if (!shopifyOrderSuccess) {
       return {
         success: false,
-        error: ['Failed to get latest Shopify order in Logiwa'],
+        error: ['Failed to get last Shopify order in Logiwa'],
       };
     }
 
@@ -211,7 +211,7 @@ const collabsOrderSyncCheck = async (
     return {
       success: true,
       result: {
-        latestNewOrder: {
+        lastNewOrder: {
           name: shopifyOrderName,
           id: shopifyOrderId,
           link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyOrderId) }`,
@@ -243,19 +243,19 @@ const collabsOrderSyncCheck = async (
     }
 
     // Find the order with the max creationDateTime (parse as date for comparison)
-    const latestBleckmannOrder = bleckmannPicktickets.reduce((latest, curr) => {
-      if (!latest) return curr;
-      const latestDate = new Date(latest.creationDateTime);
+    const lastBleckmannOrder = bleckmannPicktickets.reduce((last, curr) => {
+      if (!last) return curr;
+      const lastDate = new Date(last.creationDateTime);
       const currDate = new Date(curr.creationDateTime);
-      return currDate > latestDate ? curr : latest;
+      return currDate > lastDate ? curr : last;
     }, null);
-    if (!latestBleckmannOrder) {
+    if (!lastBleckmannOrder) {
       return {
         success: false,
-        error: ['Error finding latest bleckmann order'],
+        error: ['Error finding last bleckmann order'],
       };
     }
-    const { reference: bleckmannOrderReference } = latestBleckmannOrder;
+    const { reference: bleckmannOrderReference } = lastBleckmannOrder;
 
     // Fetch the Shopify order
     const shopifyOrderResponse = await shopifyOrderGet(region, { orderId: bleckmannOrderReference }, { attrs: 'id name createdAt' });
@@ -263,7 +263,7 @@ const collabsOrderSyncCheck = async (
     if (!shopifyOrderSuccess) {
       return {
         success: false,
-        error: ['Failed to get latest Shopify order in Bleckmann'],
+        error: ['Failed to get last Shopify order in Bleckmann'],
       };
     }
 
@@ -299,7 +299,7 @@ const collabsOrderSyncCheck = async (
     return {
       success: true,
       result: {
-        latestNewOrder: {
+        lastNewOrder: {
           name: shopifyOrderName,
           id: shopifyOrderId,
           link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyOrderId) }`,
