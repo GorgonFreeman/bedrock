@@ -49,6 +49,10 @@ const collabsOrderSyncCheck = async (
     return shopifyOrdersResponse;
   };
 
+  const formatDateTimeString = (dateTime) => {
+    return `${ new Date(dateTime) }`;
+  };
+
   const pvxRelevant = REGIONS_PVX.includes(region);
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
   const bleckmannRelevant = REGIONS_BLECKMANN.includes(region);
@@ -87,7 +91,6 @@ const collabsOrderSyncCheck = async (
 
     // Get the order details and format them for output
     const { id: shopifyOrderId, name: shopifyOrderName, createdAt: shopifyOrderCreatedAt } = shopifyOrder;
-    const orderDateTimeString = `${ new Date(shopifyOrderCreatedAt) }`;
 
     // Fetch the Shopify orders that have been fulfilled
     const shopifyRecentFulfilledOrdersResponse = await shopifyFetchLastFulfilledOrder(region);
@@ -115,8 +118,6 @@ const collabsOrderSyncCheck = async (
       createdAt: shopifyLastFulfilledOrderCreatedAt,
       processedAt: shopifyLastFulfilledOrderProcessedAt,
     } = shopifyLastFulfilledOrder;
-    const lastFulfilledOrderCreatedAtString = `${ new Date(shopifyLastFulfilledOrderCreatedAt) }`;
-    const lastFulfilledOrderProcessedAtString = `${ new Date(shopifyLastFulfilledOrderProcessedAt) }`;
 
     return {
       success: true,
@@ -125,14 +126,14 @@ const collabsOrderSyncCheck = async (
           name: shopifyOrderName,
           id: gidToId(shopifyOrderId),
           link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyOrderId) }`,
-          createdAtString: orderDateTimeString,
+          createdAtString: formatDateTimeString(shopifyOrderCreatedAt),
         },
         lastFulfilledOrder: {
           name: shopifyLastFulfilledOrderName,
           id: gidToId(shopifyLastFulfilledOrderId),
           link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyLastFulfilledOrderId) }`,
-          createdAtString: lastFulfilledOrderCreatedAtString,
-          processedAtString: lastFulfilledOrderProcessedAtString,
+          createdAtString: formatDateTimeString(shopifyLastFulfilledOrderCreatedAt),
+          processedAtString: formatDateTimeString(shopifyLastFulfilledOrderProcessedAt),
         },
       },
     };
@@ -180,7 +181,6 @@ const collabsOrderSyncCheck = async (
 
     // Get the order details and format them for output
     const { id: shopifyOrderId, name: shopifyOrderName, createdAt: shopifyOrderCreatedAt } = shopifyOrder;
-    const orderDateTimeString = `${ new Date(shopifyOrderCreatedAt) }`;
 
     // Fetch the Shopify orders that have been fulfilled
     const shopifyRecentFulfilledOrdersResponse = await shopifyFetchLastFulfilledOrder(region);
@@ -207,8 +207,6 @@ const collabsOrderSyncCheck = async (
       createdAt: shopifyLastFulfilledOrderCreatedAt,
       processedAt: shopifyLastFulfilledOrderProcessedAt,
     } = shopifyLastFulfilledOrder;
-    const lastFulfilledOrderCreatedAtString = `${ new Date(shopifyLastFulfilledOrderCreatedAt) }`;
-    const lastFulfilledOrderProcessedAtString = `${ new Date(shopifyLastFulfilledOrderProcessedAt) }`;
 
     return {
       success: true,
@@ -217,14 +215,14 @@ const collabsOrderSyncCheck = async (
           name: shopifyOrderName,
           id: shopifyOrderId,
           link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyOrderId) }`,
-          createdAtString: orderDateTimeString,
+          createdAtString: formatDateTimeString(shopifyOrderCreatedAt),
         },
         lastFulfilledOrder: {
           name: shopifyLastFulfilledOrderName,
           id: gidToId(shopifyLastFulfilledOrderId),
           link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyLastFulfilledOrderId) }`,
-          createdAtString: lastFulfilledOrderCreatedAtString,
-          processedAtString: lastFulfilledOrderProcessedAtString,
+          createdAtString: formatDateTimeString(shopifyLastFulfilledOrderCreatedAt),
+          processedAtString: formatDateTimeString(shopifyLastFulfilledOrderProcessedAt),
         },
       },
     };
@@ -271,7 +269,6 @@ const collabsOrderSyncCheck = async (
 
     // Get the order details and format them for output
     const { id: shopifyOrderId, name: shopifyOrderName, createdAt: shopifyOrderCreatedAt } = shopifyOrder;
-    const orderDateTimeString = `${ new Date(shopifyOrderCreatedAt) }`;
 
     // Fetch the Shopify orders that have been fulfilled
     const shopifyRecentFulfilledOrdersResponse = await shopifyFetchLastFulfilledOrder(region);
@@ -298,8 +295,6 @@ const collabsOrderSyncCheck = async (
       createdAt: shopifyLastFulfilledOrderCreatedAt,
       processedAt: shopifyLastFulfilledOrderProcessedAt,
     } = shopifyLastFulfilledOrder;
-    const lastFulfilledOrderCreatedAtString = `${ new Date(shopifyLastFulfilledOrderCreatedAt) }`;
-    const lastFulfilledOrderProcessedAtString = `${ new Date(shopifyLastFulfilledOrderProcessedAt) }`;
 
     return {
       success: true,
@@ -308,14 +303,14 @@ const collabsOrderSyncCheck = async (
           name: shopifyOrderName,
           id: shopifyOrderId,
           link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyOrderId) }`,
-          createdAtString: orderDateTimeString,
+          createdAtString: formatDateTimeString(shopifyOrderCreatedAt),
         },
         lastFulfilledOrder: {
           name: shopifyLastFulfilledOrderName,
           id: gidToId(shopifyLastFulfilledOrderId),
           link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyLastFulfilledOrderId) }`,
-          createdAtString: lastFulfilledOrderCreatedAtString,
-          processedAtString: lastFulfilledOrderProcessedAtString,
+          createdAtString: formatDateTimeString(shopifyLastFulfilledOrderCreatedAt),
+          processedAtString: formatDateTimeString(shopifyLastFulfilledOrderProcessedAt),
         },
       },
     };
