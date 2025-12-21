@@ -3,8 +3,8 @@ const { respond, logDeep, customAxios, askQuestion, arrayToObj, camelToReadable 
 const { REGIONS_WF } = require('../constants');
 const { collabsOrderSyncCheck } = require('../collabs/collabsOrderSyncCheck');
 
-// const COMMAND_NAME = 'order_sync_check'; // slash command
-const COMMAND_NAME = 'dev__order_sync_check'; // dev slash command for testing
+const COMMAND_NAME = 'order_sync_check'; // slash command
+// const COMMAND_NAME = 'dev__order_sync_check'; // dev slash command for testing
 
 const blocks = {
   intro: {
