@@ -38,7 +38,7 @@ const collabsOrderSyncCheck = async (
     };
 
     const shopifyOrdersResponse = await shopifyOrdersGet(region, {
-      attrs: 'id name displayFulfillmentStatus createdAt updatedAt processedAt metafield (namespace: "shipping", key: "method") { value }',
+      attrs: 'id name displayFulfillmentStatus requiresShipping createdAt updatedAt processedAt',
       queries: [
         'fulfillment_status:fulfilled',
         `processed_at:>${ startDateTime[region] }`,
@@ -102,8 +102,8 @@ const collabsOrderSyncCheck = async (
       };
     }
 
-    // Find the last fulfilled order that has a shipping method metafield
-    const shopifyLastFulfilledOrder = shopifyRecentFulfilledOrders.find(order => order.metafield?.value !== null);
+    // Find the last fulfilled order that requires shipping
+    const shopifyLastFulfilledOrder = shopifyRecentFulfilledOrders.find(order => order.requiresShipping);
     if (!shopifyLastFulfilledOrder) {
       return {
         success: false,
@@ -192,8 +192,8 @@ const collabsOrderSyncCheck = async (
       };
     }
 
-    // Find the last fulfilled order that has a shipping method metafield
-    const shopifyLastFulfilledOrder = shopifyRecentFulfilledOrders.find(order => order.metafield?.value !== null);
+    // Find the last fulfilled order that requires shipping
+    const shopifyLastFulfilledOrder = shopifyRecentFulfilledOrders.find(order => order.requiresShipping);
     if (!shopifyLastFulfilledOrder) {
       return {
         success: false,
@@ -280,8 +280,8 @@ const collabsOrderSyncCheck = async (
       };
     }
 
-    // Find the last fulfilled order that has a shipping method metafield
-    const shopifyLastFulfilledOrder = shopifyRecentFulfilledOrders.find(order => order.metafield?.value !== null);
+    // Find the last fulfilled order that requires shipping
+    const shopifyLastFulfilledOrder = shopifyRecentFulfilledOrders.find(order => order.requiresShipping);
     if (!shopifyLastFulfilledOrder) {
       return {
         success: false,
