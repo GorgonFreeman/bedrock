@@ -15,6 +15,7 @@ const commandNameToFunc = {
   'customer_bday_code_create': require('../bedrock_unlisted/bedrock_unlisted_slackInteractiveBirthdayDiscountCodeGenerate'),
   'shipping_rates_toggle': require('../slack/slackInteractiveShippingRatesToggleV2'),
   'order_sync_check': require('../slack/slackInteractiveOrderSyncCheck'),
+  'dev__order_sync_check': require('../slack/slackInteractiveOrderSyncCheck'),
 };
 
 const slackWebhookRouterApi = async (req, res) => {
