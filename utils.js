@@ -1841,9 +1841,11 @@ class MultiDex {
     return {
       items: this.items.length,
       primaryKeys: this.primaryKeys,
-      ...this.primaryKeys.map(key => ({
-        [key]: Object.keys(this[key]).length,
-      })),
+      ...Object.fromEntries(
+        this.primaryKeys.map(key => {
+          return [key, Object.keys(this[key]).length];
+        }),
+      ),
     };
   }
 }
