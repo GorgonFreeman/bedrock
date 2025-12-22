@@ -1,6 +1,7 @@
-const { funcApi, logDeep, askQuestion } = require('../utils');
+const { funcApi, logDeep, askQuestion, arrayStandardResponse } = require('../utils');
 
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
+const { shopifyMetafieldsSet } = require('../shopify/shopifyMetafieldsSet');
 
 const resourceToCommonIdProp = {
   product: 'handle',
@@ -112,7 +113,7 @@ const shopifyMetafieldValuesPropagate = async (
 
   logDeep('commonIdToStoreIdObject', commonIdToStoreIdObject);
 
-  const payloads = [];
+  const payloads = {};
 
   for (const fromResource of fromStoreData) {
     const {
@@ -188,20 +189,24 @@ const shopifyMetafieldValuesPropagate = async (
           value: desiredValue,
         };
         logDeep('payload', payload);
-
-        payloads.push(payload);
+        
+        payloads[toStore] = payloads[toStore] || [];
+        payloads[toStore].push(payload);
       }
     }
   }
 
   logDeep(payloads);
+  askQuestion('?');
 
-  // TODO: Action payloads
+  const responses = [];
 
-  return {
-    success: true,
-    result: payloads,
-  };
+  for (const [store, payloads] of Object.entries(payloads)) {
+    const metafieldsSetResponse = await shopifyMetafieldsSet(store, payloads);
+    responses.push(metafieldsSetResponse);
+  }
+
+  return arrayStandardResponse(responses);
 };
 
 const shopifyMetafieldValuesPropagateApi = funcApi(shopifyMetafieldValuesPropagate, {
