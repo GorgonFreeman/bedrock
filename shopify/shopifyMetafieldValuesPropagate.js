@@ -1,4 +1,4 @@
-const { funcApi, logDeep, askQuestion, arrayStandardResponse } = require('../utils');
+const { funcApi, logDeep, askQuestion, arrayStandardResponse, MultiDex } = require('../utils');
 
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
 const { shopifyMetafieldsSet } = require('../shopify/shopifyMetafieldsSet');
@@ -59,12 +59,18 @@ const shopifyMetafieldValuesPropagate = async (
       fromStore,
       'query',
       query,
+      {
+        apiVersion,
+      },
     ),
     ...toStores.map(toStore => {
       return shopifyBulkOperationDo(
         toStore,
         'query',
         query,
+        {
+          apiVersion,
+        },
       );
     }),
   ]);
@@ -82,55 +88,67 @@ const shopifyMetafieldValuesPropagate = async (
   const fromStoreData = fromStoreDataResponse.result;
   const toStoresData = toStoreDataResponses.map(response => response.result);
   
-  const commonIdToStoreIdObject = {};
+  const idDex = new MultiDex(fromStoreData, [commonIdProp, fromStore, ...toStores]);
   
   for (const resource of fromStoreData) {
     const { 
       id: resourceGid,
       [commonIdProp]: commonId,
+      ...resourceData
     } = resource;
 
-    // const resourceId = gidToId(gid);
+    const dataProp = `${ fromStore }Data`;
 
-    commonIdToStoreIdObject[commonId] = {
+    idDex.add({
+      [commonIdProp]: commonId,
       [fromStore]: resourceGid,
-    };
+      [dataProp]: resourceData,
+    });
   }
 
-  for (const [index, store] of toStores.entries()) {
+  for (const [index, toStore] of toStores.entries()) {
     const toStoreData = toStoresData[index];
     for (const resource of toStoreData) {
 
-      const {
+      const { 
         id: resourceGid,
         [commonIdProp]: commonId,
+        ...resourceData
       } = resource;
 
-      commonIdToStoreIdObject[commonId] = commonIdToStoreIdObject[commonId] || {};
-      commonIdToStoreIdObject[commonId][store] = resourceGid;
+      const dataProp = `${ toStore }Data`;
+
+      idDex.add({
+        [commonIdProp]: commonId,
+        [fromStore]: resourceGid,
+        [dataProp]: resourceData,
+      });
     }
   }
 
-  logDeep('commonIdToStoreIdObject', commonIdToStoreIdObject);
+  logDeep('idDex', idDex);
 
   const payloads = {};
 
   for (const fromResource of fromStoreData) {
+
     const {
       id: resourceGid,
       [commonIdProp]: commonId,
     } = fromResource;
 
+    const resource = idDex.get(commonIdProp, commonId);
+
     for (const [index, toStore] of toStores.entries()) {
-      const toStoreData = toStoresData[index];
-      const toResource = toStoreData.find(toResource => toResource[commonIdProp] === commonId);
+      const toStoreDataProp = `${ toStore }Data`;
+      const toStoreData = resource[toStoreDataProp];
 
       for (const metafieldPath of metafieldPaths) {
         const [namespace, key] = metafieldPath.split('.');
         const mfPropName = `${ namespace }__${ key }`;
 
         const mfFrom = fromResource[mfPropName];
-        const mfTo = toResource[mfPropName];
+        const mfTo = toStoreData[mfPropName];
 
         if (!mfFrom) {
           continue;
@@ -202,7 +220,7 @@ const shopifyMetafieldValuesPropagate = async (
   const responses = [];
 
   for (const [store, payloads] of Object.entries(payloads)) {
-    const metafieldsSetResponse = await shopifyMetafieldsSet(store, payloads);
+    const metafieldsSetResponse = await shopifyMetafieldsSet(store, payloads, { apiVersion });
     responses.push(metafieldsSetResponse);
   }
 

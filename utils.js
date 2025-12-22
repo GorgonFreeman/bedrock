@@ -1766,6 +1766,82 @@ const camelToReadable = (str) => {
     .replace(/^./, (firstLetter) => firstLetter.toUpperCase());
 };
 
+class MultiDex {
+  constructor({
+    items = [], 
+    primaryKeys = [],
+  } = {}) {
+    this.items = [];
+    this.primaryKeys = primaryKeys;
+    
+    primaryKeys.forEach(key => {
+      this[key] = {};
+    });
+    
+    if (items.length > 0) {
+      this.add(items);
+    }
+  }
+  
+  add(itemOrItems) {
+    if (!Array.isArray(itemOrItems)) {
+      itemOrItems = [itemOrItems];
+    }
+    const items = itemOrItems;
+    
+    items.forEach(newItem => {
+      // Check if this item matches any existing item by primary keys
+      let existingItem = null;
+      let matchedKey = null;
+      
+      for (const key of this.primaryKeys) {
+        if (newItem[key] !== undefined && this[key][newItem[key]]) {
+          if (existingItem === null) {
+            existingItem = this[key][newItem[key]];
+            matchedKey = key;
+          } else if (existingItem !== this[key][newItem[key]]) {
+            // Different items found - this is a clash
+            throw new Error(`Primary key clash: ${key}=${newItem[key]} belongs to a different item than ${matchedKey}=${newItem[matchedKey]}`);
+          }
+        }
+      }
+      
+      if (existingItem) {
+        // Supplement existing item
+        Object.assign(existingItem, newItem);
+        
+        // Update indexes for any new primary keys
+        this.primaryKeys.forEach(key => {
+          if (newItem[key] !== undefined) {
+            this[key][newItem[key]] = existingItem;
+          }
+        });
+      } else {
+        // Add as new item
+        this.items.push(newItem);
+        
+        this.primaryKeys.forEach(key => {
+          if (newItem[key] !== undefined) {
+            this[key][newItem[key]] = newItem;
+          }
+        });
+      }
+    });
+  }
+  
+  get(key, value) {
+    return this[key][value] || null;
+  }
+  
+  has(key, value) {
+    return value in this[key];
+  }
+  
+  size() {
+    return this.items.length;
+  }
+}
+
 module.exports = {
 
   // Really core
@@ -1840,4 +1916,5 @@ module.exports = {
   ProcessorPipeline,
   ThresholdActioner,
   Timer,
+  MultiDex,
 };
