@@ -1,53 +1,29 @@
-const { funcApi, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
-
-const defaultAttrs = `id`;
+const { funcApi } = require('../utils');
 
 const shopifyMetafieldValuesPropagate = async (
-  credsPath,
-  arg,
+  fromStore,
+  toStores,
+  resource,
+  metafieldPaths,
   {
     apiVersion,
     option,
   } = {},
 ) => {
-
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
+  return {
+    success: true,
+    result: `I don't do anything yet`,
   };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
-      apiVersion,
-    },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
-
-  logDeep(response);
-  return response;
 };
 
 const shopifyMetafieldValuesPropagateApi = funcApi(shopifyMetafieldValuesPropagate, {
-  argNames: ['credsPath', 'arg', 'options'],
+  argNames: ['fromStore', 'toStores', 'resource', 'metafieldPaths', 'options'],
+  validatorsByArg: {
+    fromStore: Boolean,
+    toStores: Array.isArray,
+    resource: Boolean,
+    metafieldPaths: Array.isArray,
+  },
 });
 
 module.exports = {
@@ -55,4 +31,4 @@ module.exports = {
   shopifyMetafieldValuesPropagateApi,
 };
 
-// curl localhost:8000/shopifyMetafieldValuesPropagate -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyMetafieldValuesPropagate -H "Content-Type: application/json" -d '{ "fromStore": "au", "toStores": ["us","uk"], "resource": "product", "metafieldPaths": ["specifications.how_to"] }'
