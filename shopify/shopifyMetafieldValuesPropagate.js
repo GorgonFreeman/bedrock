@@ -120,7 +120,7 @@ const shopifyMetafieldValuesPropagate = async (
       [commonIdProp]: commonId,
     } = fromResource;
 
-    for (const [index, store] of toStores.entries()) {
+    for (const [index, toStore] of toStores.entries()) {
       const toStoreData = toStoresData[index];
       const toResource = toStoreData.find(toResource => toResource[commonIdProp] === commonId);
 
