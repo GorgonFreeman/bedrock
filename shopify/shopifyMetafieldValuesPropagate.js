@@ -128,7 +128,8 @@ const shopifyMetafieldValuesPropagate = async (
       await askQuestion('?');
 
       for (const metafieldPath of metafieldPaths) {
-        const mfPropName = metafieldPath.split('.').join('__');
+        const [namespace, key] = metafieldPath.split('.');
+        const mfPropName = `${ namespace }__${ key }`;
 
         const mfFrom = fromResource[mfPropName];
         const mfTo = toResource[mfPropName];
@@ -157,30 +158,38 @@ const shopifyMetafieldValuesPropagate = async (
 
         const mfType = fromType;
 
+        let desiredValue = fromValue;
+        
+        // Transform any incomparable metafield values
         switch (mfType) {
 
           case 'list.product_reference':
-            // TODO: Logic to convert product IDs
-            break;
-
-          default:
-            const needsUpdate = fromValue !== toValue;
-            if (needsUpdate) {
-              payloads.push({
-                id: resourceGid,
-                metafieldPath,
-                fromValue,
-                toValue,
-              });
-            }
+            
+            desiredValue = fromValue.map(productGid => {
+              const toProductId = Object.values(commonIdToStoreIdObject).find(storeIdObject => storeIdObject[fromStore] === productGid)?.[toStore];
+              return toProductId;
+            });
             break;
         }
 
-        logDeep(metafieldPath, fromValue, toValue);
-        await askQuestion('?');
+        const needsUpdate = toValue !== desiredValue;
+
+        if (!needsUpdate) {
+          continue;
+        }
+
+        payloads.push({
+          ownerId: resourceGid,
+          namespace,
+          key,
+          type: mfType,
+          value: desiredValue,
+        });
       }
     }
   }
+
+  logDeep(payloads);
 
   return {
     success: true,
@@ -204,3 +213,4 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyMetafieldValuesPropagate -H "Content-Type: application/json" -d '{ "fromStore": "au", "toStores": ["us","uk"], "resource": "product", "metafieldPaths": ["specifications.how_to"] }'
+// curl localhost:8000/shopifyMetafieldValuesPropagate -H "Content-Type: application/json" -d '{ "fromStore": "au", "toStores": ["us","uk"], "resource": "product", "metafieldPaths": ["specifications.how_to", "specifications.fabrication", "specifications.ingredients", "specifications.size_and_fit", "related_products.siblings"] }'
