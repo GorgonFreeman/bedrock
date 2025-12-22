@@ -16,7 +16,7 @@ const shopifyMetafieldValuesPropagate = async (
   resources = resources || `${ resource }s`;
 
   const query = `{
-    ${ resource }s {
+    ${ resources } (query: "${ metafieldPaths.map(mfPath => `metafields.${ mfPath }:*`).join(' OR ') }") {
       edges {
         node {
           id
