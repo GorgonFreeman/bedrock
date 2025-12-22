@@ -1,5 +1,7 @@
 const { funcApi } = require('../utils');
 
+const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
+
 const shopifyMetafieldValuesPropagate = async (
   fromStore,
   toStores,
@@ -7,13 +9,37 @@ const shopifyMetafieldValuesPropagate = async (
   metafieldPaths,
   {
     apiVersion,
-    option,
+    resources,
   } = {},
 ) => {
-  return {
-    success: true,
-    result: `I don't do anything yet`,
-  };
+
+  resources = resources || `${ resource }s`;
+
+  const query = `{
+    ${ resource }s {
+      edges {
+        node {
+          id
+          ${ metafieldPaths.map(mfPath => {
+            const [namespace, key] = mfPath.split('.');
+            const mfPropName = `${ namespace }__${ key }`;
+            return `${ mfPropName }: metafield(namespace: "${ namespace }", key: "${ key }") { 
+              value
+              type
+            }`;
+          }) }
+        }
+      }
+    }
+  }`;
+
+  const fromStoreDataResponse = await shopifyBulkOperationDo(
+    fromStore,
+    'query',
+    query,
+  );
+
+  return fromStoreDataResponse;
 };
 
 const shopifyMetafieldValuesPropagateApi = funcApi(shopifyMetafieldValuesPropagate, {
