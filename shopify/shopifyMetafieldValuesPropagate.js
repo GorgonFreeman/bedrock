@@ -180,18 +180,23 @@ const shopifyMetafieldValuesPropagate = async (
           continue;
         }
 
-        payloads.push({
+        const payload = {
           ownerId: resourceGid,
           namespace,
           key,
           type: mfType,
           value: desiredValue,
-        });
+        };
+        logDeep('payload', payload);
+
+        payloads.push(payload);
       }
     }
   }
 
   logDeep(payloads);
+
+  // TODO: Action payloads
 
   return {
     success: true,
