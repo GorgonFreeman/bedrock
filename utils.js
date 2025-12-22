@@ -1767,14 +1767,17 @@ const camelToReadable = (str) => {
 };
 
 class MultiDex {
-  constructor({
-    items = [], 
-    primaryKeys = [],
-  } = {}) {
-    this.items = [];
+  constructor(
+    primaryKeys,
+    {
+      items = [],
+    } = {},
+  ) {
+
     this.primaryKeys = primaryKeys;
+    this.items = items;
     
-    primaryKeys.forEach(key => {
+    this.primaryKeys.forEach(key => {
       this[key] = {};
     });
     
@@ -1830,15 +1833,18 @@ class MultiDex {
   }
   
   get(key, value) {
-    return this[key][value] || null;
+    const item = this?.[key]?.[value];
+    return item || null;
   }
-  
-  has(key, value) {
-    return value in this[key];
-  }
-  
-  size() {
-    return this.items.length;
+
+  survey() {
+    return {
+      items: this.items.length,
+      primaryKeys: this.primaryKeys,
+      ...this.primaryKeys.map(key => ({
+        [key]: Object.keys(this[key]).length,
+      })),
+    };
   }
 }
 

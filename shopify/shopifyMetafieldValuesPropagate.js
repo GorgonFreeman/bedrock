@@ -128,6 +128,8 @@ const shopifyMetafieldValuesPropagate = async (
 
   logDeep('idDex', idDex);
 
+  logDeep(idDex.survey());
+
   const payloads = {};
 
   for (const fromResource of fromStoreData) {
