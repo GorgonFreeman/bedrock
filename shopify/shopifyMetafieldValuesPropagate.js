@@ -34,13 +34,50 @@ const shopifyMetafieldValuesPropagate = async (
     }
   }`;
 
-  const fromStoreDataResponse = await shopifyBulkOperationDo(
-    fromStore,
-    'query',
-    query,
-  );
+  const [
+    fromStoreDataResponse,
+    ...toStoreDataResponses
+  ] = await Promise.all([
+    shopifyBulkOperationDo(
+      fromStore,
+      'query',
+      query,
+    ),
+    ...toStores.map(toStore => {
+      return shopifyBulkOperationDo(
+        toStore,
+        'query',
+        query,
+      );
+    }),
+  ]);
 
-  return fromStoreDataResponse;
+  const { 
+    success: fromStoreDataSuccess, 
+    result: fromStoreData, 
+  } = fromStoreDataResponse;
+  if (!fromStoreDataSuccess) {
+    return fromStoreDataResponse;
+  }
+  
+  const payloads = [];
+
+  for (const store of toStores) {
+    const toStoreDataResponse = toStoreDataResponses[store];
+
+    const {
+      success: toSstoreDataSuccess,
+      result: toStoreData,
+    } = toStoreDataResponse;
+    if (!toStoreDataSuccess) {
+      return toStoreDataResponse;
+    }
+  }
+
+  return {
+    success: true,
+    result: payloads,
+  };
 };
 
 const shopifyMetafieldValuesPropagateApi = funcApi(shopifyMetafieldValuesPropagate, {
