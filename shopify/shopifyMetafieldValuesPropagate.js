@@ -2,6 +2,13 @@ const { funcApi } = require('../utils');
 
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
 
+const resourceToCommonIdProp = {
+  product: 'handle',
+  productVariant: 'sku',
+  collection: 'handle',
+  customer: 'email',
+};
+
 const shopifyMetafieldValuesPropagate = async (
   fromStore,
   toStores,
@@ -14,6 +21,14 @@ const shopifyMetafieldValuesPropagate = async (
 ) => {
 
   resources = resources || `${ resource }s`;
+
+  const commonIdProp = resourceToCommonIdProp[resource];
+  if (!commonIdProp) {
+    return {
+      success: false,
+      error: [`Resource "${ resource }" does not have a common ID property`],
+    };
+  }
   
   // TODO: Consider querying metafields as resources, instead of as attributes
   const query = `{
@@ -21,6 +36,7 @@ const shopifyMetafieldValuesPropagate = async (
       edges {
         node {
           id
+          ${ commonIdProp }
           ${ metafieldPaths.map(mfPath => {
             const [namespace, key] = mfPath.split('.');
             const mfPropName = `${ namespace }__${ key }`;
