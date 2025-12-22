@@ -96,12 +96,27 @@ const shopifyMetafieldValuesPropagate = async (
     };
   }
 
+  for (const [index, store] of toStores.entries()) {
+    const toStoreData = toStoresData[index];
+    for (const resource of toStoreData) {
+
+      const {
+        id: resourceGid,
+        [commonIdProp]: commonId,
+      } = resource;
+
+      commonIdToStoreIdObject[commonId] = commonIdToStoreIdObject[commonId] || {};
+      commonIdToStoreIdObject[commonId][store] = resourceGid;
+    }
+  }
+
   logDeep('commonIdToStoreIdObject', commonIdToStoreIdObject);
 
   const payloads = [];
 
   for (const [index, store] of toStores.entries()) {
     const toStoreDataResponse = toStoreDataResponses[index];
+
     const {
       success: toStoreDataSuccess,
       result: toStoreData,
