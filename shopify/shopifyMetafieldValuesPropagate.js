@@ -124,9 +124,6 @@ const shopifyMetafieldValuesPropagate = async (
       const toStoreData = toStoresData[index];
       const toResource = toStoreData.find(toResource => toResource[commonIdProp] === commonId);
 
-      logDeep(fromResource, toResource);
-      await askQuestion('?');
-
       for (const metafieldPath of metafieldPaths) {
         const [namespace, key] = metafieldPath.split('.');
         const mfPropName = `${ namespace }__${ key }`;
