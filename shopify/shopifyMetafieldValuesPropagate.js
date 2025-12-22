@@ -86,7 +86,8 @@ const shopifyMetafieldValuesPropagate = async (
   for (const resource of fromStoreData) {
     const { 
       id: resourceGid,
-      [commonIdProp]: commonId,    } = resource;
+      [commonIdProp]: commonId,
+    } = resource;
 
     // const resourceId = gidToId(gid);
 
@@ -101,7 +102,6 @@ const shopifyMetafieldValuesPropagate = async (
 
   for (const [index, store] of toStores.entries()) {
     const toStoreDataResponse = toStoreDataResponses[index];
-
     const {
       success: toStoreDataSuccess,
       result: toStoreData,
