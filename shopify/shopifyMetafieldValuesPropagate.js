@@ -1,4 +1,4 @@
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, askQuestion } = require('../utils');
 
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
 
@@ -114,28 +114,76 @@ const shopifyMetafieldValuesPropagate = async (
 
   const payloads = [];
 
-  for (const resource of fromStoreData) {
+  for (const fromResource of fromStoreData) {
     const {
       id: resourceGid,
       [commonIdProp]: commonId,
-    } = resource;
-    
-    for (const metafieldPath of metafieldPaths) {
-      for (const [index, store] of toStores.entries()) {
-        const toStoreData = toStoresData[index];
-        
-        const toStoreResource = toStoreData.find(resource => resource[commonIdProp] === commonId);
+    } = fromResource;
 
-        logDeep(fromStoreData[metafieldPath.split('.').join('__')]);
-        logDeep(toStoreResource[metafieldPath.split('.').join('__')]);
+    for (const [index, store] of toStores.entries()) {
+      const toStoreData = toStoresData[index];
+      const toResource = toStoreData.find(toResource => toResource[commonIdProp] === commonId);
+
+      logDeep(fromResource, toResource);
+      await askQuestion('?');
+
+      for (const metafieldPath of metafieldPaths) {
+        const mfPropName = metafieldPath.split('.').join('__');
+
+        const mfFrom = fromResource[mfPropName];
+        const mfTo = toResource[mfPropName];
+
+        const {
+          value: fromValue,
+          type: fromType,
+        } = mfFrom;
+        
+        // TODO: Provide an option to clear unset metafields if desired
+        if (fromValue === null) {
+          continue;
+        }
+
+        const {
+          value: toValue,
+          type: toType,
+        } = mfTo;
+
+        if (fromType !== toType) {
+          return {
+            success: false,
+            error: [`Metafield type mismatch for ${ metafieldPath }`],
+          };
+        }
+
+        const mfType = fromType;
+
+        switch (mfType) {
+
+          case 'list.product_reference':
+            // TODO: Logic to convert product IDs
+            break;
+
+          default:
+            const needsUpdate = fromValue !== toValue;
+            if (needsUpdate) {
+              payloads.push({
+                id: resourceGid,
+                metafieldPath,
+                fromValue,
+                toValue,
+              });
+            }
+            break;
+        }
+
+        logDeep(metafieldPath, fromValue, toValue);
         await askQuestion('?');
       }
     }
   }
 
   return {
-    success: true,
-    result: payloads,
+    success: true,    result: payloads,
   };
 };
 
