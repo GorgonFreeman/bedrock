@@ -61,6 +61,7 @@ const shopifyMetafieldValuesPropagate = async (
       query,
       {
         apiVersion,
+        resumeBulkOperationId: '3608323784776',
       },
     ),
     ...toStores.map(toStore => {
@@ -70,6 +71,7 @@ const shopifyMetafieldValuesPropagate = async (
         query,
         {
           apiVersion,
+          resumeBulkOperationId: toStore === 'us' ? '4916788953148' : '8987561525621',
         },
       );
     }),
@@ -126,9 +128,8 @@ const shopifyMetafieldValuesPropagate = async (
     }
   }
 
-  logDeep('idDex', idDex);
-
-  logDeep(idDex.survey());
+  logDeep('idDex', idDex.survey());
+  await askQuestion('?');
 
   const payloads = {};
 
@@ -141,9 +142,15 @@ const shopifyMetafieldValuesPropagate = async (
 
     const resource = idDex.get(commonIdProp, commonId);
 
+    logDeep('resource', resource);
+    await askQuestion('?');
+
     for (const [index, toStore] of toStores.entries()) {
       const toStoreDataProp = `${ toStore }Data`;
       const toStoreData = resource[toStoreDataProp];
+
+      logDeep('toStoreData', toStoreData);
+      await askQuestion('?');
 
       for (const metafieldPath of metafieldPaths) {
         const [namespace, key] = metafieldPath.split('.');
@@ -195,6 +202,9 @@ const shopifyMetafieldValuesPropagate = async (
             break;
         }
 
+        logDeep('needsUpdate', fromValue, desiredValue, toValue);
+        await askQuestion('?');
+
         const needsUpdate = toValue !== desiredValue;
 
         if (!needsUpdate) {
@@ -208,7 +218,9 @@ const shopifyMetafieldValuesPropagate = async (
           type: mfType,
           value: desiredValue,
         };
+        
         logDeep('payload', payload);
+        await askQuestion('?');
         
         payloads[toStore] = payloads[toStore] || [];
         payloads[toStore].push(payload);
