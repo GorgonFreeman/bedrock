@@ -78,6 +78,7 @@ module.exports = {
   shopifyLocationGetMain: require('./shopify/shopifyLocationGetMain').shopifyLocationGetMainApi,
   shopifyLocationsGet: require('./shopify/shopifyLocationsGet').shopifyLocationsGetApi,
   shopifyMetafieldGet: require('./shopify/shopifyMetafieldGet').shopifyMetafieldGetApi,
+  shopifyMetafieldValuesPropagate: require('./shopify/shopifyMetafieldValuesPropagate').shopifyMetafieldValuesPropagateApi,
   shopifyMetafieldsDelete: require('./shopify/shopifyMetafieldsDelete').shopifyMetafieldsDeleteApi,
   shopifyMetafieldsSet: require('./shopify/shopifyMetafieldsSet').shopifyMetafieldsSetApi,
   shopifyMetaobjectCreate: require('./shopify/shopifyMetaobjectCreate').shopifyMetaobjectCreateApi,
