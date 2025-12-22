@@ -122,7 +122,7 @@ const shopifyMetafieldValuesPropagate = async (
 
       idDex.add({
         [commonIdProp]: commonId,
-        [fromStore]: resourceGid,
+        [toStore]: resourceGid,
         [dataProp]: resourceData,
       });
     }
