@@ -67,22 +67,26 @@ const shopifyMetafieldValuesPropagate = async (
       );
     }),
   ]);
-
-  const { 
-    success: fromStoreDataSuccess, 
-    result: fromStoreData, 
-  } = fromStoreDataResponse;
-  if (!fromStoreDataSuccess) {
-    return fromStoreDataResponse;
+  
+  // Return if any responses errored
+  for (const response of [fromStoreDataResponse, ...toStoreDataResponses]) {
+    const {
+      success: dataSuccess,
+    } = response;
+    if (!dataSuccess) {
+      return response;
+    }
   }
+
+  const fromStoreData = fromStoreDataResponse.result;
+  const toStoresData = toStoreDataResponses.map(response => response.result);
   
   const commonIdToStoreIdObject = {};
   
   for (const resource of fromStoreData) {
     const { 
       id: resourceGid,
-      [commonIdProp]: commonId,
-    } = resource;
+      [commonIdProp]: commonId,    } = resource;
 
     // const resourceId = gidToId(gid);
 
