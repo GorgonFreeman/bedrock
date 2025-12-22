@@ -151,9 +151,9 @@ const shopifyMetafieldValuesPropagate = async (
         const {
           value: toValue,
           type: toType,
-        } = mfTo;
+        } = mfTo || {};
 
-        if (fromType !== toType) {
+        if (toType && (fromType !== toType)) {
           return {
             success: false,
             error: [`Metafield type mismatch for ${ metafieldPath }`],
