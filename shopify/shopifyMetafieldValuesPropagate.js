@@ -139,7 +139,8 @@ const shopifyMetafieldValuesPropagate = async (
   };
 };
 
-const shopifyMetafieldValuesPropagateApi = funcApi(shopifyMetafieldValuesPropagate, {  argNames: ['fromStore', 'toStores', 'resource', 'metafieldPaths', 'options'],
+const shopifyMetafieldValuesPropagateApi = funcApi(shopifyMetafieldValuesPropagate, {
+  argNames: ['fromStore', 'toStores', 'resource', 'metafieldPaths', 'options'],
   validatorsByArg: {
     fromStore: Boolean,
     toStores: Array.isArray,
