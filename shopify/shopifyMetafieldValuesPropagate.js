@@ -95,25 +95,25 @@ const shopifyMetafieldValuesPropagate = async (
 
   const payloads = [];
 
-  for (const store of toStores) {
-    const toStoreDataResponse = toStoreDataResponses[store];
+  for (const [index, store] of toStores.entries()) {
+    const toStoreDataResponse = toStoreDataResponses[index];
 
     const {
-      success: toSstoreDataSuccess,
+      success: toStoreDataSuccess,
       result: toStoreData,
     } = toStoreDataResponse;
     if (!toStoreDataSuccess) {
       return toStoreDataResponse;
     }
   }
+
   return {
     success: true,
     result: payloads,
   };
 };
 
-const shopifyMetafieldValuesPropagateApi = funcApi(shopifyMetafieldValuesPropagate, {
-  argNames: ['fromStore', 'toStores', 'resource', 'metafieldPaths', 'options'],
+const shopifyMetafieldValuesPropagateApi = funcApi(shopifyMetafieldValuesPropagate, {  argNames: ['fromStore', 'toStores', 'resource', 'metafieldPaths', 'options'],
   validatorsByArg: {
     fromStore: Boolean,
     toStores: Array.isArray,
