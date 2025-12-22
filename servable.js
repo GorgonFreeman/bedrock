@@ -79,6 +79,7 @@ module.exports = {
   shopifyCustomerUpdate: lazy(() => require('./shopify/shopifyCustomerUpdate').shopifyCustomerUpdateApi),
   shopifyCustomerUpsert: lazy(() => require('./shopify/shopifyCustomerUpsert').shopifyCustomerUpsertApi),
   shopifyCustomersGet: lazy(() => require('./shopify/shopifyCustomersGet').shopifyCustomersGetApi),
+  shopifyDeliveryProfileGet: require('./shopify/shopifyDeliveryProfileGet').shopifyDeliveryProfileGetApi,
   shopifyDiscountClassTagsReport: lazy(() => require('./shopify/shopifyDiscountClassTagsReport').shopifyDiscountClassTagsReportApi),
   shopifyDiscountCreateBasic: lazy(() => require('./shopify/shopifyDiscountCreateBasic').shopifyDiscountCreateBasicApi),
   shopifyDiscountGet: lazy(() => require('./shopify/shopifyDiscountGet').shopifyDiscountGetApi),
