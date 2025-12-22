@@ -1,4 +1,4 @@
-const { funcApi } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
 
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
 
@@ -76,6 +76,23 @@ const shopifyMetafieldValuesPropagate = async (
     return fromStoreDataResponse;
   }
   
+  const commonIdToStoreIdObject = {};
+  
+  for (const resource of fromStoreData) {
+    const { 
+      id: resourceGid,
+      [commonIdProp]: commonId,
+    } = resource;
+
+    // const resourceId = gidToId(gid);
+
+    commonIdToStoreIdObject[commonId] = {
+      [fromStore]: resourceGid,
+    };
+  }
+
+  logDeep('commonIdToStoreIdObject', commonIdToStoreIdObject);
+
   const payloads = [];
 
   for (const store of toStores) {
@@ -89,7 +106,6 @@ const shopifyMetafieldValuesPropagate = async (
       return toStoreDataResponse;
     }
   }
-
   return {
     success: true,
     result: payloads,
