@@ -149,6 +149,11 @@ const shopifyMetafieldValuesPropagate = async (
       const toStoreDataProp = `${ toStore }Data`;
       const toStoreData = resource[toStoreDataProp];
 
+      if (!toStoreData) {
+        console.warn(`${ commonId } not found in ${ toStore }`);
+        continue;
+      }
+
       logDeep('toStoreData', toStoreData);
       // await askQuestion('?');
 
