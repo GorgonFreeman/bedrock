@@ -114,15 +114,22 @@ const shopifyMetafieldValuesPropagate = async (
 
   const payloads = [];
 
-  for (const [index, store] of toStores.entries()) {
-    const toStoreDataResponse = toStoreDataResponses[index];
-
+  for (const resource of fromStoreData) {
     const {
-      success: toStoreDataSuccess,
-      result: toStoreData,
-    } = toStoreDataResponse;
-    if (!toStoreDataSuccess) {
-      return toStoreDataResponse;
+      id: resourceGid,
+      [commonIdProp]: commonId,
+    } = resource;
+    
+    for (const metafieldPath of metafieldPaths) {
+      for (const [index, store] of toStores.entries()) {
+        const toStoreData = toStoresData[index];
+        
+        const toStoreResource = toStoreData.find(resource => resource[commonIdProp] === commonId);
+
+        logDeep(fromStoreData[metafieldPath.split('.').join('__')]);
+        logDeep(toStoreResource[metafieldPath.split('.').join('__')]);
+        await askQuestion('?');
+      }
     }
   }
 
