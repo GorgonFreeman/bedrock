@@ -129,7 +129,7 @@ const shopifyMetafieldValuesPropagate = async (
   }
 
   logDeep('idDex', idDex.survey());
-  await askQuestion('?');
+  // await askQuestion('?');
 
   const payloads = {};
 
@@ -143,14 +143,14 @@ const shopifyMetafieldValuesPropagate = async (
     const resource = idDex.get(commonIdProp, commonId);
 
     logDeep('resource', resource);
-    await askQuestion('?');
+    // await askQuestion('?');
 
     for (const [index, toStore] of toStores.entries()) {
       const toStoreDataProp = `${ toStore }Data`;
       const toStoreData = resource[toStoreDataProp];
 
       logDeep('toStoreData', toStoreData);
-      await askQuestion('?');
+      // await askQuestion('?');
 
       for (const metafieldPath of metafieldPaths) {
         const [namespace, key] = metafieldPath.split('.');
@@ -203,7 +203,7 @@ const shopifyMetafieldValuesPropagate = async (
         }
 
         logDeep('needsUpdate', fromValue, desiredValue, toValue);
-        await askQuestion('?');
+        // await askQuestion('?');
 
         const needsUpdate = toValue !== desiredValue;
 
@@ -220,7 +220,7 @@ const shopifyMetafieldValuesPropagate = async (
         };
         
         logDeep('payload', payload);
-        await askQuestion('?');
+        // await askQuestion('?');
         
         payloads[toStore] = payloads[toStore] || [];
         payloads[toStore].push(payload);
@@ -228,8 +228,8 @@ const shopifyMetafieldValuesPropagate = async (
     }
   }
 
-  logDeep(payloads);
-  askQuestion('?');
+  logDeep('payloads', payloads);
+  await askQuestion('?');
 
   const responses = [];
 
