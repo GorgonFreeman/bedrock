@@ -1,64 +1,84 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/order
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/deliveryProfile
 
-const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
+const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 
-const defaultAttrs = `id name`;
+const defaultAttrs = `
+  id
+  name
+  profileLocationGroups {
+    locationGroupZones(first: 10) {
+      edges {
+        node {
+          zone {
+            id
+            name
+          }
+          methodDefinitions(first: 10) {
+            edges {
+              node {
+                id
+                active
+                description
+              }
+            }
+          }
+        }
+      }
+    }
+  }`;
 
-const shopifyDeliveryProfileGetSingle = async (
+const shopifyDeliveryProfileGet = async (
   credsPath,
-  thingId,
   {
-    apiVersion,
+    deliveryProfileId,
+  },
+  {
     attrs = defaultAttrs,
+    apiVersion,
   } = {},
 ) => {
-  
+
   const response = await shopifyGetSingle(
     credsPath,
-    'thing',
-    thingId,
+    'deliveryProfile',
+    deliveryProfileId,
     {
       apiVersion,
       attrs,
     },
   );
-  
+
   logDeep(response);
   return response;
 };
 
-const shopifyDeliveryProfileGet = async (
-  credsPath,
-  thingId,
-  {
-    queueRunOptions,
-    ...options
-  } = {},
-) => {
-  const response = await actionMultipleOrSingle(
-    thingId,
-    shopifyDeliveryProfileGetSingle,
-    (thingId) => ({
-      args: [credsPath, thingId],
-      options,
-    }),
-    {
-      ...(queueRunOptions ? { queueRunOptions } : {}),
-    },
+const shopifyDeliveryProfileGetApi = async (req, res) => {
+  const { 
+    credsPath,
+    deliveryProfileIdentifier,
+    options,
+  } = req.body;
+
+  const paramsValid = await Promise.all([
+    mandateParam(res, 'credsPath', credsPath),
+    mandateParam(res, 'deliveryProfileIdentifier', deliveryProfileIdentifier, p => objHasAny(p, ['deliveryProfileId'])),
+  ]);
+  if (paramsValid.some(valid => valid === false)) {
+    return;
+  }
+
+  const result = await shopifyDeliveryProfileGet(
+    credsPath,
+    deliveryProfileIdentifier,
+    options,
   );
-  
-  logDeep(response);
-  return response;
+  respond(res, 200, result);
 };
-
-const shopifyDeliveryProfileGetApi = funcApi(shopifyDeliveryProfileGet, {
-  argNames: ['credsPath', 'thingId', 'options'],
-});
 
 module.exports = {
   shopifyDeliveryProfileGet,
   shopifyDeliveryProfileGetApi,
 };
 
-// curl localhost:8000/shopifyDeliveryProfileGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "thingId": "7012222266312" }'
+// curl localhost:8000/shopifyDeliveryProfileGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "deliveryProfileIdentifier": { "deliveryProfileId": "26827522120" } }'
