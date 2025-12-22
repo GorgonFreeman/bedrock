@@ -189,7 +189,7 @@ const shopifyMetafieldValuesPropagate = async (
             
             // TODO: Handle GIDs not existing in map
             desiredValue = JSON.stringify(JSON.parse(fromValue).map(productGid => {
-              const toProductId = Object.values(commonIdToStoreIdObject).find(storeIdObject => storeIdObject[fromStore] === productGid)?.[toStore];
+              const toProductId = idDex.get(fromStore, productGid)?.[toStore];
               return toProductId;
             }));
             break;
