@@ -165,6 +165,7 @@ const shopifyMetafieldValuesPropagate = async (
 
           case 'list.product_reference':
             
+            // TODO: Handle GIDs not existing in map
             desiredValue = fromValue.map(productGid => {
               const toProductId = Object.values(commonIdToStoreIdObject).find(storeIdObject => storeIdObject[fromStore] === productGid)?.[toStore];
               return toProductId;
