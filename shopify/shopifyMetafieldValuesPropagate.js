@@ -183,7 +183,8 @@ const shopifyMetafieldValuesPropagate = async (
   }
 
   return {
-    success: true,    result: payloads,
+    success: true,
+    result: payloads,
   };
 };
 
