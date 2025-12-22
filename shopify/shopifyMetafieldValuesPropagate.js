@@ -134,6 +134,10 @@ const shopifyMetafieldValuesPropagate = async (
         const mfFrom = fromResource[mfPropName];
         const mfTo = toResource[mfPropName];
 
+        if (!mfFrom) {
+          continue;
+        }
+
         const {
           value: fromValue,
           type: fromType,
