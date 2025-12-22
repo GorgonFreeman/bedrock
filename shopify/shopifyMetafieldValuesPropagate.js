@@ -88,7 +88,7 @@ const shopifyMetafieldValuesPropagate = async (
   const fromStoreData = fromStoreDataResponse.result;
   const toStoresData = toStoreDataResponses.map(response => response.result);
   
-  const idDex = new MultiDex(fromStoreData, [commonIdProp, fromStore, ...toStores]);
+  const idDex = new MultiDex([commonIdProp, fromStore, ...toStores], { items: fromStoreData });
   
   for (const resource of fromStoreData) {
     const { 
