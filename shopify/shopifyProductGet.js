@@ -45,7 +45,6 @@ const shopifyProductGet = async (
       },
     });
 
-    logDeep(response);
     return response;
   }
 
@@ -59,7 +58,6 @@ const shopifyProductGet = async (
     },
   );
 
-  logDeep(response);
   return response;
 };
 

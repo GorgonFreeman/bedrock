@@ -19,9 +19,6 @@ const metafieldIsEmpty = async (value, type) => {
     return true;
   }
 
-  logDeep(value, type);
-  // await askQuestion('?');
-
   if (type.startsWith('list.')) {
     return value === '[]';
   }
@@ -156,7 +153,6 @@ const shopifyMetafieldValuesPropagate = async (
   }
 
   logDeep('idDex', idDex.survey());
-  // await askQuestion('?');
 
   const payloads = {};
 
@@ -169,9 +165,6 @@ const shopifyMetafieldValuesPropagate = async (
 
     const resource = idDex.get(commonIdProp, commonId);
 
-    logDeep('resource', resource);
-    // await askQuestion('?');
-
     for (const [index, toStore] of toStores.entries()) {
       const toStoreDataProp = `${ toStore }Data`;
       const toStoreData = resource[toStoreDataProp];
@@ -180,9 +173,6 @@ const shopifyMetafieldValuesPropagate = async (
         console.warn(`${ commonId } not found in ${ toStore }`);
         continue;
       }
-
-      logDeep('toStoreData', toStoreData);
-      // await askQuestion('?');
 
       for (const metafieldPath of metafieldPaths) {
         const [namespace, key] = metafieldPath.split('.');
@@ -306,9 +296,6 @@ const shopifyMetafieldValuesPropagate = async (
             break;
         }
 
-        logDeep('needsUpdate', fromValue, desiredValue, toValue);
-        // await askQuestion('?');
-
         const needsUpdate = toValue !== desiredValue;
 
         if (!needsUpdate) {
@@ -322,9 +309,6 @@ const shopifyMetafieldValuesPropagate = async (
           type: mfType,
           value: desiredValue,
         };
-        
-        logDeep('payload', payload);
-        // await askQuestion('?');
         
         payloads[toStore] = payloads[toStore] || [];
         payloads[toStore].push(payload);
