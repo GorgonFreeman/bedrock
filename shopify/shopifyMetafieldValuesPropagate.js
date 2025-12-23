@@ -246,8 +246,8 @@ const shopifyMetafieldValuesPropagate = async (
 
   const responses = [];
 
-  for (const [store, payloads] of Object.entries(payloads)) {
-    const metafieldsSetResponse = await shopifyMetafieldsSet(`${ store }.${ SUBKEY }`, payloads, { apiVersion });
+  for (const [store, payloadsForStore] of Object.entries(payloads)) {
+    const metafieldsSetResponse = await shopifyMetafieldsSet(`${ store }.${ SUBKEY }`, payloadsForStore, { apiVersion });
     responses.push(metafieldsSetResponse);
   }
 
