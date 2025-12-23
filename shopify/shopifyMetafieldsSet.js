@@ -46,7 +46,6 @@ const shopifyMetafieldsSet = async (
   } = {},
 ) => {
 
-  // Chunk metafields array by MAX_PAYLOADS
   const chunks = arrayToChunks(metafields, MAX_PAYLOADS);
 
   const response = await actionMultipleOrSingle(
