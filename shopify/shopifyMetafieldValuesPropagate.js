@@ -51,6 +51,12 @@ const shopifyMetafieldValuesPropagate = async (
     }
   }`;
 
+  const storeToBulkOpId = {
+    au: '3608323784776',
+    us: '4916788953148',
+    uk: '8987561525621',
+  };
+
   const [
     fromStoreDataResponse,
     ...toStoreDataResponses
@@ -61,7 +67,7 @@ const shopifyMetafieldValuesPropagate = async (
       query,
       {
         apiVersion,
-        // resumeBulkOperationId: '3608323784776',
+        // resumeBulkOperationId: storeToBulkOpId[fromStore],
       },
     ),
     ...toStores.map(toStore => {
@@ -71,7 +77,7 @@ const shopifyMetafieldValuesPropagate = async (
         query,
         {
           apiVersion,
-          // resumeBulkOperationId: toStore === 'us' ? '4916788953148' : '8987561525621',
+          // resumeBulkOperationId: storeToBulkOpId[toStore],
         },
       );
     }),
