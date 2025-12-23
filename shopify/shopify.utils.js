@@ -409,7 +409,7 @@ const shopifyJsonlInterpret = (jsonl) => {
 
     // e.g. gid://shopify/InventoryLevel/11111111?inventory_item_id=22222222
     const [objectType, id] = gid.split('gid://shopify/')[1].split(/[^a-zA-Z0-9]+/);
-    logDeep(objectType, id);
+    // logDeep(objectType, id);
 
     objectsMap.set(gid, {
       ...object,
