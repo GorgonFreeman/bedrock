@@ -117,6 +117,7 @@ const shopifyMetafieldValuesPropagate = async (
   const toStoresData = toStoreDataResponses.map(response => response.result);
   
   const idDex = new MultiDex([commonIdProp, fromStore, ...toStores], { items: fromStoreData });
+  const failedIds = [];
   
   for (const resource of fromStoreData) {
     const { 
@@ -235,6 +236,11 @@ const shopifyMetafieldValuesPropagate = async (
             const sourceValue = JSON.parse(fromValue);
 
             for (const productGid of sourceValue) {
+
+              if (failedIds.includes(productGid)) {
+                continue;
+              }
+
               let dexProduct = idDex.get(fromStore, productGid);
 
               if (!dexProduct) {
@@ -275,6 +281,7 @@ const shopifyMetafieldValuesPropagate = async (
                 const toProduct = toProductResult?.product || toProductResult;
 
                 if (!toProduct) {
+                  failedIds.push(productGid);
                   continue;
                 }
                 
