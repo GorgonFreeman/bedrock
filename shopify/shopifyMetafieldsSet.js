@@ -1,4 +1,4 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/metafieldsdelete
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/metafieldsset
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
