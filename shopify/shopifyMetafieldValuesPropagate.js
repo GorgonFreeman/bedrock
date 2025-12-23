@@ -225,7 +225,7 @@ const shopifyMetafieldValuesPropagate = async (
         }
 
         const payload = {
-          ownerId: resourceGid,
+          ownerId: resource[toStore],
           namespace,
           key,
           type: mfType,
