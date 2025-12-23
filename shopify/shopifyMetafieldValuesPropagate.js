@@ -54,9 +54,9 @@ const shopifyMetafieldValuesPropagate = async (
   }`;
 
   const storeToBulkOpId = {
-    au: '3608323784776',
-    us: '4916788953148',
-    uk: '8987561525621',
+    au: '3608468160584',
+    us: '4916969930812',
+    uk: '8987994620277',
   };
 
   const [
@@ -69,7 +69,7 @@ const shopifyMetafieldValuesPropagate = async (
       query,
       {
         apiVersion,
-        // resumeBulkOperationId: storeToBulkOpId[fromStore],
+        resumeBulkOperationId: storeToBulkOpId[fromStore],
       },
     ),
     ...toStores.map(toStore => {
@@ -79,7 +79,7 @@ const shopifyMetafieldValuesPropagate = async (
         query,
         {
           apiVersion,
-          // resumeBulkOperationId: storeToBulkOpId[toStore],
+          resumeBulkOperationId: storeToBulkOpId[toStore],
         },
       );
     }),
