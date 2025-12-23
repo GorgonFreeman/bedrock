@@ -3,7 +3,7 @@
 const { funcApi, logDeep, arrayToChunks, actionMultipleOrSingle } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 const {
-  MAX_PAYLOADS,
+  MAX_METAFIELDS_PER_SET,
 } = require('../shopify/shopify.constants');
 
 const defaultAttrs = `id namespace key type value`;
@@ -46,7 +46,7 @@ const shopifyMetafieldsSet = async (
   } = {},
 ) => {
 
-  const chunks = arrayToChunks(metafields, MAX_PAYLOADS);
+  const chunks = arrayToChunks(metafields, MAX_METAFIELDS_PER_SET);
 
   const response = await actionMultipleOrSingle(
     chunks,
