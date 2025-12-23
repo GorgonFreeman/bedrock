@@ -12,6 +12,21 @@ const resourceToCommonIdProp = {
   customer: 'email',
 };
 
+const metafieldIsEmpty = async (value, type) => {
+  logDeep(value, type);
+  await askQuestion('?');
+
+  if (!value) {
+    return true;
+  }
+
+  if (type.startsWith('list.')) {
+    return value === '[]';
+  }
+
+  return value === null;
+};
+
 const shopifyMetafieldValuesPropagate = async (
   fromStore,
   toStores,
@@ -20,6 +35,7 @@ const shopifyMetafieldValuesPropagate = async (
   {
     apiVersion,
     resources,
+    onlyWriteIfEmpty = false, // if the destination metafield has content, don't overwrite it. This allows divergence after the initial sync.
   } = {},
 ) => {
 
@@ -196,6 +212,11 @@ const shopifyMetafieldValuesPropagate = async (
             success: false,
             error: [`Metafield type mismatch for ${ metafieldPath }`],
           };
+        }
+        
+        const toValueIsEmpty = await metafieldIsEmpty(toValue, toType);
+        if (onlyWriteIfEmpty && !toValueIsEmpty) {
+          continue;
         }
 
         const mfType = fromType;
