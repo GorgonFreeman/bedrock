@@ -1,3 +1,5 @@
+const SUBKEY = 'metafields_sweep';
+
 const { funcApi, logDeep, askQuestion, arrayStandardResponse, MultiDex } = require('../utils');
 
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
@@ -62,7 +64,7 @@ const shopifyMetafieldValuesPropagate = async (
     ...toStoreDataResponses
   ] = await Promise.all([
     shopifyBulkOperationDo(
-      fromStore,
+      `${ fromStore }.${ SUBKEY }`,
       'query',
       query,
       {
@@ -72,7 +74,7 @@ const shopifyMetafieldValuesPropagate = async (
     ),
     ...toStores.map(toStore => {
       return shopifyBulkOperationDo(
-        toStore,
+        `${ toStore }.${ SUBKEY }`,
         'query',
         query,
         {
@@ -245,7 +247,7 @@ const shopifyMetafieldValuesPropagate = async (
   const responses = [];
 
   for (const [store, payloads] of Object.entries(payloads)) {
-    const metafieldsSetResponse = await shopifyMetafieldsSet(store, payloads, { apiVersion });
+    const metafieldsSetResponse = await shopifyMetafieldsSet(`${ store }.${ SUBKEY }`, payloads, { apiVersion });
     responses.push(metafieldsSetResponse);
   }
 
@@ -268,4 +270,4 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyMetafieldValuesPropagate -H "Content-Type: application/json" -d '{ "fromStore": "au", "toStores": ["us","uk"], "resource": "product", "metafieldPaths": ["specifications.how_to"] }'
-// curl localhost:8000/shopifyMetafieldValuesPropagate -H "Content-Type: application/json" -d '{ "fromStore": "au", "toStores": ["us","uk"], "resource": "product", "metafieldPaths": ["specifications.how_to", "specifications.fabrication", "specifications.ingredients", "specifications.size_and_fit", "related_products.siblings"] }'
+// curl localhost:8000/shopifyMetafieldValuesPropagate -H "Content-Type: application/json" -d '{ "fromStore": "au", "toStores": ["us","uk"], "resource": "product", "metafieldPaths": ["specifications.how_to", "specifications.fabrication", "specifications.ingredients", "specifications.size_and_fit", "related_products.set_products", "related_products.complete_the_look", "related_products.upsell", "related_products.siblings"] }'
