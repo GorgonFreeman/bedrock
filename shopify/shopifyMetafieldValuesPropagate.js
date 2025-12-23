@@ -242,7 +242,7 @@ const shopifyMetafieldValuesPropagate = async (
   }
 
   logDeep('payloads', payloads);
-  await askQuestion('?');
+  // await askQuestion('?');
 
   const responses = [];
 
