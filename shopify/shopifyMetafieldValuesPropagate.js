@@ -61,7 +61,7 @@ const shopifyMetafieldValuesPropagate = async (
       query,
       {
         apiVersion,
-        resumeBulkOperationId: '3608323784776',
+        // resumeBulkOperationId: '3608323784776',
       },
     ),
     ...toStores.map(toStore => {
@@ -71,7 +71,7 @@ const shopifyMetafieldValuesPropagate = async (
         query,
         {
           apiVersion,
-          resumeBulkOperationId: toStore === 'us' ? '4916788953148' : '8987561525621',
+          // resumeBulkOperationId: toStore === 'us' ? '4916788953148' : '8987561525621',
         },
       );
     }),
