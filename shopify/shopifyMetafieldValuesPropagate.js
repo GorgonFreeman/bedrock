@@ -20,7 +20,7 @@ const metafieldIsEmpty = async (value, type) => {
   }
 
   logDeep(value, type);
-  await askQuestion('?');
+  // await askQuestion('?');
 
   if (type.startsWith('list.')) {
     return value === '[]';
