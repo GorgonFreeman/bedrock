@@ -4,6 +4,7 @@ const { funcApi, logDeep, askQuestion, arrayStandardResponse, MultiDex } = requi
 
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
 const { shopifyMetafieldsSet } = require('../shopify/shopifyMetafieldsSet');
+const { shopifyProductGet } = require('../shopify/shopifyProductGet');
 
 const resourceToCommonIdProp = {
   product: 'handle',
@@ -27,6 +28,7 @@ const metafieldIsEmpty = async (value, type) => {
 
   return value === null;
 };
+
 const shopifyMetafieldValuesPropagate = async (
   fromStore,
   toStores,
@@ -229,10 +231,57 @@ const shopifyMetafieldValuesPropagate = async (
           case 'list.product_reference':
             
             // TODO: Handle GIDs not existing in map
-            desiredValue = JSON.stringify(JSON.parse(fromValue).map(productGid => {
-              const toProductId = idDex.get(fromStore, productGid)?.[toStore];
-              return toProductId;
-            }));
+            const desiredValue = [];
+            const sourceValue = JSON.parse(fromValue);
+
+            for (const productGid of sourceValue) {
+              let dexProduct = idDex.get(fromStore, productGid);
+
+              if (!dexProduct) {
+
+                const fromProductResponse = await shopifyProductGet(fromStore, { productId: gidToId(productGid) }, { attrs: commonIdProp, apiVersion });
+                const { success: fromProductGetSuccess, result: fromProductResult } = fromProductResponse;
+
+                // This is an error because it should definitely be on the from store, that's where the data belongs.
+                if (!fromProductGetSuccess) {
+                  return fromProductResponse;
+                }
+
+                idDex.add({
+                  [commonIdProp]: fromProductResult[commonIdProp],
+                  [fromStore]: productGid,
+                });
+                dexProduct = idDex.get(fromStore, productGid);
+              }
+
+              let toProductGid = dexProduct?.[toStore];
+              if (!toProductGid) {
+                const toProductResponse = await shopifyProductGet(toStore, { handle: dexProduct[commonIdProp] }, { attrs: 'id', apiVersion });
+                const { success: toProductGetSuccess, result: toProductResult } = toProductResponse;
+                
+                // Ignore this, might just be the product doesn't exist.
+                if (!toProductGetSuccess) {
+                  continue;
+                }
+                
+                toProductGid = toProductResult.id;
+
+                idDex.add({
+                  [commonIdProp]: toProductResult[commonIdProp],
+                  [toStore]: toProductGid,
+                });  
+              }
+
+              desiredValue.push(toProductGid);
+            }
+
+            // If anything wasn't found, don't propagate the metafield.
+            if (desiredValue.length !== sourceValue.length) {
+              console.warn(`${ commonId }: ${ metafieldPath }: Some products not found in ${ toStore }`);
+              continue;
+            }
+
+            desiredValue = JSON.stringify(desiredValue);
             break;
         }
 
