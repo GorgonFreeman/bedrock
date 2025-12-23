@@ -1,13 +1,14 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/metafieldsset
 
-const { MAX_PAYLOADS } = require('../shopify/shopify.constants');
-
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, arrayToChunks, actionMultipleOrSingle } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
+const {
+  MAX_PAYLOADS,
+} = require('../shopify/shopify.constants');
 
 const defaultAttrs = `id namespace key type value`;
 
-const shopifyMetafieldsSet = async (
+const shopifyMetafieldsSetChunk = async (
   credsPath,
   metafields,
   {
@@ -32,6 +33,34 @@ const shopifyMetafieldsSet = async (
       apiVersion,
     },
   );
+  logDeep(response);
+  return response;
+};
+
+const shopifyMetafieldsSet = async (
+  credsPath,
+  metafields,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+
+  // Chunk metafields array by MAX_PAYLOADS
+  const chunks = arrayToChunks(metafields, MAX_PAYLOADS);
+
+  const response = await actionMultipleOrSingle(
+    chunks,
+    shopifyMetafieldsSetChunk,
+    (chunk) => ({
+      args: [credsPath, chunk],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+  
   logDeep(response);
   return response;
 };
