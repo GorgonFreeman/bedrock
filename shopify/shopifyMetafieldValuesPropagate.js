@@ -13,12 +13,13 @@ const resourceToCommonIdProp = {
 };
 
 const metafieldIsEmpty = async (value, type) => {
-  logDeep(value, type);
-  await askQuestion('?');
 
   if (!value) {
     return true;
   }
+
+  logDeep(value, type);
+  await askQuestion('?');
 
   if (type.startsWith('list.')) {
     return value === '[]';
@@ -26,7 +27,6 @@ const metafieldIsEmpty = async (value, type) => {
 
   return value === null;
 };
-
 const shopifyMetafieldValuesPropagate = async (
   fromStore,
   toStores,
