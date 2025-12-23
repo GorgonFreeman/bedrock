@@ -290,5 +290,5 @@ module.exports = {
   shopifyMetafieldValuesPropagateApi,
 };
 
-// curl localhost:8000/shopifyMetafieldValuesPropagate -H "Content-Type: application/json" -d '{ "fromStore": "au", "toStores": ["us","uk"], "resource": "product", "metafieldPaths": ["specifications.how_to"] }'
-// curl localhost:8000/shopifyMetafieldValuesPropagate -H "Content-Type: application/json" -d '{ "fromStore": "au", "toStores": ["us","uk"], "resource": "product", "metafieldPaths": ["specifications.how_to", "specifications.fabrication", "specifications.ingredients", "specifications.size_and_fit", "related_products.set_products", "related_products.complete_the_look", "related_products.upsell", "related_products.siblings"] }'
+// curl localhost:8000/shopifyMetafieldValuesPropagate -H "Content-Type: application/json" -d '{ "fromStore": "au", "toStores": ["us","uk"], "resource": "product", "metafieldPaths": ["specifications.how_to", "specifications.fabrication", "specifications.ingredients", "specifications.size_and_fit", "related_products.set_products", "related_products.siblings"] }'
+// curl localhost:8000/shopifyMetafieldValuesPropagate -H "Content-Type: application/json" -d '{ "fromStore": "au", "toStores": ["us","uk"], "resource": "product", "metafieldPaths": ["related_products.complete_the_look", "related_products.upsell"], "options": { "onlyWriteIfEmpty": true } }'
