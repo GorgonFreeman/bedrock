@@ -1,5 +1,7 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/metafieldsset
 
+const { MAX_PAYLOADS } = require('../shopify/shopify.constants');
+
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
