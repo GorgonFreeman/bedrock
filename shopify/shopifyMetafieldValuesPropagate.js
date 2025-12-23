@@ -247,8 +247,17 @@ const shopifyMetafieldValuesPropagate = async (
                   return fromProductResponse;
                 }
 
+                const fromProduct = fromProductResult?.product || fromProductResult;
+
+                if (!fromProduct) {
+                  return {
+                    success: false,
+                    errors: [`Product ${ productGid } not found in own store ${ fromStore }`],
+                  };
+                }
+
                 idDex.add({
-                  [commonIdProp]: fromProductResult[commonIdProp],
+                  [commonIdProp]: fromProduct[commonIdProp],
                   [fromStore]: productGid,
                 });
                 dexProduct = idDex.get(fromStore, productGid);
@@ -259,15 +268,20 @@ const shopifyMetafieldValuesPropagate = async (
                 const toProductResponse = await shopifyProductGet(toStore, { handle: dexProduct[commonIdProp] }, { attrs: 'id', apiVersion });
                 const { success: toProductGetSuccess, result: toProductResult } = toProductResponse;
                 
-                // Ignore this, might just be the product doesn't exist.
                 if (!toProductGetSuccess) {
+                  return toProductGetSuccess;
+                }
+
+                const toProduct = toProductResult?.product || toProductResult;
+
+                if (!toProduct) {
                   continue;
                 }
                 
-                toProductGid = toProductResult.id;
+                toProductGid = toProduct.id;
 
                 idDex.add({
-                  [commonIdProp]: toProductResult[commonIdProp],
+                  [commonIdProp]: toProduct[commonIdProp],
                   [toStore]: toProductGid,
                 });  
               }
