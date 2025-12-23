@@ -231,7 +231,7 @@ const shopifyMetafieldValuesPropagate = async (
           case 'list.product_reference':
             
             // TODO: Handle GIDs not existing in map
-            const desiredValue = [];
+            const desiredValueArray = [];
             const sourceValue = JSON.parse(fromValue);
 
             for (const productGid of sourceValue) {
@@ -272,16 +272,16 @@ const shopifyMetafieldValuesPropagate = async (
                 });  
               }
 
-              desiredValue.push(toProductGid);
+              desiredValueArray.push(toProductGid);
             }
 
             // If anything wasn't found, don't propagate the metafield.
-            if (desiredValue.length !== sourceValue.length) {
+            if (desiredValueArray.length !== sourceValue.length) {
               console.warn(`${ commonId }: ${ metafieldPath }: Some products not found in ${ toStore }`);
               continue;
             }
 
-            desiredValue = JSON.stringify(desiredValue);
+            const desiredValue = JSON.stringify(desiredValueArray);
             break;
         }
 
