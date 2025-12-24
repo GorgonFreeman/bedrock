@@ -394,6 +394,8 @@ const slackInteractiveStockCheck = async (req, res) => {
   let response;
   let updatedBlocks;
 
+  let skipExport; // For regions where it's not supported
+
   switch (actionName) {
 
     case 'cancel':
@@ -406,31 +408,40 @@ const slackInteractiveStockCheck = async (req, res) => {
 
       stateRegion = actionValue;
 
-      response = {
-        replace_original: 'true',
-        blocks: [
-          blocks.settings.state(stateOnlyPublishedProducts, stateMinDiff, { region: stateRegion }),
-          ...blocks.use_export(stateRegion),
-          blocks.cancel,
-        ],
-      };
-      break;
+      const exportSupportedRegions = ['us', 'uk'];
+      if (exportSupportedRegions.includes(stateRegion)) {
+        response = {
+          replace_original: 'true',
+          blocks: [
+            blocks.settings.state(stateOnlyPublishedProducts, stateMinDiff, { region: stateRegion }),
+            ...blocks.use_export(stateRegion),
+            blocks.cancel,
+          ],
+        };
+        break;
+      }
+
+      skipExport = true;
+      // Proceed to 'use_export' case
 
     case 'use_export':
-
+      
       let sheetName;
-
-      switch (actionNodes?.[0]) {
-        case 'skip':
-          break;
-          
-        case 'use':
-          const selectedValue = action?.selected_option?.value;
-          stateMinDiff = Number(selectedValue);
-          break;
-
-        default:
-          console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
+      
+      if (!skipExport) {
+        switch (actionNodes?.[0]) {
+          case 'skip':
+            break;
+            
+          case 'use':
+            const selectedValue = action?.selected_option?.value;
+            stateMinDiff = Number(selectedValue);
+            break;
+  
+          default:
+            console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
+            return;
+        }
       }
 
       const minDiff = stateMinDiff;
