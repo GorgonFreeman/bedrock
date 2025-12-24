@@ -145,7 +145,6 @@ const blocks = {
           },
           value: 'skip',
           action_id: `${ COMMAND_NAME }:use_export:skip`,
-          style: 'primary',
         },
         {
           type: 'button',
