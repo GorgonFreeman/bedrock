@@ -31,7 +31,7 @@ const blocks = {
         text: '*Settings*',
       },
     },
-    state: (onlyPublishedProducts, minDiff, sheetName, { region } = {}) => {
+    state: (onlyPublishedProducts, minDiff, { region } = {}) => {
       return {
         type: 'section',
         block_id: 'settings:state',
@@ -335,8 +335,16 @@ const slackInteractiveStockCheck = async (req, res) => {
   const settingsInputsBlock = currentBlocksById['settings:inputs'];
   
   // current settings - will be overwritten if changed in payload
-  let stateMinDiff = Number(settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value);
-  let stateOnlyPublishedProducts = settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false;
+  const textSettings = settingsStateBlock?.text?.text?.split('|');
+  let stateMinDiff = settingsInputsBlock
+    ? Number(settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value)
+    : Number(textSettings?.[0])
+  ;
+  let stateOnlyPublishedProducts = settingsInputsBlock
+    ? (settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false)
+    : parseBoolean(textSettings?.[1])
+  ;
+  let stateRegion = textSettings?.[2];
 
   const action = actions?.[0];
   const { 
@@ -366,10 +374,12 @@ const slackInteractiveStockCheck = async (req, res) => {
 
     case 'region_select':
 
+      const region = actionValue;
+
       response = {
         replace_original: 'true',
         blocks: [
-          blocks.settings.state(stateOnlyPublishedProducts, stateMinDiff),
+          blocks.settings.state(stateOnlyPublishedProducts, stateMinDiff, { region }),
           blocks.use_export.input,
           blocks.use_export.buttons,
           blocks.cancel,
@@ -394,10 +404,8 @@ const slackInteractiveStockCheck = async (req, res) => {
           console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
       }
 
-      const region = actionValue;
-      const regionDisplay = region.toUpperCase();
-      const minDiff = Number(settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value);
-      const onlyPublishedProducts = settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false;
+      const minDiff = stateMinDiff;
+      const onlyPublishedProducts = stateOnlyPublishedProducts;
 
       // Show "Checking [REGION] stock..." message
       response = {
