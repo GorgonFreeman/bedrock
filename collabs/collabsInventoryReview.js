@@ -158,7 +158,7 @@ const collabsInventoryReview = async (
       for (const item of wmsExport) {
         const {
           'SKU': sku,
-          'Sellable Quantity': wmsQty,
+          'Sellable Qty': wmsQty,
         } = item;
   
         if (!sku || !wmsQty) {

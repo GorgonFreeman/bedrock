@@ -145,7 +145,7 @@ const collabsInventorySync = async (
 
     if (logiwaRelevant) {
       // Export from: https://fasttrack.radial.com/en/wms/report/available-to-promise
-      wmsInventoryObj = arrayToObj(wmsExport, { uniqueKeyProp: 'SKU', keepOnlyValueProp: 'Sellable Quantity' });
+      wmsInventoryObj = arrayToObj(wmsExport, { uniqueKeyProp: 'SKU', keepOnlyValueProp: 'Sellable Qty' });
     }
 
   } else {
