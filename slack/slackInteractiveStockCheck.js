@@ -158,6 +158,21 @@ const blocks = {
       ],
     },
   },
+
+  cancel: {
+    type: 'actions',
+    block_id: 'cancel',
+    elements: [
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Cancel',
+        },
+        action_id: `${ COMMAND_NAME }:cancel`,
+      },
+    ],
+  },
   
   result: (regionDisplay, sheetUrl, { mentionUserId } = {}) => {
     return {
@@ -284,6 +299,7 @@ const slackInteractiveStockCheck = async (req, res) => {
       blocks.settings.inputs(DEFAULT_CONFIG.onlyPublishedProducts, DEFAULT_CONFIG.minDiff),
       blocks.region_select.heading,
       blocks.region_select.buttons,
+      blocks.cancel,
     ];
 
     return respond(res, 200, {
@@ -341,6 +357,13 @@ const slackInteractiveStockCheck = async (req, res) => {
   let updatedBlocks;
 
   switch (actionName) {
+
+    case 'cancel':
+      response = {
+        delete_original: 'true',
+      };
+      break;
+
     case 'region_select':
 
       response = {
@@ -349,6 +372,7 @@ const slackInteractiveStockCheck = async (req, res) => {
           blocks.settings.state(stateOnlyPublishedProducts, stateMinDiff),
           blocks.use_export.input,
           blocks.use_export.buttons,
+          blocks.cancel,
         ],
       };
       break;
