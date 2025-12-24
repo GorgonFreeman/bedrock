@@ -1,4 +1,5 @@
 const { HOSTED } = require('../constants');
+const { spreadsheetHandleToSpreadsheetId } = require('../bedrock_unlisted/mappings');
 const { respond, logDeep, customAxios, askQuestion, arrayToObj, parseBoolean, camelToReadable } = require('../utils');
 const { slackArrayToTableBlock } = require('../slack/slack.utils');
 const { collabsInventoryReview } = require('../collabs/collabsInventoryReview');
@@ -30,7 +31,7 @@ const blocks = {
         text: '*Settings*',
       },
     },
-    state: (onlyPublishedProducts, minDiff, { region } = {}) => {
+    state: (onlyPublishedProducts, minDiff, sheetName, { region } = {}) => {
       return {
         type: 'section',
         block_id: 'settings:state',
@@ -117,6 +118,45 @@ const blocks = {
         value: region,
         action_id: `${ COMMAND_NAME }:region_select:${ region }`,
       })),
+    },
+  },
+
+  use_export: {
+    input: {
+      type: 'input',
+      element: {
+        type: 'plain_text_input',
+        action_id: `${ COMMAND_NAME }:export_name`,
+      },
+      label: {
+        type: 'plain_text',
+        text: `Want to compare with an export? Upload it <https://docs.google.com/spreadsheets/d/${ spreadsheetHandleToSpreadsheetId['foxtron_stock_check'] }/edit|here> and paste in the sheet name. If left blank, we'll use the API.`,
+      },
+    },
+    buttons: {
+      type: 'actions',  
+      block_id: 'use_export:buttons',
+      elements: [
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Skip',
+          },
+          value: 'skip',
+          action_id: `${ COMMAND_NAME }:use_export:skip`,
+          style: 'primary',
+        },
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Use Export',
+          },
+          value: 'use',
+          action_id: `${ COMMAND_NAME }:use_export:use`,
+        },
+      ],
     },
   },
   
@@ -278,6 +318,10 @@ const slackInteractiveStockCheck = async (req, res) => {
 
   const settingsStateBlock = currentBlocksById['settings:state'];
   const settingsInputsBlock = currentBlocksById['settings:inputs'];
+  
+  // current settings - will be overwritten if changed in payload
+  let stateMinDiff = Number(settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value);
+  let stateOnlyPublishedProducts = settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false;
 
   const action = actions?.[0];
   const { 
@@ -299,6 +343,33 @@ const slackInteractiveStockCheck = async (req, res) => {
 
   switch (actionName) {
     case 'region_select':
+
+      response = {
+        replace_original: 'true',
+        blocks: [
+          blocks.settings.state(stateOnlyPublishedProducts, stateMinDiff),
+          blocks.use_export.input,
+          blocks.use_export.buttons,
+        ],
+      };
+      break;
+
+    case 'use_export':
+
+      let sheetName;
+
+      switch (actionNodes?.[0]) {
+        case 'skip':
+          break;
+          
+        case 'use':
+          const selectedValue = action?.selected_option?.value;
+          stateMinDiff = Number(selectedValue);
+          break;
+
+        default:
+          console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
+      }
 
       const region = actionValue;
       const regionDisplay = region.toUpperCase();
@@ -326,6 +397,14 @@ const slackInteractiveStockCheck = async (req, res) => {
           ],
         } : {},
         minReportableDiff: minDiff,
+        ...sheetName ? {
+          wmsExportSpreadsheetIdentifier: {
+            spreadsheetHandle: 'foxtron_stock_check',
+          },
+          wmsExportSheetIdentifier: {
+            sheetName,
+          },
+        } : {},
       });
 
       const { 
@@ -412,10 +491,6 @@ const slackInteractiveStockCheck = async (req, res) => {
       break;
 
     case 'settings':
-      
-      // current settings - will be overwritten if changed in payload
-      let stateMinDiff = Number(settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value);
-      let stateOnlyPublishedProducts = settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false;
 
       switch (actionNodes?.[0]) {
         case 'only_published':
