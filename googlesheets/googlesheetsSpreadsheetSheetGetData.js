@@ -77,7 +77,7 @@ const googlesheetsSpreadsheetSheetGetData = async (
   // Fetch the data from the sheet
   const { data: valuesData } = await sheetsClient.spreadsheets.values.get({
     spreadsheetId,
-    range: `${ resolvedSheetName }!A:ZZ`,
+    range: `'${ resolvedSheetName }'!A:ZZ`,
   });
 
   const { values } = valuesData || {};
