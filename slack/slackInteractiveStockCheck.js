@@ -367,13 +367,13 @@ const slackInteractiveStockCheck = async (req, res) => {
   
   // current settings - will be overwritten if changed in payload
   const textSettings = settingsStateBlock?.text?.text?.split('|');
-  let stateMinDiff = settingsInputsBlock
-    ? Number(settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value)
-    : Number(textSettings?.[0])
-  ;
   let stateOnlyPublishedProducts = settingsInputsBlock
     ? (settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:only_published`)?.initial_options?.length > 0 ?? false)
-    : parseBoolean(textSettings?.[1])
+    : parseBoolean(textSettings?.[0])
+  ;
+  let stateMinDiff = settingsInputsBlock
+    ? Number(settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value)
+    : Number(textSettings?.[1])
   ;
   let stateRegion = textSettings?.[2];
 
