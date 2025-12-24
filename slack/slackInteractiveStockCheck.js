@@ -125,6 +125,7 @@ const blocks = {
 
     const inputBlock = {
       type: 'input',
+      block_id: 'use_export:input',
       element: {
         type: 'plain_text_input',
         action_id: `${ COMMAND_NAME }:export_name`,
@@ -434,8 +435,7 @@ const slackInteractiveStockCheck = async (req, res) => {
             break;
             
           case 'use':
-            const selectedValue = action?.selected_option?.value;
-            stateMinDiff = Number(selectedValue);
+            sheetName = state?.values?.['use_export:input']?.[`${ COMMAND_NAME }:export_name`]?.value;
             break;
   
           default:
