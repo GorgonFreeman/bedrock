@@ -121,8 +121,9 @@ const blocks = {
     },
   },
 
-  use_export: {
-    input: {
+  use_export: (region) => {
+
+    const inputBlock = {
       type: 'input',
       element: {
         type: 'plain_text_input',
@@ -130,10 +131,11 @@ const blocks = {
       },
       label: {
         type: 'plain_text',
-        text: `Want to compare with an export? Upload it <https://docs.google.com/spreadsheets/d/${ spreadsheetHandleToSpreadsheetId['foxtron_stock_check'] }/edit|here> and paste in the sheet name. If left blank, we'll use the API.`,
+        text: 'Sheet name',
       },
-    },
-    buttons: {
+    };
+
+    const buttonsBlock = {
       type: 'actions',  
       block_id: 'use_export:buttons',
       elements: [
@@ -156,7 +158,35 @@ const blocks = {
           action_id: `${ COMMAND_NAME }:use_export:use`,
         },
       ],
-    },
+    };
+
+    let instructionsText;
+
+    if (region === 'us') {
+      instructionsText = `Go <https://fasttrack.radial.com/en/wms/report/available-to-promise|here> and click "Export as Excel" in the bottom right. Then, upload <https://docs.google.com/spreadsheets/d/${ spreadsheetHandleToSpreadsheetId['foxtron_stock_check'] }/edit|here>, copy the sheet name, and paste below.`;
+    }
+
+    if (region === 'uk') {
+      instructionsText = `Go <https://apex.bleckmann.com/ords/r/bleckmann/jumpstart_dashboard/login|here> > Inventory > set "Export Client" > click "Export inventory". Once you have the export in your email, upload it <https://docs.google.com/spreadsheets/d/${ spreadsheetHandleToSpreadsheetId['foxtron_stock_check'] }/edit|here>, copy the sheet name, and paste below.`
+    }
+
+    if (!instructionsText) {
+      throw new Error(`No instructions`);
+    }
+
+    const instructionsBlock = {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: instructionsText,
+      },
+    };
+
+    return [
+      instructionsBlock,
+      inputBlock,
+      buttonsBlock,
+    ];
   },
 
   cancel: {
@@ -374,14 +404,13 @@ const slackInteractiveStockCheck = async (req, res) => {
 
     case 'region_select':
 
-      const region = actionValue;
+      stateRegion = actionValue;
 
       response = {
         replace_original: 'true',
         blocks: [
-          blocks.settings.state(stateOnlyPublishedProducts, stateMinDiff, { region }),
-          blocks.use_export.input,
-          blocks.use_export.buttons,
+          blocks.settings.state(stateOnlyPublishedProducts, stateMinDiff, { region: stateRegion }),
+          ...blocks.use_export(stateRegion),
           blocks.cancel,
         ],
       };
@@ -406,6 +435,9 @@ const slackInteractiveStockCheck = async (req, res) => {
 
       const minDiff = stateMinDiff;
       const onlyPublishedProducts = stateOnlyPublishedProducts;
+      const region = stateRegion;
+
+      const regionDisplay = region.toUpperCase();
 
       // Show "Checking [REGION] stock..." message
       response = {
