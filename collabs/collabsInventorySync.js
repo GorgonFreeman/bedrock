@@ -10,6 +10,8 @@ const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
 const { logiwaReportGetAvailableToPromise } = require('../logiwa/logiwaReportGetAvailableToPromise');
 
+const { googlesheetsSpreadsheetSheetGetData } = require('../googlesheets/googlesheetsSpreadsheetSheetGetData');
+
 const {
   REGIONS_PVX,
   REGIONS_LOGIWA,
@@ -23,6 +25,8 @@ const collabsInventorySync = async (
     shopifyVariantsFetchQueries,
     minDiff = 0, // Only sync if the diff is greater than or equal to this value.
     locationId,
+    wmsExportSpreadsheetIdentifier,
+    wmsExportSheetIdentifier,
 
     mode = 'full', 
     /* Valid values:
@@ -114,56 +118,90 @@ const collabsInventorySync = async (
   let wmsInventoryObj;
   const shopifyInventoryQuantitiesSetPayloads = [];
 
-  if (pvxRelevant) {
-    const pvxSite = shopifyRegionToPvxSite(region);
+  const usingExport = wmsExportSpreadsheetIdentifier && wmsExportSheetIdentifier;
 
-    if (!pvxSite) {
+  if (usingExport) {
+
+    const canUseExport = [
+      logiwaRelevant,
+    ].some(Boolean);
+
+    if (!canUseExport) {
       return {
         success: false,
-        error: [`No PVX site found for ${ region }`],
+        error: ['Region not supported for export'],
       };
     }
 
-    const pvxInventoryResponse = await peoplevoxReportGet(
-      'Item inventory summary', 
-      {
-        searchClause: `([Site reference].Equals("${ pvxSite }"))`, 
-        columns: ['Item code', 'Available'], 
-      },
+    const wmsExportResponse = await googlesheetsSpreadsheetSheetGetData(
+      wmsExportSpreadsheetIdentifier,
+      wmsExportSheetIdentifier,
     );
 
-    const {
-      success: pvxReportSuccess,
-      result: pvxInventory,
-    } = pvxInventoryResponse;
-    if (!pvxReportSuccess) {
-      return pvxInventoryResponse;
+    const { success: sheetSuccess, result: wmsExport } = wmsExportResponse;
+    if (!sheetSuccess) {
+      return wmsExportResponse;
     }
 
-    wmsInventoryObj = arrayToObj(pvxInventory, { uniqueKeyProp: 'Item code', keepOnlyValueProp: 'Available' });
-    !HOSTED && logDeep('wmsInventoryObj', wmsInventoryObj);
-  }
-
-  if (logiwaRelevant) {
-    const logiwaReportResponse = await logiwaReportGetAvailableToPromise(
-      {
-        undamagedQuantity_gt: '0',
-      },
-      {
-        apiVersion: 'v3.2',
-      },
-    );
-
-    const {
-      success: logiwaReportSuccess,
-      result: logiwaInventory,
-    } = logiwaReportResponse;
-    if (!logiwaReportSuccess) {
-      return logiwaReportResponse;
+    if (logiwaRelevant) {
+      // Export from: https://fasttrack.radial.com/en/wms/report/available-to-promise
+      wmsInventoryObj = arrayToObj(wmsExport, { uniqueKeyProp: 'SKU', keepOnlyValueProp: 'Sellable Quantity' });
     }
 
-    wmsInventoryObj = arrayToObj(logiwaInventory, { uniqueKeyProp: 'productSku', keepOnlyValueProp: 'sellableQuantity' });
-    !HOSTED && logDeep('wmsInventoryObj', wmsInventoryObj);
+  } else {
+
+    // Using API
+    if (pvxRelevant) {
+      const pvxSite = shopifyRegionToPvxSite(region);
+  
+      if (!pvxSite) {
+        return {
+          success: false,
+          error: [`No PVX site found for ${ region }`],
+        };
+      }
+  
+      const pvxInventoryResponse = await peoplevoxReportGet(
+        'Item inventory summary', 
+        {
+          searchClause: `([Site reference].Equals("${ pvxSite }"))`, 
+          columns: ['Item code', 'Available'], 
+        },
+      );
+  
+      const {
+        success: pvxReportSuccess,
+        result: pvxInventory,
+      } = pvxInventoryResponse;
+      if (!pvxReportSuccess) {
+        return pvxInventoryResponse;
+      }
+  
+      wmsInventoryObj = arrayToObj(pvxInventory, { uniqueKeyProp: 'Item code', keepOnlyValueProp: 'Available' });
+      !HOSTED && logDeep('wmsInventoryObj', wmsInventoryObj);
+    }
+  
+    if (logiwaRelevant) {
+      const logiwaReportResponse = await logiwaReportGetAvailableToPromise(
+        {
+          undamagedQuantity_gt: '0',
+        },
+        {
+          apiVersion: 'v3.2',
+        },
+      );
+  
+      const {
+        success: logiwaReportSuccess,
+        result: logiwaInventory,
+      } = logiwaReportResponse;
+      if (!logiwaReportSuccess) {
+        return logiwaReportResponse;
+      }
+  
+      wmsInventoryObj = arrayToObj(logiwaInventory, { uniqueKeyProp: 'productSku', keepOnlyValueProp: 'sellableQuantity' });
+      !HOSTED && logDeep('wmsInventoryObj', wmsInventoryObj);
+    }
   }
 
   for (const variant of shopifyVariants) {
@@ -264,3 +302,6 @@ module.exports = {
 
 // US published
 // curl localhost:8000/collabsInventorySync -H "Content-Type: application/json" -d '{ "region": "us", "options": { "shopifyVariantsFetchQueries": ["tag_not:not_for_radial", "published_status:published", "product_publication_status:approved"] } }'
+
+// US using export
+// curl localhost:8000/collabsInventorySync -H "Content-Type: application/json" -d '{ "region": "us", "options": { "shopifyVariantsFetchQueries": ["tag_not:not_for_radial", "published_status:published", "product_publication_status:approved"], "wmsExportSpreadsheetIdentifier": { "spreadsheetHandle": "foxtron_stock_check" }, "wmsExportSheetIdentifier": { "sheetName": "Sheet 1" } } }'
