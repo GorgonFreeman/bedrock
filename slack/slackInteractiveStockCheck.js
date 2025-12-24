@@ -139,15 +139,15 @@ const blocks = {
       type: 'actions',  
       block_id: 'use_export:buttons',
       elements: [
-        {
-          type: 'button',
-          text: {
-            type: 'plain_text',
-            text: 'Skip',
-          },
-          value: 'skip',
-          action_id: `${ COMMAND_NAME }:use_export:skip`,
-        },
+        // {
+        //   type: 'button',
+        //   text: {
+        //     type: 'plain_text',
+        //     text: 'Skip',
+        //   },
+        //   value: 'skip',
+        //   action_id: `${ COMMAND_NAME }:use_export:skip`,
+        // },
         {
           type: 'button',
           text: {
@@ -163,7 +163,7 @@ const blocks = {
     let instructionsText;
 
     if (region === 'us') {
-      instructionsText = `Go <https://fasttrack.radial.com/en/wms/report/available-to-promise|here> and click "Export as Excel" in the bottom right. Then, upload <https://docs.google.com/spreadsheets/d/${ spreadsheetHandleToSpreadsheetId['foxtron_stock_check'] }/edit|here>, copy the sheet name, and paste below.`;
+      instructionsText = `Hey, so US doesn't work very well (not my fault :pleading_face:), so we're going to use a manual export. Go <https://fasttrack.radial.com/en/wms/report/available-to-promise|here> and click "Export as Excel" in the bottom right. Then, upload <https://docs.google.com/spreadsheets/d/${ spreadsheetHandleToSpreadsheetId['foxtron_stock_check'] }/edit|here>, copy the sheet name, and paste below.`;
     }
 
     if (region === 'uk') {
@@ -408,8 +408,8 @@ const slackInteractiveStockCheck = async (req, res) => {
 
       stateRegion = actionValue;
 
-      const exportSupportedRegions = ['us', 'uk'];
-      if (exportSupportedRegions.includes(stateRegion)) {
+      const exportRequiredRegions = ['us'];
+      if (exportRequiredRegions.includes(stateRegion)) {
         response = {
           replace_original: 'true',
           blocks: [
