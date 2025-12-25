@@ -450,7 +450,6 @@ const slackInteractiveStockCheck = async (req, res) => {
 
       const regionDisplay = region.toUpperCase();
 
-      // Show "Checking [REGION] stock..." message
       response = {
         replace_original: 'true',
         text: `Checking ${ regionDisplay } stock...`,
@@ -480,11 +479,13 @@ const slackInteractiveStockCheck = async (req, res) => {
           },
         } : {},
       });
+      console.log('inventoryReviewResponse received');
 
       const { 
         success: inventoryReviewSuccess,
         result: inventoryReviewResult,
       } = inventoryReviewResponse;
+      console.log('inventoryReviewSuccess', inventoryReviewSuccess);
 
       if (!inventoryReviewSuccess) {
         response = {
@@ -522,6 +523,7 @@ const slackInteractiveStockCheck = async (req, res) => {
           sheetName: `${ regionDisplay } ${ Date.now() }`,
         },
       );
+      logDeep('sheetAddResponse', sheetAddResponse);
 
       const {
         success: sheetAddSuccess,
@@ -689,6 +691,8 @@ const slackInteractiveStockCheck = async (req, res) => {
               ],
             } : {},
           });
+
+          console.log('inventorySyncResponse received');
 
           const { success: inventorySyncSuccess, result: inventorySyncResult } = inventorySyncResponse;
           if (!inventorySyncSuccess) {

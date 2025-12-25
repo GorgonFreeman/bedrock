@@ -97,7 +97,8 @@ const collabsInventoryReview = async (
     variantQuery,
   );
 
-  logDeep('shopifyInventoryResponse', shopifyInventoryResponse);
+  !HOSTED && logDeep('shopifyInventoryResponse', shopifyInventoryResponse);
+  console.log('shopifyInventoryResponse received');
 
   const { 
     success: shopifyInventorySuccess, 
@@ -126,6 +127,7 @@ const collabsInventoryReview = async (
   const wmsInventoryObj = {};
 
   const usingExport = wmsExportSpreadsheetIdentifier && wmsExportSheetIdentifier;
+  console.log('usingExport', usingExport);
 
   if (usingExport) {
 
@@ -145,13 +147,14 @@ const collabsInventoryReview = async (
       wmsExportSpreadsheetIdentifier,
       wmsExportSheetIdentifier,
     );
+    console.log('wmsExportResponse received');
 
     const { success: sheetSuccess, result: wmsExport } = wmsExportResponse;
     if (!sheetSuccess) {
       return wmsExportResponse;
     }
 
-    logDeep('wmsExport', wmsExport);
+    !HOSTED && logDeep('wmsExport', wmsExport);
 
     if (logiwaRelevant) {
       // Export from: https://fasttrack.radial.com/en/wms/report/available-to-promise
@@ -335,6 +338,7 @@ const collabsInventoryReview = async (
       ...value,
     };
   });
+  console.log('inventoryReviewArray made');
 
   // Filter out < min diff
   inventoryReviewArray = inventoryReviewArray.filter(item => item.absDiff >= minReportableDiff);
