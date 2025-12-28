@@ -785,7 +785,7 @@ class CustomAxiosClient {
     let done = false;
     let cooldown = 3000;
     let retryAttempt = 0;
-    let maxRetries = 5;
+    let maxRetries = 10;
 
     while (!done) {
       try {
