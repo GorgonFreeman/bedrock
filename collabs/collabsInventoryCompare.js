@@ -55,6 +55,33 @@ const collabsInventoryCompare = async (
 
   !HOSTED && logDeep('locationId', locationId);
 
+  const variantQuery = `{
+    productVariants${ shopifyVariantsFetchQueries ? `(query: "${ shopifyVariantsFetchQueries.join(' AND ') }")` : '' } {
+      edges {
+        node {
+          sku 
+          inventoryQuantity 
+          inventoryItem { 
+            id 
+            requiresShipping
+            tracked
+          }
+        }
+      }
+    }
+  }`;
+
+  const shopifyVariantsResponse = await shopifyBulkOperationDo(
+    region,
+    'query',
+    variantQuery,
+  );
+
+  const { success: shopifyVariantsSuccess, result: shopifyVariants } = shopifyVariantsResponse;
+  if (!shopifyVariantsSuccess) {
+    return shopifyVariantsResponse;
+  }
+
   return {
     success: true,
     result: {
