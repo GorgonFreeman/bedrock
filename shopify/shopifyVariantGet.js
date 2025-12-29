@@ -3,44 +3,83 @@
 const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 
+const { shopifyVariantsGet } = require('../shopify/shopifyVariantsGet');
+
 const defaultAttrs = `id title`;
 
 const shopifyVariantGetSingle = async (
   credsPath,
-  variantId,
+  {
+    variantId,
+    sku,
+  },
   {
     apiVersion,
     attrs = defaultAttrs,
   } = {},
 ) => {
+
+  if (variantId) {
+    const response = await shopifyGetSingle(
+      credsPath,
+      'productVariant',
+      variantId,
+      {
+        apiVersion,
+        attrs,
+      },
+    );
+    
+    logDeep(response);
+    return response;
+  }
+
+  // Searching by sku
+  attrs += ' sku';
   
-  const response = await shopifyGetSingle(
-    credsPath,
-    'productVariant',
-    variantId,
+  const variantsResponse = await shopifyVariantsGet(
+    credsPath, 
     {
       apiVersion,
       attrs,
+      queries: [`sku:${ sku }`],
     },
   );
+
+  const { success: variantsSuccess, result: variants } = variantsResponse;
+  if (!variantsSuccess) {
+    return variantsResponse;
+  }
+
+  const variant = variants.find((v) => v.sku === sku);
+  if (!variant) {
+    return {
+      success: false,
+      error: [`Variant with sku '${sku}' not found`],
+    };
+  }
   
+  const response = {
+    success: true,
+    result: variant,
+  };
   logDeep(response);
   return response;
 };
 
 const shopifyVariantGet = async (
   credsPath,
-  variantId,
+  variantIdentifier,
   {
     queueRunOptions,
     ...options
   } = {},
 ) => {
   const response = await actionMultipleOrSingle(
-    variantId,
+    variantIdentifier,
     shopifyVariantGetSingle,
-    (variantId) => ({
-      args: [credsPath, variantId],
+    (variantIdentifier) => ({
+      args: [credsPath, variantIdentifier],
       options,
     }),
     {
@@ -53,7 +92,7 @@ const shopifyVariantGet = async (
 };
 
 const shopifyVariantGetApi = funcApi(shopifyVariantGet, {
-  argNames: ['credsPath', 'variantId', 'options'],
+  argNames: ['credsPath', 'variantIdentifier', 'options'],
 });
 
 module.exports = {
@@ -61,4 +100,4 @@ module.exports = {
   shopifyVariantGetApi,
 };
 
-// curl localhost:8000/shopifyVariantGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "variantId": "________" }'
+// curl localhost:8000/shopifyVariantGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "variantIdentifier": { "sku": "________" } }'
