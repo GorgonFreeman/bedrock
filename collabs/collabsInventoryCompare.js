@@ -285,6 +285,8 @@ const collabsInventoryCompare = async (
       oversellRisk,
       absDiff,
       safeToImport,
+      
+      // inventory item ID and location ID are included for syncing inventory without refetching
       inventoryItemId,
       locationId,
     };
