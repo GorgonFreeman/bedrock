@@ -7,7 +7,12 @@ const {
 } = require('../constants');
 
 const { shopifyLocationGetMain } = require('../shopify/shopifyLocationGetMain');
+const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
+
 const { googlesheetsSpreadsheetSheetGetData } = require('../googlesheets/googlesheetsSpreadsheetSheetGetData');
+
+const { shopifyRegionToPvxSite } = require('../mappings');
+const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
 const collabsInventoryCompare = async (
   region,
@@ -139,8 +144,40 @@ const collabsInventoryCompare = async (
     }
     
   } else {
+
     // Using API
+
+    if (pvxRelevant) {
+      const pvxSite = shopifyRegionToPvxSite(region);
+  
+      if (!pvxSite) {
+        return {
+          success: false,
+          error: [`No PVX site found for ${ region }`],
+        };
+      }
+  
+      const pvxInventoryResponse = await peoplevoxReportGet(
+        'Item inventory summary', 
+        {
+          searchClause: `([Site reference].Equals("${ pvxSite }"))`, 
+          columns: ['Item code', 'Available'], 
+        },
+      );
+  
+      const {
+        success: pvxReportSuccess,
+        result: pvxInventory,
+      } = pvxInventoryResponse;
+      if (!pvxReportSuccess) {
+        return pvxInventoryResponse;
+      }
+  
+      wmsInventoryObj = arrayToObj(pvxInventory, { uniqueKeyProp: 'Item code', keepOnlyValueProp: 'Available' });
+    }
   }
+
+  !HOSTED && logDeep('wmsInventoryObj', wmsInventoryObj);
 
   return {
     success: true,
