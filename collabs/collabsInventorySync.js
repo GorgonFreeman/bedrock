@@ -116,7 +116,7 @@ module.exports = {
 // curl localhost:8000/collabsInventorySync -H "Content-Type: application/json" -d '{ "region": "au", "options": { "minDiff": 10, "shopifyVariantsFetchQueries": ["published_status:published", "product_publication_status:approved"] } }'
 
 // US published
-// curl localhost:8000/collabsInventorySync -H "Content-Type: application/json" -d '{ "region": "us", "options": { "shopifyVariantsFetchQueries": ["tag_not:not_for_radial", "published_status:published", "product_publication_status:approved"] } }'
+// curl localhost:8000/collabsInventorySync -H "Content-Type: application/json" -d '{ "region": "us", "options": { "minDiff": 3, "shopifyVariantsFetchQueries": ["tag_not:not_for_radial", "published_status:published", "product_publication_status:approved"] } }'
 
 // US using export
 // curl localhost:8000/collabsInventorySync -H "Content-Type: application/json" -d '{ "region": "us", "options": { "shopifyVariantsFetchQueries": ["tag_not:not_for_radial", "published_status:published", "product_publication_status:approved"], "wmsExportSpreadsheetIdentifier": { "spreadsheetHandle": "foxtron_stock_check" }, "wmsExportSheetIdentifier": { "sheetName": "Sheet 1" } } }'

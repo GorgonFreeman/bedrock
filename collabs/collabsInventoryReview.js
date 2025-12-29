@@ -11,6 +11,7 @@ const {
 
 const { shopifyLocationGetMain } = require('../shopify/shopifyLocationGetMain');
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
+const { shopifyProductVariantGet } = require('../shopify/shopifyProductVariantGet');
 
 const { googlesheetsSpreadsheetSheetGetData } = require('../googlesheets/googlesheetsSpreadsheetSheetGetData');
 
@@ -27,6 +28,7 @@ const SAMPLE_SIZE = 5;
 const collabsInventoryReview = async (
   region,
   {
+    skus,
     shopifyVariantsFetchQueries,
     minReportableDiff = 0,
     locationId,
@@ -403,3 +405,5 @@ module.exports = {
 // curl localhost:8100/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "au", "options": { "shopifyVariantsFetchQueries": ["published_status:published", "product_publication_status:approved"] } }'
 // curl localhost:8101/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "us", "options": { "shopifyVariantsFetchQueries": ["published_status:published", "product_publication_status:approved", "tag_not:not_for_radial"] } }'
 // curl localhost:8102/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "uk", "options": { "shopifyVariantsFetchQueries": ["published_status:published", "product_publication_status:approved"] } }'
+
+// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "au", "options": { "skus": ["EXDAL355-10-S/M"] }'
