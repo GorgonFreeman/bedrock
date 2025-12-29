@@ -119,9 +119,9 @@ const collabsInventoryReview = async (
 
     const shopifyVariantsResponse = await shopifyVariantGet(
       region,
+      skus.map(sku => ({ sku })), // variantIdentifier
       {
         attrs: variantQueryAttrs,
-        sku: skus,
       },
     );
 
