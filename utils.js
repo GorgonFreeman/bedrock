@@ -94,8 +94,16 @@ const customAxios = async (url, {
     } catch(error) {
       
       const { response: errResponse } = error;
-      const { code, status, statusText, config, headers = {}, data } = errResponse || {};
-      const { message } = data || {};
+
+      // Get code from error object itself (for connection errors)
+      // or from response (for HTTP errors)
+      const code = errResponse?.code || error?.code;
+      const status = errResponse?.status;
+      const statusText = errResponse?.statusText;
+      const config = errResponse?.config || error?.config;
+      const headers = errResponse?.headers || {};
+      const data = errResponse?.data;
+      const message = data?.message || error?.message;
       
       verbose && console.error(status, code);
 
