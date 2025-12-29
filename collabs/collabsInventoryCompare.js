@@ -203,6 +203,7 @@ const collabsInventoryCompare = async (
     }
 
     if (bleckmannRelevant) {
+
       const bleckmannInventoryResponse = await bleckmannInventoriesGet();
 
       const {
@@ -215,7 +216,8 @@ const collabsInventoryCompare = async (
 
       // logDeep('bleckmannInventory', bleckmannInventory);
       // await askQuestion('?');
-
+      
+      wmsInventoryObj = {};
       for (const inventoryItem of bleckmannInventory) {
         const { 
           skuId: sku, 
@@ -229,7 +231,7 @@ const collabsInventoryCompare = async (
           continue;
         }
 
-        const bleckmannAvailable = quantityTotal - quantityLocked;        
+        const bleckmannAvailable = quantityTotal - quantityLocked;
         wmsInventoryObj[sku] = wmsInventoryObj[sku] || 0;
         wmsInventoryObj[sku] += bleckmannAvailable;
       }
