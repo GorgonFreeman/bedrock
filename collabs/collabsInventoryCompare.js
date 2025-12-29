@@ -28,6 +28,33 @@ const collabsInventoryCompare = async (
       message: 'Region not supported',
     };
   }
+  
+  // Check that region is appropriate if using export.
+  // If it makes it through here, we can attempt using an export from a sheet.
+  if (exportSheetIdentifier) {
+    const {
+      spreadsheetIdentifier,
+      sheetIdentifier,
+    } = exportSheetIdentifier;
+
+    if (!spreadsheetIdentifier || !sheetIdentifier) {
+      return {
+        success: false,
+        errors: ['spreadsheetIdentifier and sheetIdentifier are required'],
+      };
+    }
+
+    const canUseExport = [
+      logiwaRelevant,
+    ].some(Boolean);
+
+    if (!canUseExport) {
+      return {
+        success: false,
+        error: [`Region ${ region } not supported for export`],
+      };
+    }
+  }
 
   if (!locationId) {
     console.log(`${ region }: Using main location`);
