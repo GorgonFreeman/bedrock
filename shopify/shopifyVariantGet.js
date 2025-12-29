@@ -1,13 +1,13 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/order
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/productvariant
 
 const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 
-const defaultAttrs = `id name`;
+const defaultAttrs = `id title`;
 
 const shopifyVariantGetSingle = async (
   credsPath,
-  thingId,
+  variantId,
   {
     apiVersion,
     attrs = defaultAttrs,
@@ -16,8 +16,8 @@ const shopifyVariantGetSingle = async (
   
   const response = await shopifyGetSingle(
     credsPath,
-    'thing',
-    thingId,
+    'productVariant',
+    variantId,
     {
       apiVersion,
       attrs,
@@ -30,17 +30,17 @@ const shopifyVariantGetSingle = async (
 
 const shopifyVariantGet = async (
   credsPath,
-  thingId,
+  variantId,
   {
     queueRunOptions,
     ...options
   } = {},
 ) => {
   const response = await actionMultipleOrSingle(
-    thingId,
+    variantId,
     shopifyVariantGetSingle,
-    (thingId) => ({
-      args: [credsPath, thingId],
+    (variantId) => ({
+      args: [credsPath, variantId],
       options,
     }),
     {
@@ -53,7 +53,7 @@ const shopifyVariantGet = async (
 };
 
 const shopifyVariantGetApi = funcApi(shopifyVariantGet, {
-  argNames: ['credsPath', 'thingId', 'options'],
+  argNames: ['credsPath', 'variantId', 'options'],
 });
 
 module.exports = {
@@ -61,4 +61,4 @@ module.exports = {
   shopifyVariantGetApi,
 };
 
-// curl localhost:8000/shopifyVariantGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "thingId": "7012222266312" }'
+// curl localhost:8000/shopifyVariantGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "variantId": "________" }'
