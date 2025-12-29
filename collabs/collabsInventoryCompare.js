@@ -64,7 +64,7 @@ const collabsInventoryCompare = async (
 };
 
 const collabsInventoryCompareApi = funcApi(collabsInventoryCompare, {
-  argNames: ['arg', 'options'],
+  argNames: ['region', 'options'],
 });
 
 module.exports = {
