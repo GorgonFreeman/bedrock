@@ -18,6 +18,7 @@ const defaultAttrs = `
             edges {
               node {
                 id
+                name
                 active
                 description
               }
