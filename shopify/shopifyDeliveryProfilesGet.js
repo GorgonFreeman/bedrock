@@ -21,6 +21,22 @@ const defaultAttrs = `
                 name
                 active
                 description
+                methodConditions {
+                    field
+                    id
+                    operator
+                    conditionCriteria {
+                      __typename
+                      ... on MoneyV2 {
+                        amount
+                        currencyCode
+                      }
+                      ... on Weight {
+                        unit
+                        value
+                      }
+                    }
+                  }
               }
             }
           }
