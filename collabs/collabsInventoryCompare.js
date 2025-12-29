@@ -16,6 +16,8 @@ const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
 const { logiwaReportGetAvailableToPromise } = require('../logiwa/logiwaReportGetAvailableToPromise');
 
+const { bleckmannInventoriesGet } = require('../bleckmann/bleckmannInventoriesGet');
+
 const collabsInventoryCompare = async (
   region,
   {
@@ -197,6 +199,39 @@ const collabsInventoryCompare = async (
       }
   
       wmsInventoryObj = arrayToObj(logiwaInventory, { uniqueKeyProp: 'productSku', keepOnlyValueProp: 'sellableQuantity' });
+    }
+
+    if (bleckmannRelevant) {
+      const bleckmannInventoryResponse = await bleckmannInventoriesGet();
+
+      const {
+        success: bleckmannInventorySuccess,
+        result: bleckmannInventory,
+      } = bleckmannInventoryResponse;
+      if (!bleckmannInventorySuccess) {
+        return bleckmannInventoryResponse;
+      }
+
+      // logDeep('bleckmannInventory', bleckmannInventory);
+      // await askQuestion('?');
+
+      for (const inventoryItem of bleckmannInventory) {
+        const { 
+          skuId: sku, 
+          inventoryType,
+          quantityTotal,
+          quantityLocked,
+        } = inventoryItem;
+        
+        // Avoid damaged inventory locations
+        if (inventoryType !== 'OK1') {
+          continue;
+        }
+
+        const bleckmannAvailable = quantityTotal - quantityLocked;        
+        wmsInventoryObj[sku] = wmsInventoryObj[sku] || 0;
+        wmsInventoryObj[sku] += bleckmannAvailable;
+      }
     }
   }
 
