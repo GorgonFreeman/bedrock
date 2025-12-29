@@ -394,7 +394,10 @@ const collabsInventoryReview = async (
 
     const wmsInventory = wmsInventoryObj[sku] || 0; // TODO: Reconsider using 0 if not found in WMS
 
-    const diff = shopifyAvailable - wmsInventory;
+    const shopifyAvailableNormalised = Math.max(shopifyAvailable, 0);
+    const wmsInventoryNormalised = Math.max(wmsInventory, 0);
+
+    const diff = shopifyAvailableNormalised - wmsInventoryNormalised;
     const absDiff = Math.abs(diff);
     
     const oversellRisk = diff > 0;
