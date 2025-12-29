@@ -315,13 +315,13 @@ const collabsInventoryCompare = async (
     oversellRiskCount: inventoryReviewArray.filter(item => item.oversellRisk).length,
     timeTaken: timer.getTime({ readable: true }),
   };
-  !HOSTED && logDeep('metadata', metadata);
+  logDeep('metadata', metadata);
 
   const samples = {
     biggestDiff: biggestDiffSample,
     oversellRisk: oversellRiskSample,
   };
-  !HOSTED && logDeep('samples', samples);
+  logDeep('samples', samples);
 
   return {
     success: true,
