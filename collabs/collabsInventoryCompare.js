@@ -1,6 +1,7 @@
 const { funcApi, logDeep, gidToId } = require('../utils');
 
 const {
+  HOSTED,
   REGIONS_PVX,
   REGIONS_LOGIWA,
   REGIONS_BLECKMANN,
