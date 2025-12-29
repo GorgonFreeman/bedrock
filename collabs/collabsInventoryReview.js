@@ -22,6 +22,7 @@ const { logiwaReportGetAvailableToPromise } = require('../logiwa/logiwaReportGet
 const { logiwaAsyncReportDo } = require('../logiwa/logiwaAsyncReportDo');
 
 const { bleckmannInventoriesGet } = require('../bleckmann/bleckmannInventoriesGet');
+const { bleckmannInventoryGet } = require('../bleckmann/bleckmannInventoryGet');
 
 const SAMPLE_SIZE = 5;
 
@@ -321,15 +322,29 @@ const collabsInventoryReview = async (
     }
 
     if (bleckmannRelevant) {
+      
+      let bleckmannInventoryResponse;
 
-      const bleckmannInventoryResponse = await bleckmannInventoriesGet();
+      if (skus) {
 
-      const {
+        bleckmannInventoryResponse = await bleckmannInventoryGet(skus);
+
+      } else {
+
+        bleckmannInventoryResponse = await bleckmannInventoriesGet();
+
+      }
+
+      let {
         success: bleckmannInventorySuccess,
         result: bleckmannInventory,
       } = bleckmannInventoryResponse;
       if (!bleckmannInventorySuccess) {
         return bleckmannInventoryResponse;
+      }
+
+      if (skus) {
+        bleckmannInventory = bleckmannInventory.map(i => i.data).flat();
       }
 
       // logDeep('bleckmannInventory', bleckmannInventory);
@@ -353,6 +368,7 @@ const collabsInventoryReview = async (
         wmsInventoryObj[sku] = wmsInventoryObj[sku] || 0;
         wmsInventoryObj[sku] += Number(bleckmannAvailable);
       }
+
     }
   }
 
@@ -463,4 +479,4 @@ module.exports = {
 // curl localhost:8101/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "us", "options": { "shopifyVariantsFetchQueries": ["published_status:published", "product_publication_status:approved", "tag_not:not_for_radial"] } }'
 // curl localhost:8102/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "uk", "options": { "shopifyVariantsFetchQueries": ["published_status:published", "product_publication_status:approved"] } }'
 
-// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "au", "options": { "skus": ["EXDAL355-10-S/M"] } }'
+// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "au", "options": { "skus": ["EXDAL355-10-S/M", "EXD535-1-S/M", "EXDAL355-28-XS/S"] } }'
