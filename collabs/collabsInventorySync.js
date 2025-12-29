@@ -1,32 +1,14 @@
 const { HOSTED } = require('../constants');
 const { funcApi, logDeep, gidToId, askQuestion, arrayToObj } = require('../utils');
 
-const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
-const { shopifyLocationGetMain } = require('../shopify/shopifyLocationGetMain');
+const { collabsInventoryReview } = require('../collabs/collabsInventoryReview');
+
 const { shopifyInventoryQuantitiesSet } = require('../shopify/shopifyInventoryQuantitiesSet');
-
-const { shopifyRegionToPvxSite } = require('../mappings');
-const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
-
-const { logiwaReportGetAvailableToPromise } = require('../logiwa/logiwaReportGetAvailableToPromise');
-
-const { googlesheetsSpreadsheetSheetGetData } = require('../googlesheets/googlesheetsSpreadsheetSheetGetData');
-
-const {
-  REGIONS_PVX,
-  REGIONS_LOGIWA,
-  REGIONS_BLECKMANN,
-} = require('../constants');
 
 const collabsInventorySync = async (
   region,
   {
     skus, // if provided, only sync these SKUs, and ignore other options.
-    shopifyVariantsFetchQueries,
-    minDiff = 0, // Only sync if the diff is greater than or equal to this value.
-    locationId,
-    wmsExportSpreadsheetIdentifier,
-    wmsExportSheetIdentifier,
 
     mode = 'full', 
     /* Valid values:
@@ -34,6 +16,9 @@ const collabsInventorySync = async (
       safe: Only sync if Shopify has more than the WMS, or, there is no stock in Shopify. These syncs are unlikely to cause oversells.
       overs: Only sync if Shopify has more than the WMS. Almost always safe, the only risk is that inventory being moved is taken offline before it's available again in the WMS.
     */
+    
+    minDiff,
+    ...inventoryReviewOptions
   } = {},
 ) => {
 
@@ -44,202 +29,42 @@ const collabsInventorySync = async (
     };
   }
 
-  const pvxRelevant = REGIONS_PVX.includes(region);
-  const logiwaRelevant = REGIONS_LOGIWA.includes(region);
-  // const bleckmannRelevant = REGIONS_BLECKMANN.includes(region);
-  const anyRelevant = [
-    pvxRelevant, 
-    logiwaRelevant, 
-    // bleckmannRelevant,
-  ].some(Boolean);
-  if (!anyRelevant) {
-    return {
-      success: false,
-      errors: ['Region not supported'],
-    };
-  }
+  inventoryReviewOptions = {
+    ...inventoryReviewOptions,
+    minReportableDiff: minDiff,
+  };
 
-  // Get the location ID
-  // Get the Shopify inventory item IDs and stock
-  // Get the WMS inventory
-
-  // TODO: Convert to getters and processors
-
-  if (!locationId) {
-    console.log(`${ region }: Using main location`);
-
-    const locationResponse = await shopifyLocationGetMain(region);
-
-    const { success: locationSuccess, result: location } = locationResponse;
-    if (!locationSuccess) {
-      return locationResponse;
-    }
-
-    if (!location) {
-      return {
-        success: false,
-        errors: ['No location found'],
-      };
-    }
-
-    const { id: locationGid } = location;
-    locationId = gidToId(locationGid);
-  }
-
-  !HOSTED && logDeep('locationId', locationId);
-
-  const variantQuery = `{
-    productVariants${ shopifyVariantsFetchQueries ? `(query: "${ shopifyVariantsFetchQueries.join(' AND ') }")` : '' } {
-      edges {
-        node {
-          sku 
-          inventoryQuantity 
-          inventoryItem { 
-            id 
-            requiresShipping
-            tracked
-          }
-        }
-      }
-    }
-  }`;
-
-  const shopifyVariantsResponse = await shopifyBulkOperationDo(
-    region,
-    'query',
-    variantQuery,
+  const inventoryReviewResponse = await collabsInventoryReview(
+    region, 
+    inventoryReviewOptions,
   );
 
-  const { success: shopifyVariantsSuccess, result: shopifyVariants } = shopifyVariantsResponse;
-  if (!shopifyVariantsSuccess) {
-    return shopifyVariantsResponse;
+  const { 
+    success: reviewSuccess,
+    result: inventoryReview,
+  } = inventoryReviewResponse;
+  if (!reviewSuccess) {
+    return inventoryReviewResponse;
   }
-  
-  let wmsInventoryObj;
+
+  const { array: inventoryReviewArray } = inventoryReview;
+
   const shopifyInventoryQuantitiesSetPayloads = [];
 
-  const usingExport = wmsExportSpreadsheetIdentifier && wmsExportSheetIdentifier;
-
-  if (usingExport) {
-
-    const canUseExport = [
-      logiwaRelevant,
-    ].some(Boolean);
-
-    if (!canUseExport) {
-      return {
-        success: false,
-        error: ['Region not supported for export'],
-      };
-    }
-
-    const wmsExportResponse = await googlesheetsSpreadsheetSheetGetData(
-      wmsExportSpreadsheetIdentifier,
-      wmsExportSheetIdentifier,
-    );
-
-    const { success: sheetSuccess, result: wmsExport } = wmsExportResponse;
-    if (!sheetSuccess) {
-      return wmsExportResponse;
-    }
-
-    if (logiwaRelevant) {
-      // Export from: https://fasttrack.radial.com/en/wms/report/available-to-promise
-      wmsInventoryObj = arrayToObj(wmsExport, { uniqueKeyProp: 'SKU', keepOnlyValueProp: 'Sellable Qty' });
-    }
-
-  } else {
-
-    // Using API
-    if (pvxRelevant) {
-      const pvxSite = shopifyRegionToPvxSite(region);
-  
-      if (!pvxSite) {
-        return {
-          success: false,
-          error: [`No PVX site found for ${ region }`],
-        };
-      }
-  
-      const pvxInventoryResponse = await peoplevoxReportGet(
-        'Item inventory summary', 
-        {
-          searchClause: `([Site reference].Equals("${ pvxSite }"))`, 
-          columns: ['Item code', 'Available'], 
-        },
-      );
-  
-      const {
-        success: pvxReportSuccess,
-        result: pvxInventory,
-      } = pvxInventoryResponse;
-      if (!pvxReportSuccess) {
-        return pvxInventoryResponse;
-      }
-  
-      wmsInventoryObj = arrayToObj(pvxInventory, { uniqueKeyProp: 'Item code', keepOnlyValueProp: 'Available' });
-      !HOSTED && logDeep('wmsInventoryObj', wmsInventoryObj);
-    }
-  
-    if (logiwaRelevant) {
-      const logiwaReportResponse = await logiwaReportGetAvailableToPromise(
-        {
-          undamagedQuantity_gt: '0',
-        },
-        {
-          apiVersion: 'v3.2',
-        },
-      );
-  
-      const {
-        success: logiwaReportSuccess,
-        result: logiwaInventory,
-      } = logiwaReportResponse;
-      if (!logiwaReportSuccess) {
-        return logiwaReportResponse;
-      }
-  
-      wmsInventoryObj = arrayToObj(logiwaInventory, { uniqueKeyProp: 'productSku', keepOnlyValueProp: 'sellableQuantity' });
-      !HOSTED && logDeep('wmsInventoryObj', wmsInventoryObj);
-    }
-  }
-
-  for (const variant of shopifyVariants) {
+  for (const item of inventoryReviewArray) {
     const { 
-      sku, 
-      inventoryQuantity: shopifyAvailable, 
-      inventoryItem,
-    } = variant;
-
-    const {
-      requiresShipping,
-      tracked,
-    } = inventoryItem;
-
-    if (!requiresShipping || !tracked) {
-      continue;
-    }
-
-    const wmsInventory = wmsInventoryObj[sku] || 0; // TODO: Reconsider using 0 if not found in WMS
-
-    const diff = shopifyAvailable - wmsInventory;
-    const oversellRisk = diff > 0;
-    const absDiff = Math.abs(diff);
-    
-    // If same as WMS, skip
-    if (!(absDiff > 0)) {
-      continue;
-    }
-  
-    // Always send oversell risks, even if less than min diff.
-    if (!oversellRisk && absDiff < minDiff) {
-      continue;
-    }
+      sku,
+      shopifyQty,
+      wmsQty, 
+      oversellRisk,
+      safeToImport,
+      inventoryItemId,
+      locationId,
+    } = item;
 
     switch (mode) {
       case 'safe':
-        const safe = oversellRisk || shopifyAvailable === 0;
-        if (!safe) {
+        if (!safeToImport) {
           continue;
         }
         break;
@@ -252,25 +77,15 @@ const collabsInventorySync = async (
         // Do nothing
     }
 
-    const { id: inventoryItemGid } = inventoryItem;
-
     // Sync inventory
-    !HOSTED && console.log(`Syncing ${ wmsInventory } of ${ sku }, currently ${ shopifyAvailable }`);
+    !HOSTED && console.log(`Syncing ${ wmsQty } of ${ sku }, currently ${ shopifyQty }`);
     shopifyInventoryQuantitiesSetPayloads.push({
-      inventoryItemId: inventoryItemGid,
+      inventoryItemId: `gid://shopify/InventoryItem/${ inventoryItemId }`,
       locationId: `gid://shopify/Location/${ locationId }`,
-      quantity: Number(wmsInventory),
+      quantity: Number(wmsQty),
     });
   }
-
-  if (shopifyInventoryQuantitiesSetPayloads.length === 0) {
-    return {
-      success: true,
-      code: 204,
-      result: 'No inventory needed to be synced',
-    };
-  }
-
+  
   !HOSTED && logDeep('shopifyInventoryQuantitiesSetPayloads', shopifyInventoryQuantitiesSetPayloads);
   !HOSTED && await askQuestion('?');
 
