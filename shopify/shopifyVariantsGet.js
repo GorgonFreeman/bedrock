@@ -9,9 +9,17 @@ const shopifyVariantsGet = async (
   credsPath,
   {
     attrs = defaultAttrs,
+    skuStartsWith,
     ...options
   } = {},
 ) => {
+
+  const { queries = [] } = options;
+  if (skuStartsWith) {
+    attrs += ' sku';
+    queries.push(`sku:${ skuStartsWith }*`);
+  }
+  options.queries = queries;
 
   const response = await shopifyGet(
     credsPath, 
@@ -22,7 +30,17 @@ const shopifyVariantsGet = async (
     },
   );
 
-  return response;
+  if (!skuStartsWith) {
+    return response;
+  }
+
+  // Handling skuStartsWith
+  return {
+    ...response,
+    ...response?.result ? {
+      result: response.result.filter((v) => v.sku.startsWith(skuStartsWith)),
+    } : {},
+  };
 };
 
 const shopifyVariantsGetApi = async (req, res) => {
@@ -51,3 +69,6 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyVariantsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 2 } }'
+
+// starting with sku
+// curl localhost:8000/shopifyVariantsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "skuStartsWith": "________" } }'
