@@ -307,7 +307,8 @@ const collabsInventoryReview = async (
           continue;
         }
 
-        const bleckmannAvailable = quantityTotal - quantityLocked;        wmsInventoryObj[sku] = bleckmannAvailable;
+        const bleckmannAvailable = quantityTotal - quantityLocked;        
+        wmsInventoryObj[sku] = bleckmannAvailable;
       }
     }
   }
