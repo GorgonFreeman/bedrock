@@ -14,6 +14,8 @@ const { googlesheetsSpreadsheetSheetGetData } = require('../googlesheets/googles
 const { shopifyRegionToPvxSite } = require('../mappings');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
+const { logiwaReportGetAvailableToPromise } = require('../logiwa/logiwaReportGetAvailableToPromise');
+
 const collabsInventoryCompare = async (
   region,
   {
@@ -174,6 +176,27 @@ const collabsInventoryCompare = async (
       }
   
       wmsInventoryObj = arrayToObj(pvxInventory, { uniqueKeyProp: 'Item code', keepOnlyValueProp: 'Available' });
+    }
+  
+    if (logiwaRelevant) {
+      const logiwaReportResponse = await logiwaReportGetAvailableToPromise(
+        {
+          undamagedQuantity_gt: '0',
+        },
+        {
+          apiVersion: 'v3.2',
+        },
+      );
+  
+      const {
+        success: logiwaReportSuccess,
+        result: logiwaInventory,
+      } = logiwaReportResponse;
+      if (!logiwaReportSuccess) {
+        return logiwaReportResponse;
+      }
+  
+      wmsInventoryObj = arrayToObj(logiwaInventory, { uniqueKeyProp: 'productSku', keepOnlyValueProp: 'sellableQuantity' });
     }
   }
 
