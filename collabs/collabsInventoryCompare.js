@@ -1,4 +1,4 @@
-const { funcApi, logDeep, gidToId, arraySortByProp, arrayToObj, Timer } = require('../utils');
+const { funcApi, logDeep, gidToId, arraySortByProp, arrayToObj, Timer, credsByPath } = require('../utils');
 
 const {
   HOSTED,
@@ -16,6 +16,7 @@ const { shopifyRegionToPvxSite } = require('../mappings');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
 const { logiwaReportGetAvailableToPromise } = require('../logiwa/logiwaReportGetAvailableToPromise');
+const { logiwaAsyncReportDo } = require('../logiwa/logiwaAsyncReportDo');
 
 const { bleckmannInventoriesGet } = require('../bleckmann/bleckmannInventoriesGet');
 
@@ -186,6 +187,9 @@ const collabsInventoryCompare = async (
     }
   
     if (logiwaRelevant) {
+      
+      // Regular paginated API
+      /*
       const logiwaReportResponse = await logiwaReportGetAvailableToPromise(
         {
           undamagedQuantity_gt: '0',
@@ -204,6 +208,53 @@ const collabsInventoryCompare = async (
       }
   
       wmsInventoryObj = arrayToObj(logiwaInventory, { uniqueKeyProp: 'productSku', keepOnlyValueProp: 'sellableQuantity' });
+      */
+
+      
+      // Async report
+
+      const creds = credsByPath(['logiwa']);
+      const { WAREHOUSE_ID } = creds;
+      if (!WAREHOUSE_ID) {
+        return {
+          success: false,
+          error: ['No warehouse ID found, add to logiwa creds'],
+        };
+      }
+
+      const logiwaInventoryResponse = await logiwaAsyncReportDo(
+        {
+          reportTypeCode: 'available_to_promise',
+          filter: `WarehouseIdentifier.eq=${ WAREHOUSE_ID }`,
+        },
+      );
+
+      const {
+        success: logiwaInventorySuccess,
+        result: logiwaInventory,
+      } = logiwaInventoryResponse;
+      if (!logiwaInventorySuccess) {
+        return logiwaInventoryResponse;
+      }
+
+      if (!logiwaInventory?.length) {
+        return {
+          success: false,
+          errors: ['Logiwa inventory report messed up'],
+        };
+      }
+      
+      wmsInventoryObj = {};
+
+      for (const inventoryItem of logiwaInventory) {
+        const { 
+          'ProductSku': sku, 
+          'SellableQuantity': wmsQty,
+        } = inventoryItem;
+
+        wmsInventoryObj[sku] = wmsInventoryObj[sku] || 0;
+        wmsInventoryObj[sku] += wmsQty;
+      }
     }
 
     if (bleckmannRelevant) {
