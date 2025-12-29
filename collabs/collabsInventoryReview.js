@@ -11,7 +11,7 @@ const {
 
 const { shopifyLocationGetMain } = require('../shopify/shopifyLocationGetMain');
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
-const { shopifyProductVariantGet } = require('../shopify/shopifyProductVariantGet');
+const { shopifyVariantGet } = require('../shopify/shopifyVariantGet');
 
 const { googlesheetsSpreadsheetSheetGetData } = require('../googlesheets/googlesheetsSpreadsheetSheetGetData');
 
@@ -103,31 +103,60 @@ const collabsInventoryReview = async (
 
   !HOSTED && logDeep('locationId', locationId);
 
-  const variantQuery = `{
-    productVariants${ shopifyVariantsFetchQueries ? `(query: "${ shopifyVariantsFetchQueries.join(' AND ') }")` : '' } {
-      edges {
-        node {
-          sku 
-          inventoryQuantity 
-          inventoryItem { 
-            id 
-            requiresShipping
-            tracked
+  const variantQueryAttrs = `
+    sku 
+    inventoryQuantity 
+    inventoryItem { 
+      id 
+      requiresShipping
+      tracked
+    }
+  `;
+  
+  let shopifyVariants;
+
+  if (skus) {
+
+    const shopifyVariantsResponse = await shopifyVariantGet(
+      region,
+      {
+        attrs: variantQueryAttrs,
+        sku: skus,
+      },
+    );
+
+    const { success: shopifyVariantsSuccess, result: shopifyVariantsResult } = shopifyVariantsResponse;
+    if (!shopifyVariantsSuccess) {
+      return shopifyVariantsResponse;
+    }
+
+    shopifyVariants = shopifyVariantsResult;
+
+  } else {
+
+    const variantQuery = `{
+      productVariants${ shopifyVariantsFetchQueries ? `(query: "${ shopifyVariantsFetchQueries.join(' AND ') }")` : '' } {
+        edges {
+          node {
+            ${ variantQueryAttrs }
           }
         }
       }
+    }`;
+  
+    const shopifyVariantsResponse = await shopifyBulkOperationDo(
+      region,
+      'query',
+      variantQuery,
+    );
+  
+    const { success: shopifyVariantsSuccess, result: shopifyVariantsResult } = shopifyVariantsResponse;
+    if (!shopifyVariantsSuccess) {
+      return shopifyVariantsResponse;
     }
-  }`;
 
-  const shopifyVariantsResponse = await shopifyBulkOperationDo(
-    region,
-    'query',
-    variantQuery,
-  );
+    shopifyVariants = shopifyVariantsResult;
 
-  const { success: shopifyVariantsSuccess, result: shopifyVariants } = shopifyVariantsResponse;
-  if (!shopifyVariantsSuccess) {
-    return shopifyVariantsResponse;
   }
 
   let wmsInventoryObj;
@@ -406,4 +435,4 @@ module.exports = {
 // curl localhost:8101/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "us", "options": { "shopifyVariantsFetchQueries": ["published_status:published", "product_publication_status:approved", "tag_not:not_for_radial"] } }'
 // curl localhost:8102/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "uk", "options": { "shopifyVariantsFetchQueries": ["published_status:published", "product_publication_status:approved"] } }'
 
-// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "au", "options": { "skus": ["EXDAL355-10-S/M"] }'
+// curl localhost:8000/collabsInventoryReview -H "Content-Type: application/json" -d '{ "region": "au", "options": { "skus": ["EXDAL355-10-S/M"] } }'
