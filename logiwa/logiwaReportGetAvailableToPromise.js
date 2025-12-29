@@ -1,10 +1,10 @@
 // https://mydeveloper.logiwa.com/#tag/Report/paths/~1v3.1~1Report~1AvailableToPromise~1i~1%7Bindex%7D~1s~1%7Bsize%7D/get
 
-const { respond, mandateParam, logDeep, objHasAny, strictlyFalsey } = require('../utils');
+const { respond, mandateParam, logDeep, objHasAny, strictlyFalsey, actionMultipleOrSingle } = require('../utils');
 const { logiwaGet } = require('../logiwa/logiwa.utils');
 const { MAX_PER_PAGE } = require('../logiwa/logiwa.constants');
 
-const logiwaReportGetAvailableToPromise = async (
+const logiwaReportGetAvailableToPromiseSingle = async (
   {
     sku_eq,
 
@@ -150,6 +150,29 @@ const logiwaReportGetAvailableToPromise = async (
       ...getterOptions,
     },
   );
+
+  return response;
+};
+
+const logiwaReportGetAvailableToPromise = async (
+  criteria,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    criteria,
+    logiwaReportGetAvailableToPromiseSingle,
+    (criteria) => ({
+      args: [criteria],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+  
   logDeep(response);
   return response;
 };
@@ -180,6 +203,9 @@ module.exports = {
 };
 
 // Note: options should be strings, will get Bad Request if using integers
-// curl localhost:8000/logiwaReportGetAvailableToPromise -H "Content-Type: application/json" -d '{ "criteria": { "clientIdentifier_eq": "9f1ea39a-fccc-48af-8986-a35c34fcef8b" } }'
+// curl localhost:8000/logiwaReportGetAvailableToPromise -H "Content-Type: application/json" -d '{ "criteria": { "clientIdentifier_eq": "9f1ea39a-fccc-48af-8986-a35c34fcef8b" }, "options": { "limit": 10 } }'
 // curl localhost:8000/logiwaReportGetAvailableToPromise -H "Content-Type: application/json" -d '{ "criteria": { "totalStockQuantity_gte": "500" } }'
 // curl localhost:8000/logiwaReportGetAvailableToPromise -H "Content-Type: application/json" -d '{ "criteria": { "undamagedQuantity_gt": "0" }, "options": { "apiVersion": "v3.2" } }'
+
+// Get multiple skus
+// curl localhost:8000/logiwaReportGetAvailableToPromise -H "Content-Type: application/json" -d '{ "criteria": [{ "sku_eq": "EXDAL355-15-S/M" }, { "sku_eq": "EXD535-1-XXS/XS" }, { "sku_eq": "WFSLG08-1-O/S" }] }'
