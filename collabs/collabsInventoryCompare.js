@@ -253,7 +253,7 @@ const collabsInventoryCompare = async (
         } = inventoryItem;
 
         wmsInventoryObj[sku] = wmsInventoryObj[sku] || 0;
-        wmsInventoryObj[sku] += wmsQty;
+        wmsInventoryObj[sku] += Number(wmsQty);
       }
     }
 
@@ -288,7 +288,7 @@ const collabsInventoryCompare = async (
 
         const bleckmannAvailable = quantityTotal - quantityLocked;
         wmsInventoryObj[sku] = wmsInventoryObj[sku] || 0;
-        wmsInventoryObj[sku] += bleckmannAvailable;
+        wmsInventoryObj[sku] += Number(bleckmannAvailable);
       }
     }
   }
