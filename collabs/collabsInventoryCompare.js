@@ -1,4 +1,4 @@
-const { funcApi, logDeep, gidToId, arraySortByProp, arrayToObj } = require('../utils');
+const { funcApi, logDeep, gidToId, arraySortByProp, arrayToObj, Timer } = require('../utils');
 
 const {
   HOSTED,
@@ -19,6 +19,8 @@ const { logiwaReportGetAvailableToPromise } = require('../logiwa/logiwaReportGet
 
 const { bleckmannInventoriesGet } = require('../bleckmann/bleckmannInventoriesGet');
 
+const SAMPLE_SIZE = 5;
+
 const collabsInventoryCompare = async (
   region,
   {
@@ -28,6 +30,8 @@ const collabsInventoryCompare = async (
     exportSheetIdentifier,
   } = {},
 ) => {
+
+  const timer = new Timer();
 
   const pvxRelevant = REGIONS_PVX.includes(region);
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
@@ -285,7 +289,7 @@ const collabsInventoryCompare = async (
       oversellRisk,
       absDiff,
       safeToImport,
-      
+
       // inventory item ID and location ID are included for syncing inventory without refetching
       inventoryItemId,
       locationId,
@@ -300,14 +304,32 @@ const collabsInventoryCompare = async (
   });
   // Sort biggest to smallest diff
   inventoryReviewArray = arraySortByProp(inventoryReviewArray, 'absDiff', { descending: true });
+  const biggestDiffSample = inventoryReviewArray.slice(0, SAMPLE_SIZE);
   // Sort to put oversell risk at the top (more in Shopify than WMS)
   inventoryReviewArray = arraySortByProp(inventoryReviewArray, 'oversellRisk', { descending: true });
+  const oversellRiskSample = inventoryReviewArray.slice(0, SAMPLE_SIZE);
+
+  const metadata = {
+    count: inventoryReviewArray.length,
+    biggestDiff: inventoryReviewArray[0]?.absDiff,
+    oversellRiskCount: inventoryReviewArray.filter(item => item.oversellRisk).length,
+    timeTaken: timer.getTime({ readable: true }),
+  };
+  !HOSTED && logDeep('metadata', metadata);
+
+  const samples = {
+    biggestDiff: biggestDiffSample,
+    oversellRisk: oversellRiskSample,
+  };
+  !HOSTED && logDeep('samples', samples);
 
   return {
     success: true,
     result: {
       object: inventoryReviewObj,
       array: inventoryReviewArray,
+      metadata,
+      samples,
     },
   };
 };
