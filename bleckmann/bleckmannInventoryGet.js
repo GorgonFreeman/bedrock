@@ -1,9 +1,9 @@
 // https://app.swaggerhub.com/apis-docs/Bleckmann/warehousing/1.5.2#/INVENTORY/getInventoryForId
 
-const { respond, mandateParam, logDeep } = require('../utils');
+const { respond, mandateParam, logDeep, actionMultipleOrSingle } = require('../utils');
 const { bleckmannClient } = require('../bleckmann/bleckmann.utils');
 
-const bleckmannInventoryGet = async (
+const bleckmannInventoryGetSingle = async (
   sku,
   {
     credsPath,
@@ -14,6 +14,28 @@ const bleckmannInventoryGet = async (
     url: `/warehousing/inventory/${ encodeURIComponent(sku) }`,
   });
 
+  return response;
+};
+
+const bleckmannInventoryGet = async (
+  sku,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    sku,
+    bleckmannInventoryGetSingle,
+    (sku) => ({
+      args: [sku],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+  
   logDeep(response);
   return response;
 };
@@ -44,3 +66,4 @@ module.exports = {
 };
 
 // curl localhost:8000/bleckmannInventoryGet -H "Content-Type: application/json" -d '{ "sku": "EXD1224-3-3XS/XXS" }'
+// curl localhost:8000/bleckmannInventoryGet -H "Content-Type: application/json" -d '{ "sku": ["EXD1224-3-3XS/XXS", "EXD1225-1-S/M"] }'
