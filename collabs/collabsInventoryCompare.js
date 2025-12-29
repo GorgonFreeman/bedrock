@@ -7,6 +7,7 @@ const {
 } = require('../constants');
 
 const { shopifyLocationGetMain } = require('../shopify/shopifyLocationGetMain');
+const { googlesheetsSpreadsheetSheetGetData } = require('../googlesheets/googlesheetsSpreadsheetSheetGetData');
 
 const collabsInventoryCompare = async (
   region,
@@ -31,6 +32,7 @@ const collabsInventoryCompare = async (
   
   // Check that region is appropriate if using export.
   // If it makes it through here, we can attempt using an export from a sheet.
+  const usingExport = exportSheetIdentifier;
   if (exportSheetIdentifier) {
     const {
       spreadsheetIdentifier,
@@ -107,6 +109,37 @@ const collabsInventoryCompare = async (
   const { success: shopifyVariantsSuccess, result: shopifyVariants } = shopifyVariantsResponse;
   if (!shopifyVariantsSuccess) {
     return shopifyVariantsResponse;
+  }
+
+  let wmsInventoryObj;
+
+  if (usingExport) {
+
+    const {
+      spreadsheetIdentifier,
+      sheetIdentifier,
+    } = exportSheetIdentifier;
+
+    const wmsExportResponse = await googlesheetsSpreadsheetSheetGetData(
+      spreadsheetIdentifier,
+      sheetIdentifier,
+    );
+
+    const { success: sheetSuccess, result: wmsExport } = wmsExportResponse;
+    if (!sheetSuccess) {
+      return wmsExportResponse;
+    }
+
+    if (logiwaRelevant) {
+      // Export from: https://fasttrack.radial.com/en/wms/report/available-to-promise
+      wmsInventoryObj = arrayToObj(wmsExport, { 
+        uniqueKeyProp: 'SKU', 
+        keepOnlyValueProp: 'Sellable Qty', 
+      });
+    }
+    
+  } else {
+    // Using API
   }
 
   return {
