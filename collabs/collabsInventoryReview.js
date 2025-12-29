@@ -221,11 +221,11 @@ const collabsInventoryReview = async (
   
     if (logiwaRelevant) {
       
-      // Regular paginated API
+      
       /*
       const logiwaReportResponse = await logiwaReportGetAvailableToPromise(
         {
-          undamagedQuantity_gt: '0',
+          
         },
         {
           apiVersion: 'v3.2',
@@ -243,52 +243,80 @@ const collabsInventoryReview = async (
       wmsInventoryObj = arrayToObj(logiwaInventory, { uniqueKeyProp: 'productSku', keepOnlyValueProp: 'sellableQuantity' });
       */
 
-      
-      // Async report
+      if (skus) {
 
-      const creds = credsByPath(['logiwa']);
-      const { WAREHOUSE_ID } = creds;
-      if (!WAREHOUSE_ID) {
-        return {
-          success: false,
-          error: ['No warehouse ID found, add to logiwa creds'],
-        };
-      }
+        // Regular paginated API
 
-      const logiwaInventoryResponse = await logiwaAsyncReportDo(
-        {
-          reportTypeCode: 'available_to_promise',
-          filter: `WarehouseIdentifier.eq=${ WAREHOUSE_ID }`,
-        },
-      );
+        const logiwaReportResponse = await logiwaReportGetAvailableToPromise(
+          skus.map(sku => ({ 
+            sku_eq: sku,
+          })),
+          {
+            apiVersion: 'v3.2',
+          },
+        );
 
-      const {
-        success: logiwaInventorySuccess,
-        result: logiwaInventory,
-      } = logiwaInventoryResponse;
-      if (!logiwaInventorySuccess) {
-        return logiwaInventoryResponse;
-      }
+        let {
+          success: logiwaReportSuccess,
+          result: logiwaInventory,
+        } = logiwaReportResponse;
+        if (!logiwaReportSuccess) {
+          return logiwaReportResponse;
+        }
 
-      !HOSTED && logDeep('logiwaInventory', logiwaInventory);
+        logiwaInventory = logiwaInventory.flat();
+    
+        wmsInventoryObj = arrayToObj(logiwaInventory, { uniqueKeyProp: 'productSku', keepOnlyValueProp: 'sellableQuantity' });
 
-      if (!logiwaInventory?.length) {
-        return {
-          success: false,
-          errors: ['Logiwa inventory report messed up'],
-        };
-      }
-      
-      wmsInventoryObj = {};
+      } else {
 
-      for (const inventoryItem of logiwaInventory) {
-        const { 
-          'ProductSku': sku, 
-          'SellableQuantity': wmsQty,
-        } = inventoryItem;
+        // Async report
 
-        wmsInventoryObj[sku] = wmsInventoryObj[sku] || 0;
-        wmsInventoryObj[sku] += Number(wmsQty);
+        const creds = credsByPath(['logiwa']);
+        const { WAREHOUSE_ID } = creds;
+        if (!WAREHOUSE_ID) {
+          return {
+            success: false,
+            error: ['No warehouse ID found, add to logiwa creds'],
+          };
+        }
+
+        const logiwaInventoryResponse = await logiwaAsyncReportDo(
+          {
+            reportTypeCode: 'available_to_promise',
+            filter: `WarehouseIdentifier.eq=${ WAREHOUSE_ID }`,
+          },
+        );
+
+        const {
+          success: logiwaInventorySuccess,
+          result: logiwaInventory,
+        } = logiwaInventoryResponse;
+        if (!logiwaInventorySuccess) {
+          return logiwaInventoryResponse;
+        }
+
+        !HOSTED && logDeep('logiwaInventory', logiwaInventory);
+
+        if (!logiwaInventory?.length) {
+          return {
+            success: false,
+            errors: ['Logiwa inventory report messed up'],
+          };
+        }
+        
+        wmsInventoryObj = {};
+
+        for (const inventoryItem of logiwaInventory) {
+          const { 
+            'ProductSku': sku, 
+            'SellableQuantity': wmsQty,
+          } = inventoryItem;
+
+          wmsInventoryObj[sku] = wmsInventoryObj[sku] || 0;
+          wmsInventoryObj[sku] += Number(wmsQty);
+        }
+
       }
     }
 
