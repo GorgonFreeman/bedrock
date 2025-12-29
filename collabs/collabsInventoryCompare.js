@@ -1,4 +1,4 @@
-const { funcApi, logDeep, gidToId } = require('../utils');
+const { funcApi, logDeep, gidToId, arraySortByProp, arrayToObj } = require('../utils');
 
 const {
   HOSTED,
@@ -240,10 +240,72 @@ const collabsInventoryCompare = async (
 
   !HOSTED && logDeep('wmsInventoryObj', wmsInventoryObj);
 
+  const inventoryReviewObj = {};
+
+  for (const variant of shopifyVariants) {
+    const {
+      sku, 
+      inventoryQuantity: shopifyAvailable, 
+      inventoryItem,
+    } = variant;
+
+    const {
+      requiresShipping,
+      tracked,
+    } = inventoryItem;
+
+    if (!requiresShipping || !tracked) {
+      continue;
+    }
+
+    const wmsInventory = wmsInventoryObj[sku] || 0; // TODO: Reconsider using 0 if not found in WMS
+
+    const diff = shopifyAvailable - wmsInventory;
+    const absDiff = Math.abs(diff);
+    
+    const oversellRisk = diff > 0;
+    const safeToImport = oversellRisk || shopifyAvailable === 0;
+    
+    // If same as WMS, skip
+    if (!(absDiff > 0)) {
+      continue;
+    }
+  
+    // Always report safe-to-import diffs, even if less than min diff.
+    if (!safeToImport && absDiff < minReportableDiff) {
+      continue;
+    }
+
+    const { id: inventoryItemGid } = inventoryItem;
+    const inventoryItemId = gidToId(inventoryItemGid);
+
+    inventoryReviewObj[sku] = {
+      shopifyQty: shopifyAvailable,
+      wmsQty: wmsInventory,
+      oversellRisk,
+      absDiff,
+      safeToImport,
+      inventoryItemId,
+      locationId,
+    };
+  }
+
+  let inventoryReviewArray = Object.entries(inventoryReviewObj).map(([sku, value]) => {
+    return {
+      sku,
+      ...value,
+    };
+  });
+  // Sort biggest to smallest diff
+  inventoryReviewArray = arraySortByProp(inventoryReviewArray, 'absDiff', { descending: true });
+  // Sort to put oversell risk at the top (more in Shopify than WMS)
+  inventoryReviewArray = arraySortByProp(inventoryReviewArray, 'oversellRisk', { descending: true });
+
   return {
     success: true,
     result: {
-      locationId,
+      object: inventoryReviewObj,
+      array: inventoryReviewArray,
     },
   };
 };
