@@ -237,6 +237,8 @@ const collabsInventoryCompare = async (
         return logiwaInventoryResponse;
       }
 
+      !HOSTED && logDeep('logiwaInventory', logiwaInventory);
+
       if (!logiwaInventory?.length) {
         return {
           success: false,
