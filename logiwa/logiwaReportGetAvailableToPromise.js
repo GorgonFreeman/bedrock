@@ -158,6 +158,7 @@ const logiwaReportGetAvailableToPromise = async (
   criteria,
   {
     queueRunOptions,
+    // TODO: Consider an option to flatten results
     ...options
   } = {},
 ) => {
