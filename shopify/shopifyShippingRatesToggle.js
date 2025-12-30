@@ -23,6 +23,7 @@ const shopifyShippingRatesToggle = async (
           node {
             zone {
               id
+              name
             }
             methodDefinitions (first: 10) {
               edges {
@@ -61,16 +62,36 @@ const shopifyShippingRatesToggle = async (
     return deliveryProfilesResponse;
   }
 
-  const profileLocationGroups = deliveryProfiles?.map(dp => dp?.profileLocationGroups);
-  // logDeep('profileLocationGroups');
-  const locationGroupZones = profileLocationGroups?.flat()?.map(plg => plg?.locationGroupZones);
-  // logDeep('locationGroupZones');
-  const methodDefinitions = locationGroupZones?.flat()?.map(lgz => lgz?.methodDefinitions);
-  // logDeep('methodDefinitions');
-  const methodConditions = methodDefinitions?.flat()?.map(methodDef => methodDef?.methodConditions);
-  // logDeep('methodConditions');
+  const shippingMethodDefinitions = deliveryProfiles.map(dp => {
+    const { id: deliveryProfileId, name: deliveryProfileName } = dp;
+    return dp.profileLocationGroups.map(plg => {
+      const { locationGroup } = plg;
+      const { id: locationGroupId, name: locationGroupName } = locationGroup;
+      return plg.locationGroupZones.map(lgz => {
+        const { zone } = lgz;
+        const { id: locationGroupZoneId, name: locationGroupZoneName } = zone;
+        return lgz.methodDefinitions.map(methodDef => {
+          return {
+            ...methodDef,
+            deliveryProfileId,
+            deliveryProfileName,
+            locationGroupId,
+            locationGroupName,
+            locationGroupZoneId,
+            locationGroupZoneName,
+          };
+        });
+      });
+    });
+  }).flat(3);
 
-  return { success: true, result: deliveryProfiles };
+  logDeep('shippingMethodDefinitions', shippingMethodDefinitions);
+
+  const targetedShippingMethodDefinitions = shippingMethodDefinitions.filter(methodDef => methodDef.name.toLowerCase().includes(keyword.toLowerCase()));
+
+  logDeep('targetedShippingMethodDefinitions', targetedShippingMethodDefinitions);
+
+  return { success: true };
 };
 
 const shopifyShippingRatesToggleApi = funcApi(shopifyShippingRatesToggle, {
