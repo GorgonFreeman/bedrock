@@ -331,6 +331,19 @@ const blocks = {
         ],
       },
     },
+    list_skus: {
+			type: 'input',
+			block_id: 'import:list_skus:input',
+			element: {
+				type: 'plain_text_input',
+				multiline: true,
+				action_id: `${ COMMAND_NAME }:import:list_skus:input`,
+			},
+			label: {
+				type: 'plain_text',
+				text: 'List of SKUs, one per line',
+			},
+		},
   },
 
 };
@@ -747,12 +760,37 @@ const slackInteractiveStockCheck = async (req, res) => {
           break;
 
         case 'list_skus':
+          for (const block of currentBlocks) {
+            if (block.block_id.startsWith('import:expanded')) {
+              continue;
+            }
+            updatedBlocks.push(block);
+          }
+
+          updatedBlocks.push(blocks.import.list_skus);
+          
+          response = {
+            replace_original: 'true',
+            blocks: updatedBlocks,
+          };
+          break;
 
         default:
           console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
           return;
       }
       break;
+
+    case 'list_skus':
+      switch (actionNodes?.[0]) {
+        case 'input':
+          const skus = action.value;
+          break;
+
+        default:
+          console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
+          return;
+      }
       
     default:
       console.warn(`Unknown actionId: ${ actionId }`);
