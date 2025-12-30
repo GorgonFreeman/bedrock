@@ -1,4 +1,5 @@
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, askQuestion } = require('../utils');
+const { shopifyMutationDo } = require('../shopify/shopify.utils');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
 
 const shopifyShippingRatesToggle = async (
@@ -17,7 +18,6 @@ const shopifyShippingRatesToggle = async (
     profileLocationGroups {
       locationGroup {
         id
-        name
       }
       locationGroupZones (first: 15) {
         edges {
@@ -31,6 +31,8 @@ const shopifyShippingRatesToggle = async (
                 node {
                   id
                   name
+                  active
+                  description
                   methodConditions {
                     field
                     id
@@ -56,7 +58,6 @@ const shopifyShippingRatesToggle = async (
     }
   `;
 
-
   const deliveryProfilesResponse = await shopifyDeliveryProfilesGet(credsPath, { attrs: deliveryProfileAttrs, apiVersion });
   const { success: deliveryProfilesGetSuccess, result: deliveryProfiles } = deliveryProfilesResponse;
   if (!deliveryProfilesGetSuccess) {
@@ -67,7 +68,7 @@ const shopifyShippingRatesToggle = async (
     const { id: deliveryProfileId, name: deliveryProfileName } = dp;
     return dp.profileLocationGroups.map(plg => {
       const { locationGroup } = plg;
-      const { id: locationGroupId, name: locationGroupName } = locationGroup;
+      const { id: locationGroupId } = locationGroup;
       return plg.locationGroupZones.map(lgz => {
         const { zone } = lgz;
         const { id: locationGroupZoneId, name: locationGroupZoneName } = zone;
@@ -77,7 +78,6 @@ const shopifyShippingRatesToggle = async (
             deliveryProfileId,
             deliveryProfileName,
             locationGroupId,
-            locationGroupName,
             locationGroupZoneId,
             locationGroupZoneName,
           };
@@ -86,11 +86,73 @@ const shopifyShippingRatesToggle = async (
     });
   }).flat(3);
 
-  logDeep('shippingMethodDefinitions', shippingMethodDefinitions);
-
   const targetedShippingMethodDefinitions = shippingMethodDefinitions.filter(methodDef => methodDef.name.toLowerCase().includes(keyword.toLowerCase()));
 
-  logDeep('targetedShippingMethodDefinitions', targetedShippingMethodDefinitions);
+  for (const target of targetedShippingMethodDefinitions) {
+    logDeep('target', target);
+    const {
+      id: methodDefinitionId,
+      name: methodDefinitionName,
+      active: methodDefinitionActive,
+      description: methodDefinitionDescription,
+      methodConditions: methodConditions,
+      deliveryProfileId: methodDefinitionDeliveryProfileId,
+      locationGroupId: methodDefinitionLocationGroupId,
+      locationGroupZoneId: methodDefinitionLocationGroupZoneId,
+    } = target;
+
+    if (methodDefinitionActive === on) {
+      logDeep(`Skipping ${ methodDefinitionName } because it is already ${ on ? 'enabled' : 'disabled' }`);
+      continue;
+    }
+
+    logDeep(`Toggling ${ methodDefinitionName } to ${ on ? 'enabled' : 'disabled' }`);
+
+    const toggleContinue = await askQuestion(`Continue? (y/n)`);
+    if (toggleContinue !== 'y') {
+      logDeep(`Skipping ${ methodDefinitionName } because user did not continue`);
+      continue;
+    }
+
+    const response = await shopifyMutationDo(
+      credsPath,
+      'deliveryProfileUpdate',
+      {
+        profileId: {
+          type: 'ID!',
+          value: methodDefinitionDeliveryProfileId,
+        },
+        locationGroupId: {
+          type: 'ID!',
+          value: methodDefinitionLocationGroupId,
+        },
+        zoneId: {
+          type: 'ID!',
+          value: methodDefinitionLocationGroupZoneId,
+        },
+        methodDefinitionId: {
+          type: 'ID!',
+          value: methodDefinitionId,
+        },
+      },
+      `methodDefinition { id name active description methodConditions }`,
+      {
+        apiVersion,
+      },
+    );
+
+    const { success: methodDefinitionUpdateSuccess, result: methodDefinition } = response;
+    if (!methodDefinitionUpdateSuccess) {
+      logDeep(`Error toggling ${ methodDefinitionName } to ${ on ? 'enabled' : 'disabled' }`);
+      logDeep(methodDefinition);
+      continue;
+    }
+
+    logDeep(`Successfully toggled ${ methodDefinitionName } to ${ on ? 'enabled' : 'disabled' }`);
+    logDeep(methodDefinition);
+
+    await askQuestion(`Continue?`);
+  }
 
   return { success: true };
 };
