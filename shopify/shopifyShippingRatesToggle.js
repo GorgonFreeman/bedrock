@@ -17,6 +17,7 @@ const shopifyShippingRatesToggle = async (
     profileLocationGroups {
       locationGroup {
         id
+        name
       }
       locationGroupZones (first: 15) {
         edges {
