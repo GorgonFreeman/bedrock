@@ -332,18 +332,43 @@ const blocks = {
       },
     },
     list_skus: {
-			type: 'input',
-			block_id: 'import:list_skus:input',
-			element: {
-				type: 'plain_text_input',
-				multiline: true,
-				action_id: `${ COMMAND_NAME }:import:list_skus:input`,
-			},
-			label: {
-				type: 'plain_text',
-				text: 'List of SKUs, one per line',
-			},
-		},
+			input: {
+        type: 'input',
+        block_id: 'import:list_skus:input',
+        element: {
+          type: 'plain_text_input',
+          multiline: true,
+          action_id: `${ COMMAND_NAME }:import:list_skus:input`,
+        },
+        label: {
+          type: 'plain_text',
+          text: 'List of SKUs, one per line',
+        },
+      },
+      buttons: {
+        type: 'actions',
+        block_id: 'import:list_skus:buttons',
+        elements: [
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'Cancel',
+            },
+            action_id: `${ COMMAND_NAME }:import:list_skus:cancel`,
+          },
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'Submit',
+            },
+            action_id: `${ COMMAND_NAME }:import:list_skus:submit`,
+          },
+        ],
+      },
+    
+    },
   },
 
 };
@@ -767,7 +792,10 @@ const slackInteractiveStockCheck = async (req, res) => {
             updatedBlocks.push(block);
           }
 
-          updatedBlocks.push(blocks.import.list_skus);
+          updatedBlocks.push(...[
+            blocks.import.list_skus.input,
+            blocks.import.list_skus.buttons,
+          ]);
           
           response = {
             replace_original: 'true',
@@ -783,8 +811,30 @@ const slackInteractiveStockCheck = async (req, res) => {
 
     case 'list_skus':
       switch (actionNodes?.[0]) {
-        case 'input':
-          const skus = action.value;
+        case 'cancel':
+          
+          updatedBlocks = [];
+          for (const block of currentBlocks) {
+            if (block.block_id.startsWith('import:list_skus')) {
+              continue;
+            }
+            updatedBlocks.push(block);
+          }
+
+          updatedBlocks.push(blocks.import.offer);
+
+          response = {
+            replace_original: 'true',
+            blocks: updatedBlocks,
+          };
+          
+          break;
+
+        case 'submit':
+
+          logDeep(state);
+          return;
+          
           break;
 
         default:
