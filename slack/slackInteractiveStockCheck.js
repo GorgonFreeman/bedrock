@@ -464,7 +464,7 @@ const slackInteractiveStockCheck = async (req, res) => {
       // Run the inventory review
       const inventoryReviewResponse = await collabsInventoryReview(region, {
         shopifyVariantsFetchQueries: [
-          ...onlyPublished ? [
+          ...onlyPublishedProducts ? [
             'published_status:published',
             'product_publication_status:approved',
           ] : [],
