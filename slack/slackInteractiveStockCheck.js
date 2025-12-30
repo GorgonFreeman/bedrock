@@ -471,11 +471,13 @@ const slackInteractiveStockCheck = async (req, res) => {
         } : {},
         minReportableDiff: minDiff,
         ...sheetName ? {
-          wmsExportSpreadsheetIdentifier: {
-            spreadsheetHandle: 'foxtron_stock_check',
-          },
-          wmsExportSheetIdentifier: {
-            sheetName,
+          exportSheetIdentifier: {
+            spreadsheetIdentifier: {
+              spreadsheetHandle: 'foxtron_stock_check',
+            },
+            sheetIdentifier: {
+              sheetName,
+            },
           },
         } : {},
       });
