@@ -442,11 +442,13 @@ const collabsInventoryReview = async (
   // Sort to put oversell risk at the top (more in Shopify than WMS)
   inventoryReviewArray = arraySortByProp(inventoryReviewArray, 'oversellRisk', { descending: true });
   const oversellRiskSample = inventoryReviewArray.slice(0, SAMPLE_SIZE).filter(i => i?.oversellRisk);
+  const biggestOversellRisk = oversellRiskSample?.[0]?.absDiff;
 
   const metadata = {
     count: inventoryReviewArray.length,
     biggestDiff,
     oversellRiskCount: inventoryReviewArray.filter(item => item.oversellRisk).length,
+    biggestOversellRisk,
     timeTaken: timer.getTime({ readable: true }),
   };
   logDeep('metadata', metadata);
