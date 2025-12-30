@@ -312,6 +312,24 @@ const blocks = {
           },
         ],
       },
+      divider: {
+        type: 'divider',
+      },
+      listSkus: {
+        type: 'actions',
+        block_id: 'import:expanded:list_skus',
+        elements: [
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'List of SKUs',
+            },
+            value: 'list_skus',
+            action_id: `${ COMMAND_NAME }:import:list_skus`,
+          },
+        ],
+      },
     },
   },
 
@@ -614,6 +632,7 @@ const slackInteractiveStockCheck = async (req, res) => {
       const isImportExpandBlock = block => block.block_id === 'import:offer';
       const isImportExpandedTextBlock = block => block.block_id === 'import:expanded:text';
       const isImportExpandedButtonsBlock = block => block.block_id === 'import:expanded:buttons';
+      const isImportExpandedListSkusBlock = block => block.block_id === 'import:expanded:list_skus';
 
       updatedBlocks = [];
 
@@ -626,6 +645,8 @@ const slackInteractiveStockCheck = async (req, res) => {
               updatedBlocks.push(...[
                 blocks.import.expanded.text,
                 blocks.import.expanded.buttons,
+                blocks.import.expanded.divider,
+                blocks.import.expanded.listSkus,
               ]);
               continue;
             }
@@ -647,6 +668,14 @@ const slackInteractiveStockCheck = async (req, res) => {
             }
 
             if (isImportExpandedButtonsBlock(block)) {
+              continue;
+            }
+
+            if (block.type === 'divider') {
+              continue;
+            }
+
+            if (isImportExpandedListSkusBlock(block)) {
               continue;
             }
 
@@ -716,6 +745,8 @@ const slackInteractiveStockCheck = async (req, res) => {
             text: `${ callerUserId ? `Hey <@${ callerUserId }>! ` : '' }${ region.toUpperCase() } stock synced successfully :heart_hands:`,
           };
           break;
+
+        case 'list_skus':
 
         default:
           console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
