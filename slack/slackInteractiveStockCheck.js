@@ -164,7 +164,7 @@ const blocks = {
     let instructionsText;
 
     if (region === 'us') {
-      instructionsText = `Hey, so US doesn't work very well (not my fault :pleading_face:), so we're going to use a manual export. Go <https://fasttrack.radial.com/en/wms/report/available-to-promise|here> and click "Export as Excel" in the bottom right. Then, upload <https://docs.google.com/spreadsheets/d/${ spreadsheetHandleToSpreadsheetId['foxtron_stock_check'] }/edit|here>, copy the sheet name, and paste below.`;
+      instructionsText = `Hey, so US doesn't work very well :pleading_face: so we're going to use a manual export. Go <https://fasttrack.radial.com/en/wms/report/available-to-promise|here> and click "Export as Excel" in the bottom right. Then, upload <https://docs.google.com/spreadsheets/d/${ spreadsheetHandleToSpreadsheetId['foxtron_stock_check'] }/edit|here>, copy the sheet name, and paste below.`;
     }
 
     if (region === 'uk') {
