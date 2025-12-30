@@ -108,48 +108,48 @@ const shopifyShippingRatesToggle = async (
 
     logDeep(`Toggling ${ methodDefinitionName } to ${ on ? 'enabled' : 'disabled' }`);
 
-    const toggleContinue = await askQuestion(`Continue? (y/n)`);
-    if (toggleContinue !== 'y') {
-      logDeep(`Skipping ${ methodDefinitionName } because user did not continue`);
-      continue;
-    }
+    // const toggleContinue = await askQuestion(`Continue? (y/n)`);
+    // if (toggleContinue !== 'y') {
+    //   logDeep(`Skipping ${ methodDefinitionName } because user did not continue`);
+    //   continue;
+    // }
 
-    const response = await shopifyMutationDo(
-      credsPath,
-      'deliveryProfileUpdate',
-      {
-        profileId: {
-          type: 'ID!',
-          value: methodDefinitionDeliveryProfileId,
-        },
-        locationGroupId: {
-          type: 'ID!',
-          value: methodDefinitionLocationGroupId,
-        },
-        zoneId: {
-          type: 'ID!',
-          value: methodDefinitionLocationGroupZoneId,
-        },
-        methodDefinitionId: {
-          type: 'ID!',
-          value: methodDefinitionId,
-        },
-      },
-      `methodDefinition { id name active description methodConditions }`,
-      {
-        apiVersion,
-      },
-    );
+    // const response = await shopifyMutationDo(
+    //   credsPath,
+    //   'deliveryProfileUpdate',
+    //   {
+    //     profileId: {
+    //       type: 'ID!',
+    //       value: methodDefinitionDeliveryProfileId,
+    //     },
+    //     locationGroupId: {
+    //       type: 'ID!',
+    //       value: methodDefinitionLocationGroupId,
+    //     },
+    //     zoneId: {
+    //       type: 'ID!',
+    //       value: methodDefinitionLocationGroupZoneId,
+    //     },
+    //     methodDefinitionId: {
+    //       type: 'ID!',
+    //       value: methodDefinitionId,
+    //     },
+    //   },
+    //   `methodDefinition { id name active description methodConditions }`,
+    //   {
+    //     apiVersion,
+    //   },
+    // );
 
-    const { success: methodDefinitionUpdateSuccess, result: methodDefinition } = response;
-    if (!methodDefinitionUpdateSuccess) {
-      logDeep(`Error toggling ${ methodDefinitionName } to ${ on ? 'enabled' : 'disabled' }`);
-      logDeep(methodDefinition);
-      continue;
-    }
+    // const { success: methodDefinitionUpdateSuccess, result: methodDefinition } = response;
+    // if (!methodDefinitionUpdateSuccess) {
+    //   logDeep(`Error toggling ${ methodDefinitionName } to ${ on ? 'enabled' : 'disabled' }`);
+    //   logDeep(methodDefinition);
+    //   continue;
+    // }
 
-    logDeep(`Successfully toggled ${ methodDefinitionName } to ${ on ? 'enabled' : 'disabled' }`);
-    logDeep(methodDefinition);
+    // logDeep(`Successfully toggled ${ methodDefinitionName } to ${ on ? 'enabled' : 'disabled' }`);
+    // logDeep(methodDefinition);
 
     await askQuestion(`Continue?`);
   }
