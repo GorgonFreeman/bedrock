@@ -331,43 +331,43 @@ const blocks = {
         ],
       },
     },
-    list_skus: {
-			input: {
-        type: 'input',
-        block_id: 'import:list_skus:input',
-        element: {
-          type: 'plain_text_input',
-          multiline: true,
-          action_id: `${ COMMAND_NAME }:import:list_skus:input`,
-        },
-        label: {
-          type: 'plain_text',
-          text: 'List of SKUs, one per line',
-        },
+  },
+
+  import_skus: {
+    input: {
+      type: 'input',
+      block_id: 'import_skus:input',
+      element: {
+        type: 'plain_text_input',
+        multiline: true,
+        action_id: `${ COMMAND_NAME }:import_skus:input`,
       },
-      buttons: {
-        type: 'actions',
-        block_id: 'import:list_skus:buttons',
-        elements: [
-          {
-            type: 'button',
-            text: {
-              type: 'plain_text',
-              text: 'Cancel',
-            },
-            action_id: `${ COMMAND_NAME }:import:list_skus:cancel`,
-          },
-          {
-            type: 'button',
-            text: {
-              type: 'plain_text',
-              text: 'Submit',
-            },
-            action_id: `${ COMMAND_NAME }:import:list_skus:submit`,
-          },
-        ],
+      label: {
+        type: 'plain_text',
+        text: 'List of SKUs, one per line',
       },
-    
+    },
+    buttons: {
+      type: 'actions',
+      block_id: 'import_skus:buttons',
+      elements: [
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Cancel',
+          },
+          action_id: `${ COMMAND_NAME }:import_skus:cancel`,
+        },
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Submit',
+          },
+          action_id: `${ COMMAND_NAME }:import_skus:submit`,
+        },
+      ],
     },
   },
 
@@ -785,6 +785,7 @@ const slackInteractiveStockCheck = async (req, res) => {
           break;
 
         case 'list_skus':
+          updatedBlocks = [];
           for (const block of currentBlocks) {
             if (block.block_id.startsWith('import:expanded')) {
               continue;
@@ -793,8 +794,8 @@ const slackInteractiveStockCheck = async (req, res) => {
           }
 
           updatedBlocks.push(...[
-            blocks.import.list_skus.input,
-            blocks.import.list_skus.buttons,
+            blocks.import_skus.input,
+            blocks.import_skus.buttons,
           ]);
           
           response = {
@@ -809,19 +810,21 @@ const slackInteractiveStockCheck = async (req, res) => {
       }
       break;
 
-    case 'list_skus':
+    case 'import_skus':
       switch (actionNodes?.[0]) {
         case 'cancel':
           
           updatedBlocks = [];
           for (const block of currentBlocks) {
-            if (block.block_id.startsWith('import:list_skus')) {
+            if (block.block_id.startsWith('import_skus')) {
               continue;
             }
             updatedBlocks.push(block);
           }
 
           updatedBlocks.push(blocks.import.offer);
+
+          logDeep('updatedBlocks', updatedBlocks);
 
           response = {
             replace_original: 'true',
@@ -841,6 +844,7 @@ const slackInteractiveStockCheck = async (req, res) => {
           console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
           return;
       }
+      break;
       
     default:
       console.warn(`Unknown actionId: ${ actionId }`);
