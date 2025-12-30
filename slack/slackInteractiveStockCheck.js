@@ -260,7 +260,12 @@ const blocks = {
         block_id: 'import:expanded:text',
         text: {
           type: 'mrkdwn',
-          text: `You can do a *Full* or *Safe* import, or just fix *Overs*.\n\n*Full* will fetch all inventory matching your settings again, and import it.\n\n*Safe* will import only products where importing is unlikely to cause an oversell - ie. Shopify has more than the WMS, or, there is no stock in Shopify (restocks).\n\nSelect your import type to kick it off, or, Cancel.`,
+          text: [
+            `You can do a *Full* or *Safe* import, or just fix *Overs*.`,
+            `*Full* will fetch all inventory matching your settings again, and import it.`,
+            `*Safe* will import only products where importing is unlikely to cause an oversell - ie. Shopify has more than the WMS, or, there is no stock in Shopify (restocks).`,
+            `Select your import type to kick it off, or, Cancel.`,
+          ].join('\n\n'),
         },
       },
       buttons: {
