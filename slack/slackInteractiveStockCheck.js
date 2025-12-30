@@ -221,7 +221,7 @@ const blocks = {
       count,
       biggestDiff,
       oversellRiskCount,
-      timeTaken
+      timeTaken,
     } = metadata;
 
     return {
