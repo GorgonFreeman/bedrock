@@ -463,12 +463,13 @@ const slackInteractiveStockCheck = async (req, res) => {
 
       // Run the inventory review
       const inventoryReviewResponse = await collabsInventoryReview(region, {
-        ...onlyPublishedProducts ? {
-          shopifyVariantsFetchQueries: [
+        shopifyVariantsFetchQueries: [
+          ...onlyPublished ? [
             'published_status:published',
             'product_publication_status:approved',
-          ],
-        } : {},
+          ] : [],
+          ...region === 'us' ? ['tag_not:not_for_radial'] : [],
+        ],
         minReportableDiff: minDiff,
         ...sheetName ? {
           exportSheetIdentifier: {
@@ -685,13 +686,13 @@ const slackInteractiveStockCheck = async (req, res) => {
           const inventorySyncResponse = await collabsInventorySync(region, {
             minDiff: minDiff,
             mode: actionNodes?.[0],
-            ...onlyPublished ? {
-              shopifyVariantsFetchQueries: [
+            shopifyVariantsFetchQueries: [
+              ...onlyPublished ? [
                 'published_status:published',
                 'product_publication_status:approved',
-                ...region === 'us' ? ['tag_not:not_for_radial'] : [],
-              ],
-            } : {},
+              ] : [],
+              ...region === 'us' ? ['tag_not:not_for_radial'] : [],
+            ],
           });
 
           console.log('inventorySyncResponse received');
