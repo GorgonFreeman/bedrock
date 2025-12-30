@@ -835,9 +835,46 @@ const slackInteractiveStockCheck = async (req, res) => {
 
         case 'submit':
 
-          logDeep(state);
-          return;
-          
+          let skus = state?.values?.['import_skus:input']?.[`${ COMMAND_NAME }:import_skus:input`]?.value;
+          skus = skus.split('\n').map(sku => sku.trim());
+          !HOSTED && logDeep('skus', skus);
+
+          if (skus.length === 0) {
+            response = {
+              replace_original: 'true',
+              text: 'No skus? Please try again.',
+            };
+            break;
+          }
+
+          // Send the loading message first
+          await customAxios(responseUrl, {
+            method: 'post',
+            body: {
+              replace_original: 'true',
+              text: `Importing ${ stateRegion.toUpperCase() } stock...`,
+            },
+          });
+
+          const inventorySyncResponse = await collabsInventorySync(stateRegion, {
+            skus,
+          });
+
+          console.log('inventorySyncResponse received');
+
+          const { success: inventorySyncSuccess, result: inventorySyncResult } = inventorySyncResponse;
+          if (!inventorySyncSuccess) {
+            response = {
+              replace_original: 'true',
+              text: `${ callerUserId ? `<@${ callerUserId }>, ` : '' }Error syncing inventory: ${ JSON.stringify(inventorySyncResponse) }`,
+            };
+            break;
+          }
+
+          response = {
+            replace_original: 'true',
+            text: `${ callerUserId ? `Hey <@${ callerUserId }>! ` : '' }${ stateRegion.toUpperCase() } stock synced successfully :heart_hands:`,
+          };
           break;
 
         default:
