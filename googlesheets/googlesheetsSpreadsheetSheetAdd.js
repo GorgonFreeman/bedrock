@@ -29,6 +29,8 @@ const googlesheetsSpreadsheetSheetAdd = async (
     };
   }
 
+  sheetName = String(sheetName);
+
   const sheetsClient = getGoogleSheetsClient({ credsPath });
 
   // Collect all unique keys from all objects to create headers
