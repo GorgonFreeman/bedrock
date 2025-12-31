@@ -285,7 +285,10 @@ const collabsInventoryReview = async (
         const logiwaInventoryResponse = await logiwaAsyncReportDo(
           {
             reportTypeCode: 'available_to_promise',
-            filter: `WarehouseIdentifier.eq=${ WAREHOUSE_ID }`,
+            filter: [
+              `WarehouseIdentifier.eq=${ WAREHOUSE_ID }`,
+              'UndamagedQuantity.gt=0',
+            ].join('&'),
           },
         );
 
