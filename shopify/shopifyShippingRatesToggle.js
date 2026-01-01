@@ -1,5 +1,5 @@
 const { funcApi, logDeep, askQuestion } = require('../utils');
-const { shopifyMutationDo } = require('../shopify/shopify.utils');
+const { shopifyShippingRateUpdate } = require('../shopify/shopifyShippingRateUpdate');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
 
 const shopifyShippingRatesToggle = async (
@@ -8,6 +8,7 @@ const shopifyShippingRatesToggle = async (
   {
     on = false,
     apiVersion,
+    verbose = false,
     subkey,
   } = {},
 ) => {
@@ -108,50 +109,25 @@ const shopifyShippingRatesToggle = async (
 
     logDeep(`Toggling ${ methodDefinitionName } to ${ on ? 'enabled' : 'disabled' }`);
 
-    // const toggleContinue = await askQuestion(`Continue? (y/n)`);
-    // if (toggleContinue !== 'y') {
-    //   logDeep(`Skipping ${ methodDefinitionName } because user did not continue`);
-    //   continue;
-    // }
+    if (verbose) {
+      const toggleContinue = await askQuestion(`Continue? (y/n): `);
+      if (toggleContinue !== 'y') {
+        logDeep(`Skipping ${ methodDefinitionName } because user did not continue`);
+        continue;
+      }
+    }
 
-    // const response = await shopifyMutationDo(
-    //   credsPath,
-    //   'deliveryProfileUpdate',
-    //   {
-    //     profileId: {
-    //       type: 'ID!',
-    //       value: methodDefinitionDeliveryProfileId,
-    //     },
-    //     locationGroupId: {
-    //       type: 'ID!',
-    //       value: methodDefinitionLocationGroupId,
-    //     },
-    //     zoneId: {
-    //       type: 'ID!',
-    //       value: methodDefinitionLocationGroupZoneId,
-    //     },
-    //     methodDefinitionId: {
-    //       type: 'ID!',
-    //       value: methodDefinitionId,
-    //     },
-    //   },
-    //   `methodDefinition { id name active description methodConditions }`,
-    //   {
-    //     apiVersion,
-    //   },
-    // );
+    const updateResponse = await shopifyShippingRateUpdate(credsPath, methodDefinitionDeliveryProfileId, methodDefinitionLocationGroupId, methodDefinitionLocationGroupZoneId, methodDefinitionId, { on, apiVersion });
+    const { success: updateSuccess, result: updateResult } = updateResponse;
+    if (!updateSuccess) {
+      return updateResponse;
+    }
 
-    // const { success: methodDefinitionUpdateSuccess, result: methodDefinition } = response;
-    // if (!methodDefinitionUpdateSuccess) {
-    //   logDeep(`Error toggling ${ methodDefinitionName } to ${ on ? 'enabled' : 'disabled' }`);
-    //   logDeep(methodDefinition);
-    //   continue;
-    // }
+    logDeep(`Successfully toggled ${ methodDefinitionName } to ${ on ? 'enabled' : 'disabled' }`);
 
-    // logDeep(`Successfully toggled ${ methodDefinitionName } to ${ on ? 'enabled' : 'disabled' }`);
-    // logDeep(methodDefinition);
-
-    await askQuestion(`Continue?`);
+    if (verbose) {
+      await askQuestion(`Continue to next method definition...`);
+    }
   }
 
   return { success: true };
@@ -167,4 +143,5 @@ module.exports = {
   shopifyShippingRatesToggleApi,
 };
 
-// curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "au", "keyword": "standard", "options": { "on": true } }'
+// curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "develop", "keyword": "standard", "options": { "on": true } }'
+// curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "develop", "keyword": "standard", "options": { "verbose": true, "on": false } }'
