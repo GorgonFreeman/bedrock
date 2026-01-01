@@ -5,8 +5,8 @@ const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfil
 const shopifyShippingRatesToggle = async (
   credsPath,
   keyword,
-  on,
   {
+    on = false,
     apiVersion,
     subkey,
   } = {},
@@ -158,7 +158,7 @@ const shopifyShippingRatesToggle = async (
 };
 
 const shopifyShippingRatesToggleApi = funcApi(shopifyShippingRatesToggle, {
-  argNames: ['credsPath', 'keyword', 'on', 'options'],
+  argNames: ['credsPath', 'keyword', 'options'],
   allowCrossOrigin: true,
 });
 
@@ -167,4 +167,4 @@ module.exports = {
   shopifyShippingRatesToggleApi,
 };
 
-// curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "au", "keyword": "standard", "on": true }'
+// curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "au", "keyword": "standard", "options": { "on": true } }'
