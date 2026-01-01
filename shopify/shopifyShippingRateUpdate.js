@@ -3,37 +3,63 @@
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
-
 const shopifyShippingRateUpdate = async (
   credsPath,
-  pageInput,
+  deliveryProfileId,
+  locationGroupId,
+  zoneId,
+  methodDefinitionId,
   {
+    on = false,
     apiVersion,
-    returnAttrs = defaultAttrs,
   } = {},
 ) => {
 
-  const response = await shopifyMutationDo(
-    credsPath,
-    'pageCreate',
-    {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+  const mutationName = 'deliveryProfileUpdate';
+
+  const variables = {
+    id: {
+      type: 'ID!',
+      value: `gid://shopify/DeliveryProfile/${ deliveryProfileId }`,
+    },
+    profile: {
+      type: 'DeliveryProfileInput!',
+      value: {
+        locationGroupsToUpdate: [
+          {
+            id: `gid://shopify/DeliveryLocationGroup/${ locationGroupId }`,
+            zonesToUpdate: [
+              {
+                id: `gid://shopify/DeliveryZone/${ zoneId }`,
+                methodDefinitionsToUpdate: [
+                  {
+                    id: `gid://shopify/DeliveryMethodDefinition/${ methodDefinitionId }`,
+                    active: on,
+                  }
+                ],
+              },
+            ],
+          },
+        ],
       },
     },
-    `page { ${ returnAttrs } }`,
+  };
+
+  const response = await shopifyMutationDo(
+    credsPath,
+    mutationName,
+    variables,
+    `profile { id name }`,
     { 
       apiVersion,
     },
   );
   logDeep(response);
-  return response;
+  return { success: true, result: response };
 };
 
 const shopifyShippingRateUpdateApi = funcApi(shopifyShippingRateUpdate, {
-  argNames: ['credsPath', 'pageInput', 'options'],
+  argNames: ['credsPath', 'deliveryProfileId', 'locationGroupId', 'zoneId', 'methodDefinitionId', 'options'],
 });
 
 module.exports = {
@@ -41,4 +67,5 @@ module.exports = {
   shopifyShippingRateUpdateApi,
 };
 
-// curl http://localhost:8000/shopifyShippingRateUpdate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyShippingRateUpdate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "deliveryProfileId": "26827522120", "locationGroupId": "26827194440", "zoneId": "80695427144", "methodDefinitionId": "161943191624", "options": { "on": true } }'
+// curl http://localhost:8000/shopifyShippingRateUpdate -H 'Content-Type: application/json' -d '{ "credsPath": "develop", "deliveryProfileId": "76077858953", "locationGroupId": "77231915145", "zoneId": "212678115465", "methodDefinitionId": "362892329097", "options": { "on": false } }'
