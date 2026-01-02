@@ -47,11 +47,25 @@ const shopifyShippingRateUpdate = async (
     },
   };
 
+  const returnAttrs = `id nameprofileLocationGroups {
+    locationGroupZones(first: 10) { edges { node {
+      zone {
+        id
+        name
+      }
+      methodDefinitions(first: 10) { edges { node {
+        id
+        name
+        active
+      } } }
+    } } }
+  }`;
+
   const response = await shopifyMutationDo(
     credsPath,
     mutationName,
     variables,
-    `profile { id name }`,
+    returnAttrs,
     { 
       apiVersion,
     },
