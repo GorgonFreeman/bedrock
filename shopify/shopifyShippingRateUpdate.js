@@ -11,6 +11,7 @@ const shopifyShippingRateUpdate = async (
   methodDefinitionId,
   {
     on = false,
+    newName,
     apiVersion,
   } = {},
 ) => {
@@ -35,6 +36,7 @@ const shopifyShippingRateUpdate = async (
                   {
                     id: `gid://shopify/DeliveryMethodDefinition/${ methodDefinitionId }`,
                     active: on,
+                    ...(newName && { name: newName }),
                   }
                 ],
               },
