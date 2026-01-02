@@ -19,51 +19,22 @@ const shopifyShippingRatesToggle = async (
   
   const disabledSuffix = ' [Disabled]';
 
-  const deliveryProfileAttrs = `
-    id
-    name
-    profileLocationGroups {
-      locationGroup {
-        id
-      }
-      locationGroupZones (first: 15) {
-        edges {
-          node {
-            zone {
-              id
-              name
-            }
-            methodDefinitions (first: 10) {
-              edges {
-                node {
-                  id
-                  name
-                  active
-                  description
-                  methodConditions {
-                    field
-                    id
-                    operator
-                    conditionCriteria {
-                      __typename
-                      ... on MoneyV2 {
-                        amount
-                        currencyCode
-                      }
-                      ... on Weight {
-                        unit
-                        value
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+  const deliveryProfileAttrs = `id name profileLocationGroups {
+    locationGroup {
+      id
     }
-  `;
+    locationGroupZones (first: 15) { edges { node {
+      zone {
+        id
+        name
+      }
+      methodDefinitions (first: 10) { edges { node {
+        id
+        name
+        active
+      } } }
+    } } }
+  }`;
 
   const deliveryProfilesResponse = await shopifyDeliveryProfilesGet(credsPath, { attrs: deliveryProfileAttrs, apiVersion });
   const { success: deliveryProfilesGetSuccess, result: deliveryProfiles } = deliveryProfilesResponse;
