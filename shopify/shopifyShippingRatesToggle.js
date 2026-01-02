@@ -16,6 +16,8 @@ const shopifyShippingRatesToggle = async (
   const result = [];
   const errors = [];
   const success = true;
+  
+  const disabledSuffix = ' [Disabled]';
 
   const deliveryProfileAttrs = `
     id
@@ -122,6 +124,20 @@ const shopifyShippingRatesToggle = async (
       }
     }
 
+    const newName = (() => {
+    if (on) {
+      if (methodDefinitionName.endsWith(disabledSuffix)) {
+        return methodDefinitionName.slice(0, -disabledSuffix.length);
+      }
+      return null;
+    } else {
+      if (!methodDefinitionName.endsWith(disabledSuffix)) {
+        return methodDefinitionName + disabledSuffix;
+      }
+      return null;
+    }
+    })();
+
     const updateResponse = await shopifyShippingRateUpdate(
       credsPath,
       gidToId(methodDefinitionDeliveryProfileId),
@@ -130,6 +146,7 @@ const shopifyShippingRatesToggle = async (
       gidToId(methodDefinitionId),
       {
         on,
+        newName,
         apiVersion,
       },
     );
