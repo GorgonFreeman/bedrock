@@ -1,4 +1,4 @@
-const { funcApi, logDeep, askQuestion } = require('../utils');
+const { funcApi, logDeep, gidToId, askQuestion } = require('../utils');
 const { shopifyShippingRateUpdate } = require('../shopify/shopifyShippingRateUpdate');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
 
@@ -12,6 +12,10 @@ const shopifyShippingRatesToggle = async (
     subkey,
   } = {},
 ) => {
+
+  const result = [];
+  const errors = [];
+  const success = true;
 
   const deliveryProfileAttrs = `
     id
@@ -90,7 +94,6 @@ const shopifyShippingRatesToggle = async (
   const targetedShippingMethodDefinitions = shippingMethodDefinitions.filter(methodDef => methodDef.name.toLowerCase().includes(keyword.toLowerCase()));
 
   for (const target of targetedShippingMethodDefinitions) {
-    logDeep('target', target);
     const {
       id: methodDefinitionId,
       name: methodDefinitionName,
@@ -98,39 +101,55 @@ const shopifyShippingRatesToggle = async (
       description: methodDefinitionDescription,
       methodConditions: methodConditions,
       deliveryProfileId: methodDefinitionDeliveryProfileId,
+      deliveryProfileName: methodDefinitionDeliveryProfileName,
       locationGroupId: methodDefinitionLocationGroupId,
       locationGroupZoneId: methodDefinitionLocationGroupZoneId,
+      locationGroupZoneName: methodDefinitionLocationGroupZoneName,
     } = target;
 
     if (methodDefinitionActive === on) {
-      logDeep(`Skipping ${ methodDefinitionName } because it is already ${ on ? 'enabled' : 'disabled' }`);
+      logDeep(`Skipping ${ methodDefinitionName } (${ methodDefinitionDeliveryProfileName }/ ${ methodDefinitionLocationGroupZoneName }) because it is already ${ on ? 'enabled' : 'disabled' }`);
       continue;
     }
 
-    logDeep(`Toggling ${ methodDefinitionName } to ${ on ? 'enabled' : 'disabled' }`);
+    logDeep(`Toggling ${ methodDefinitionName } (${ methodDefinitionDeliveryProfileName }/ ${ methodDefinitionLocationGroupZoneName }) to ${ on ? 'enabled' : 'disabled' }`);
 
     if (verbose) {
       const toggleContinue = await askQuestion(`Continue? (y/n): `);
       if (toggleContinue !== 'y') {
-        logDeep(`Skipping ${ methodDefinitionName } because user did not continue`);
+        logDeep(`Skipping ${ methodDefinitionName } (${ methodDefinitionDeliveryProfileName }/ ${ methodDefinitionLocationGroupZoneName }) because user did not continue`);
         continue;
       }
     }
 
-    const updateResponse = await shopifyShippingRateUpdate(credsPath, methodDefinitionDeliveryProfileId, methodDefinitionLocationGroupId, methodDefinitionLocationGroupZoneId, methodDefinitionId, { on, apiVersion });
+    const updateResponse = await shopifyShippingRateUpdate(
+      credsPath,
+      gidToId(methodDefinitionDeliveryProfileId),
+      gidToId(methodDefinitionLocationGroupId),
+      gidToId(methodDefinitionLocationGroupZoneId),
+      gidToId(methodDefinitionId),
+      {
+        on,
+        apiVersion,
+      },
+    );
     const { success: updateSuccess, result: updateResult } = updateResponse;
     if (!updateSuccess) {
-      return updateResponse;
+      errors.push(updateResponse);
+      logDeep(`Error toggling ${ methodDefinitionName } (${ methodDefinitionDeliveryProfileName }/ ${ methodDefinitionLocationGroupZoneName }): ${ updateResponse.error }`);
+      success = false;
+      continue;
     }
 
     logDeep(`Successfully toggled ${ methodDefinitionName } to ${ on ? 'enabled' : 'disabled' }`);
+    result.push(updateResult);
 
     if (verbose) {
       await askQuestion(`Continue to next method definition...`);
     }
   }
 
-  return { success: true };
+  return { success, result, errors };
 };
 
 const shopifyShippingRatesToggleApi = funcApi(shopifyShippingRatesToggle, {
