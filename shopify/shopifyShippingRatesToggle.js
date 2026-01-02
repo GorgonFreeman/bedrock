@@ -123,7 +123,7 @@ const shopifyShippingRatesToggle = async (
     );
     const { success: updateSuccess, result: updateResult } = updateResponse;
     if (!updateSuccess) {
-      errors.push(updateResponse);
+      errors.push(updateResult);
       logDeep(`Error toggling ${ methodDefinitionName } (${ methodDefinitionDeliveryProfileName }/ ${ methodDefinitionLocationGroupZoneName }): ${ updateResponse.error }`);
       success = false;
       continue;
