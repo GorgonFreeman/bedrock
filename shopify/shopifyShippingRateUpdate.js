@@ -99,8 +99,9 @@ const shopifyShippingRateUpdate = async (
                 : [];
               if (filteredMethods.length) {
                 filteredResult.push({
-                  zone: zoneObj.zone,
-                  methodDefinitions: filteredMethods,
+                  ...filteredMethods[0],
+                  deliveryZoneName: zoneObj.zone.name,
+                  deliveryProfileName: result.profile.name,
                 });
               }
               break;
@@ -112,7 +113,7 @@ const shopifyShippingRateUpdate = async (
     }
   }
   // logDeep(filteredResult);
-  return { success, result: filteredResult };
+  return { success, result: filteredResult.length ? filteredResult[0] : null };
 };
 
 const shopifyShippingRateUpdateApi = funcApi(shopifyShippingRateUpdate, {
