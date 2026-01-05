@@ -16,6 +16,7 @@ const attrs = `
     }
   }
 `;
+// Note: "fulfillable" is not useful here, it's false while remaining line items are IN_PROGRESS.
 
 const shopifyOrderReRequest = async (
   credsPath,
