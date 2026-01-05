@@ -5,6 +5,7 @@ const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 
 const attrs = `
   id 
+  displayFulfillmentStatus
   fulfillmentOrders (first:50) { 
     edges { 
       node { 
@@ -41,8 +42,17 @@ const shopifyOrderReRequest = async (
 
   const { 
     id: orderGid,
+    displayFulfillmentStatus,
     fulfillmentOrders, 
   } = order;
+
+  if (displayFulfillmentStatus === 'FULFILLED') {
+    return {
+      success: true,
+      result: `Order is already fulfilled. No need to re-request.`,
+      code: 204,
+    };
+  }
 
   if (fulfillmentOrders.length === 50) {
     return {
