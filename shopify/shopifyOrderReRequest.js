@@ -1,6 +1,6 @@
 // Cancels the current outstanding fulfillment with a 3rd party fulfillment provider, and recreates it.
 
-const { funcApi, logDeep, gidToId } = require('../utils');
+const { funcApi, logDeep, gidToId, askQuestion } = require('../utils');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 
 const attrs = `
@@ -70,6 +70,9 @@ const shopifyOrderReRequest = async (
       errors: [`${ region }:${ orderId }: Unrecognised order fulfillment status ${ displayFulfillmentStatus }. Please handle this case in the function.`],
     };
   }
+
+  logDeep(fulfillmentOrders);
+  await askQuestion('?');
 
   const response = {
     success: true,
