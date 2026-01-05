@@ -91,6 +91,7 @@ module.exports = {
   shopifyMetaobjectsPropagate: require('./shopify/shopifyMetaobjectsPropagate').shopifyMetaobjectsPropagateApi,
   shopifyOrderFulfill: require('./shopify/shopifyOrderFulfill').shopifyOrderFulfillApi,
   shopifyOrderGet: require('./shopify/shopifyOrderGet').shopifyOrderGetApi,
+  shopifyOrderReRequest: require('./shopify/shopifyOrderReRequest').shopifyOrderReRequestApi,
   shopifyOrdersGet: require('./shopify/shopifyOrdersGet').shopifyOrdersGetApi,
   shopifyPageCreate: require('./shopify/shopifyPageCreate').shopifyPageCreateApi,
   shopifyPageDelete: require('./shopify/shopifyPageDelete').shopifyPageDeleteApi,
