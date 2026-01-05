@@ -1,3 +1,5 @@
+// Cancels the current outstanding fulfillment with a 3rd party fulfillment provider, and recreates it.
+
 const { funcApi, logDeep } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 
