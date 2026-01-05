@@ -3,53 +3,32 @@
 const { funcApi, logDeep } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
-
 const shopifyOrderReRequest = async (
   credsPath,
-  arg,
+  orderIdentifier,
   {
     apiVersion,
-    option,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
+  const response = {
+    success: true,
+    result: {
       credsPath,
+      orderIdentifier,
       apiVersion,
     },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
-
+  };
   logDeep(response);
   return response;
 };
 
 const shopifyOrderReRequestApi = funcApi(shopifyOrderReRequest, {
-  argNames: ['credsPath', 'arg', 'options'],
+  argNames: ['credsPath', 'orderIdentifier', 'options'],
+  validatorsByArg: {
+    credsPath: Boolean,
+    orderIdentifier: Boolean,
+  },
 });
 
 module.exports = {
@@ -57,4 +36,4 @@ module.exports = {
   shopifyOrderReRequestApi,
 };
 
-// curl localhost:8000/shopifyOrderReRequest -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyOrderReRequest -H "Content-Type: application/json" -d '{ "credsPath": "uk", "orderIdentifier": { "orderId": "12619061363061" } }'
