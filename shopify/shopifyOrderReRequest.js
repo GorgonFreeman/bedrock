@@ -1,7 +1,20 @@
 // Cancels the current outstanding fulfillment with a 3rd party fulfillment provider, and recreates it.
 
 const { funcApi, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
+
+const attrs = `
+  id 
+  fulfillmentOrders (first:50) { 
+    edges { 
+      node { 
+        id 
+        requestStatus
+        status
+      }
+    }
+  }
+`;
 
 const shopifyOrderReRequest = async (
   credsPath,
@@ -11,13 +24,29 @@ const shopifyOrderReRequest = async (
   } = {},
 ) => {
 
+  const orderResponse = await shopifyOrderGet(
+    credsPath, 
+    orderIdentifier, 
+    { 
+      apiVersion, 
+      attrs,
+    },
+  );
+
+  const { success: orderSuccess, result: order } = orderResponse;
+
+  if (!orderSuccess) {
+    return orderResponse;
+  }
+
+  const { 
+    id: orderGid,
+    fulfillmentOrders, 
+  } = order;
+
   const response = {
     success: true,
-    result: {
-      credsPath,
-      orderIdentifier,
-      apiVersion,
-    },
+    result: order,
   };
   logDeep(response);
   return response;
