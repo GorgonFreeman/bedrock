@@ -1,6 +1,6 @@
 // Cancels the current outstanding fulfillment with a 3rd party fulfillment provider, and recreates it.
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, gidToId } = require('../utils');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 
 const attrs = `
@@ -46,6 +46,7 @@ const shopifyOrderReRequest = async (
     displayFulfillmentStatus,
     fulfillmentOrders, 
   } = order;
+  const orderId = gidToId(orderGid);
 
   if (displayFulfillmentStatus === 'FULFILLED') {
     return {
@@ -59,6 +60,14 @@ const shopifyOrderReRequest = async (
     return {
       success: false,
       errors: [`Order could have more than one page of fulfillment orders. Please check manually.`],
+    };
+  }
+
+  const proceedStatuses = ['IN_PROGRESS']; // TODO: Consider adding UNSUBMITTED, ACCEPTED, REJECTED, etc.
+  if (!proceedStatuses.includes(displayFulfillmentStatus)) {
+    return {
+      success: false,
+      errors: [`${ region }:${ orderId }: Unrecognised order fulfillment status ${ displayFulfillmentStatus }. Please handle this case in the function.`],
     };
   }
 
