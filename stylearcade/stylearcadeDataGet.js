@@ -41,4 +41,4 @@ module.exports = {
 };
 
 // curl localhost:8000/stylearcadeDataGet
-// curl localhost:8000/stylearcadeDataGet -H "Content-Type: application/json" -d '{ "region": "au", "options": { "limit": 2 } }'
+// curl localhost:8000/stylearcadeDataGet -H "Content-Type: application/json" -d '{ "options": { "limit": 2000 } }'
