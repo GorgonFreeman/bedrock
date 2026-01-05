@@ -8,6 +8,7 @@ const { HOSTED, REGIONS_WF } = require('../constants');
 const { MIDS_WF } = require('../bedrock_unlisted/constants');
 
 const { stylearcadeDataGetter } = require('../stylearcade/stylearcadeDataGet');
+const { parseDimensions } = require('../stylearcade/stylearcade.utils');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 const { starshipitProductsGetter } = require('../starshipit/starshipitProductsGet');
 const { shopifyProductsGetter } = require('../shopify/shopifyProductsGet');
@@ -98,6 +99,12 @@ const collabsCustomsDataSweep = async () => {
         mfMid: metafield(namespace: "shipping_data", key: "mids") { 
           value
         }
+        mfDimsCM: metafield(namespace: "specifications", key: "dimensions_cm") {
+          value
+        }
+        mfDimsInches: metafield(namespace: "specifications", key: "dimensions_inches") {
+          value
+        }
         variants (first: 100) {
           edges {
             node {
@@ -144,6 +151,8 @@ const collabsCustomsDataSweep = async () => {
         af56: hsCodeUs,
         af58: customsDescription,
         af62: countryCodeOfOrigin = 'CN', // Default to China
+        af60note: dimsNote = null, // Possibly null
+        af60status: dimsStatus = false,
       } = stylearcadeProduct;
 
       if (!(hsCodeUs && hsCodeUk)) {
@@ -159,7 +168,7 @@ const collabsCustomsDataSweep = async () => {
         cn: 'China',
       }[countryCodeOfOrigin.toLowerCase()];
 
-      !HOSTED && logDeep(hsCodeUs, hsCodeUk, customsDescription, countryCodeOfOrigin, skuTarget);
+      !HOSTED && logDeep(hsCodeUs, hsCodeUk, customsDescription, countryCodeOfOrigin, skuTarget, dimsNote, dimsStatus);
       // await askQuestion('Continue?');
 
       const shopifyAuProduct = piles.inShopify['au']?.find(item => item?.variants?.find(v => v?.sku?.startsWith(skuTarget)));
@@ -309,14 +318,22 @@ const collabsCustomsDataSweep = async () => {
           mfHsCode,
           mfCountryCodeOfOrigin,
           mfMid,
+          mfDimsCM,
+          mfDimsInches,
         } = shopifyRegionProduct;
 
         const relevantHsCode = region === 'uk' ? hsCodeUk : hsCodeUs;
 
+        // Parse dimensions from Style Arcade af60note
+        const parsedDimensions = parseDimensions(dimsNote);
+
+        console.log(parsedDimensions);
         const updateCustomsDescription = customsDescription && (mfCustomsDescription?.value !== customsDescription);
         const updateHsCode = relevantHsCode && (mfHsCode?.value !== relevantHsCode);
         const updateCountryCodeOfOrigin = countryCodeOfOrigin && (mfCountryCodeOfOrigin?.value !== countryCodeOfOrigin);
         const updateMid = mid && (mfMid?.value !== mid);
+        const updateDimsCM = parsedDimensions && (mfDimsCM?.value !== parsedDimensions.cm);
+        const updateDimsInches = parsedDimensions && (mfDimsInches?.value !== parsedDimensions.inches);
 
         if (updateCustomsDescription) {
           !HOSTED && logDeep(`[Shopify Metafield Update] Region: ${ region }, Product: ${ productGid }, Field: item_description, Current: "${ mfCustomsDescription?.value }", Expected: "${ customsDescription }"`);
@@ -365,6 +382,32 @@ const collabsCustomsDataSweep = async () => {
             key: 'mids',
             type: 'single_line_text_field',
             value: String(mid),
+          }];
+          const shopifyMetafieldsSetArgs = [region, metafields];
+          piles.shopifyMetafieldsSet.push(shopifyMetafieldsSetArgs);
+        }
+
+        if (updateDimsCM) {
+          !HOSTED && logDeep(`[Shopify Metafield Update] Region: ${ region }, Product: ${ productGid }, Field: dimensions_cm, Current: "${ mfDimsCM?.value }", Expected: "${ parsedDimensions.cm }"`);
+          const metafields = [{
+            ownerId: productGid,
+            namespace: 'specifications',
+            key: 'dimensions_cm',
+            type: 'single_line_text_field',
+            value: String(parsedDimensions.cm),
+          }];
+          const shopifyMetafieldsSetArgs = [region, metafields];
+          piles.shopifyMetafieldsSet.push(shopifyMetafieldsSetArgs);
+        }
+
+        if (updateDimsInches) {
+          !HOSTED && logDeep(`[Shopify Metafield Update] Region: ${ region }, Product: ${ productGid }, Field: dimensions_inches, Current: "${ mfDimsInches?.value }", Expected: "${ parsedDimensions.inches }"`);
+          const metafields = [{
+            ownerId: productGid,
+            namespace: 'specifications',
+            key: 'dimensions_inches',
+            type: 'single_line_text_field',
+            value: String(parsedDimensions.inches),
           }];
           const shopifyMetafieldsSetArgs = [region, metafields];
           piles.shopifyMetafieldsSet.push(shopifyMetafieldsSetArgs);
