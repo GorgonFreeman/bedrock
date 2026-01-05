@@ -44,6 +44,13 @@ const shopifyOrderReRequest = async (
     fulfillmentOrders, 
   } = order;
 
+  if (fulfillmentOrders.length === 50) {
+    return {
+      success: false,
+      errors: [`Order could have more than one page of fulfillment orders. Please check manually.`],
+    };
+  }
+
   const response = {
     success: true,
     result: order,
