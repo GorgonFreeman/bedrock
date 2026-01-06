@@ -117,6 +117,13 @@ const shopifyOrderReRequest = async (
     const submitRequestStatuses = [
       'UNSUBMITTED',
     ];
+    const skipRequestStatuses = [
+      'CANCELLATION_ACCEPTED',
+    ];
+
+    if (skipRequestStatuses.includes(requestStatus)) {
+      continue;
+    }
 
     if (cancelRequestStatuses.includes(requestStatus)) {
       // Submit cancellation requests
