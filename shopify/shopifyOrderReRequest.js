@@ -25,6 +25,10 @@ const attrs = `
             }
           }
         }
+        supportedActions {
+          action
+          externalUrl
+        }
       }
     }
   }
@@ -98,37 +102,50 @@ const shopifyOrderReRequest = async (
   }
 
   for (const fo of fulfillmentServiceFulfillmentOrders) {
-    const {
+    let {
       id: fulfillmentOrderGid,
-      requestStatus,
-      status,
+      supportedActions,
     } = fo;
     const fulfillmentOrderId = gidToId(fulfillmentOrderGid);
+    supportedActions = supportedActions.map(sa => sa.action);
 
     logDeep(fo);
     await askQuestion('?');
     
-    let fulfillmentOrderIdToSubmit;
+    let idToRequestCancellation;
+    let idToCancel;
+    let idToRequestFulfillment;
 
-    const cancelRequestStatuses = [
-      'ACCEPTED',
-      'SUBMITTED',
-    ];
-    const submitRequestStatuses = [
-      'UNSUBMITTED',
-    ];
-    const skipRequestStatuses = [
-      'CANCELLATION_ACCEPTED',
-    ];
-    
-    // TODO: Consider skipping if not status 'OPEN' instead of looking at request status
-    if (skipRequestStatuses.includes(requestStatus)) {
-      continue;
+    if (supportedActions.includes('REQUEST_CANCELLATION')) {
+
+      idToRequestCancellation = fulfillmentOrderId;
+      if (forceCancellation) {
+        idToCancel = fulfillmentOrderId;
+      }
+
+    } else if (supportedActions.includes('CANCEL_FULFILLMENT_ORDER')) { // only SUBMITTED and CANCELLATION_REQUESTED
+
+      if (requestStatus === 'CANCELLATION_REQUESTED' && !forceCancellation) {
+        console.log(`Wait for the fulfillment service to accept the cancellation, then run again to request fulfillment.`);
+        continue;
+      }
+       
+      // If forcing cancellation, revert the order to unfulfilled
+      idToCancel = fulfillmentOrderId;
+
+    } else if (supportedActions.includes('REQUEST_FULFILLMENT')) {
+
+      idToRequestFulfillment = fulfillmentOrderId;
+
     }
 
-    // TODO: Consider using supportedActions to decide whether to cancel/submit or not
-    if (cancelRequestStatuses.includes(requestStatus)) {
-      // Submit cancellation requests
+    if (!(idToRequestCancellation || idToCancel || idToRequestFulfillment)) {
+      continue;
+    }
+    
+    if (idToRequestCancellation) {
+      logDeep(`Requesting cancellation for fulfillment order ${ fulfillmentOrderId }`, fo);
+
       const requestCancellationResponse = await shopifyFulfillmentOrderSubmitCancellationRequest(
         credsPath,
         fulfillmentOrderId,
@@ -146,12 +163,10 @@ const shopifyOrderReRequest = async (
       // TODO: Consider including the result status in the assessment of success
       logDeep(requestCancellation);
       await askQuestion('?');
+    }
 
-      // If forcing cancellation, revert the order to unfulfilled
-      if (!forceCancellation) {
-        console.log(`Wait for the fulfillment service to accept the cancellation, then run again to submit a new request.`);
-        continue;
-      }
+    if (idToCancel) {
+      logDeep(`Cancelling fulfillment order ${ fulfillmentOrderId }`, fo);
 
       const fulfillmentOrderCancelResponse = await shopifyFuflillmentOrderCancel(
         credsPath,
@@ -178,40 +193,29 @@ const shopifyOrderReRequest = async (
       } = replacementFulfillmentOrder;
       const replacementFulfillmentOrderId = gidToId(replacementFulfillmentOrderGid);
 
-      fulfillmentOrderIdToSubmit = replacementFulfillmentOrderId;
-
-    } else if (submitRequestStatuses.includes(requestStatus)) {
-
-      fulfillmentOrderIdToSubmit = fulfillmentOrderId;
-
-    } else {
-      return {
-        success: false,
-        errors: [`${ region }:${ orderId }: Unrecognised fulfillment order request status ${ requestStatus }. Please handle this case in the function.`],
-        data: fo,
-      };
+      idToRequestFulfillment = replacementFulfillmentOrderId;
     }
 
-    if (!fulfillmentOrderIdToSubmit) {
-      continue;
+    if (idToRequestFulfillment) {
+      logDeep(`Requesting fulfillment for fulfillment order ${ idToRequestFulfillment }`, fo);
+
+      const requestFulfillmentResponse = await shopifyFulfillmentOrderSubmitFulfillmentRequest(
+        credsPath,
+        idToRequestFulfillment,
+        {
+          apiVersion,
+          ...fulfillMessage && { message: fulfillMessage },
+        },
+      );
+  
+      const { success: requestFulfillmentSuccess, result: requestFulfillmentResult } = requestFulfillmentResponse;
+      if (!requestFulfillmentSuccess) {
+        return requestFulfillmentResponse;
+      }
+  
+      logDeep(requestFulfillmentResult);
+      await askQuestion('?');
     }
-
-    const requestSubmitResponse = await shopifyFulfillmentOrderSubmitFulfillmentRequest(
-      credsPath,
-      fulfillmentOrderIdToSubmit,
-      {
-        apiVersion,
-        ...fulfillMessage && { message: fulfillMessage },
-      },
-    );
-
-    const { success: requestSubmitSuccess, result: requestSubmitResult } = requestSubmitResponse;
-    if (!requestSubmitSuccess) {
-      return requestSubmitResponse;
-    }
-
-    logDeep(requestSubmitResult);
-    await askQuestion('?');
 
   }
 
