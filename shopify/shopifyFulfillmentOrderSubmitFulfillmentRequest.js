@@ -3,27 +3,28 @@
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `id requestStatus`;
 
 const shopifyFulfillmentOrderSubmitFulfillmentRequest = async (
   credsPath,
-  pageInput,
+  fulfillmentOrderId,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
+    fulfillmentOrderLineItems,    
   } = {},
 ) => {
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'fulfillmentOrderSubmitFulfillmentRequest',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      id: {
+        type: 'ID!',
+        value: `gid://shopify/FulfillmentOrder/${ fulfillmentOrderId }`,
       },
     },
-    `page { ${ returnAttrs } }`,
+    `submittedFulfillmentOrder { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -33,7 +34,11 @@ const shopifyFulfillmentOrderSubmitFulfillmentRequest = async (
 };
 
 const shopifyFulfillmentOrderSubmitFulfillmentRequestApi = funcApi(shopifyFulfillmentOrderSubmitFulfillmentRequest, {
-  argNames: ['credsPath', 'pageInput', 'options'],
+  argNames: ['credsPath', 'fulfillmentOrderId', 'options'],
+  validatorsByArg: {
+    credsPath: Boolean,
+    fulfillmentOrderId: Boolean,
+  },
 });
 
 module.exports = {
@@ -41,4 +46,4 @@ module.exports = {
   shopifyFulfillmentOrderSubmitFulfillmentRequestApi,
 };
 
-// curl http://localhost:8000/shopifyFulfillmentOrderSubmitFulfillmentRequest -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyFulfillmentOrderSubmitFulfillmentRequest -H 'Content-Type: application/json' -d '{ "credsPath": "au", "fulfillmentOrderId": "12341234" }'
