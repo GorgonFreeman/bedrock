@@ -1,6 +1,6 @@
 // Cancels the current outstanding fulfillment with a 3rd party fulfillment provider, and recreates it.
 
-const { funcApi, logDeep, gidToId, askQuestion, arrayStandardResponse } = require('../utils');
+const { funcApi, logDeep, gidToId, askQuestion } = require('../utils');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { shopifyFulfillmentOrderSubmitCancellationRequest } = require('../shopify/shopifyFulfillmentOrderSubmitCancellationRequest');
 const { shopifyFulfillmentOrderSubmitFulfillmentRequest } = require('../shopify/shopifyFulfillmentOrderSubmitFulfillmentRequest');
@@ -230,7 +230,10 @@ const shopifyOrderReRequest = async (
     responses.push(response);
   }
 
-  const response = arrayStandardResponse(responses);
+  const response = {
+    success: true,
+    result: responses,
+  };
   logDeep(response);
   return response;
 };
