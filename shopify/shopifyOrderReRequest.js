@@ -1,5 +1,7 @@
 // Cancels the current outstanding fulfillment with a 3rd party fulfillment provider, and recreates it.
 
+// TODO: Remove checkpoints once this function can be trusted
+
 const { funcApi, logDeep, gidToId, askQuestion, actionMultipleOrSingle } = require('../utils');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { shopifyFulfillmentOrderSubmitCancellationRequest } = require('../shopify/shopifyFulfillmentOrderSubmitCancellationRequest');
