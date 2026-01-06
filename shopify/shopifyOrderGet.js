@@ -28,8 +28,7 @@ const shopifyOrderGetSingle = async (
         attrs,
       },
     );
-  
-    logDeep(response);
+
     return response;
   }
 
@@ -42,7 +41,6 @@ const shopifyOrderGetSingle = async (
 
   const singleResponse = standardInterpreters.expectOne(response);
 
-  logDeep(singleResponse);
   return singleResponse;
   /* /orderName */
 };
@@ -67,7 +65,6 @@ const shopifyOrderGet = async (
     },
   );
   
-  logDeep(response);
   return response;
 };
 

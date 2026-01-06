@@ -113,7 +113,11 @@ const shopifyOrderReRequestSingle = async (
     const fulfillmentOrderId = gidToId(fulfillmentOrderGid);
     supportedActions = supportedActions.map(sa => sa.action);
 
-    logDeep(fo);
+    logDeep(`Processing ${ credsPath }:${ orderId }:${ fulfillmentOrderId }`, {
+      displayFulfillmentStatus,
+      requestStatus,
+      supportedActions,
+    });
     await askQuestion('?');
 
     const response = {};
@@ -148,7 +152,7 @@ const shopifyOrderReRequestSingle = async (
     }
     
     if (idToRequestCancellation) {
-      logDeep(`Requesting cancellation for fulfillment order ${ fulfillmentOrderId }`, fo);
+      logDeep(`Requesting cancellation`);
       await askQuestion('?');
 
       const requestCancellationResponse = await shopifyFulfillmentOrderSubmitCancellationRequest(
@@ -166,13 +170,13 @@ const shopifyOrderReRequestSingle = async (
       }
       
       // TODO: Consider including the result status in the assessment of success
-      logDeep({ requestCancellation });
+      // logDeep({ requestCancellation });
 
       response.requestCancellationResponse = requestCancellationResponse;
     }
 
     if (idToCancel) {
-      logDeep(`Cancelling fulfillment order ${ fulfillmentOrderId }`, fo);
+      logDeep(`Cancelling fulfillment`);
       await askQuestion('?');
 
       const fulfillmentOrderCancelResponse = await shopifyFuflillmentOrderCancel(
@@ -189,7 +193,7 @@ const shopifyOrderReRequestSingle = async (
         return fulfillmentOrderCancelResponse;
       }
 
-      logDeep({ fulfillmentOrderCancelResult });
+      // logDeep({ fulfillmentOrderCancelResult });
 
       response.fulfillmentOrderCancelResponse = fulfillmentOrderCancelResponse;
 
@@ -205,7 +209,7 @@ const shopifyOrderReRequestSingle = async (
     }
 
     if (idToRequestFulfillment) {
-      logDeep(`Requesting fulfillment for fulfillment order ${ idToRequestFulfillment }`, fo);
+      logDeep(`Requesting fulfillment`);
       await askQuestion('?');
 
       const requestFulfillmentResponse = await shopifyFulfillmentOrderSubmitFulfillmentRequest(
@@ -222,7 +226,7 @@ const shopifyOrderReRequestSingle = async (
         return requestFulfillmentResponse;
       }
   
-      logDeep({ requestFulfillmentResult });
+      // logDeep({ requestFulfillmentResult });
 
       response.requestFulfillmentResponse = requestFulfillmentResponse;
     }

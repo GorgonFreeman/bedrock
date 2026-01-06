@@ -50,7 +50,6 @@ const shopifyFuflillmentOrderCancel = async (
       ...(queueRunOptions ? { queueRunOptions } : {}),
     },
   );
-  logDeep(response);
   return response;
 };
 

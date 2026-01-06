@@ -57,8 +57,6 @@ const shopifyFulfillmentOrderSubmitCancellationRequest = async (
       ...(queueRunOptions ? { queueRunOptions } : {}),
     },
   );
-  
-  logDeep(response);
   return response;
 };
 

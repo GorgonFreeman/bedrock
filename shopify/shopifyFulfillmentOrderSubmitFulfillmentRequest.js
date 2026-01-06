@@ -64,8 +64,6 @@ const shopifyFulfillmentOrderSubmitFulfillmentRequest = async (
       ...(queueRunOptions ? { queueRunOptions } : {}),
     },
   );
-  
-  logDeep(response);
   return response;
 };
 

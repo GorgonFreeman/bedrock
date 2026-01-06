@@ -38,7 +38,6 @@ const shopifyGetSingle = async (
     },
   });
 
-  logDeep(response);
   return response;
 };
 
