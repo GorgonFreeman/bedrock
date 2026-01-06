@@ -89,7 +89,11 @@ const shopifyOrderReRequestSingle = async (
     };
   }
 
-  const proceedStatuses = ['IN_PROGRESS', 'UNFULFILLED']; // TODO: Consider adding UNSUBMITTED, ACCEPTED, REJECTED, etc.
+  const proceedStatuses = [
+    'IN_PROGRESS', 
+    'UNFULFILLED',
+    'REQUEST_DECLINED',
+  ]; // TODO: Consider adding UNSUBMITTED, ACCEPTED, REJECTED, etc.
   if (!proceedStatuses.includes(displayFulfillmentStatus)) {
     return {
       success: false,
