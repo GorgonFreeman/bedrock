@@ -53,7 +53,7 @@ const shopifyOrderReRequest = async (
   const { 
     id: orderGid,
     displayFulfillmentStatus,
-    fulfillmentOrders, 
+    fulfillmentOrders,
   } = order;
   const orderId = gidToId(orderGid);
 
@@ -77,6 +77,16 @@ const shopifyOrderReRequest = async (
     return {
       success: false,
       errors: [`${ region }:${ orderId }: Unrecognised order fulfillment status ${ displayFulfillmentStatus }. Please handle this case in the function.`],
+    };
+  }
+
+  const fulfillmentServiceFulfillmentOrders = fulfillmentOrders.filter(fo => fo.assignedLocation?.location?.isFulfillmentService);
+
+  if (!fulfillmentServiceFulfillmentOrders?.length) {
+    return {
+      success: false,
+      errors: [`${ region }:${ orderId }: Expected fulfillment service fulfillment orders, but got none.`],
+      data: order,
     };
   }
 
