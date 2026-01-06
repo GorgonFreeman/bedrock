@@ -138,9 +138,7 @@ const shopifyOrderReRequest = async (
       idToCancel = fulfillmentOrderId;
 
     } else if (supportedActions.includes('REQUEST_FULFILLMENT')) {
-
       idToRequestFulfillment = fulfillmentOrderId;
-
     }
 
     if (!(idToRequestCancellation || idToCancel || idToRequestFulfillment)) {
@@ -149,6 +147,7 @@ const shopifyOrderReRequest = async (
     
     if (idToRequestCancellation) {
       logDeep(`Requesting cancellation for fulfillment order ${ fulfillmentOrderId }`, fo);
+      await askQuestion('?');
 
       const requestCancellationResponse = await shopifyFulfillmentOrderSubmitCancellationRequest(
         credsPath,
@@ -165,14 +164,14 @@ const shopifyOrderReRequest = async (
       }
       
       // TODO: Consider including the result status in the assessment of success
-      logDeep(requestCancellation);
-      await askQuestion('?');
+      logDeep({ requestCancellation });
 
       response.requestCancellationResponse = requestCancellationResponse;
     }
 
     if (idToCancel) {
       logDeep(`Cancelling fulfillment order ${ fulfillmentOrderId }`, fo);
+      await askQuestion('?');
 
       const fulfillmentOrderCancelResponse = await shopifyFuflillmentOrderCancel(
         credsPath,
@@ -188,8 +187,7 @@ const shopifyOrderReRequest = async (
         return fulfillmentOrderCancelResponse;
       }
 
-      logDeep(fulfillmentOrderCancelResult);
-      await askQuestion('?'); 
+      logDeep({ fulfillmentOrderCancelResult });
 
       response.fulfillmentOrderCancelResponse = fulfillmentOrderCancelResponse;
 
@@ -206,6 +204,7 @@ const shopifyOrderReRequest = async (
 
     if (idToRequestFulfillment) {
       logDeep(`Requesting fulfillment for fulfillment order ${ idToRequestFulfillment }`, fo);
+      await askQuestion('?');
 
       const requestFulfillmentResponse = await shopifyFulfillmentOrderSubmitFulfillmentRequest(
         credsPath,
@@ -221,8 +220,7 @@ const shopifyOrderReRequest = async (
         return requestFulfillmentResponse;
       }
   
-      logDeep(requestFulfillmentResult);
-      await askQuestion('?');
+      logDeep({ requestFulfillmentResult });
 
       response.requestFulfillmentResponse = requestFulfillmentResponse;
     }
@@ -252,3 +250,4 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyOrderReRequest -H "Content-Type: application/json" -d '{ "credsPath": "uk", "orderIdentifier": { "orderId": "12619061363061" } }'
+// curl localhost:8000/shopifyOrderReRequest -H "Content-Type: application/json" -d '{ "credsPath": "uk", "orderIdentifier": { "orderId": "12619061363061" }, "options": { "forceCancellation": true } }'
