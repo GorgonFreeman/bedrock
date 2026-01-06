@@ -129,6 +129,7 @@ const shopifyOrderReRequest = async (
 
     // If forcing cancellation, revert the order to unfulfilled
     if (!forceCancellation) {
+      console.log(`Wait for the fulfillment service to accept the cancellation, then run again to submit a new request.`);
       continue;
     }
 
@@ -148,11 +149,33 @@ const shopifyOrderReRequest = async (
 
     logDeep(fulfillmentOrderCancelResult);
     await askQuestion('?');
+
+    const {
+      replacementFulfillmentOrder,
+    } = fulfillmentOrderCancelResult;
+    const {
+      id: replacementFulfillmentOrderGid,
+    } = replacementFulfillmentOrder;
+    const replacementFulfillmentOrderId = gidToId(replacementFulfillmentOrderGid);
+
+    const requestSubmitResponse = await shopifyFulfillmentOrderSubmitFulfillmentRequest(
+      credsPath,
+      replacementFulfillmentOrderId,
+      {
+        apiVersion,
+        ...fulfillMessage && { message: fulfillMessage },
+      },
+    );
+
+    const { success: requestSubmitSuccess, result: requestSubmitResult } = requestSubmitResponse;
+    if (!requestSubmitSuccess) {
+      return requestSubmitResponse;
+    }
+
+    logDeep(requestSubmitResult);
+    await askQuestion('?');
+
   }
-
-  // Fetch new state of fulfillment orders
-
-  // Submit fulfillment requests
 
   const response = {
     success: true,
