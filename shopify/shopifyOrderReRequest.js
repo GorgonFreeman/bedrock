@@ -1,6 +1,6 @@
 // Cancels the current outstanding fulfillment with a 3rd party fulfillment provider, and recreates it.
 
-const { funcApi, logDeep, gidToId, askQuestion } = require('../utils');
+const { funcApi, logDeep, gidToId, askQuestion, arrayStandardResponse } = require('../utils');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { shopifyFulfillmentOrderSubmitCancellationRequest } = require('../shopify/shopifyFulfillmentOrderSubmitCancellationRequest');
 const { shopifyFulfillmentOrderSubmitFulfillmentRequest } = require('../shopify/shopifyFulfillmentOrderSubmitFulfillmentRequest');
@@ -101,6 +101,8 @@ const shopifyOrderReRequest = async (
     };
   }
 
+  const responses = [];
+
   for (const fo of fulfillmentServiceFulfillmentOrders) {
     let {
       id: fulfillmentOrderGid,
@@ -111,6 +113,8 @@ const shopifyOrderReRequest = async (
 
     logDeep(fo);
     await askQuestion('?');
+
+    const response = {};
     
     let idToRequestCancellation;
     let idToCancel;
@@ -163,6 +167,8 @@ const shopifyOrderReRequest = async (
       // TODO: Consider including the result status in the assessment of success
       logDeep(requestCancellation);
       await askQuestion('?');
+
+      response.requestCancellationResponse = requestCancellationResponse;
     }
 
     if (idToCancel) {
@@ -184,6 +190,8 @@ const shopifyOrderReRequest = async (
 
       logDeep(fulfillmentOrderCancelResult);
       await askQuestion('?'); 
+
+      response.fulfillmentOrderCancelResponse = fulfillmentOrderCancelResponse;
 
       const {
         replacementFulfillmentOrder,
@@ -215,14 +223,14 @@ const shopifyOrderReRequest = async (
   
       logDeep(requestFulfillmentResult);
       await askQuestion('?');
+
+      response.requestFulfillmentResponse = requestFulfillmentResponse;
     }
 
+    responses.push(response);
   }
 
-  const response = {
-    success: true,
-    result: order,
-  };
+  const response = arrayStandardResponse(responses);
   logDeep(response);
   return response;
 };
