@@ -34,6 +34,9 @@ const shopifyOrderReRequest = async (
   orderIdentifier,
   {
     apiVersion,
+    forceCancellation = false,
+    cancelMessage,
+    fulfillMessage,
   } = {},
 ) => {
 
