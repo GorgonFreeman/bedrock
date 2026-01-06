@@ -107,6 +107,7 @@ const shopifyOrderReRequest = async (
     let {
       id: fulfillmentOrderGid,
       supportedActions,
+      requestStatus,
     } = fo;
     const fulfillmentOrderId = gidToId(fulfillmentOrderGid);
     supportedActions = supportedActions.map(sa => sa.action);
