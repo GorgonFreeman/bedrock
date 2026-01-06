@@ -1,6 +1,6 @@
 // Cancels the current outstanding fulfillment with a 3rd party fulfillment provider, and recreates it.
 
-const { funcApi, logDeep, gidToId, askQuestion } = require('../utils');
+const { funcApi, logDeep, gidToId, askQuestion, actionMultipleOrSingle } = require('../utils');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { shopifyFulfillmentOrderSubmitCancellationRequest } = require('../shopify/shopifyFulfillmentOrderSubmitCancellationRequest');
 const { shopifyFulfillmentOrderSubmitFulfillmentRequest } = require('../shopify/shopifyFulfillmentOrderSubmitFulfillmentRequest');
@@ -36,7 +36,7 @@ const attrs = `
 `;
 // Note: "fulfillable" is not useful here, it's false while remaining line items are IN_PROGRESS.
 
-const shopifyOrderReRequest = async (
+const shopifyOrderReRequestSingle = async (
   credsPath,
   orderIdentifier,
   {
@@ -234,6 +234,28 @@ const shopifyOrderReRequest = async (
     success: true,
     result: responses,
   };
+  return response;
+};
+
+const shopifyOrderReRequest = async (
+  credsPath,
+  orderIdentifier,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    orderIdentifier,
+    shopifyOrderReRequestSingle,
+    (orderIdentifier) => ({
+      args: [credsPath, orderIdentifier],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
   logDeep(response);
   return response;
 };
