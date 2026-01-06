@@ -5,10 +5,12 @@ const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { shopifyFulfillmentOrderSubmitCancellationRequest } = require('../shopify/shopifyFulfillmentOrderSubmitCancellationRequest');
 const { shopifyFulfillmentOrderSubmitFulfillmentRequest } = require('../shopify/shopifyFulfillmentOrderSubmitFulfillmentRequest');
 
+const FULFILLMENT_ORDERS_FETCHED = 50;
+
 const attrs = `
   id 
   displayFulfillmentStatus
-  fulfillmentOrders (first:50) { 
+  fulfillmentOrders (first:${ FULFILLMENT_ORDERS_FETCHED }) { 
     edges { 
       node { 
         id 
@@ -70,7 +72,7 @@ const shopifyOrderReRequest = async (
     };
   }
 
-  if (fulfillmentOrders.length === 50) {
+  if (fulfillmentOrders.length >= FULFILLMENT_ORDERS_FETCHED) {
     return {
       success: false,
       errors: [`Order could have more than one page of fulfillment orders. Please check manually.`],
