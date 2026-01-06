@@ -4,6 +4,7 @@ const { funcApi, logDeep, gidToId, askQuestion } = require('../utils');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { shopifyFulfillmentOrderSubmitCancellationRequest } = require('../shopify/shopifyFulfillmentOrderSubmitCancellationRequest');
 const { shopifyFulfillmentOrderSubmitFulfillmentRequest } = require('../shopify/shopifyFulfillmentOrderSubmitFulfillmentRequest');
+const { shopifyFuflillmentOrderCancel } = require('../shopify/shopifyFuflillmentOrderCancel');
 
 const FULFILLMENT_ORDERS_FETCHED = 50;
 
