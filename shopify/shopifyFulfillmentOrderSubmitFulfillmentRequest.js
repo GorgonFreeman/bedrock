@@ -1,11 +1,11 @@
 // https://shopify.dev/docs/api/admin-graphql/unstable/mutations/fulfillmentOrderSubmitFulfillmentRequest
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id requestStatus`;
 
-const shopifyFulfillmentOrderSubmitFulfillmentRequest = async (
+const shopifyFulfillmentOrderSubmitFulfillmentRequestSingle = async (
   credsPath,
   fulfillmentOrderId,
   {
@@ -42,6 +42,29 @@ const shopifyFulfillmentOrderSubmitFulfillmentRequest = async (
       apiVersion,
     },
   );
+  return response;
+};
+
+const shopifyFulfillmentOrderSubmitFulfillmentRequest = async (
+  credsPath,
+  fulfillmentOrderId,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    fulfillmentOrderId,
+    shopifyFulfillmentOrderSubmitFulfillmentRequestSingle,
+    (fulfillmentOrderId) => ({
+      args: [credsPath, fulfillmentOrderId],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+  
   logDeep(response);
   return response;
 };

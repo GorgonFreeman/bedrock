@@ -1,11 +1,11 @@
 // https://shopify.dev/docs/api/admin-graphql/2024-10/mutations/fulfillmentOrderSubmitCancellationRequest
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `status requestStatus`;
 
-const shopifyFulfillmentOrderSubmitCancellationRequest = async (
+const shopifyFulfillmentOrderSubmitCancellationRequestSingle = async (
   credsPath,
   fulfillmentOrderId,
   {
@@ -35,6 +35,29 @@ const shopifyFulfillmentOrderSubmitCancellationRequest = async (
       apiVersion,
     },
   );
+  return response;
+};
+
+const shopifyFulfillmentOrderSubmitCancellationRequest = async (
+  credsPath,
+  fulfillmentOrderId,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    fulfillmentOrderId,
+    shopifyFulfillmentOrderSubmitCancellationRequestSingle,
+    (fulfillmentOrderId) => ({
+      args: [credsPath, fulfillmentOrderId],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+  
   logDeep(response);
   return response;
 };
