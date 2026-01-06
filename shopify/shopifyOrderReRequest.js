@@ -2,6 +2,8 @@
 
 const { funcApi, logDeep, gidToId, askQuestion } = require('../utils');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
+const { shopifyFulfillmentOrderSubmitCancellationRequest } = require('../shopify/shopifyFulfillmentOrderSubmitCancellationRequest');
+const { shopifyFulfillmentOrderSubmitFulfillmentRequest } = require('../shopify/shopifyFulfillmentOrderSubmitFulfillmentRequest');
 
 const attrs = `
   id 
@@ -92,18 +94,19 @@ const shopifyOrderReRequest = async (
 
   for (const fo of fulfillmentServiceFulfillmentOrders) {
     const {
-      id: foGid,
+      id: fulfillmentOrderGid,
       requestStatus,
       status,
     } = fo;
+    const fulfillmentOrderId = gidToId(fulfillmentOrderGid);
+
+    logDeep(fo);
+    await askQuestion('?');
 
     // Cancel any submitted orders
 
     // Submit all fulfillment orders
   }
-
-  logDeep(fulfillmentOrders);
-  await askQuestion('?');
 
   const response = {
     success: true,
