@@ -120,11 +120,13 @@ const shopifyOrderReRequest = async (
     const skipRequestStatuses = [
       'CANCELLATION_ACCEPTED',
     ];
-
+    
+    // TODO: Consider skipping if not status 'OPEN' instead of looking at request status
     if (skipRequestStatuses.includes(requestStatus)) {
       continue;
     }
 
+    // TODO: Consider using supportedActions to decide whether to cancel/submit or not
     if (cancelRequestStatuses.includes(requestStatus)) {
       // Submit cancellation requests
       const requestCancellationResponse = await shopifyFulfillmentOrderSubmitCancellationRequest(
