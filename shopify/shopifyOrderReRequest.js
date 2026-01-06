@@ -90,6 +90,18 @@ const shopifyOrderReRequest = async (
     };
   }
 
+  for (const fo of fulfillmentServiceFulfillmentOrders) {
+    const {
+      id: foGid,
+      requestStatus,
+      status,
+    } = fo;
+
+    // Cancel any submitted orders
+
+    // Submit all fulfillment orders
+  }
+
   logDeep(fulfillmentOrders);
   await askQuestion('?');
 
