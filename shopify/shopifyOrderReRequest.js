@@ -21,14 +21,6 @@ const attrs = `
             }
           }
         }
-        merchantRequests (first:50) {
-          edges {
-            node {
-              kind
-              responseData
-            }
-          }
-        }
       }
     }
   }
