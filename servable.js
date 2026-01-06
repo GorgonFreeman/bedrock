@@ -66,6 +66,7 @@ module.exports = {
   shopifyFileCreate: require('./shopify/shopifyFileCreate').shopifyFileCreateApi,
   shopifyFileUpload: require('./shopify/shopifyFileUpload').shopifyFileUploadApi,
   shopifyFilesUploadFromFolder: require('./shopify/shopifyFilesUploadFromFolder').shopifyFilesUploadFromFolderApi,
+  shopifyFuflillmentOrderCancel: require('./shopify/shopifyFuflillmentOrderCancel').shopifyFuflillmentOrderCancelApi,
   shopifyFulfillmentOrderFulfill: require('./shopify/shopifyFulfillmentOrderFulfill').shopifyFulfillmentOrderFulfillApi,
   shopifyFulfillmentOrderSubmitCancellationRequest: require('./shopify/shopifyFulfillmentOrderSubmitCancellationRequest').shopifyFulfillmentOrderSubmitCancellationRequestApi,
   shopifyFulfillmentOrderSubmitFulfillmentRequest: require('./shopify/shopifyFulfillmentOrderSubmitFulfillmentRequest').shopifyFulfillmentOrderSubmitFulfillmentRequestApi,
