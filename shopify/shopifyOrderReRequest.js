@@ -88,7 +88,7 @@ const shopifyOrderReRequestSingle = async (
   if (!proceedStatuses.includes(displayFulfillmentStatus)) {
     return {
       success: false,
-      errors: [`${ region }:${ orderId }: Unrecognised order fulfillment status ${ displayFulfillmentStatus }. Please handle this case in the function.`],
+      errors: [`${ credsPath }:${ orderId }: Unrecognised order fulfillment status ${ displayFulfillmentStatus }. Please handle this case in the function.`],
     };
   }
 
@@ -97,7 +97,7 @@ const shopifyOrderReRequestSingle = async (
   if (!fulfillmentServiceFulfillmentOrders?.length) {
     return {
       success: false,
-      errors: [`${ region }:${ orderId }: Expected fulfillment service fulfillment orders, but got none.`],
+      errors: [`${ credsPath }:${ orderId }: Expected fulfillment service fulfillment orders, but got none.`],
       data: order,
     };
   }
