@@ -103,10 +103,14 @@ const shopifyOrderReRequest = async (
     logDeep(fo);
     await askQuestion('?');
 
-    // Cancel any submitted orders
+    // Submit cancellation requests
 
-    // Submit all fulfillment orders
+    // If forcing cancellation, revert the order to unfulfilled
   }
+
+  // Fetch new state of fulfillment orders
+
+  // Submit fulfillment requests
 
   const response = {
     success: true,
