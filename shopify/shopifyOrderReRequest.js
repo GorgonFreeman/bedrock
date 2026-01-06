@@ -129,6 +129,23 @@ const shopifyOrderReRequest = async (
     if (!forceCancellation) {
       continue;
     }
+
+    const fulfillmentOrderCancelResponse = await shopifyFuflillmentOrderCancel(
+      credsPath,
+      fulfillmentOrderId,
+      {
+        apiVersion,
+        returnAttrs: 'fulfillmentOrder { status requestStatus } replacementFulfillmentOrder { id status requestStatus }',
+      },
+    );
+
+    const { success: fulfillmentOrderCancelSuccess, result: fulfillmentOrderCancelResult } = fulfillmentOrderCancelResponse;
+    if (!fulfillmentOrderCancelSuccess) {
+      return fulfillmentOrderCancelResponse;
+    }
+
+    logDeep(fulfillmentOrderCancelResult);
+    await askQuestion('?');
   }
 
   // Fetch new state of fulfillment orders
