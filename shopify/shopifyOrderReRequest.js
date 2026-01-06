@@ -69,11 +69,6 @@ const shopifyOrderReRequestSingle = async (
   } = order;
   const orderId = gidToId(orderGid);
 
-  logDeep(`Processing ${ credsPath }:${ orderId }`, {
-    displayFulfillmentStatus,
-  });
-  await askQuestion('?');
-
   if (displayFulfillmentStatus === 'FULFILLED') {
     return {
       success: true,
@@ -88,6 +83,11 @@ const shopifyOrderReRequestSingle = async (
       errors: [`Order could have more than one page of fulfillment orders. Please check manually.`],
     };
   }
+
+  logDeep(`Processing ${ credsPath }:${ orderId }`, {
+    displayFulfillmentStatus,
+  });
+  await askQuestion('?');
 
   const proceedStatuses = ['IN_PROGRESS', 'UNFULFILLED']; // TODO: Consider adding UNSUBMITTED, ACCEPTED, REJECTED, etc.
   if (!proceedStatuses.includes(displayFulfillmentStatus)) {
