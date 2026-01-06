@@ -118,6 +118,10 @@ const shopifyOrderReRequestSingle = async (
     const fulfillmentOrderId = gidToId(fulfillmentOrderGid);
     supportedActions = supportedActions.map(sa => sa.action);
 
+    if (!supportedActions?.length) {
+      continue;
+    }
+
     logDeep(`Processing ${ credsPath }:${ orderId }:${ fulfillmentOrderId }`, {
       displayFulfillmentStatus,
       requestStatus,
