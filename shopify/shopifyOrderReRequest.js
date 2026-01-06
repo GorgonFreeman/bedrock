@@ -274,4 +274,4 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyOrderReRequest -H "Content-Type: application/json" -d '{ "credsPath": "uk", "orderIdentifier": { "orderId": "12619061363061" } }'
-// curl localhost:8000/shopifyOrderReRequest -H "Content-Type: application/json" -d '{ "credsPath": "uk", "orderIdentifier": { "orderId": "12619061363061" }, "options": { "forceCancellation": true } }'
+// curl localhost:8000/shopifyOrderReRequest -H "Content-Type: application/json" -d '{ "credsPath": "uk", "orderIdentifier": [{ "orderId": "12561564041589" }, { "orderId": "12619059593589" }], "options": { "forceCancellation": true } }'
