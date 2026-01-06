@@ -107,8 +107,28 @@ const shopifyOrderReRequest = async (
     await askQuestion('?');
 
     // Submit cancellation requests
+    const requestCancellationResponse = await shopifyFulfillmentOrderSubmitCancellationRequest(
+      credsPath,
+      fulfillmentOrderId,
+      {
+        apiVersion,
+        ...cancelMessage && { message: cancelMessage },
+      },
+    );
+
+    const { success: requestCancellationSuccess, result: requestCancellation } = requestCancellationResponse;
+    if (!requestCancellationSuccess) {
+      return requestCancellationResponse;
+    }
+    
+    // TODO: Consider including the result status in the assessment of success
+    logDeep(requestCancellation);
+    await askQuestion('?');
 
     // If forcing cancellation, revert the order to unfulfilled
+    if (!forceCancellation) {
+      continue;
+    }
   }
 
   // Fetch new state of fulfillment orders
