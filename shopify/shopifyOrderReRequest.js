@@ -69,6 +69,11 @@ const shopifyOrderReRequestSingle = async (
   } = order;
   const orderId = gidToId(orderGid);
 
+  logDeep(`Processing ${ credsPath }:${ orderId }`, {
+    displayFulfillmentStatus,
+  });
+  await askQuestion('?');
+
   if (displayFulfillmentStatus === 'FULFILLED') {
     return {
       success: true,
