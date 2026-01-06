@@ -11,7 +11,8 @@ const shopifyFulfillmentOrderSubmitFulfillmentRequest = async (
   {
     apiVersion,
     returnAttrs = defaultAttrs,
-    fulfillmentOrderLineItems,    
+    fulfillmentOrderLineItems,
+    message,
   } = {},
 ) => {
 
@@ -22,6 +23,18 @@ const shopifyFulfillmentOrderSubmitFulfillmentRequest = async (
       id: {
         type: 'ID!',
         value: `gid://shopify/FulfillmentOrder/${ fulfillmentOrderId }`,
+      },
+      ...fulfillmentOrderLineItems && {
+        fulfillmentOrderLineItems: {
+          type: '[FulfillmentOrderLineItemInput!]',
+          value: fulfillmentOrderLineItems,
+        },
+      },
+      ...message && {
+        message: {
+          type: 'String',
+          value: message,
+        },
       },
     },
     `submittedFulfillmentOrder { ${ returnAttrs } }`,
