@@ -12,6 +12,23 @@ const attrs = `
         id 
         requestStatus
         status
+        assignedLocation {
+          location {
+            isFulfillmentService
+            fulfillmentService {
+              handle
+              type
+            }
+          }
+        }
+        merchantRequests (first:50) {
+          edges {
+            node {
+              kind
+              responseData
+            }
+          }
+        }
       }
     }
   }
