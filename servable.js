@@ -102,6 +102,7 @@ module.exports = {
   shopifyPagePropagate: require('./shopify/shopifyPagePropagate').shopifyPagePropagateApi,
   shopifyPageUpdate: require('./shopify/shopifyPageUpdate').shopifyPageUpdateApi,
   shopifyPagesGet: require('./shopify/shopifyPagesGet').shopifyPagesGetApi,
+  shopifyProcessRefunds: require('./shopify/shopifyProcessRefunds').shopifyProcessRefundsApi,
   shopifyProductCreate: require('./shopify/shopifyProductCreate').shopifyProductCreateApi,
   shopifyProductDelete: require('./shopify/shopifyProductDelete').shopifyProductDeleteApi,
   shopifyProductGet: require('./shopify/shopifyProductGet').shopifyProductGetApi,
