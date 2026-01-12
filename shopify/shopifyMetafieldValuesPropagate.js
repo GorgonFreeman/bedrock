@@ -1,3 +1,6 @@
+// TODO: Consider making metafield definitions if not found
+// TODO: Maintain separate dexes for different resource types
+
 const SUBKEY = 'metafields_sweep';
 
 const { HOSTED } = require('../constants');
