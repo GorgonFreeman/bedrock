@@ -167,6 +167,13 @@ const shopifyMetafieldValuesPropagate = async (
 
     const resource = idDex.get(commonIdProp, commonId);
 
+    if (!resource) {
+      console.log(`Resource with ${ commonIdProp } ${ commonId } not found in idDex`, {
+        fromResource,
+      });
+      await askQuestion('?');
+    }
+
     for (const [index, toStore] of toStores.entries()) {
       const toStoreDataProp = `${ toStore }Data`;
       const toStoreData = resource[toStoreDataProp];
