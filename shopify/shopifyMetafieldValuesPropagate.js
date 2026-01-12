@@ -294,7 +294,7 @@ const shopifyMetafieldValuesPropagate = async (
               continue;
             }
 
-            const desiredValue = JSON.stringify(desiredValueArray);
+            desiredValue = JSON.stringify(desiredValueArray);
             break;
         }
 
@@ -310,8 +310,7 @@ const shopifyMetafieldValuesPropagate = async (
           key,
           type: mfType,
           value: desiredValue,
-        };
-        
+        };        
         payloads[toStore] = payloads[toStore] || [];
         payloads[toStore].push(payload);
       }
