@@ -342,7 +342,11 @@ const shopifyMetafieldValuesPropagate = async (
     responses.push(metafieldsSetResponse);
   }
 
-  return arrayStandardResponse(responses);
+  const response = arrayStandardResponse(responses);
+  if (!response.success || !HOSTED) {
+    logDeep(response);
+  }
+  return response;
 };
 
 const shopifyMetafieldValuesPropagateApi = funcApi(shopifyMetafieldValuesPropagate, {
