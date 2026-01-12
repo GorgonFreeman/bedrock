@@ -1,5 +1,3 @@
-// TODO: Rewrite to maintain dexes of various object types instead of just products/the resource being queried
-
 const SUBKEY = 'metafields_sweep';
 
 const { funcApi, logDeep, askQuestion, arrayStandardResponse, MultiDex } = require('../utils');
