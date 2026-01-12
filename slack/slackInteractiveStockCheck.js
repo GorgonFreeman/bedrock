@@ -530,6 +530,11 @@ const slackInteractiveStockCheck = async (req, res) => {
             'product_publication_status:approved',
           ] : [],
           ...region === 'us' ? ['tag_not:not_for_radial'] : [],
+          ...{
+            au: 'inv_hold',
+            us: 'inv_hold_us',
+            uk: 'inv_hold_uk',
+          }[region] || [],
         ],
         minReportableDiff: minDiff,
         ...sheetName ? {
@@ -764,6 +769,11 @@ const slackInteractiveStockCheck = async (req, res) => {
                 'product_publication_status:approved',
               ] : [],
               ...region === 'us' ? ['tag_not:not_for_radial'] : [],
+              ...{
+                au: 'inv_hold',
+                us: 'inv_hold_us',
+                uk: 'inv_hold_uk',
+              }[region] || [],
             ],
           });
 
