@@ -304,21 +304,24 @@ const shopifyMetafieldValuesPropagate = async (
           continue;
         }
 
+        // logDeep({ resource }, { fromValue, toValue, desiredValue, needsUpdate });
+        // await askQuestion('?');
+
         const payload = {
           ownerId: resource[toStore],
           namespace,
           key,
           type: mfType,
           value: desiredValue,
-        };        
+        };
+        
         payloads[toStore] = payloads[toStore] || [];
         payloads[toStore].push(payload);
       }
     }
   }
 
-  logDeep('payloads', payloads);
-  // await askQuestion('?');
+  logDeep('payloads', payloads);  // await askQuestion('?');
 
   const responses = [];
 
