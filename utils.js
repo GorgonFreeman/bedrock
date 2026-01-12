@@ -1783,7 +1783,7 @@ class MultiDex {
   ) {
 
     this.primaryKeys = primaryKeys;
-    this.items = items;
+    this.items = [];
     
     this.primaryKeys.forEach(key => {
       this[key] = {};
@@ -1800,7 +1800,9 @@ class MultiDex {
     }
     const items = itemOrItems;
     
-    items.forEach(newItem => {
+    items.forEach(item => {
+      const newItem = JSON.parse(JSON.stringify(item));
+      
       // Check if this item matches any existing item by primary keys
       let existingItem = null;
       let matchedKey = null;
@@ -1818,7 +1820,7 @@ class MultiDex {
       }
       
       if (existingItem) {
-        // Supplement existing item
+        // Supplement existing item (mutate the internal copy, not external data)
         Object.assign(existingItem, newItem);
         
         // Update indexes for any new primary keys
@@ -1842,7 +1844,8 @@ class MultiDex {
   
   get(key, value) {
     const item = this?.[key]?.[value];
-    return item || null;
+    // Return a copy to prevent external mutation
+    return item ? JSON.parse(JSON.stringify(item)) : null;
   }
 
   survey() {
