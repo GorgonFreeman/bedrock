@@ -1,5 +1,7 @@
 const SUBKEY = 'metafields_sweep';
 
+const { HOSTED } = require('../constants');
+
 const { funcApi, logDeep, askQuestion, arrayStandardResponse, MultiDex } = require('../utils');
 
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
@@ -152,7 +154,7 @@ const shopifyMetafieldValuesPropagate = async (
     }
   }
 
-  logDeep('idDex', idDex.survey());
+  !HOSTED && logDeep('idDex', idDex.survey());
 
   const payloads = {};
 
@@ -169,7 +171,8 @@ const shopifyMetafieldValuesPropagate = async (
       console.log(`Resource with ${ commonIdProp } ${ commonId } not found in idDex`, {
         fromResource,
       });
-      await askQuestion('?');
+      !HOSTED && await askQuestion('?');
+      continue;
     }
 
     for (const [index, toStore] of toStores.entries()) {
@@ -326,7 +329,7 @@ const shopifyMetafieldValuesPropagate = async (
     }
   }
 
-  logDeep('payloads', payloads);
+  !HOSTED && logDeep('payloads', payloads);
   // await askQuestion('?');
 
   const responses = [];
