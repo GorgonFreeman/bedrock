@@ -590,7 +590,9 @@ const collabsCustomsDataSweep = async () => {
 
 const collabsCustomsDataSweepApi = funcApi(collabsCustomsDataSweep, {
   argNames: ['options'],
+  requireHostedApiKey: true,
   errorReporter: bedrock_unlisted_slackErrorPost,
+  errorReporterPayload: { options: { logFlavourText: 'collabsCustomsDataSweep' } },
 });
 
 module.exports = {

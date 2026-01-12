@@ -7,6 +7,8 @@ const { HOSTED } = require('../constants');
 
 const { funcApi, logDeep, askQuestion, arrayStandardResponse, MultiDex } = require('../utils');
 
+const { bedrock_unlisted_slackErrorPost } = require('../bedrock_unlisted/bedrock_unlisted_slackErrorPost');
+
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
 const { shopifyMetafieldsSet } = require('../shopify/shopifyMetafieldsSet');
 const { shopifyProductGet } = require('../shopify/shopifyProductGet');
@@ -357,6 +359,9 @@ const shopifyMetafieldValuesPropagateApi = funcApi(shopifyMetafieldValuesPropaga
     resource: Boolean,
     metafieldPaths: Array.isArray,
   },
+  requireHostedApiKey: true,
+  errorReporter: bedrock_unlisted_slackErrorPost,
+  errorReporterPayload: { options: { logFlavourText: 'shopifyMetafieldValuesPropagate' } },
 });
 
 module.exports = {

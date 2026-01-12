@@ -409,6 +409,7 @@ const collabsFulfillmentSweepV3Api = funcApi(
     argNames: ['options'],
     requireHostedApiKey: true, 
     errorReporter: bedrock_unlisted_slackErrorPost,
+    errorReporterPayload: { options: { logFlavourText: 'collabsFulfillmentSweepV3' } },
   },
 );
 

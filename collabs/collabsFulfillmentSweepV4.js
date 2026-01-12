@@ -18,6 +18,8 @@ const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
 const { shopifyRegionToStarshipitAccount } = require('../mappings');
 const { starshipitOrderGet } = require('../starshipit/starshipitOrderGet');
 
+const { bedrock_unlisted_slackErrorPost } = require('../bedrock_unlisted/bedrock_unlisted_slackErrorPost');
+
 const collabsFulfillmentSweepV4 = async (
   store,
   {
@@ -420,6 +422,9 @@ const collabsFulfillmentSweepV4 = async (
 
 const collabsFulfillmentSweepV4Api = funcApi(collabsFulfillmentSweepV4, {
   argNames: ['store', 'options'],
+  requireHostedApiKey: true,
+  errorReporter: bedrock_unlisted_slackErrorPost,
+  errorReporterPayload: { options: { logFlavourText: 'collabsFulfillmentSweepV4' } },
 });
 
 module.exports = {
