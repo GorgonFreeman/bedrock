@@ -1,10 +1,10 @@
 // https://mydeveloper.logiwa.com/#tag/Product/paths/~1v3.1~1Product~1list~1i~1%7Bindex%7D~1s~1%7Bsize%7D/get
 
 const { respond, mandateParam, logDeep } = require('../utils');
-const { logiwaGet } = require('../logiwa/logiwa.utils');
+const { logiwaGet, logiwaGetter } = require('../logiwa/logiwa.utils');
 const { MAX_PER_PAGE } = require('../logiwa/logiwa.constants');
 
-const logiwaProductsGet = async (
+const payloadMaker = (
   {
     credsPath,
     apiVersion = 'v3.1',
@@ -38,7 +38,7 @@ const logiwaProductsGet = async (
     ...(productGroupName_eq && { 'ProductGroupName.eq': productGroupName_eq }),
   };
 
-  const response = await logiwaGet(
+  return [
     `/Product/list/i/${ page }/s/${ perPage }`,
     {
       credsPath,
@@ -46,8 +46,16 @@ const logiwaProductsGet = async (
       params,
       ...getterOptions,
     },
-  );
-  logDeep(response);
+  ];
+};
+
+const logiwaProductsGet = async (...args) => {
+  const response = await logiwaGet(...payloadMaker(...args));
+  return response;
+};
+
+const logiwaProductsGetter = async (...args) => {
+  const response = await logiwaGetter(...payloadMaker(...args));
   return response;
 };
 
@@ -71,6 +79,7 @@ const logiwaProductsGetApi = async (req, res) => {
 
 module.exports = {
   logiwaProductsGet,
+  logiwaProductsGetter,
   logiwaProductsGetApi,
 };
 
