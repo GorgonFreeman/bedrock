@@ -14,6 +14,19 @@ const DEFAULT_CONFIG = {
   minDiff: 3,
 };
 
+const VARIANT_FETCH_QUERIES_BY_STORE = {
+  au: [
+    'tag_not:inv_hold',
+  ],
+  us: [
+    'tag_not:not_for_radial',
+    'tag_not:inv_hold_us',
+  ],
+  uk: [
+    'tag_not:inv_hold_uk',
+  ],
+};
+
 const blocks = {
   intro: {
     type: 'section',
@@ -529,12 +542,7 @@ const slackInteractiveStockCheck = async (req, res) => {
             'published_status:published',
             'product_publication_status:approved',
           ] : [],
-          ...region === 'us' ? ['tag_not:not_for_radial'] : [],
-          ...{
-            au: 'inv_hold',
-            us: 'inv_hold_us',
-            uk: 'inv_hold_uk',
-          }[region] || [],
+          ...VARIANT_FETCH_QUERIES_BY_STORE[region] || [],
         ],
         minReportableDiff: minDiff,
         ...sheetName ? {
@@ -768,12 +776,7 @@ const slackInteractiveStockCheck = async (req, res) => {
                 'published_status:published',
                 'product_publication_status:approved',
               ] : [],
-              ...region === 'us' ? ['tag_not:not_for_radial'] : [],
-              ...{
-                au: 'inv_hold',
-                us: 'inv_hold_us',
-                uk: 'inv_hold_uk',
-              }[region] || [],
+              ...VARIANT_FETCH_QUERIES_BY_STORE[region] || [],
             ],
           });
 
