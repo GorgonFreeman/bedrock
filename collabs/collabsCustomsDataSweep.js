@@ -327,7 +327,8 @@ const collabsCustomsDataSweep = async () => {
         // Parse dimensions from Style Arcade af60note
         const parsedDimensions = parseDimensions(dimsNote);
 
-        console.log(parsedDimensions);
+        !HOSTED && console.log(parsedDimensions);
+
         const updateCustomsDescription = customsDescription && (mfCustomsDescription?.value !== customsDescription);
         const updateHsCode = relevantHsCode && (mfHsCode?.value !== relevantHsCode);
         const updateCountryCodeOfOrigin = countryCodeOfOrigin && (mfCountryCodeOfOrigin?.value !== countryCodeOfOrigin);
