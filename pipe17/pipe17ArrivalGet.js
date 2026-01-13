@@ -1,4 +1,4 @@
-// https://apidoc.pipe17.com/#tag/Arrivals/operation/fetchArrival
+// https://apidoc.pipe17.com/#/operations/fetchArrival
 
 const { respond, mandateParam, logDeep } = require('../utils');
 const { pipe17GetSingle } = require('../pipe17/pipe17GetSingle');

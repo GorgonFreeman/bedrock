@@ -1,3 +1,5 @@
+// https://apidoc.pipe17.com/#/operations/fetchReceipts
+
 const { respond, mandateParam, logDeep } = require('../utils');
 const { pipe17Get } = require('../pipe17/pipe17.utils');
 

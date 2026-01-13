@@ -1,3 +1,5 @@
+// https://apidoc.pipe17.com/#/operations/fetchProduct
+
 const { respond, mandateParam, logDeep } = require('../utils');
 const { pipe17GetSingle } = require('../pipe17/pipe17GetSingle');
 
