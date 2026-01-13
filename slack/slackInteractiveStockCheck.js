@@ -281,11 +281,15 @@ const blocks = {
           ].join('\n\n'),
         },
       },
-      buttons: {
+      buttons: ({ 
+        offerFull = true,
+        offerSafe = true,
+        offerOvers = true,
+      } = {}) => ({
         type: 'actions',  
         block_id: 'import:expanded:buttons',
         elements: [
-          {
+          ...offerFull ? [{
             type: 'button',
             text: {
               type: 'plain_text',
@@ -294,8 +298,8 @@ const blocks = {
             value: 'full',
             action_id: `${ COMMAND_NAME }:import:full`,
             style: 'danger',
-          },
-          {
+          }] : [],
+          ...offerSafe ? [{
             type: 'button',
             text: {
               type: 'plain_text',
@@ -303,8 +307,8 @@ const blocks = {
             },
             value: 'safe',
             action_id: `${ COMMAND_NAME }:import:safe`,
-          },
-          {
+          }] : [],
+          ...offerOvers ? [{
             type: 'button',
             text: {
               type: 'plain_text',
@@ -312,7 +316,7 @@ const blocks = {
             },
             value: 'overs',
             action_id: `${ COMMAND_NAME }:import:overs`,
-          },
+          }] : [],
           {
             type: 'button',
             text: {
@@ -324,7 +328,7 @@ const blocks = {
             style: 'primary',
           },
         ],
-      },
+      }),
       divider: {
         type: 'divider',
       },
@@ -695,7 +699,7 @@ const slackInteractiveStockCheck = async (req, res) => {
             if (isImportExpandBlock(block)) {
               updatedBlocks.push(...[
                 blocks.import.expanded.text,
-                blocks.import.expanded.buttons,
+                blocks.import.expanded.buttons(stateRegion === 'us' ? { offerFull: false, offerSafe: false, offerOvers: false } : {}), // Disable API-based importing on US until stable
                 blocks.import.expanded.divider,
                 blocks.import.expanded.listSkus,
               ]);
