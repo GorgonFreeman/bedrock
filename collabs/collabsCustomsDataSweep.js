@@ -99,7 +99,7 @@ const collabsCustomsDataSweep = async () => {
         mfMid: metafield(namespace: "shipping_data", key: "mids") { 
           value
         }
-        mfDimsCM: metafield(namespace: "specifications", key: "dimensions_cm") {
+        mfDimsCm: metafield(namespace: "specifications", key: "dimensions_cm") {
           value
         }
         mfDimsInches: metafield(namespace: "specifications", key: "dimensions_inches") {
@@ -318,7 +318,7 @@ const collabsCustomsDataSweep = async () => {
           mfHsCode,
           mfCountryCodeOfOrigin,
           mfMid,
-          mfDimsCM,
+          mfDimsCm,
           mfDimsInches,
         } = shopifyRegionProduct;
 
@@ -332,7 +332,7 @@ const collabsCustomsDataSweep = async () => {
         const updateHsCode = relevantHsCode && (mfHsCode?.value !== relevantHsCode);
         const updateCountryCodeOfOrigin = countryCodeOfOrigin && (mfCountryCodeOfOrigin?.value !== countryCodeOfOrigin);
         const updateMid = mid && (mfMid?.value !== mid);
-        const updateDimsCM = parsedDimensions && (mfDimsCM?.value !== parsedDimensions.cm);
+        const updateDimsCm = parsedDimensions && (mfDimsCm?.value !== parsedDimensions.cm);
         const updateDimsInches = parsedDimensions && (mfDimsInches?.value !== parsedDimensions.inches);
 
         if (updateCustomsDescription) {
@@ -387,8 +387,8 @@ const collabsCustomsDataSweep = async () => {
           piles.shopifyMetafieldsSet.push(shopifyMetafieldsSetArgs);
         }
 
-        if (updateDimsCM) {
-          !HOSTED && logDeep(`[Shopify Metafield Update] Region: ${ region }, Product: ${ productGid }, Field: dimensions_cm, Current: "${ mfDimsCM?.value }", Expected: "${ parsedDimensions.cm }"`);
+        if (updateDimsCm) {
+          !HOSTED && logDeep(`[Shopify Metafield Update] Region: ${ region }, Product: ${ productGid }, Field: dimensions_cm, Current: "${ mfDimsCm?.value }", Expected: "${ parsedDimensions.cm }"`);
           const metafields = [{
             ownerId: productGid,
             namespace: 'specifications',
