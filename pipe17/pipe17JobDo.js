@@ -119,4 +119,4 @@ module.exports = {
   pipe17JobDoApi,
 };
 
-// curl localhost:8000/pipe17JobDo -H "Content-Type: application/json" -d '{ "jobCreateArgs": ["type": "report", "subType": "open_orders"] }'
+// curl localhost:8000/pipe17JobDo -H "Content-Type: application/json" -d '{ "jobCreateArgs": ["report", "open_orders"] }'
