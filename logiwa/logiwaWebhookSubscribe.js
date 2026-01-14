@@ -9,6 +9,7 @@ const logiwaWebhookSubscribe = async (
   {
     credsPath,
     apiVersion = 'v3.1',
+    clientIdentifier,
   } = {},
 ) => {
 
@@ -18,8 +19,7 @@ const logiwaWebhookSubscribe = async (
     body: {
       topic,
       address: url,
-      // clientIdentifier:
-      // ignoreClient:
+      ...clientIdentifier ? { clientIdentifier } : { ignoreClient: true },
     },
     context: {
       credsPath,
