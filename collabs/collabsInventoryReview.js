@@ -287,7 +287,7 @@ const collabsInventoryReview = async (
             reportTypeCode: 'available_to_promise',
             filter: [
               `WarehouseIdentifier.eq=${ WAREHOUSE_ID }`,
-              'UndamagedQuantity.gt=0',
+              // 'UndamagedQuantity.gt=0', // TODO: Find out if there is a filter that can be used here to exclude 0 stock items
             ].join('&'),
           },
         );
