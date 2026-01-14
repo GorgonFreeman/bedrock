@@ -193,6 +193,7 @@ module.exports = {
   logiwaReportGetInventoryCalculation: require('./logiwa/logiwaReportGetInventoryCalculation').logiwaReportGetInventoryCalculationApi,
   logiwaReportGetInventorySnapshot: require('./logiwa/logiwaReportGetInventorySnapshot').logiwaReportGetInventorySnapshotApi,
   logiwaReportGetTotalInventory: require('./logiwa/logiwaReportGetTotalInventory').logiwaReportGetTotalInventoryApi,
+  logiwaWebhookStatusGet: require('./logiwa/logiwaWebhookStatusGet').logiwaWebhookStatusGetApi,
   logiwaWebhookSubscribe: require('./logiwa/logiwaWebhookSubscribe').logiwaWebhookSubscribeApi,
   logiwaWebhookUnsubscribe: require('./logiwa/logiwaWebhookUnsubscribe').logiwaWebhookUnsubscribeApi,
   logiwaWebhooksGet: require('./logiwa/logiwaWebhooksGet').logiwaWebhooksGetApi,
