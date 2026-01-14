@@ -44,3 +44,4 @@ module.exports = {
 };
 
 // curl localhost:8000/logiwaWebhookSubscribe -H "Content-Type: application/json" -d '{ "topic": "wms/inventory/available", "url": "https://example.com/webhook" }'
+// curl localhost:8000/logiwaWebhookSubscribe -H "Content-Type: application/json" -d '{ "topic": "wms/inventory/available", "url": "https://example.com/webhook", "options": { "clientIdentifier": "________" } }'
