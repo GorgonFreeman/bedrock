@@ -469,6 +469,7 @@ const funcApi = (
   { 
     argNames, 
     validatorsByArg, 
+    validators,
     requireHostedApiKey = false, 
     allowCrossOrigin = false, 
     allowOrigins = '*', // If supplying, supply an array
@@ -528,6 +529,7 @@ const funcApi = (
     }
 
     if (argNames?.length) {
+     
       const paramsValid = await Promise.all(
         argNames.map(async argName => {
           if (argName === 'options') {
@@ -541,6 +543,16 @@ const funcApi = (
 
       if (paramsValid.some(valid => valid === false)) {
         return;
+      }
+    }
+
+    if (validators?.length) {
+      for (const v of validators) {
+        const valid = await v(body);
+        if (!valid) {
+          respond(res, 400, { success: false, errors: ['Invalid body'] });
+          return;
+        }
       }
     }
 
