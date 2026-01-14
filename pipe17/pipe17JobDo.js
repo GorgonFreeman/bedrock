@@ -1,34 +1,117 @@
-const { funcApi, logDeep } = require('../utils');
-const { pipe17Client } = require('../pipe17/pipe17.utils');
+const { funcApi, logDeep, wait, seconds, askQuestion } = require('../utils');
+
+const { pipe17JobCreate } = require('../pipe17/pipe17JobCreate');
+const { pipe17JobGet } = require('../pipe17/pipe17JobGet');
+const { pipe17JobResultsGet } = require('../pipe17/pipe17JobResultsGet');
 
 const pipe17JobDo = async (
-  receiptId,
+  jobCreateArgs,
   {
+    jobCreateOptions,
     credsPath,
   } = {},
 ) => {
 
-  const response = await pipe17Client.fetch({
-    url: `/receipts/${ receiptId }`,
-    context: {
-      credsPath,
-    },
-    interpreter: (response) => {
+  const commonOptions = {
+    credsPath,
+  };
+
+  const jobCreateResponse = await pipe17JobCreate(...jobCreateArgs, { ...commonOptions, ...jobCreateOptions });
+
+  const {
+    success: jobCreateSuccess,
+    result: jobCreateResult,
+  } = jobCreateResponse;
+  if (!jobCreateSuccess) {
+    return jobCreateResponse;
+  }
+
+  const { jobId } = jobCreateResult;
+
+  let finished;
+
+  const waitingStatuses = [
+    'processing',
+  ];
+  const completeStatuses = [
+    'completed',
+  ];
+  const failedStatuses = [
+    'failed',
+  ];
+
+  do {
+    await wait(seconds(5));
+
+    const jobGetResponse = await pipe17JobGet(jobId, commonOptions);
+    const {
+      success: jobGetSuccess,
+      result: jobGetResult,
+    } = jobGetResponse;
+    if (!jobGetSuccess) {
+      return jobGetResponse;
+    }
+
+    const {
+      status,
+    } = jobGetResult;
+
+    if (waitingStatuses.includes(status)) {
+      continue;
+    }
+
+    if (failedStatuses.includes(status)) {
       return {
-        ...response,
-        ...response.result ? {
-          result: response.result.receipt,
-        } : {},
+        success: false,
+        errors: [jobGetResponse],
       };
-    },
-  });
-  
+    }
+
+    if (completeStatuses.includes(status)) {
+      finished = true;
+      break;
+    }
+    
+    // Unrecognised status, ask user what to do
+    const action = await askQuestion(`Unrecognised status: ${ status } - [w]ait/[c]ontinue/[f]ailed`);
+    switch (action) {
+      case 'w':
+        continue;
+      case 'c':
+        finished = true;
+        break;
+      case 'f':
+      default:
+        return {
+          success: false,
+          errors: [jobGetResponse],
+        };
+    }
+
+  } while (!finished);
+
+  const jobResultsGetResponse = await pipe17JobResultsGet(jobId, commonOptions);
+  const {
+    success: jobResultsGetSuccess,
+    result: jobResult,
+  } = jobResultsGetResponse;
+  if (!jobResultsGetSuccess) {
+    return jobResultsGetResponse;
+  }
+
+  const response = {
+    success: true,
+    result: jobResult,
+  };
   logDeep(response);
   return response;
 };
 
 const pipe17JobDoApi = funcApi(pipe17JobDo, {
-  argNames: ['receiptId', 'options'],
+  argNames: ['jobCreateArgs', 'options'],
+  validatorsByArg: {
+    jobCreateArgs: Array.isArray,
+  },
 });
 
 module.exports = {
@@ -36,4 +119,4 @@ module.exports = {
   pipe17JobDoApi,
 };
 
-// curl localhost:8000/pipe17JobDo -H "Content-Type: application/json" -d '{ "receiptId": "b9d03991a844e340" }'
+// curl localhost:8000/pipe17JobDo -H "Content-Type: application/json" -d '{ "jobCreateArgs": ["type": "report", "subType": "open_orders"] }'
