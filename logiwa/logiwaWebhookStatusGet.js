@@ -1,8 +1,10 @@
+// https://mydeveloper.logiwa.com/#tag/Webhook/paths/~1v3.1~1Webhook~1status~1%7Bidentifier%7D/get
+
 const { funcApi, logDeep } = require('../utils');
 const { logiwaClient } = require('../logiwa/logiwa.utils');
 
 const logiwaWebhookStatusGet = async (
-  orderId,
+  subscriptionId,
   {
     credsPath,
     apiVersion = 'v3.1',
@@ -11,7 +13,7 @@ const logiwaWebhookStatusGet = async (
 
   const response = await logiwaClient.fetch({
     method: 'get',
-    url: `/ShipmentOrder/${ orderId }`,
+    url: `/Webhook/status/${ subscriptionId }`,
     context: {
       credsPath,
       apiVersion,
@@ -22,7 +24,7 @@ const logiwaWebhookStatusGet = async (
 };
 
 const logiwaWebhookStatusGetApi = funcApi(logiwaWebhookStatusGet, {
-  argNames: ['orderId', 'options'],
+  argNames: ['subscriptionId', 'options'],
 });
 
 module.exports = {
@@ -30,4 +32,4 @@ module.exports = {
   logiwaWebhookStatusGetApi,
 };
 
-// curl localhost:8000/logiwaWebhookStatusGet -H "Content-Type: application/json" -d '{ "orderId": "9ce5f6f0-c461-4d1c-93df-261a2188d652" }'
+// curl localhost:8000/logiwaWebhookStatusGet -H "Content-Type: application/json" -d '{ "subscriptionId": "68706c98-0198-4671-9a97-4b3e3e59a56d" }'
