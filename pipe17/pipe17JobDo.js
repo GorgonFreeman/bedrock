@@ -31,6 +31,7 @@ const pipe17JobDo = async (
   let finished;
 
   const waitingStatuses = [
+    'submitted',
     'processing',
   ];
   const completeStatuses = [
