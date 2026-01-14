@@ -1,17 +1,39 @@
 // https://apidoc.pipe17.com/#/operations/createJob
 
 const { funcApi, logDeep } = require('../utils');
+const { JOB_TYPES, JOB_SUBTYPES } = require('../pipe17/pipe17.constants');
 const { pipe17Client } = require('../pipe17/pipe17.utils');
 
 const pipe17JobCreate = async (
-  receiptId,
+  type,
+  subType,
   {
     credsPath,
+    
+    // Options directly for the API
+    contentType,
+    internal,
+    params,
+    state,
+    tags,
+    timeout,
+
   } = {},
 ) => {
 
   const response = await pipe17Client.fetch({
-    url: `/receipts/${ receiptId }`,
+    url: '/jobs',
+    method: 'post',
+    body: {
+      type,
+      subType,
+      ...contentType && { contentType },
+      ...internal && { internal },
+      ...params && { params },
+      ...state && { state },
+      ...tags && { tags },
+      ...timeout && { timeout },
+    },
     context: {
       credsPath,
     },
@@ -19,7 +41,7 @@ const pipe17JobCreate = async (
       return {
         ...response,
         ...response.result ? {
-          result: response.result.receipt,
+          result: response.result.job,
         } : {},
       };
     },
@@ -30,7 +52,11 @@ const pipe17JobCreate = async (
 };
 
 const pipe17JobCreateApi = funcApi(pipe17JobCreate, {
-  argNames: ['receiptId', 'options'],
+  argNames: ['type', 'subType', 'options'],
+  validatorsByArg: {
+    type: (p) => JOB_TYPES.includes(p),
+    subType: (p) => JOB_SUBTYPES.includes(p),
+  },
 });
 
 module.exports = {
@@ -38,4 +64,4 @@ module.exports = {
   pipe17JobCreateApi,
 };
 
-// curl localhost:8000/pipe17JobCreate -H "Content-Type: application/json" -d '{ "receiptId": "b9d03991a844e340" }'
+// curl localhost:8000/pipe17JobCreate -H "Content-Type: application/json" -d '{ "type": "report", "subType": "orders" }'
