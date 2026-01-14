@@ -12,6 +12,10 @@ const FUNC = async (
   const response = await logiwaClient.fetch({
     method: 'get',
     url: `/ShipmentOrder/${ orderId }`,
+    context: {
+      credsPath,
+      apiVersion,
+    },
   });
   logDeep(response);
   return response;

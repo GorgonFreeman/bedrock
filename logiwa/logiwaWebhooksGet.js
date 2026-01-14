@@ -1,37 +1,29 @@
-// https://mydeveloper.logiwa.com/#tag/Product/paths/~1v3.1~1Product~1list~1i~1%7Bindex%7D~1s~1%7Bsize%7D/get
+// https://mydeveloper.logiwa.com/#tag/Webhook/paths/~1v3.1~1Webhook~1list/get
 
 const { funcApi, logDeep } = require('../utils');
-const { logiwaGet } = require('../logiwa/logiwa.utils');
-const { MAX_PER_PAGE } = require('../logiwa/logiwa.constants');
+const { logiwaClient } = require('../logiwa/logiwa.utils');
 
 const logiwaWebhooksGet = async (
   {
     credsPath,
     apiVersion = 'v3.1',
-
-    page = 0,
-    perPage = MAX_PER_PAGE,
-
-    ...getterOptions
   } = {},
 ) => {
 
-  const response = await logiwaGet(
-    `/Product/list/i/${ page }/s/${ perPage }`,
-    {
+  const response = await logiwaClient.fetch({
+    method: 'get',
+    url: `/Webhook/list`,
+    context: {
       credsPath,
       apiVersion,
-      // params,
-      ...getterOptions,
     },
-  );
+  });
   logDeep(response);
   return response;
 };
 
 const logiwaWebhooksGetApi = funcApi(logiwaWebhooksGet, {
   argNames: ['options'],
-  validatorsByArg: {},
 });
 
 module.exports = {
@@ -39,5 +31,4 @@ module.exports = {
   logiwaWebhooksGetApi,
 };
 
-// curl localhost:8000/logiwaWebhooksGet
-// curl localhost:8000/logiwaWebhooksGet -H "Content-Type: application/json" -d '{ "options": { "limit": 10 } }'
+// curl localhost:8000/logiwaWebhooksGet -H "Content-Type: application/json" -d '{ "orderId": "9ce5f6f0-c461-4d1c-93df-261a2188d652" }'
