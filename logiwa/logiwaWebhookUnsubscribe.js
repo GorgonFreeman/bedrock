@@ -4,7 +4,7 @@ const { funcApi, logDeep } = require('../utils');
 const { logiwaClient } = require('../logiwa/logiwa.utils');
 
 const logiwaWebhookUnsubscribe = async (
-  subscriptionIdentifier,
+  subscriptionId,
   {
     credsPath,
     apiVersion = 'v3.1',
@@ -13,7 +13,7 @@ const logiwaWebhookUnsubscribe = async (
 
   const response = await logiwaClient.fetch({
     method: 'delete',
-    url: `/Webhook/unsubscribe/${ subscriptionIdentifier }`,
+    url: `/Webhook/unsubscribe/${ subscriptionId }`,
     context: {
       credsPath,
       apiVersion,
@@ -24,9 +24,9 @@ const logiwaWebhookUnsubscribe = async (
 };
 
 const logiwaWebhookUnsubscribeApi = funcApi(logiwaWebhookUnsubscribe, {
-  argNames: ['subscriptionIdentifier', 'options'],
+  argNames: ['subscriptionId', 'options'],
   validatorsByArg: {
-    subscriptionIdentifier: (value) => typeof value === 'string' && value.length > 0,
+    subscriptionId: (value) => typeof value === 'string' && value.length > 0,
   },
 });
 
@@ -35,4 +35,4 @@ module.exports = {
   logiwaWebhookUnsubscribeApi,
 };
 
-// curl localhost:8000/logiwaWebhookUnsubscribe -H "Content-Type: application/json" -d '{ "subscriptionIdentifier": "68706c98-0198-4671-9a97-4b3e3e59a56d" }'
+// curl localhost:8000/logiwaWebhookUnsubscribe -H "Content-Type: application/json" -d '{ "subscriptionId": "68706c98-0198-4671-9a97-4b3e3e59a56d" }'
