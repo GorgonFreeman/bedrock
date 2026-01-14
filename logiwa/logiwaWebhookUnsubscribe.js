@@ -1,8 +1,10 @@
+// https://mydeveloper.logiwa.com/#tag/Webhook/paths/~1v3.1~1Webhook~1unsubscribe~1%7BsubscriptionIdentifier%7D/delete
+ 
 const { funcApi, logDeep } = require('../utils');
 const { logiwaClient } = require('../logiwa/logiwa.utils');
 
 const logiwaWebhookUnsubscribe = async (
-  orderId,
+  subscriptionIdentifier,
   {
     credsPath,
     apiVersion = 'v3.1',
@@ -10,8 +12,8 @@ const logiwaWebhookUnsubscribe = async (
 ) => {
 
   const response = await logiwaClient.fetch({
-    method: 'get',
-    url: `/ShipmentOrder/${ orderId }`,
+    method: 'delete',
+    url: `/Webhook/unsubscribe/${ subscriptionIdentifier }`,
     context: {
       credsPath,
       apiVersion,
@@ -22,7 +24,10 @@ const logiwaWebhookUnsubscribe = async (
 };
 
 const logiwaWebhookUnsubscribeApi = funcApi(logiwaWebhookUnsubscribe, {
-  argNames: ['orderId', 'options'],
+  argNames: ['subscriptionIdentifier', 'options'],
+  validatorsByArg: {
+    subscriptionIdentifier: (value) => typeof value === 'string' && value.length > 0,
+  },
 });
 
 module.exports = {
@@ -30,4 +35,4 @@ module.exports = {
   logiwaWebhookUnsubscribeApi,
 };
 
-// curl localhost:8000/logiwaWebhookUnsubscribe -H "Content-Type: application/json" -d '{ "orderId": "9ce5f6f0-c461-4d1c-93df-261a2188d652" }'
+// curl localhost:8000/logiwaWebhookUnsubscribe -H "Content-Type: application/json" -d '{ "subscriptionIdentifier": "68706c98-0198-4671-9a97-4b3e3e59a56d" }'
