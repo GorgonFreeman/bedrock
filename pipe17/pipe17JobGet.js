@@ -1,15 +1,17 @@
+// https://apidoc.pipe17.com/#/operations/fetchJob
+
 const { funcApi, logDeep } = require('../utils');
 const { pipe17Client } = require('../pipe17/pipe17.utils');
 
 const pipe17JobGet = async (
-  receiptId,
+  jobId,
   {
     credsPath,
   } = {},
 ) => {
 
   const response = await pipe17Client.fetch({
-    url: `/receipts/${ receiptId }`,
+    url: `/jobs/${ jobId }`,
     context: {
       credsPath,
     },
@@ -17,7 +19,7 @@ const pipe17JobGet = async (
       return {
         ...response,
         ...response.result ? {
-          result: response.result.receipt,
+          result: response.result.job,
         } : {},
       };
     },
@@ -28,7 +30,7 @@ const pipe17JobGet = async (
 };
 
 const pipe17JobGetApi = funcApi(pipe17JobGet, {
-  argNames: ['receiptId', 'options'],
+  argNames: ['jobId', 'options'],
 });
 
 module.exports = {
@@ -36,4 +38,4 @@ module.exports = {
   pipe17JobGetApi,
 };
 
-// curl localhost:8000/pipe17JobGet -H "Content-Type: application/json" -d '{ "receiptId": "b9d03991a844e340" }'
+// curl localhost:8000/pipe17JobGet -H "Content-Type: application/json" -d '{ "jobId": "eb7586ac111d3afb" }'
