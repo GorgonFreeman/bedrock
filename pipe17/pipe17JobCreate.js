@@ -64,4 +64,4 @@ module.exports = {
   pipe17JobCreateApi,
 };
 
-// curl localhost:8000/pipe17JobCreate -H "Content-Type: application/json" -d '{ "type": "report", "subType": "orders" }'
+// curl localhost:8000/pipe17JobCreate -H "Content-Type: application/json" -d '{ "type": "report", "subType": "orders", "options": { "params": { "emails": ["ozymandias@karnak.aq"] } } }'

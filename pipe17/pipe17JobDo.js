@@ -121,3 +121,4 @@ module.exports = {
 };
 
 // curl localhost:8000/pipe17JobDo -H "Content-Type: application/json" -d '{ "jobCreateArgs": ["report", "open_orders"] }'
+// curl localhost:8000/pipe17JobDo -H "Content-Type: application/json" -d '{ "jobCreateArgs": ["report", "open_orders"], "options": { "jobCreateOptions": { "params": { "emails": ["ozymandias@karnak.aq"] } } } }'
