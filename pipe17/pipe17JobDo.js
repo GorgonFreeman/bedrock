@@ -64,7 +64,7 @@ const pipe17JobDo = async (
     if (failedStatuses.includes(status)) {
       return {
         success: false,
-        errors: [jobGetResponse],
+        errors: [jobGetResult],
       };
     }
 
