@@ -1,8 +1,11 @@
+// https://mydeveloper.logiwa.com/#tag/Webhook/paths/~1v3.1~1Webhook~1create/post
+
 const { funcApi, logDeep } = require('../utils');
 const { logiwaClient } = require('../logiwa/logiwa.utils');
 
 const logiwaWebhookSubscribe = async (
-  orderId,
+  topic,
+  url,
   {
     credsPath,
     apiVersion = 'v3.1',
@@ -10,8 +13,14 @@ const logiwaWebhookSubscribe = async (
 ) => {
 
   const response = await logiwaClient.fetch({
-    method: 'get',
-    url: `/ShipmentOrder/${ orderId }`,
+    method: 'post',
+    url: `/Webhook/create`,
+    body: {
+      topic,
+      address: url,
+      // clientIdentifier:
+      // ignoreClient:
+    },
     context: {
       credsPath,
       apiVersion,
@@ -22,7 +31,11 @@ const logiwaWebhookSubscribe = async (
 };
 
 const logiwaWebhookSubscribeApi = funcApi(logiwaWebhookSubscribe, {
-  argNames: ['orderId', 'options'],
+  argNames: ['topic', 'url', 'options'],
+  validatorsByArg: {
+    topic: Boolean,
+    url: Boolean,
+  },
 });
 
 module.exports = {
@@ -30,4 +43,4 @@ module.exports = {
   logiwaWebhookSubscribeApi,
 };
 
-// curl localhost:8000/logiwaWebhookSubscribe -H "Content-Type: application/json" -d '{ "orderId": "9ce5f6f0-c461-4d1c-93df-261a2188d652" }'
+// curl localhost:8000/logiwaWebhookSubscribe -H "Content-Type: application/json" -d '{ "topic": "wms/inventory/available", "url": "https://example.com/webhook" }'
