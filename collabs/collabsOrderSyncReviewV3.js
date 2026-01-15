@@ -7,6 +7,7 @@ const {
 } = require('../constants');
 
 const { pipe17OrdersGetter } = require('../pipe17/pipe17OrdersGet');
+const { pipe17OrderGet } = require('../pipe17/pipe17OrderGet');
 
 const collabsOrderSyncReviewV3 = async (
   region,
@@ -131,6 +132,40 @@ const collabsOrderSyncReviewV3 = async (
 
     fetchers.push(pipe17OrdersFetcher);
     processors.push(pipe17OrdersProcessor);
+
+    const pipe17ThoroughProcessor = new Processor(
+      piles.shopifyOrders,
+      async (pile) => {
+
+        const shopifyOrder = pile.shift();
+        const { name: orderName } = shopifyOrder;
+
+        const pipe17OrderResponse = await pipe17OrderGet({ extOrderId: orderName });
+        const { success: pipe17OrderSuccess, result: pipe17Order } = pipe17OrderResponse;
+        if (!pipe17OrderSuccess) {
+          return false;
+        }
+
+        logDeep({
+          shopifyOrder,
+          pipe17Order,
+        });
+        await askQuestion('?');
+
+        if (!pipe17Order) {
+          return false;
+        }
+
+        piles.found.push(shopifyOrder);
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: true,
+        logFlavourText: `pipe17ThoroughProcessor:`,
+      },
+    );
+
+    processors.push(pipe17ThoroughProcessor);
   }
 
   await Promise.all([
