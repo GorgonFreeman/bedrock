@@ -1,9 +1,9 @@
 // https://apidoc.pipe17.com/#/operations/listOrders
 
 const { funcApi, logDeep } = require('../utils');
-const { pipe17Get } = require('../pipe17/pipe17.utils');
+const { pipe17Get, pipe17Getter } = require('../pipe17/pipe17.utils');
 
-const pipe17OrdersGet = async (
+const payloadMaker = (
   {
     credsPath,
     
@@ -42,7 +42,6 @@ const pipe17OrdersGet = async (
     ...getterOptions
   } = {},
 ) => {
-
   const params = {
     ...autoEngUpdateStatus && { autoEngUpdateStatus },
     ...autoEngUpdateStatusUpdatedSince && { autoEngUpdateStatusUpdatedSince },
@@ -76,7 +75,7 @@ const pipe17OrdersGet = async (
     ...updatedUntil && { updatedUntil },
   };
 
-  const response = await pipe17Get(
+  return [
     '/orders', 
     'orders', 
     {
@@ -84,9 +83,16 @@ const pipe17OrdersGet = async (
       params,
       ...getterOptions,
     },
-  );
+  ];
+};
 
-  logDeep(response);
+const pipe17OrdersGet = async (...args) => {
+  const response = await pipe17Get(...payloadMaker(...args));
+  return response;
+};
+
+const pipe17OrdersGetter = async (...args) => {
+  const response = await pipe17Getter(...payloadMaker(...args));
   return response;
 };
 
@@ -96,6 +102,7 @@ const pipe17OrdersGetApi = funcApi(pipe17OrdersGet, {
 
 module.exports = {
   pipe17OrdersGet,
+  pipe17OrdersGetter,
   pipe17OrdersGetApi,
 };
 
