@@ -96,10 +96,23 @@ const collabsOrderSyncReviewV3 = async (
       piles.pipe17Orders,
       async (pile) => {
         const pipe17Order = pile.shift();
-        logDeep({
-          pipe17Order,
-        });
-        await askQuestion('?');
+
+        const { extOrderId: orderName } = pipe17Order;
+
+        const shopifyOrder = piles.shopifyOrders.find(o => o.name === orderName);
+
+        if (!shopifyOrder) {
+          return false;
+        }
+
+        piles.found.push(shopifyOrder);
+
+        const orderIndex = piles.shopifyOrders.indexOf(shopifyOrder);
+        if (orderIndex === -1) {
+          return false;
+        }
+        piles.shopifyOrders.splice(orderIndex, 1);
+        return true;
       },
       pile => pile.length === 0,
       {
