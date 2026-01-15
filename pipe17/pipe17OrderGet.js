@@ -1,6 +1,7 @@
 // https://apidoc.pipe17.com/#/operations/fetchOrder
 
 const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
+const { HOSTED } = require('../constants');
 const { pipe17GetSingle } = require('../pipe17/pipe17GetSingle');
 
 const pipe17OrderGet = async (
@@ -25,7 +26,7 @@ const pipe17OrderGet = async (
       credsPath,
     },
   );  
-  logDeep(response);
+  !HOSTED && logDeep(response);
   return response;
 };
 
