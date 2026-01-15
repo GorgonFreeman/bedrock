@@ -1,36 +1,31 @@
 // https://apidoc.pipe17.com/#/operations/listOrders
 
 const { funcApi, logDeep } = require('../utils');
-const { pipe17Client } = require('../pipe17/pipe17.utils');
+const { pipe17Get } = require('../pipe17/pipe17.utils');
 
 const pipe17OrdersGet = async (
-  receiptId,
   {
     credsPath,
+    // TODO: Add query params
+    ...getterOptions
   } = {},
 ) => {
 
-  const response = await pipe17Client.fetch({
-    url: `/receipts/${ receiptId }`,
-    context: {
+  const response = await pipe17Get(
+    '/orders', 
+    'orders', 
+    {
       credsPath,
+      ...getterOptions,
     },
-    interpreter: (response) => {
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.receipt,
-        } : {},
-      };
-    },
-  });
-  
+  );
+
   logDeep(response);
   return response;
 };
 
 const pipe17OrdersGetApi = funcApi(pipe17OrdersGet, {
-  argNames: ['receiptId', 'options'],
+  argNames: ['options'],
 });
 
 module.exports = {
@@ -38,4 +33,4 @@ module.exports = {
   pipe17OrdersGetApi,
 };
 
-// curl localhost:8000/pipe17OrdersGet -H "Content-Type: application/json" -d '{ "receiptId": "b9d03991a844e340" }'
+// curl localhost:8000/pipe17OrdersGet -H "Content-Type: application/json" -d '{ "options": { "limit": 50 } }'
