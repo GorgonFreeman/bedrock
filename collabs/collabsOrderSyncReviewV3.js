@@ -87,8 +87,8 @@ const collabsOrderSyncReviewV3 = async (
 
     const pipe17OrdersFetcher = await pipe17OrdersGetter({
       since: oldestDate,
-      keys: 'extOrderId',
-      order: 'createdAt',
+      keys: 'extOrderId,createdAt',
+      order: '-createdAt',
 
       onItems: (items) => {
         piles.pipe17Orders.push(...items);
@@ -101,6 +101,8 @@ const collabsOrderSyncReviewV3 = async (
       piles.pipe17Orders,
       async (pile) => {
         const pipe17Order = pile.shift();
+
+        logDeep(pipe17Order);
 
         const { extOrderId: orderName } = pipe17Order;
 
