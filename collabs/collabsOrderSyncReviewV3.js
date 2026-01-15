@@ -9,8 +9,12 @@ const collabsOrderSyncReviewV3 = async (
   } = {},
 ) => {
 
-  const piles = {};
-
+  const piles = {
+    shopifyOrders: [],
+    found: [],
+  };
+  
+  // 1. Get open orders from Shopify
   const shopifyQueriesByRegion = {
     au: [
       `tag_not:'Sync:Confirmed'`,
@@ -47,18 +51,28 @@ const collabsOrderSyncReviewV3 = async (
     'query',
     shopifyOrdersQuery,
   );
+
   const { success: shopifyOrdersSuccess, result: shopifyOrders } = shopifyOrdersResponse;
   if (!shopifyOrdersSuccess) {
     return shopifyOrdersResponse;
   }
 
-  piles.in = shopifyOrders;
-
+  // TODO: Consider when to filter out recent half hour, to give an acceptable sync delay
+  
+  piles.shopifyOrders.push(...shopifyOrders);
+  
+  // 2. Get oldest date for future fetching
   const oldestDate = shopifyOrders?.[0]?.createdAt;
   logDeep({
     oldestDate,
   });
   await askQuestion('?');
+
+  // 3. Get bulk orders from WMS
+
+  // 4. Check remaining orders individually with WMS
+
+  // 5. Report results with metadata
 
   console.log(surveyNestedArrays(piles));
 
