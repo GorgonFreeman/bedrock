@@ -1,21 +1,21 @@
 const { funcApi } = require('../utils');
 
 const collabsOrderSyncReviewV3 = async (
-  arg,
+  region,
   {
     option,
   } = {},
 ) => {
 
   return { 
-    arg, 
+    region, 
     option,
   };
   
 };
 
 const collabsOrderSyncReviewV3Api = funcApi(collabsOrderSyncReviewV3, {
-  argNames: ['arg', 'options'],
+  argNames: ['region', 'options'],
 });
 
 module.exports = {
@@ -23,4 +23,4 @@ module.exports = {
   collabsOrderSyncReviewV3Api,
 };
 
-// curl localhost:8000/collabsOrderSyncReviewV3 -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/collabsOrderSyncReviewV3 -H "Content-Type: application/json" -d '{ "region": "us" }'
