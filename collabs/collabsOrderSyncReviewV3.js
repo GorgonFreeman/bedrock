@@ -1,4 +1,4 @@
-const { funcApi, surveyNestedArrays } = require('../utils');
+const { funcApi, surveyNestedArrays, logDeep, askQuestion } = require('../utils');
 
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
 
@@ -31,7 +31,7 @@ const collabsOrderSyncReviewV3 = async (
   ];
 
   const shopifyOrdersQuery = `{
-    orders(query: "${ shopifyQueries.join(' AND ') }") {
+    orders(query: "${ shopifyQueries.join(' AND ') }", sortKey: CREATED_AT) {
       edges {
         node {
           id
@@ -53,6 +53,12 @@ const collabsOrderSyncReviewV3 = async (
   }
 
   piles.in = shopifyOrders;
+
+  const oldestDate = shopifyOrders?.[0]?.createdAt;
+  logDeep({
+    oldestDate,
+  });
+  await askQuestion('?');
 
   console.log(surveyNestedArrays(piles));
 
