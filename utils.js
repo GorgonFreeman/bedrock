@@ -1040,6 +1040,8 @@ class Getter extends EventEmitter {
     this.client = client;
     this.clientArgs = clientArgs;
 
+    this.stopped = false;
+
     if (onItems) {
       this.on('items', onItems);
     }
@@ -1047,6 +1049,10 @@ class Getter extends EventEmitter {
     if (onDone) {
       this.on('done', onDone);
     }
+  }
+
+  stop() {
+    this.stopped = true;
   }
 
   // TODO: Interval mode for predictable pagination schemes
@@ -1060,7 +1066,7 @@ class Getter extends EventEmitter {
     let paginatedPayload = this.payload;
     let url = this.url;
     
-    while (!done) {
+    while (!done && !this.stopped) {
       
       const response = this.client ? await this.client.fetch({
         url,
@@ -1092,6 +1098,10 @@ class Getter extends EventEmitter {
       
       verbose && console.log(`${ ifTextThenSpace(this.logFlavourText) }${ resultsCount } +${ items.length }`);
       this.emit('items', items);
+      
+      if (this.stopped) {
+        break;
+      }
       
       if (!paginator) {
         break;
