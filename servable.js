@@ -161,6 +161,7 @@ module.exports = {
   pipe17LocationGet: require('./pipe17/pipe17LocationGet').pipe17LocationGetApi,
   pipe17LocationsGet: require('./pipe17/pipe17LocationsGet').pipe17LocationsGetApi,
   pipe17OrderGet: require('./pipe17/pipe17OrderGet').pipe17OrderGetApi,
+  pipe17OrdersGet: require('./pipe17/pipe17OrdersGet').pipe17OrdersGetApi,
   pipe17ProductGet: require('./pipe17/pipe17ProductGet').pipe17ProductGetApi,
   pipe17ProductsGet: require('./pipe17/pipe17ProductsGet').pipe17ProductsGetApi,
   pipe17PurchaseGet: require('./pipe17/pipe17PurchaseGet').pipe17PurchaseGetApi,
