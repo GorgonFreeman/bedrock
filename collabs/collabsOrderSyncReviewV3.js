@@ -87,7 +87,7 @@ const collabsOrderSyncReviewV3 = async (
 
     const pipe17OrdersFetcher = await pipe17OrdersGetter({
       since: oldestDate,
-      keys: ['extOrderId'],
+      keys: 'extOrderId',
       order: 'createdAt',
 
       onItems: (items) => {
