@@ -24,7 +24,9 @@ const payloadMaker = (
     integration,
     keys, // Default: orderId,extOrderId,email,status,shipByDate,fulfilledAt,expectedDeliveryDate,tags,createdAt,updatedAt,orgKey 
     lastRerunRoutingTrigger, // manual auto
-    locationId, // Default: createdAt orderId array[string] Fetch orders by list of orderId
+    locationId,
+    order, // Default: createdAt Reverse: -createdAt
+    orderId,
     orderSource,
     orderSourceType, // online pos wholesale edi other b2b aggregation 
     pagination, // disabled 
@@ -60,6 +62,8 @@ const payloadMaker = (
     ...keys && { keys },
     ...lastRerunRoutingTrigger && { lastRerunRoutingTrigger },
     ...locationId && { locationId },
+    ...order && { order },
+    ...orderId && { orderId },
     ...orderSource && { orderSource },
     ...orderSourceType && { orderSourceType },
     ...pagination && { pagination },
