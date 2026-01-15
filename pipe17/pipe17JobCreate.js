@@ -57,6 +57,14 @@ const pipe17JobCreateApi = funcApi(pipe17JobCreate, {
     type: (p) => JOB_TYPES.includes(p),
     subType: (p) => JOB_SUBTYPES.includes(p),
   },
+  validators: [
+    (body) => {
+      const { type, subType, options } = body;
+      if (type === 'report' && ['orders', 'open_orders'].includes(subType)) {
+        return !!options?.params?.emails;
+      }
+    },
+  ],
 });
 
 module.exports = {
