@@ -1,4 +1,4 @@
-const { funcApi, surveyNestedArrays, logDeep, askQuestion, Processor } = require('../utils');
+const { funcApi, surveyNestedArrays, logDeep, askQuestion, Processor, gidToId } = require('../utils');
 
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
 
@@ -138,21 +138,16 @@ const collabsOrderSyncReviewV3 = async (
       async (pile) => {
 
         const shopifyOrder = pile.shift();
-        const { name: orderName } = shopifyOrder;
+        const { id: orderGid } = shopifyOrder;
+        const orderId = gidToId(orderGid);
 
-        const pipe17OrderResponse = await pipe17OrderGet({ extOrderId: orderName });
+        const pipe17OrderResponse = await pipe17OrderGet({ extOrderApiId: orderId });
         const { success: pipe17OrderSuccess, result: pipe17Order } = pipe17OrderResponse;
         if (!pipe17OrderSuccess) {
           return false;
         }
 
-        logDeep({
-          shopifyOrder,
-          pipe17Order,
-        });
-        await askQuestion('?');
-
-        if (!pipe17Order) {
+        if (pipe17Order?.extOrderApiId !== orderId) {
           return false;
         }
 
