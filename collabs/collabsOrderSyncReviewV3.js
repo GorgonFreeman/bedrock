@@ -100,6 +100,7 @@ const collabsOrderSyncReviewV3 = async (
     const pipe17OrdersProcessor = new Processor(
       piles.pipe17Orders,
       async (pile) => {
+
         const pipe17Order = pile.shift();
 
         logDeep(pipe17Order);
@@ -127,6 +128,12 @@ const collabsOrderSyncReviewV3 = async (
         logFlavourText: `pipe17OrdersProcessor:`,
       },
     );
+
+    pipe17OrdersFetcher.on('items', () => {
+      if (piles.shopifyOrders.length === 0) {
+        pipe17OrdersFetcher.end();
+      }
+    });
 
     pipe17OrdersFetcher.on('done', () => {
       pipe17OrdersProcessor.canFinish = true;
