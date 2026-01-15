@@ -6,16 +6,82 @@ const { pipe17Get } = require('../pipe17/pipe17.utils');
 const pipe17OrdersGet = async (
   {
     credsPath,
-    // TODO: Add query params
+    
+    // API options
+    autoEngUpdateStatus,
+    autoEngUpdateStatusUpdatedSince,
+    autoEngUpdateStatusUpdatedUntil,
+    count,
+    deleted,
+    disposition, // partiallyRouted routed partiallySent sent partiallyFulfilled fulfilled partiallyCanceled canceled partiallyFailed failed partiallyRejected rejected partiallyUnrouted unrouted partiallyUnsent unsent partiallyUnfulfilled unfulfilled 
+    email,
+    emailAddr,
+    exceptionCategoryId,
+    exceptionType,
+    extOrderId,
+    holdUntilSince,
+    holdUntilUntil,
+    integration,
+    keys, // Default: orderId,extOrderId,email,status,shipByDate,fulfilledAt,expectedDeliveryDate,tags,createdAt,updatedAt,orgKey 
+    lastRerunRoutingTrigger, // manual auto
+    locationId, // Default: createdAt orderId array[string] Fetch orders by list of orderId
+    orderSource,
+    orderSourceType, // online pos wholesale edi other b2b aggregation 
+    pagination, // disabled 
+    requireShippingLabels,
+    routingStatus, // disabled pending ready acknowledged failed excluded pendingInventory
+    since,
+    skip,
+    status, // draft new onHold toBeValidated reviewRequired readyForFulfillment sentToFulfillment partialFulfillment fulfilled inTransit partialReceived received canceled returned refunded archived closed 
+    tags,
+    timestamp, 
+    until,
+    updatedSince,
+    updatedUntil,
+
     ...getterOptions
   } = {},
 ) => {
+
+  const params = {
+    ...autoEngUpdateStatus && { autoEngUpdateStatus },
+    ...autoEngUpdateStatusUpdatedSince && { autoEngUpdateStatusUpdatedSince },
+    ...autoEngUpdateStatusUpdatedUntil && { autoEngUpdateStatusUpdatedUntil },
+    ...count && { count },
+    ...deleted && { deleted },
+    ...disposition && { disposition },
+    ...email && { email },
+    ...emailAddr && { emailAddr },
+    ...exceptionCategoryId && { exceptionCategoryId },
+    ...exceptionType && { exceptionType },
+    ...extOrderId && { extOrderId },
+    ...holdUntilSince && { holdUntilSince },
+    ...holdUntilUntil && { holdUntilUntil },
+    ...integration && { integration },
+    ...keys && { keys },
+    ...lastRerunRoutingTrigger && { lastRerunRoutingTrigger },
+    ...locationId && { locationId },
+    ...orderSource && { orderSource },
+    ...orderSourceType && { orderSourceType },
+    ...pagination && { pagination },
+    ...requireShippingLabels && { requireShippingLabels },
+    ...routingStatus && { routingStatus },
+    ...since && { since },
+    ...skip && { skip },
+    ...status && { status },
+    ...tags && { tags },
+    ...timestamp && { timestamp } ,
+    ...until && { until },
+    ...updatedSince && { updatedSince },
+    ...updatedUntil && { updatedUntil },
+  };
 
   const response = await pipe17Get(
     '/orders', 
     'orders', 
     {
       credsPath,
+      params,
       ...getterOptions,
     },
   );
