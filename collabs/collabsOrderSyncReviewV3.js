@@ -2,6 +2,7 @@ const { funcApi, surveyNestedArrays, logDeep, askQuestion, Processor, gidToId, T
 
 const {
   REGIONS_PIPE17,
+  REGIONS_BLECKMANN,
 } = require('../constants');
 
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
@@ -9,6 +10,9 @@ const { shopifyTagsAdd } = require('../shopify/shopifyTagsAdd');
 
 const { pipe17OrdersGetter } = require('../pipe17/pipe17OrdersGet');
 const { pipe17OrderGet } = require('../pipe17/pipe17OrderGet');
+
+const { bleckmannPickticketsGetter } = require('../bleckmann/bleckmannPickticketsGet');
+const { bleckmannPickticketGet } = require('../bleckmann/bleckmannPickticketGet');
 
 const collabsOrderSyncReviewV3 = async (
   region,
@@ -187,6 +191,62 @@ const collabsOrderSyncReviewV3 = async (
     );
 
     processors.push(pipe17ThoroughProcessor);
+  }
+
+  if (REGIONS_BLECKMANN.includes(region)) {
+
+    piles.bleckmannOrders = [];
+
+    const bleckmannOrdersFetcher = await bleckmannPickticketsGetter({
+      createdFrom: oldestDate,
+
+      onItems: (items) => {
+        piles.bleckmannOrders.push(...items);
+      },
+
+      logFlavourText: `bleckmannOrdersFetcher:`,
+    });
+
+    const bleckmannOrdersProcessor = new Processor(
+      piles.bleckmannOrders,
+      async (pile) => {
+        const bleckmannOrder = pile.shift();
+        const { reference } = bleckmannOrder;
+
+        const shopifyOrder = piles.shopifyOrders.find(o => o.name === reference);
+
+        if (!shopifyOrder) {
+          return false;
+        }
+
+        piles.found.push(shopifyOrder);
+
+        const orderIndex = piles.shopifyOrders.indexOf(shopifyOrder);
+        if (orderIndex === -1) {
+          return false;
+        }
+        piles.shopifyOrders.splice(orderIndex, 1);
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: false,
+        logFlavourText: `bleckmannOrdersProcessor:`,
+      },
+    );
+
+    bleckmannOrdersFetcher.on('items', () => {
+      if (piles.shopifyOrders.length === 0) {
+        bleckmannOrdersFetcher.end();
+      }
+    });
+
+    bleckmannOrdersFetcher.on('done', () => {
+      bleckmannOrdersProcessor.canFinish = true;
+    });
+
+    fetchers.push(bleckmannOrdersFetcher);
+    processors.push(bleckmannOrdersProcessor);
+
   }
 
   const tagger = new Processor(
