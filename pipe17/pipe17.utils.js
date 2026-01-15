@@ -101,11 +101,11 @@ const pipe17Getter = async (
       digester: (response) => pipe17GetterDigester(response, itemsNodeName),
 
       client: pipe17Client,
-          clientArgs: {
-      context: {
-        credsPath,
+      clientArgs: {
+        context: {
+          credsPath,
+        },
       },
-    },
 
       ...getterOptions
     },
