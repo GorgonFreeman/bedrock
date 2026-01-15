@@ -78,6 +78,8 @@ const collabsOrderSyncReviewV3 = async (
   const fetchers = [];
   const processors = [];
 
+  // Check orders from the front in bulk, and from the back individually.
+
   if (REGIONS_PIPE17.includes(region)) {
 
     piles.pipe17Orders = [];
