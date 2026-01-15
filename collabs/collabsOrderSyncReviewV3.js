@@ -1,6 +1,12 @@
-const { funcApi, surveyNestedArrays, logDeep, askQuestion } = require('../utils');
+const { funcApi, surveyNestedArrays, logDeep, askQuestion, Processor } = require('../utils');
 
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
+
+const {
+  REGIONS_PIPE17,
+} = require('../constants');
+
+const { pipe17OrdersGetter } = require('../pipe17/pipe17OrdersGet');
 
 const collabsOrderSyncReviewV3 = async (
   region,
@@ -69,6 +75,51 @@ const collabsOrderSyncReviewV3 = async (
   await askQuestion('?');
 
   // 3. Get bulk orders from WMS
+  const fetchers = [];
+  const processors = [];
+
+  if (REGIONS_PIPE17.includes(region)) {
+
+    piles.pipe17Orders = [];
+
+    const pipe17OrdersFetcher = await pipe17OrdersGetter({
+      since: oldestDate,
+
+      onItems: (items) => {
+        piles.pipe17Orders.push(...items);
+      },
+
+      logFlavourText: `pipe17OrdersFetcher:`,
+    });
+
+    const pipe17OrdersProcessor = new Processor(
+      piles.pipe17Orders,
+      async (pile) => {
+        const pipe17Order = pile.shift();
+        logDeep({
+          pipe17Order,
+        });
+        await askQuestion('?');
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: false,
+        logFlavourText: `pipe17OrdersProcessor:`,
+      },
+    );
+
+    pipe17OrdersFetcher.on('done', () => {
+      pipe17OrdersProcessor.canFinish = true;
+    });
+
+    fetchers.push(pipe17OrdersFetcher);
+    processors.push(pipe17OrdersProcessor);
+  }
+
+  await Promise.all([
+    ...fetchers.map(fetcher => fetcher.run()),
+    ...processors.map(processor => processor.run()),
+  ]);
 
   // 4. Check remaining orders individually with WMS
 
