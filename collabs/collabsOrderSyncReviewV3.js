@@ -1,10 +1,11 @@
-const { funcApi, surveyNestedArrays, logDeep, askQuestion, Processor, gidToId } = require('../utils');
-
-const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
+const { funcApi, surveyNestedArrays, logDeep, askQuestion, Processor, gidToId, ThresholdActioner } = require('../utils');
 
 const {
   REGIONS_PIPE17,
 } = require('../constants');
+
+const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
+const { shopifyTagsAdd } = require('../shopify/shopifyTagsAdd');
 
 const { pipe17OrdersGetter } = require('../pipe17/pipe17OrdersGet');
 const { pipe17OrderGet } = require('../pipe17/pipe17OrderGet');
@@ -19,6 +20,9 @@ const collabsOrderSyncReviewV3 = async (
   const piles = {
     shopifyOrders: [],
     found: [],
+    tagged: [],
+    errors: [],
+    missing: [],
   };
   
   // 1. Get open orders from Shopify
@@ -156,6 +160,16 @@ const collabsOrderSyncReviewV3 = async (
         const pipe17OrderResponse = await pipe17OrderGet({ extOrderApiId: orderId });
         const { success: pipe17OrderSuccess, result: pipe17Order } = pipe17OrderResponse;
         if (!pipe17OrderSuccess) {
+
+          if (pipe17OrderResponse?.error?.some(e => e?.data?.message === 'No results')) {
+            piles.missing.push(shopifyOrder);
+            return false;
+          }
+
+          piles.errors.push({
+            shopifyOrder,
+            pipe17OrderResponse,
+          });
           return false;
         }
 
@@ -175,9 +189,50 @@ const collabsOrderSyncReviewV3 = async (
     processors.push(pipe17ThoroughProcessor);
   }
 
+  const tagger = new Processor(
+    piles.found,
+    async (pile) => {
+      const orderGids = pile.splice(0).map(o => o.id);
+
+      const tagResponse = await shopifyTagsAdd(
+        region,
+        orderGids,
+        ['sync_confirmed'],
+        {
+          queueRunOptions: {
+            interval: 100,
+          },
+        },
+      );
+
+      if (!tagResponse?.success) {
+        piles.errors.push({
+          orderGids,
+          tagResponse,
+        });
+        return false;
+      }
+      
+      piles.tagged.push(...orderGids);
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+      logFlavourText: `tagger:`,
+    },
+  );
+
+  const processorsFinished = new ThresholdActioner(processors.length, () => {
+    tagger.canFinish = true;
+  });
+  processors.filter(p => p instanceof Processor).forEach(processor => {
+    processor.on('done', processorsFinished.increment);
+  });
+
   await Promise.all([
     ...fetchers.map(fetcher => fetcher.run()),
     ...processors.map(processor => processor.run()),
+    tagger.run(),
   ]);
 
   // 4. Check remaining orders individually with WMS
