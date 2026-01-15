@@ -77,10 +77,6 @@ const collabsOrderSyncReviewV3 = async (
   
   // 2. Get oldest date for future fetching
   const oldestDate = shopifyOrders?.[0]?.createdAt;
-  logDeep({
-    oldestDate,
-  });
-  await askQuestion('?');
 
   // 3. Get bulk orders from WMS
   const fetchers = [];
