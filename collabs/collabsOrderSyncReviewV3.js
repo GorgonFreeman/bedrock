@@ -64,6 +64,13 @@ const collabsOrderSyncReviewV3 = async (
     return shopifyOrdersResponse;
   }
 
+  if (shopifyOrders.length === 0) {
+    return {
+      success: true,
+      result: `No orders to review`,
+    };
+  }
+
   // TODO: Consider when to filter out recent half hour, to give an acceptable sync delay
   
   piles.shopifyOrders.push(...shopifyOrders);
