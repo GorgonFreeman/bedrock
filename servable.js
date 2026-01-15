@@ -267,6 +267,7 @@ module.exports = {
   collabsOrderSyncMark: require('./collabs/collabsOrderSyncMark').collabsOrderSyncMarkApi,
   collabsOrderSyncReview: require('./collabs/collabsOrderSyncReview').collabsOrderSyncReviewApi,
   collabsOrderSyncReviewV2: require('./collabs/collabsOrderSyncReviewV2').collabsOrderSyncReviewV2Api,
+  collabsOrderSyncReviewV3: require('./collabs/collabsOrderSyncReviewV3').collabsOrderSyncReviewV3Api,
   bleckmannAsnGet: require('./bleckmann/bleckmannAsnGet').bleckmannAsnGetApi,
   bleckmannAsnsGet: require('./bleckmann/bleckmannAsnsGet').bleckmannAsnsGetApi,
   bleckmannEventsGet: require('./bleckmann/bleckmannEventsGet').bleckmannEventsGetApi,
