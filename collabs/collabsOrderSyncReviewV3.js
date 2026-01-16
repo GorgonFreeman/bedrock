@@ -247,6 +247,43 @@ const collabsOrderSyncReviewV3 = async (
     fetchers.push(bleckmannOrdersFetcher);
     processors.push(bleckmannOrdersProcessor);
 
+    const bleckmannThoroughProcessor = new Processor(
+      piles.shopifyOrders,
+      async (pile) => {
+
+        const shopifyOrder = pile.shift();
+        const { id: orderGid } = shopifyOrder;
+        const orderId = gidToId(orderGid);
+  
+        const pickticketResponse = await bleckmannPickticketGet({ pickticketReference: orderId });
+  
+        const { success, result: pickticket } = pickticketResponse;
+        if (!success) {
+          logDeep(pickticketResponse);
+          await askQuestion('?');
+          piles.errors.push({
+            ...shopifyOrder,
+            pickticketResponse,
+          });
+          return;
+        }
+  
+        if (!pickticket) {
+          piles.missing.push(shopifyOrder);
+          return;
+        }
+  
+        piles.found.push(shopifyOrder);
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: true,
+        logFlavourText: `bleckmannThoroughProcessor:`,
+      },
+    );
+
+    processors.push(bleckmannThoroughProcessor);
+
   }
 
   const tagger = new Processor(
