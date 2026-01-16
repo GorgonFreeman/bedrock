@@ -1,6 +1,7 @@
 const { funcApi, surveyNestedArrays, logDeep, askQuestion, Processor, gidToId, ThresholdActioner } = require('../utils');
 
 const {
+  HOSTED,
   REGIONS_PIPE17,
   REGIONS_BLECKMANN,
 } = require('../constants');
@@ -82,6 +83,8 @@ const collabsOrderSyncReviewV3 = async (
   // TODO: Consider when to filter out recent half hour, to give an acceptable sync delay
   
   piles.shopifyOrders.push(...shopifyOrders);
+
+  !HOSTED && console.log(surveyNestedArrays(piles));
   
   // 2. Get oldest date for future fetching
   const oldestDate = shopifyOrders?.[0]?.createdAt;
@@ -131,7 +134,8 @@ const collabsOrderSyncReviewV3 = async (
           return false;
         }
         piles.shopifyOrders.splice(orderIndex, 1);
-        return true;
+
+        !HOSTED && console.log(surveyNestedArrays(piles));
       },
       pile => pile.length === 0,
       {
@@ -156,6 +160,8 @@ const collabsOrderSyncReviewV3 = async (
     const pipe17ThoroughProcessor = new Processor(
       piles.shopifyOrders,
       async (pile) => {
+
+        !HOSTED && console.log(surveyNestedArrays(piles));
 
         const shopifyOrder = pile.shift();
         const { id: orderGid } = shopifyOrder;
@@ -226,6 +232,8 @@ const collabsOrderSyncReviewV3 = async (
           return false;
         }
         piles.shopifyOrders.splice(orderIndex, 1);
+
+        !HOSTED && console.log(surveyNestedArrays(piles));
       },
       pile => pile.length === 0,
       {
@@ -250,6 +258,8 @@ const collabsOrderSyncReviewV3 = async (
     const bleckmannThoroughProcessor = new Processor(
       piles.shopifyOrders,
       async (pile) => {
+
+        !HOSTED && console.log(surveyNestedArrays(piles));
 
         const shopifyOrder = pile.shift();
         const { id: orderGid } = shopifyOrder;
@@ -327,9 +337,9 @@ const collabsOrderSyncReviewV3 = async (
   });
 
   await Promise.all([
-    ...fetchers.map(fetcher => fetcher.run()),
-    ...processors.map(processor => processor.run()),
-    tagger.run(),
+    ...fetchers.map(fetcher => fetcher.run({ verbose: false })),
+    ...processors.map(processor => processor.run({ verbose: false })),
+    tagger.run({ verbose: false }),
   ]);
 
   // 4. Check remaining orders individually with WMS
