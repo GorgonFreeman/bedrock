@@ -1,4 +1,4 @@
-const { funcApi, surveyNestedArrays, logDeep, askQuestion, Processor, gidToId, ThresholdActioner } = require('../utils');
+const { funcApi, surveyNestedArrays, logDeep, askQuestion, Processor, gidToId, ThresholdActioner, minutes } = require('../utils');
 
 const {
   HOSTED,
@@ -18,7 +18,7 @@ const { bleckmannPickticketGet } = require('../bleckmann/bleckmannPickticketGet'
 const collabsOrderSyncReviewV3 = async (
   region,
   {
-    option,
+    ignoreWindowMinutes = 0,
   } = {},
 ) => {
 
@@ -28,6 +28,7 @@ const collabsOrderSyncReviewV3 = async (
     tagged: [],
     errors: [],
     missing: [],
+    ignored: [],
   };
   
   // 1. Get open orders from Shopify
@@ -90,10 +91,11 @@ const collabsOrderSyncReviewV3 = async (
   const oldestDate = shopifyOrders?.[0]?.createdAt;
 
   // 3. Get bulk orders from WMS
+  // 4. Check remaining orders individually with WMS
+  // Check orders from the front in bulk, and from the back individually, to make most efficient use of APIs.
+
   const fetchers = [];
   const processors = [];
-
-  // Check orders from the front in bulk, and from the back individually.
 
   if (REGIONS_PIPE17.includes(region)) {
 
@@ -342,7 +344,19 @@ const collabsOrderSyncReviewV3 = async (
     tagger.run({ verbose: false }),
   ]);
 
-  // 4. Check remaining orders individually with WMS
+  // Ignore any missing orders newer than ignoreWindowMinutes ago
+  if (ignoreWindowMinutes > 0) {
+
+    const now = new Date();
+    const ignoreWindowMs = minutes(ignoreWindowMinutes);
+
+    for (const order of piles.missing) {
+      if ((now - new Date(order.createdAt)) < ignoreWindowMs) {
+        piles.missing.splice(piles.missing.indexOf(order), 1);
+        piles.ignored.push(order);
+      }
+    }
+  }
 
   // 5. Report results with metadata
 
@@ -364,4 +378,4 @@ module.exports = {
   collabsOrderSyncReviewV3Api,
 };
 
-// curl localhost:8000/collabsOrderSyncReviewV3 -H "Content-Type: application/json" -d '{ "region": "us" }'
+// curl localhost:8000/collabsOrderSyncReviewV3 -H "Content-Type: application/json" -d '{ "region": "us", "options": { "ignoreWindowMinutes": 30 } }'
