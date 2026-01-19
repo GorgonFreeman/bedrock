@@ -259,6 +259,7 @@ module.exports = {
   collabsFulfillmentSweepV2: require('./collabs/collabsFulfillmentSweepV2').collabsFulfillmentSweepV2Api,
   collabsFulfillmentSweepV3: require('./collabs/collabsFulfillmentSweepV3').collabsFulfillmentSweepV3Api,
   collabsFulfillmentSweepV4: require('./collabs/collabsFulfillmentSweepV4').collabsFulfillmentSweepV4Api,
+  collabsFulfillmentSweepV5: require('./collabs/collabsFulfillmentSweepV5').collabsFulfillmentSweepV5Api,
   collabsFulfillmentsReview: require('./collabs/collabsFulfillmentsReview').collabsFulfillmentsReviewApi,
   collabsGiftCardToStoreCredit: require('./collabs/collabsGiftCardToStoreCredit').collabsGiftCardToStoreCreditApi,
   collabsGiftCardToStoreCreditUk: require('./collabs/collabsGiftCardToStoreCreditUk').collabsGiftCardToStoreCreditUkApi,
