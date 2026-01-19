@@ -362,11 +362,26 @@ const collabsOrderSyncReviewV3 = async (
 
   console.log(surveyNestedArrays(piles));
 
-  return { 
-    success: true,
-    result: piles,
+  const metadata = {
+    missingCount: piles.missing.length,
+    ignoredCount: piles.ignored.length,
   };
-  
+  !HOSTED && logDeep('metadata', metadata);
+
+  const samples = {
+    missing: piles.missing.slice(0, 10),
+    ignored: piles.ignored.slice(0, 10),
+  };
+  !HOSTED && logDeep('samples', samples);
+
+  return {
+    success: true,
+    result: {
+      piles,
+      metadata,
+      samples,
+    },
+  };
 };
 
 const collabsOrderSyncReviewV3Api = funcApi(collabsOrderSyncReviewV3, {
