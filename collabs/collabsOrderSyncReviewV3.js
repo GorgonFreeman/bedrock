@@ -350,12 +350,34 @@ const collabsOrderSyncReviewV3 = async (
     const now = new Date();
     const ignoreWindowMs = minutes(ignoreWindowMinutes);
 
-    for (const order of piles.missing) {
-      if ((now - new Date(order.createdAt)) < ignoreWindowMs) {
-        piles.missing.splice(piles.missing.indexOf(order), 1);
-        piles.ignored.push(order);
-      }
-    }
+    const missingTemp = [];
+
+    const ignorer = new Processor(
+      piles.missing,
+      async (pile) => {
+        const order = pile.shift();
+        const { createdAt } = order;
+
+        if ((now - new Date(createdAt)) < ignoreWindowMs) {
+          piles.ignored.push(order);
+          return false;
+        }
+
+        missingTemp.push(order);
+        return true;
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: true,
+        logFlavourText: `ignorer:`,
+      },
+    );
+
+    ignorer.on('done', () => {
+      piles.missing.push(...missingTemp);
+    });
+
+    await ignorer.run({ verbose: false });
   }
 
   // 5. Report results with metadata
