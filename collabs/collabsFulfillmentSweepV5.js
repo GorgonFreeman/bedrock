@@ -4,7 +4,7 @@ const {
   HOSTED,
   REGIONS_LOGIWA,
 } = require('../constants');
-const { funcApi, logDeep, surveyNestedArrays } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor, ThresholdActioner, askQuestion } = require('../utils');
 
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 
@@ -159,11 +159,17 @@ const collabsFulfillmentSweepV5 = async (
       },
     );
 
+    shopifyGetter.on('done', () => {
+      logiwaThoroughAssessor.canFinish = true;
+    });
+
     assessors.push(logiwaThoroughAssessor);
   }
 
   await Promise.all([
     shopifyGetter.run({ verbose: !HOSTED }),
+    ...wmsGetters.map(getter => getter.run({ verbose: !HOSTED })),
+    ...assessors.map(assessor => assessor.run({ verbose: !HOSTED })),
   ]);
 
   logDeep(surveyNestedArrays(piles));
