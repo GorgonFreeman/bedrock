@@ -16,6 +16,7 @@ const collabsFulfillmentSweepV5 = async (
 
   piles = {
     shopify: [],
+    missing: [],
   };
 
   const shopifyGetter = await shopifyOrdersGetter(
@@ -80,6 +81,12 @@ const collabsFulfillmentSweepV5 = async (
         const logiwaOrderResponse = await logiwaOrderGet({ orderCode: orderName });
         const { success: logiwaOrderSuccess, result: logiwaOrder } = logiwaOrderResponse;
         if (!logiwaOrderSuccess) {
+
+          if (logiwaOrderResponse?.error?.every(error => error === 'Order not found')) {
+            piles.missing.push(shopifyOrder);
+            return;
+          }
+
           logDeep({ 
             logiwaOrderResponse,
           });
