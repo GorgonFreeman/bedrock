@@ -3,10 +3,7 @@
 const { funcApi } = require('../utils');
 
 const collabsFulfillmentSweepV5 = async (
-  arg,
-  {
-    option,
-  } = {},
+  store,
 ) => {
 
   return { 
@@ -16,7 +13,7 @@ const collabsFulfillmentSweepV5 = async (
 };
 
 const collabsFulfillmentSweepV5Api = funcApi(collabsFulfillmentSweepV5, {
-  argNames: ['arg', 'options'],
+  argNames: ['store'],
 });
 
 module.exports = {
@@ -24,4 +21,4 @@ module.exports = {
   collabsFulfillmentSweepV5Api,
 };
 
-// curl localhost:8000/collabsFulfillmentSweepV5 -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/collabsFulfillmentSweepV5 -H "Content-Type: application/json" -d '{ "store": "us" }'
