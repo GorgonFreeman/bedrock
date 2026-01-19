@@ -39,6 +39,9 @@ const collabsFulfillmentSweepV5 = async (
             }
           }
         }
+        mf_externalFulfillmentIds: metafield(namespace: "shipping", key: "ext_fulfillment_ids") { 
+          value
+        }
       `,
       queries: [
         'created_at:>2025-06-01',
