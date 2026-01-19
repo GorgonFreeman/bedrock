@@ -1,9 +1,14 @@
 // A fulfillment sweep based on fulfillment orders, explicitly fulfilling payloads of line items wherever possible.
 
-const { HOSTED } = require('../constants');
+const { 
+  HOSTED,
+  REGIONS_LOGIWA,
+} = require('../constants');
 const { funcApi, logDeep, surveyNestedArrays } = require('../utils');
 
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
+
+const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
 
 const collabsFulfillmentSweepV5 = async (
   store,
@@ -59,6 +64,103 @@ const collabsFulfillmentSweepV5 = async (
       logFlavourText: `${ store }:shopifyGetter:`,
     },
   );
+
+  const wmsGetters = [];
+  const assessors = [];
+
+  if (REGIONS_LOGIWA.includes(store)) {
+    
+    const logiwaThoroughAssessor = new Processor(
+      piles.shopify,
+      async (pile) => {
+        const shopifyOrder = pile.shift();
+        console.log(`${ store }:logiwaThoroughAssessor:`, piles.shopify.length);
+        const { name: orderName } = shopifyOrder;
+
+        const logiwaOrderResponse = await logiwaOrderGet({ orderCode: orderName });
+        const { success: logiwaOrderSuccess, result: logiwaOrder } = logiwaOrderResponse;
+        if (!logiwaOrderSuccess) {
+          logDeep({ 
+            logiwaOrderResponse,
+          });
+          await askQuestion('?');
+          // piles.errors.push(shopifyOrder);
+          // return;
+        }
+        
+        if (!logiwaOrder) {
+          logDeep({ 
+            logiwaOrderResponse,
+          });
+          await askQuestion('?');
+          // piles.errors.push(shopifyOrder);
+          // return;
+        }
+
+        logDeep({ 
+          logiwaOrderResponse,
+        });
+        await askQuestion('?');
+
+        // const {
+        //   shipmentOrderStatusName,
+        // } = logiwaOrder;
+
+        // if (shipmentOrderStatusName !== 'Shipped') {
+        //   return;
+        // }
+        
+        // const {
+        //   trackingNumbers,
+        //   products,
+        // } = logiwaOrder;
+        
+        // if (trackingNumbers?.length !== 1) {
+        //   console.error(logiwaOrder);
+        //   console.error(`Oh no, ${ trackingNumbers?.length } tracking numbers found for ${ logiwaOrder.code }`);
+        //   return;
+        // }
+
+        // const trackingNumber = trackingNumbers[0];
+    
+        // const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
+    
+        // if (!trackingNumber || !allShipped) {
+        //   logDeep(`Logiwa something wrong`, { trackingNumber, allShipped }, logiwaOrder);
+        //   return;
+        // }
+    
+        // const fulfillPayload = {
+        //   originAddress: {
+        //     // Logiwa, therefore US
+        //     countryCode: 'US',
+        //   },
+        //   trackingInfo: {
+        //     number: trackingNumber,
+        //   },
+        // };
+    
+        // piles.shopifyOrderFulfill.push([
+        //   store,
+        //   { orderName: logiwaOrder.code },
+        //   {
+        //     notifyCustomer: true,
+        //     ...fulfillPayload,
+        //   },
+        // ]);        
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: false,
+        logFlavourText: `${ store }:logiwaThoroughAssessor:`,
+        // runOptions: {
+        //   interval: 20,
+        // },
+      },
+    );
+
+    assessors.push(logiwaThoroughAssessor);
+  }
 
   await Promise.all([
     shopifyGetter.run({ verbose: !HOSTED }),
