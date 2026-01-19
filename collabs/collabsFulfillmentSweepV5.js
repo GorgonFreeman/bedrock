@@ -1,3 +1,5 @@
+// A fulfillment sweep based on fulfillment orders, explicitly fulfilling payloads of line items wherever possible.
+
 const { funcApi } = require('../utils');
 
 const collabsFulfillmentSweepV5 = async (
@@ -8,8 +10,7 @@ const collabsFulfillmentSweepV5 = async (
 ) => {
 
   return { 
-    arg, 
-    option,
+    arg,     option,
   };
   
 };
