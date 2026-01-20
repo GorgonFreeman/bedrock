@@ -76,6 +76,13 @@ const collabsFulfillmentSweepV5 = async (
           // return;
         }
 
+        const { message } = fulfillmentFindResult;
+
+        if (message === 'Order not shipped') {
+          piles.unshipped.push(shopifyOrder);
+          return;
+        }
+
         logDeep({ fulfillmentFindResponse });
         await askQuestion('?');
 
