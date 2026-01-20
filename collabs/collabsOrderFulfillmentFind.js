@@ -27,6 +27,7 @@ const collabsOrderFulfillmentFind = async (
       attrs: `
         id
         name
+        displayFulfillmentStatus
       `,
     },
   );
@@ -36,13 +37,27 @@ const collabsOrderFulfillmentFind = async (
     return shopifyOrderResponse;
   }
 
-  // TODO: Return early if completely fulfilled
-
   const { 
     id: shopifyOrderGid,
     name: shopifyOrderName,
+    displayFulfillmentStatus,
   } = shopifyOrder;
   const shopifyOrderId = gidToId(shopifyOrderGid);
+
+  const DONE_STATUSES = [
+    'FULFILLED',
+  ];
+
+  // TODO: Handle other fulfillment statuses
+
+  if (DONE_STATUSES.includes(displayFulfillmentStatus)) {
+    return { 
+      success: true, 
+      result: {
+        message: `Order already ${ displayFulfillmentStatus }, nothing to fulfill.`,
+      },
+    };
+  }
 
   if (REGIONS_LOGIWA.includes(store)) {
     const logiwaOrderResponse = await logiwaOrderGet({ orderCode: shopifyOrderName });
