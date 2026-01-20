@@ -3,7 +3,7 @@ const {
   REGIONS_LOGIWA,
 } = require('../constants');
 
-const { funcApi, logDeep, askQuestion, gidToId, arrayToObj } = require('../utils');
+const { funcApi, logDeep, askQuestion, gidToId, arrayToObj, arrayStandardResponse } = require('../utils');
 
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
@@ -148,6 +148,8 @@ const collabsOrderFulfillmentFind = async (
 
     const itemsByTrackingNumber = arrayToObj(shipmentInfo, { keyProp: 'trackingNumber', uniqueByKeyProp: false });
 
+    const fulfillResults = [];
+
     for (const [trackingNumber, items] of Object.entries(itemsByTrackingNumber)) {
 
       if (trackingNumbersSeen.includes(trackingNumber)) {
@@ -182,9 +184,16 @@ const collabsOrderFulfillmentFind = async (
 
       logDeep({ shopifyOrderFulfillResult });
 
-      return shopifyOrderFulfillResponse;
+      fulfillResults.push(shopifyOrderFulfillResponse);
     }
-    
+
+    return {
+      success: true,
+      result: {
+        message: `Actioned ${ fulfillResults.length } fulfillment${ fulfillResults.length === 1 ? '' : 's' }`,
+        fulfillResults,
+      },
+    };
   }
 
   return { 
