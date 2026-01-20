@@ -3,7 +3,7 @@ const {
   REGIONS_LOGIWA,
 } = require('../constants');
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, askQuestion } = require('../utils');
 
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 
@@ -20,10 +20,14 @@ const collabsOrderFulfillmentFind = async (
 
   if (REGIONS_LOGIWA.includes(store)) {
     const logiwaOrderResponse = await logiwaOrderGet({ orderCode: orderIdentifier.orderName });
+
     const { success: logiwaOrderSuccess, result: logiwaOrder } = logiwaOrderResponse;
     if (!logiwaOrderSuccess) {
       return { success: false, error: logiwaOrderResponse.error };
     }
+
+    logDeep(logiwaOrder);
+    await askQuestion('?');
   }
 
   return { 
