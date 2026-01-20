@@ -36,6 +36,8 @@ const collabsOrderFulfillmentFind = async (
     return shopifyOrderResponse;
   }
 
+  // TODO: Return early if completely fulfilled
+
   const { 
     id: shopifyOrderGid,
     name: shopifyOrderName,
