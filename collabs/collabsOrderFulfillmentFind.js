@@ -6,6 +6,7 @@ const {
 const { funcApi, logDeep, askQuestion, gidToId, arrayToObj } = require('../utils');
 
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
+const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
 
 const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
 
@@ -40,6 +41,7 @@ const collabsOrderFulfillmentFind = async (
           edges {
             node {
               id
+              sku
               unfulfilledQuantity
             }
           }
@@ -126,6 +128,32 @@ const collabsOrderFulfillmentFind = async (
 
       logDeep({ trackingNumber, items });
       await askQuestion('Unfulfilled shipment?');
+
+      const shopifyOrderFulfillResponse = await shopifyOrderFulfill(
+        store,
+        orderIdentifier,
+        {
+          // notifyCustomer, // true or false
+          // originAddress, // { countryCode, ... }
+          trackingInfo: {
+            number: trackingNumber,
+          },
+          
+          externalLineItems: items,
+          externalLineItemsConfig: {
+            extSkuProp: 'productSku',
+            shopifyQuantityProp: 'packQuantity',
+          },
+        },
+      );
+
+      const { success: shopifyOrderFulfillSuccess, result: shopifyOrderFulfillResult } = shopifyOrderFulfillResponse;
+      if (!shopifyOrderFulfillSuccess) {
+        return { success: false, error: shopifyOrderFulfillResponse.error };
+      }
+
+      logDeep({ shopifyOrderFulfillResult });
+      await askQuestion('Continue?');
     }
     
   }

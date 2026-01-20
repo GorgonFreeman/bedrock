@@ -17,6 +17,10 @@ const shopifyOrderFulfill = async (
     trackingInfo, // { number, company, url }
 
     externalLineItems,
+    externalLineItemsConfig = { 
+      extSkuProp: 'skuId',
+      shopifyQuantityProp: 'remainingQuantity', 
+    }, // the options param of shopifyFulfillmentLineItemsFromExternalLineItems
   } = {},
 ) => {
 
@@ -131,10 +135,7 @@ const shopifyOrderFulfill = async (
 
     const shippableLineItems = lineItems?.filter(lineItem => lineItem?.requiresShipping === true);
 
-    fulfillPayloadLineItems = shopifyFulfillmentLineItemsFromExternalLineItems(externalLineItems, shippableLineItems, { 
-      extSkuProp: 'skuId',
-      shopifyQuantityProp: 'remainingQuantity', 
-    });
+    fulfillPayloadLineItems = shopifyFulfillmentLineItemsFromExternalLineItems(externalLineItems, shippableLineItems, externalLineItemsConfig);
   }
 
   const variables = {
