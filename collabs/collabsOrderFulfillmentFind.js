@@ -20,6 +20,27 @@ const makeshiftOriginAddress = (store) => {
   };
 };
 
+const SHOPIFY_ORDER_ATTRS = `
+  id
+  name
+  displayFulfillmentStatus
+  fulfillments(first: 250) {
+    trackingInfo(first: 250) {
+      number
+    }
+    status
+  }
+  lineItems(first: 250) {
+    edges {
+      node {
+        id
+        sku
+        unfulfilledQuantity
+      }
+    }
+  }
+`;
+
 const collabsOrderFulfillmentFind = async (
   store,
   orderIdentifier,
@@ -45,28 +66,7 @@ const collabsOrderFulfillmentFind = async (
       store, 
       orderIdentifier,
       {
-        attrs: `
-          id
-          name
-          displayFulfillmentStatus
-          fulfillments(first: 250) {
-            trackingInfo(first: 250) {
-              company
-              number
-              url
-            }
-            status
-          }
-          lineItems(first: 250) {
-            edges {
-              node {
-                id
-                sku
-                unfulfilledQuantity
-              }
-            }
-          }
-        `,
+        attrs: SHOPIFY_ORDER_ATTRS,
       },
     );
 
@@ -210,6 +210,9 @@ const collabsOrderFulfillmentFindApi = funcApi(collabsOrderFulfillmentFind, {
 module.exports = {
   collabsOrderFulfillmentFind,
   collabsOrderFulfillmentFindApi,
+  collabsOrderFulfillmentFindSchema: {
+    SHOPIFY_ORDER_ATTRS,
+  },
 };
 
 // curl localhost:8000/collabsOrderFulfillmentFind -H "Content-Type: application/json" -d '{ "store": "us", "orderIdentifier": { "orderName": "USA4826603" } }'

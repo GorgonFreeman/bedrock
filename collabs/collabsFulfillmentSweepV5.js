@@ -8,7 +8,7 @@ const { funcApi, logDeep, surveyNestedArrays, Processor, ThresholdActioner, askQ
 
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 
-const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
+const { collabsOrderFulfillmentFind, collabsOrderFulfillmentFindSchema } = require('../collabs/collabsOrderFulfillmentFind');
 
 const collabsFulfillmentSweepV5 = async (
   store,
@@ -18,6 +18,7 @@ const collabsFulfillmentSweepV5 = async (
     shopify: [],
     missing: [],
     unshipped: [],
+    fulfilled: [],
   };
 
   // Calculate date that is 30 minutes ago (orders must be at least half an hour old)
@@ -27,33 +28,7 @@ const collabsFulfillmentSweepV5 = async (
   const shopifyGetter = await shopifyOrdersGetter(
     store,
     {
-      attrs: `
-        id
-        name
-        shippingLine {
-          title
-        }
-        fulfillmentOrders (first: 10) {
-          edges {
-            node {
-              id
-              status
-              lineItems (first: 10) {
-                edges {
-                  node {
-                    id
-                    sku
-                    remainingQuantity
-                  }
-                }
-              }
-            }
-          }
-        }
-        mf_externalFulfillmentIds: metafield(namespace: "shipping", key: "ext_fulfillment_ids") { 
-          value
-        }
-      `,
+      attrs: collabsOrderFulfillmentFindSchema.SHOPIFY_ORDER_ATTRS,
       queries: [
         'created_at:>2025-06-01',
         createdAtFilter,
@@ -78,113 +53,38 @@ const collabsFulfillmentSweepV5 = async (
 
   if (REGIONS_LOGIWA.includes(store)) {
     
-    const logiwaThoroughAssessor = new Processor(
+    const collabsThoroughAssessor = new Processor(
       piles.shopify,
       async (pile) => {
 
         logDeep(surveyNestedArrays(piles));
 
         const shopifyOrder = pile.shift();
-        console.log(`${ store }:logiwaThoroughAssessor:`, piles.shopify.length);
-        const { name: orderName } = shopifyOrder;
 
-        const logiwaOrderResponse = await logiwaOrderGet({ orderCode: orderName });
-        const { success: logiwaOrderSuccess, result: logiwaOrder } = logiwaOrderResponse;
-        if (!logiwaOrderSuccess) {
+        const fulfillmentFindResponse = await collabsOrderFulfillmentFind(store, { orderName: shopifyOrder.name }, { suppliedData: { shopifyOrder } });
+        logDeep({ fulfillmentFindResponse });
+        await askQuestion('?');
 
-          if (logiwaOrderResponse?.error?.every(error => error === 'Order not found')) {
-            piles.missing.push(shopifyOrder);
-            return;
-          }
-
-          logDeep({ 
-            logiwaOrderResponse,
-          });
-          await askQuestion('?');
-
-          // piles.errors.push(shopifyOrder);
-          // return;
-        }
-        
-        if (!logiwaOrder) {
-          logDeep({ 
-            logiwaOrderResponse,
-          });
-          await askQuestion('?');
-          // piles.errors.push(shopifyOrder);
-          // return;
-        }
-
-        const { 
-          shipmentOrderStatusName,
-        } = logiwaOrder;
-
-        if (shipmentOrderStatusName !== 'Shipped') {
-          console.log({ shipmentOrderStatusName });
-          piles.unshipped.push(shopifyOrder);
+        const { success: fulfillmentFindSuccess, result: fulfillmentFindResult } = fulfillmentFindResponse;
+        if (!fulfillmentFindSuccess) {
+          // piles.fulfilled.push(fulfillmentFindResponse);
           return;
         }
 
-        logDeep({ 
-          shipmentOrderStatusName,
-          logiwaOrderResponse,
-        });
-        await askQuestion('?');
-        
-        // const {
-        //   trackingNumbers,
-        //   products,
-        // } = logiwaOrder;
-        
-        // if (trackingNumbers?.length !== 1) {
-        //   console.error(logiwaOrder);
-        //   console.error(`Oh no, ${ trackingNumbers?.length } tracking numbers found for ${ logiwaOrder.code }`);
-        //   return;
-        // }
-
-        // const trackingNumber = trackingNumbers[0];
-    
-        // const allShipped = products.every(product => product.shippedUOMQuantity === product.quantity);
-    
-        // if (!trackingNumber || !allShipped) {
-        //   logDeep(`Logiwa something wrong`, { trackingNumber, allShipped }, logiwaOrder);
-        //   return;
-        // }
-    
-        // const fulfillPayload = {
-        //   originAddress: {
-        //     // Logiwa, therefore US
-        //     countryCode: 'US',
-        //   },
-        //   trackingInfo: {
-        //     number: trackingNumber,
-        //   },
-        // };
-    
-        // piles.shopifyOrderFulfill.push([
-        //   store,
-        //   { orderName: logiwaOrder.code },
-        //   {
-        //     notifyCustomer: true,
-        //     ...fulfillPayload,
-        //   },
-        // ]);        
+        // piles.fulfilled.push(fulfillmentFindResponse);
       },
       pile => pile.length === 0,
       {
         canFinish: false,
-        logFlavourText: `${ store }:logiwaThoroughAssessor:`,
-        runOptions: {
-          interval: 1,
-        },
+        logFlavourText: `${ store }:collabsThoroughAssessor:`,
       },
     );
 
     shopifyGetter.on('done', () => {
-      logiwaThoroughAssessor.canFinish = true;
+      collabsThoroughAssessor.canFinish = true;
     });
 
-    assessors.push(logiwaThoroughAssessor);
+    assessors.push(collabsThoroughAssessor);
   }
 
   await Promise.all([
