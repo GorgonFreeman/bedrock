@@ -10,6 +10,16 @@ const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
 
 const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
 
+const makeshiftOriginAddress = (store) => {
+  return {
+    countryCode: {
+      au: 'AU',
+      uk: 'GB',
+      us: 'US',
+    }[store],
+  };
+};
+
 const collabsOrderFulfillmentFind = async (
   store,
   orderIdentifier,
@@ -134,7 +144,7 @@ const collabsOrderFulfillmentFind = async (
         orderIdentifier,
         {
           // notifyCustomer, // true or false
-          // originAddress, // { countryCode, ... }
+          originAddress: makeshiftOriginAddress(store),
           trackingInfo: {
             number: trackingNumber,
           },
