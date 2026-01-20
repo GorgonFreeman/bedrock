@@ -4,7 +4,7 @@ const {
   HOSTED,
   REGIONS_LOGIWA,
 } = require('../constants');
-const { funcApi, logDeep, surveyNestedArrays, Processor, ThresholdActioner, askQuestion, minutes } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor, ThresholdActioner, askQuestion, minutes, standardErrorIs } = require('../utils');
 
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 
@@ -62,14 +62,22 @@ const collabsFulfillmentSweepV5 = async (
         const shopifyOrder = pile.shift();
 
         const fulfillmentFindResponse = await collabsOrderFulfillmentFind(store, { orderName: shopifyOrder.name }, { suppliedData: { shopifyOrder } });
+
+        const { success: fulfillmentFindSuccess, result: fulfillmentFindResult, error: fulfillmentFindError } = fulfillmentFindResponse;
+
+        if (!fulfillmentFindSuccess) {
+
+          if (standardErrorIs(fulfillmentFindError, e => e === 'Order not found')) {
+            piles.missing.push(shopifyOrder);
+            return;
+          }
+
+          // piles.fulfilled.push(fulfillmentFindResponse);
+          // return;
+        }
+
         logDeep({ fulfillmentFindResponse });
         await askQuestion('?');
-
-        const { success: fulfillmentFindSuccess, result: fulfillmentFindResult } = fulfillmentFindResponse;
-        if (!fulfillmentFindSuccess) {
-          // piles.fulfilled.push(fulfillmentFindResponse);
-          return;
-        }
 
         // piles.fulfilled.push(fulfillmentFindResponse);
       },

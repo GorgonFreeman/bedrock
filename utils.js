@@ -1895,6 +1895,8 @@ class MultiDex {
   }
 }
 
+const standardErrorIs = (standardError, evaluator) => standardError.every(e => evaluator(e));
+
 module.exports = {
 
   // Really core
@@ -1959,6 +1961,7 @@ module.exports = {
   surveyNestedArrays,
   groupObjectsByFields,
   camelToReadable,
+  standardErrorIs,
   
   // Classes
   CustomAxiosClient,
