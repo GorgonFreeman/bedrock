@@ -97,6 +97,9 @@ const collabsFulfillmentSweepV5 = async (
       {
         canFinish: false,
         logFlavourText: `${ store }:collabsThoroughAssessor:`,
+        runOptions: {
+          interval: 1,
+        },
       },
     );
 
