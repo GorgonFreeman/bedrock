@@ -57,6 +57,8 @@ const collabsOrderFulfillmentFind = async (
     id: shopifyOrderGid,
     name: shopifyOrderName,
     displayFulfillmentStatus,
+    fulfillments,
+    lineItems,
   } = shopifyOrder;
   const shopifyOrderId = gidToId(shopifyOrderGid);
 
@@ -74,6 +76,17 @@ const collabsOrderFulfillmentFind = async (
       },
     };
   }
+
+  logDeep({ shopifyOrder });
+  await askQuestion('?');
+
+  const trackingNumbersSeen = fulfillments.map(f => f.trackingInfo.map(t => t.number)).flat();
+  logDeep({ trackingNumbersSeen });
+  await askQuestion('?');
+
+  const outstandingLineItems = lineItems.filter(li => li.unfulfilledQuantity > 0);
+  logDeep({ outstandingLineItems });
+  await askQuestion('?');
 
   if (REGIONS_LOGIWA.includes(store)) {
     const logiwaOrderResponse = await logiwaOrderGet({ orderCode: shopifyOrderName });
