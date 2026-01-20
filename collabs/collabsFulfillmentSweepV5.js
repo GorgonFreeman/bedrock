@@ -52,6 +52,7 @@ const collabsFulfillmentSweepV5 = async (
       `,
       queries: [
         'created_at:>2025-06-01',
+        createdAtFilter,
         'fulfillment_status:unshipped',
         'status:open',
         'delivery_method:shipping',
@@ -60,6 +61,7 @@ const collabsFulfillmentSweepV5 = async (
       reverse: true,
 
       onItems: (items) => {
+        // logDeep(items);
         piles.shopify.push(...items);
       },
   
