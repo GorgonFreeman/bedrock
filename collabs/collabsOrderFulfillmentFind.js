@@ -28,7 +28,7 @@ const collabsOrderFulfillmentFind = async (
 
   return { 
     success: false,
-    error: ['Inconclusive'],
+    error: ['No fulfillment found, order not conclusively disqualified'],
   };
   
 };
