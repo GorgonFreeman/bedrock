@@ -152,7 +152,7 @@ const collabsOrderFulfillmentFind = async (
           externalLineItems: items,
           externalLineItemsConfig: {
             extSkuProp: 'productSku',
-            shopifyQuantityProp: 'packQuantity',
+            extQuantityProp: 'packQuantity',
           },
         },
       );
@@ -163,7 +163,8 @@ const collabsOrderFulfillmentFind = async (
       }
 
       logDeep({ shopifyOrderFulfillResult });
-      await askQuestion('Continue?');
+
+      return shopifyOrderFulfillResponse;
     }
     
   }

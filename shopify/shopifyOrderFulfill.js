@@ -17,9 +17,10 @@ const shopifyOrderFulfill = async (
     trackingInfo, // { number, company, url }
 
     externalLineItems,
+    // TODO: Remove opinionated default
     externalLineItemsConfig = { 
       extSkuProp: 'skuId',
-      shopifyQuantityProp: 'remainingQuantity', 
+      extQuantityProp: 'quantity', 
     }, // the options param of shopifyFulfillmentLineItemsFromExternalLineItems
   } = {},
 ) => {
@@ -133,9 +134,16 @@ const shopifyOrderFulfill = async (
       };
     }
 
-    const shippableLineItems = lineItems?.filter(lineItem => lineItem?.requiresShipping === true);
+    const shippableLineItems = lineItems.filter(lineItem => lineItem.requiresShipping === true);
 
     fulfillPayloadLineItems = shopifyFulfillmentLineItemsFromExternalLineItems(externalLineItems, shippableLineItems, externalLineItemsConfig);
+
+    if (!fulfillPayloadLineItems?.length) {
+      return {
+        success: false,
+        error: ['No fulfillable line items found'],
+      };
+    }
   }
 
   const variables = {

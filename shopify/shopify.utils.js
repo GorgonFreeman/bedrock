@@ -321,7 +321,7 @@ const shopifyFulfillmentLineItemsFromExternalLineItems = (externalLineItems, sho
   extSkuProp = 'sku', 
   extQuantityProp = 'quantity',
   shopifySkuProp = 'sku',
-  shopifyQuantityProp = 'unfulfilledQuantity',
+  shopifyQuantityProp = 'remainingQuantity',
 } = {}) => {
   
   const fulfillmentLineItemsObject = {};
@@ -332,6 +332,11 @@ const shopifyFulfillmentLineItemsFromExternalLineItems = (externalLineItems, sho
       [extSkuProp]: extSku,
       [extQuantityProp]: extQuantity,
     } = externalLineItem;
+
+    if (!extSku || !extQuantity) {
+      logDeep({ externalLineItems, extSkuProp, extQuantityProp });
+      throw new Error(`External sku and quantity not working`);
+    }
 
     for (const shopifyLineItem of shopifyLineItems.filter(i => i[shopifyQuantityProp] >= 0)) {
       const {
