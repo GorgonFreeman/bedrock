@@ -17,6 +17,7 @@ const collabsFulfillmentSweepV5 = async (
   piles = {
     shopify: [],
     missing: [],
+    unshipped: [],
   };
 
   const shopifyGetter = await shopifyOrdersGetter(
@@ -104,18 +105,20 @@ const collabsFulfillmentSweepV5 = async (
           // return;
         }
 
+        const { 
+          shipmentOrderStatusName,
+        } = logiwaOrder;
+
+        if (shipmentOrderStatusName !== 'Shipped') {
+          piles.unshipped.push(shopifyOrder);
+          return;
+        }
+
         logDeep({ 
+          shipmentOrderStatusName,
           logiwaOrderResponse,
         });
         await askQuestion('?');
-
-        // const {
-        //   shipmentOrderStatusName,
-        // } = logiwaOrder;
-
-        // if (shipmentOrderStatusName !== 'Shipped') {
-        //   return;
-        // }
         
         // const {
         //   trackingNumbers,
