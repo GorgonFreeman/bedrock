@@ -4,6 +4,8 @@ const { respond, mandateParam, logDeep, askQuestion } = require('../utils');
 const { shopifyClient, shopifyFulfillmentLineItemsFromExternalLineItems } = require('../shopify/shopify.utils');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 
+const maxLineItemsHandleable = 250;
+
 const shopifyOrderFulfill = async (
   credsPath,
   orderIdentifier,
@@ -30,7 +32,7 @@ const shopifyOrderFulfill = async (
           id
           requestStatus
           ${ externalLineItems ? `
-            lineItems (first: 100) {
+            lineItems (first: ${ maxLineItemsHandleable }) {
               edges {
                 node {
                   id
@@ -120,10 +122,10 @@ const shopifyOrderFulfill = async (
 
     const { lineItems } = fulfillmentOrder;
 
-    if (lineItems.length >= 100) {
+    if (lineItems.length >= maxLineItemsHandleable) {
       return {
         success: false,
-        error: ['Order could have >100 line items, so this function is not equipped to handle it'],
+        error: [`Order could have >${ maxLineItemsHandleable } line items, so this function is not equipped to handle it`],
       };
     }
 
