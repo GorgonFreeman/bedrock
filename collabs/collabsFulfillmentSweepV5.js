@@ -81,6 +81,9 @@ const collabsFulfillmentSweepV5 = async (
     const logiwaThoroughAssessor = new Processor(
       piles.shopify,
       async (pile) => {
+
+        logDeep(surveyNestedArrays(piles));
+
         const shopifyOrder = pile.shift();
         console.log(`${ store }:logiwaThoroughAssessor:`, piles.shopify.length);
         const { name: orderName } = shopifyOrder;
@@ -98,6 +101,7 @@ const collabsFulfillmentSweepV5 = async (
             logiwaOrderResponse,
           });
           await askQuestion('?');
+
           // piles.errors.push(shopifyOrder);
           // return;
         }
@@ -116,6 +120,7 @@ const collabsFulfillmentSweepV5 = async (
         } = logiwaOrder;
 
         if (shipmentOrderStatusName !== 'Shipped') {
+          console.log({ shipmentOrderStatusName });
           piles.unshipped.push(shopifyOrder);
           return;
         }
@@ -169,9 +174,9 @@ const collabsFulfillmentSweepV5 = async (
       {
         canFinish: false,
         logFlavourText: `${ store }:logiwaThoroughAssessor:`,
-        // runOptions: {
-        //   interval: 20,
-        // },
+        runOptions: {
+          interval: 1,
+        },
       },
     );
 
