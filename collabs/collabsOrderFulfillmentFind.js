@@ -36,7 +36,7 @@ const collabsOrderFulfillmentFind = async (
 
   let shopifyOrder;
 
-  if (dataSupplied['shopifyOrder']) {
+  if (dataSupplied?.['shopifyOrder']) {
     shopifyOrder = dataSupplied['shopifyOrder'];
   }
   
@@ -111,7 +111,7 @@ const collabsOrderFulfillmentFind = async (
 
   if (REGIONS_LOGIWA.includes(store)) {
 
-    let logiwaOrder = dataSupplied['logiwaOrder'];
+    let logiwaOrder = dataSupplied?.['logiwaOrder'];
 
     if (!logiwaOrder) {
       const logiwaOrderResponse = await logiwaOrderGet({ orderCode: shopifyOrderName });
