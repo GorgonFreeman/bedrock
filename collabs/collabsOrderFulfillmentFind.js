@@ -101,13 +101,13 @@ const collabsOrderFulfillmentFind = async (
     };
   }
 
-  logDeep({ shopifyOrder });
+  // logDeep({ shopifyOrder });
 
   const trackingNumbersSeen = fulfillments.map(f => f.trackingInfo.map(t => t.number)).flat();
-  logDeep({ trackingNumbersSeen });
+  // logDeep({ trackingNumbersSeen });
 
   const outstandingLineItems = lineItems.filter(li => li.unfulfilledQuantity > 0);
-  logDeep({ outstandingLineItems });
+  // logDeep({ outstandingLineItems });
 
   if (REGIONS_LOGIWA.includes(store)) {
 
@@ -156,8 +156,8 @@ const collabsOrderFulfillmentFind = async (
         continue;
       }
 
-      logDeep({ trackingNumber, items });
-      await askQuestion('Unfulfilled shipment?');
+      // logDeep({ trackingNumber, items });
+      // await askQuestion('Unfulfilled shipment?');
 
       const shopifyOrderFulfillResponse = await shopifyOrderFulfill(
         store,
@@ -182,7 +182,7 @@ const collabsOrderFulfillmentFind = async (
         return { success: false, error: shopifyOrderFulfillResponse.error };
       }
 
-      logDeep({ shopifyOrderFulfillResult });
+      // logDeep({ shopifyOrderFulfillResult });
 
       fulfillResults.push(shopifyOrderFulfillResponse);
     }
