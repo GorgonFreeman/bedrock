@@ -7,6 +7,8 @@ const { funcApi, logDeep, askQuestion, gidToId } = require('../utils');
 
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 
+const { logiwaOrderGet } = require('../logiwa/logiwaOrderGet');
+
 const collabsOrderFulfillmentFind = async (
   store,
   orderIdentifier,
