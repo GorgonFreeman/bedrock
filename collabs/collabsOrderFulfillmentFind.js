@@ -86,6 +86,8 @@ const collabsOrderFulfillmentFind = async (
   } = shopifyOrder;
   const shopifyOrderId = gidToId(shopifyOrderGid);
 
+  console.log(shopifyOrderName);
+
   const DONE_STATUSES = [
     'FULFILLED',
   ];
@@ -158,6 +160,25 @@ const collabsOrderFulfillmentFind = async (
 
       // logDeep({ trackingNumber, items });
       // await askQuestion('Unfulfilled shipment?');
+
+      logDeep({
+        store,
+        orderIdentifier,
+        options: {
+          // notifyCustomer, // true or false
+          originAddress: makeshiftOriginAddress(store),
+          trackingInfo: {
+            number: trackingNumber,
+          },
+          
+          externalLineItems: items,
+          externalLineItemsConfig: {
+            extSkuProp: 'productSku',
+            extQuantityProp: 'packQuantity',
+          },
+        },
+      });
+      await askQuestion('?');
 
       const shopifyOrderFulfillResponse = await shopifyOrderFulfill(
         store,
