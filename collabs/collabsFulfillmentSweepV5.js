@@ -4,7 +4,7 @@ const {
   HOSTED,
   REGIONS_LOGIWA,
 } = require('../constants');
-const { funcApi, logDeep, surveyNestedArrays, Processor, ThresholdActioner, askQuestion } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor, ThresholdActioner, askQuestion, minutes } = require('../utils');
 
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 
@@ -19,6 +19,10 @@ const collabsFulfillmentSweepV5 = async (
     missing: [],
     unshipped: [],
   };
+
+  // Calculate date that is 30 minutes ago (orders must be at least half an hour old)
+  const thirtyMinutesAgo = new Date(Date.now() - minutes(30));
+  const createdAtFilter = `created_at:<${ thirtyMinutesAgo.toISOString().split('.')[0] }`;
 
   const shopifyGetter = await shopifyOrdersGetter(
     store,
