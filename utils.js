@@ -1648,11 +1648,21 @@ const objToArray = (obj, { keyProp = 'key', valueProp = 'value' } = {}) => {
   }));
 };
 
-// TODO: Consider allowing arrays for non-unique key props
-const arrayToObj = (arr, { uniqueKeyProp = 'key', keepOnlyValueProp } = {}) => {
+// uniqueByKeyProp returns a simple object with key and value pairs
+// non-unique returns an object with arrays per key
+const arrayToObj = (arr, { keyProp = 'key', keepOnlyValueProp, uniqueByKeyProp = true } = {}) => {
   return arr.reduce((obj, item) => {
-    const { [uniqueKeyProp]: key, ...rest } = item;
-    obj[key] = keepOnlyValueProp ? rest[keepOnlyValueProp] : rest;
+    const { [keyProp]: key, ...rest } = item;
+
+    const value = keepOnlyValueProp ? rest[keepOnlyValueProp] : rest;
+
+    if (uniqueByKeyProp) {
+      obj[key] = value;
+    } else {
+      obj[key] = obj[key] || [];
+      obj[key].push(value);
+    }
+    
     return obj;
   }, {});
 };

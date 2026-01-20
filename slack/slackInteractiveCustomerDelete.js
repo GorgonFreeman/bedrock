@@ -116,7 +116,7 @@ const slackInteractiveCustomerDelete = async (req, res) => {
   const {
     blocks: currentBlocks,
   } = message;
-  const currentBlocksById = arrayToObj(currentBlocks, { uniqueKeyProp: 'block_id' });
+  const currentBlocksById = arrayToObj(currentBlocks, { keyProp: 'block_id' });
 
   const { 
     response_url: responseUrl,

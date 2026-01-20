@@ -182,7 +182,7 @@ const collabsInventoryReview = async (
     if (logiwaRelevant) {
       // Export from: https://fasttrack.radial.com/en/wms/report/available-to-promise
       wmsInventoryObj = arrayToObj(wmsExport, { 
-        uniqueKeyProp: 'SKU', 
+        keyProp: 'SKU', 
         keepOnlyValueProp: 'Sellable Qty', 
       });
     }
@@ -217,7 +217,7 @@ const collabsInventoryReview = async (
         return pvxInventoryResponse;
       }
   
-      wmsInventoryObj = arrayToObj(pvxInventory, { uniqueKeyProp: 'Item code', keepOnlyValueProp: 'Available' });
+      wmsInventoryObj = arrayToObj(pvxInventory, { keyProp: 'Item code', keepOnlyValueProp: 'Available' });
     }
   
     if (logiwaRelevant) {
@@ -241,7 +241,7 @@ const collabsInventoryReview = async (
         return logiwaReportResponse;
       }
   
-      wmsInventoryObj = arrayToObj(logiwaInventory, { uniqueKeyProp: 'productSku', keepOnlyValueProp: 'sellableQuantity' });
+      wmsInventoryObj = arrayToObj(logiwaInventory, { keyProp: 'productSku', keepOnlyValueProp: 'sellableQuantity' });
       */
 
       if (skus) {
@@ -267,7 +267,7 @@ const collabsInventoryReview = async (
 
         logiwaInventory = logiwaInventory.flat();
     
-        wmsInventoryObj = arrayToObj(logiwaInventory, { uniqueKeyProp: 'productSku', keepOnlyValueProp: 'sellableQuantity' });
+        wmsInventoryObj = arrayToObj(logiwaInventory, { keyProp: 'productSku', keepOnlyValueProp: 'sellableQuantity' });
 
       } else {
 
