@@ -49,6 +49,21 @@ const collabsOrderFulfillmentFind = async (
     if (!logiwaOrderSuccess) {
       return { success: false, error: logiwaOrderResponse.error };
     }
+    
+    // TODO: Centralise Logiwa fulfillment logic for use in sweeps
+    // TODO: Consider if the order being found not shipped should be a success or failure
+    const {
+      shipmentOrderStatusName,
+    } = logiwaOrder;
+
+    if (shipmentOrderStatusName !== 'Shipped') {
+      return { 
+        success: true, 
+        result: {
+          message: 'Order not shipped',
+        },
+      };
+    }
 
     logDeep(logiwaOrder);
     await askQuestion('?');
