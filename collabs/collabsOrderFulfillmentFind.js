@@ -3,7 +3,7 @@ const {
   REGIONS_LOGIWA,
 } = require('../constants');
 
-const { funcApi, logDeep, askQuestion, gidToId } = require('../utils');
+const { funcApi, logDeep, askQuestion, gidToId, arrayToObj } = require('../utils');
 
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 
@@ -56,6 +56,7 @@ const collabsOrderFulfillmentFind = async (
     // TODO: Consider if the order being found not shipped should be a success or failure
     const {
       shipmentOrderStatusName,
+      shipmentInfo,
     } = logiwaOrder;
 
     if (shipmentOrderStatusName !== 'Shipped') {
@@ -67,8 +68,18 @@ const collabsOrderFulfillmentFind = async (
       };
     }
 
-    logDeep(logiwaOrder);
+    if (!shipmentInfo?.length) {
+      return { 
+        success: false, 
+        error: ['No shipments found'],
+      };
+    }
+
+    const itemsByShipment = arrayToObj(shipmentInfo, { keyProp: 'carrierPackageReference', uniqueByKeyProp: false });
+
+    logDeep({ itemsByShipment });
     await askQuestion('?');
+    
   }
 
   return { 
