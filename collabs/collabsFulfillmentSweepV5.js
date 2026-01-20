@@ -50,65 +50,62 @@ const collabsFulfillmentSweepV5 = async (
 
   const wmsGetters = [];
   const assessors = [];
-
-  if (REGIONS_LOGIWA.includes(store)) {
     
-    const collabsThoroughAssessor = new Processor(
-      piles.shopify,
-      async (pile) => {
+  const collabsThoroughAssessor = new Processor(
+    piles.shopify,
+    async (pile) => {
 
-        logDeep(surveyNestedArrays(piles));
+      logDeep(surveyNestedArrays(piles));
 
-        const shopifyOrder = pile.shift();
+      const shopifyOrder = pile.pop();
 
-        const fulfillmentFindResponse = await collabsOrderFulfillmentFind(store, { orderName: shopifyOrder.name }, { suppliedData: { shopifyOrder } });
+      const fulfillmentFindResponse = await collabsOrderFulfillmentFind(store, { orderName: shopifyOrder.name }, { suppliedData: { shopifyOrder } });
 
-        const { success: fulfillmentFindSuccess, result: fulfillmentFindResult, error: fulfillmentFindError } = fulfillmentFindResponse;
+      const { success: fulfillmentFindSuccess, result: fulfillmentFindResult, error: fulfillmentFindError } = fulfillmentFindResponse;
 
-        if (!fulfillmentFindSuccess) {
+      if (!fulfillmentFindSuccess) {
 
-          if (standardErrorIs(fulfillmentFindError, e => e === 'Order not found')) {
-            piles.missing.push(shopifyOrder);
-            return;
-          }
-
-          // piles.fulfilled.push(fulfillmentFindResponse);
-          // return;
-        }
-
-        const { message, fulfillResults } = fulfillmentFindResult;
-
-        if (message === 'Order not shipped') {
-          piles.unshipped.push(shopifyOrder);
+        if (standardErrorIs(fulfillmentFindError, e => e === 'Order not found')) {
+          piles.missing.push(shopifyOrder);
           return;
         }
-
-        if (fulfillResults?.length) {
-          piles.fulfilled.push(shopifyOrder);
-          return;
-        }
-
-        logDeep({ fulfillmentFindResponse });
-        await askQuestion('?');
 
         // piles.fulfilled.push(fulfillmentFindResponse);
-      },
-      pile => pile.length === 0,
-      {
-        canFinish: false,
-        logFlavourText: `${ store }:collabsThoroughAssessor:`,
-        runOptions: {
-          interval: 1,
-        },
-      },
-    );
+        // return;
+      }
 
-    shopifyGetter.on('done', () => {
-      collabsThoroughAssessor.canFinish = true;
-    });
+      const { message, fulfillResults } = fulfillmentFindResult;
 
-    assessors.push(collabsThoroughAssessor);
-  }
+      if (message === 'Order not shipped') {
+        piles.unshipped.push(shopifyOrder);
+        return;
+      }
+
+      if (fulfillResults?.length) {
+        piles.fulfilled.push(shopifyOrder);
+        return;
+      }
+
+      logDeep({ fulfillmentFindResponse });
+      await askQuestion('?');
+
+      // piles.fulfilled.push(fulfillmentFindResponse);
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+      logFlavourText: `${ store }:collabsThoroughAssessor:`,
+      runOptions: {
+        interval: 1,
+      },
+    },
+  );
+
+  shopifyGetter.on('done', () => {
+    collabsThoroughAssessor.canFinish = true;
+  });
+
+  assessors.push(collabsThoroughAssessor);
 
   await Promise.all([
     shopifyGetter.run({ verbose: !HOSTED }),
