@@ -75,9 +75,9 @@ const collabsOrderFulfillmentFind = async (
       };
     }
 
-    const itemsByShipment = arrayToObj(shipmentInfo, { keyProp: 'carrierPackageReference', uniqueByKeyProp: false });
+    const itemsByTrackingNumber = arrayToObj(shipmentInfo, { keyProp: 'trackingNumber', uniqueByKeyProp: false });
 
-    logDeep({ itemsByShipment });
+    logDeep({ itemsByTrackingNumber });
     await askQuestion('?');
     
   }
