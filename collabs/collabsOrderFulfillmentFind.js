@@ -1,16 +1,34 @@
-const { funcApi } = require('../utils');
+const {
+  HOSTED,
+  REGIONS_LOGIWA,
+} = require('../constants');
+
+const { funcApi, logDeep } = require('../utils');
+
+const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 
 const collabsOrderFulfillmentFind = async (
   store,
   orderIdentifier,
 ) => {
 
+  if (![
+    REGIONS_LOGIWA,
+  ].some(regionList => regionList.includes(store))) {
+    return { success: false, error: [`No platforms supported for store ${ store }`] };
+  }
+
+  if (REGIONS_LOGIWA.includes(store)) {
+    const logiwaOrderResponse = await logiwaOrderGet({ orderCode: orderIdentifier.orderName });
+    const { success: logiwaOrderSuccess, result: logiwaOrder } = logiwaOrderResponse;
+    if (!logiwaOrderSuccess) {
+      return { success: false, error: logiwaOrderResponse.error };
+    }
+  }
+
   return { 
-    success: true,
-    result: {
-      store,
-      orderIdentifier,
-    },
+    success: false,
+    error: ['Inconclusive'],
   };
   
 };
