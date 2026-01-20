@@ -28,6 +28,22 @@ const collabsOrderFulfillmentFind = async (
         id
         name
         displayFulfillmentStatus
+        fulfillments(first: 250) {
+          trackingInfo(first: 250) {
+            company
+            number
+            url
+          }
+          status
+        }
+        lineItems(first: 250) {
+          edges {
+            node {
+              id
+              unfulfilledQuantity
+            }
+          }
+        }
       `,
     },
   );
