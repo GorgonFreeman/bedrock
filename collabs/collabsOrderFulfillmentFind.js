@@ -118,8 +118,15 @@ const collabsOrderFulfillmentFind = async (
 
     const itemsByTrackingNumber = arrayToObj(shipmentInfo, { keyProp: 'trackingNumber', uniqueByKeyProp: false });
 
-    logDeep({ itemsByTrackingNumber });
-    await askQuestion('?');
+    for (const [trackingNumber, items] of Object.entries(itemsByTrackingNumber)) {
+
+      if (trackingNumbersSeen.includes(trackingNumber)) {
+        continue;
+      }
+
+      logDeep({ trackingNumber, items });
+      await askQuestion('Unfulfilled shipment?');
+    }
     
   }
 
