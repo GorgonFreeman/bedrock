@@ -23,6 +23,9 @@ const makeshiftOriginAddress = (store) => {
 const collabsOrderFulfillmentFind = async (
   store,
   orderIdentifier,
+  {
+    dataSupplied, // Provide this instead of fetching, if desirable.
+  } = {},
 ) => {
 
   if (![
@@ -31,38 +34,47 @@ const collabsOrderFulfillmentFind = async (
     return { success: false, error: [`No platforms supported for store ${ store }`] };
   }
 
-  const shopifyOrderResponse = await shopifyOrderGet(
-    store, 
-    orderIdentifier,
-    {
-      attrs: `
-        id
-        name
-        displayFulfillmentStatus
-        fulfillments(first: 250) {
-          trackingInfo(first: 250) {
-            company
-            number
-            url
+  let shopifyOrder;
+
+  if (dataSupplied['shopifyOrder']) {
+    shopifyOrder = dataSupplied['shopifyOrder'];
+  }
+  
+  if (!shopifyOrder) {
+    const shopifyOrderResponse = await shopifyOrderGet(
+      store, 
+      orderIdentifier,
+      {
+        attrs: `
+          id
+          name
+          displayFulfillmentStatus
+          fulfillments(first: 250) {
+            trackingInfo(first: 250) {
+              company
+              number
+              url
+            }
+            status
           }
-          status
-        }
-        lineItems(first: 250) {
-          edges {
-            node {
-              id
-              sku
-              unfulfilledQuantity
+          lineItems(first: 250) {
+            edges {
+              node {
+                id
+                sku
+                unfulfilledQuantity
+              }
             }
           }
-        }
-      `,
-    },
-  );
+        `,
+      },
+    );
 
-  const { success: shopifyOrderSuccess, result: shopifyOrder } = shopifyOrderResponse;
-  if (!shopifyOrderSuccess) {
-    return shopifyOrderResponse;
+    const { success: shopifyOrderSuccess, result: shopifyOrderResult } = shopifyOrderResponse;
+    if (!shopifyOrderSuccess) {
+      return shopifyOrderResponse;
+    }
+    shopifyOrder = shopifyOrderResult;
   }
 
   const { 
@@ -98,12 +110,18 @@ const collabsOrderFulfillmentFind = async (
   logDeep({ outstandingLineItems });
 
   if (REGIONS_LOGIWA.includes(store)) {
-    const logiwaOrderResponse = await logiwaOrderGet({ orderCode: shopifyOrderName });
 
-    const { success: logiwaOrderSuccess, result: logiwaOrder } = logiwaOrderResponse;
-    if (!logiwaOrderSuccess) {
-      return { success: false, error: logiwaOrderResponse.error };
-    }
+    let logiwaOrder = dataSupplied['logiwaOrder'];
+
+    if (!logiwaOrder) {
+      const logiwaOrderResponse = await logiwaOrderGet({ orderCode: shopifyOrderName });
+
+      const { success: logiwaOrderSuccess, result: logiwaOrderResult } = logiwaOrderResponse;
+      if (!logiwaOrderSuccess) {
+        return logiwaOrderResponse;
+      }
+      logiwaOrder = logiwaOrderResult;
+    }    
     
     // TODO: Centralise Logiwa fulfillment logic for use in sweeps
     // TODO: Consider if the order being found not shipped should be a success or failure
@@ -177,7 +195,7 @@ const collabsOrderFulfillmentFind = async (
 };
 
 const collabsOrderFulfillmentFindApi = funcApi(collabsOrderFulfillmentFind, {
-  argNames: ['store', 'orderIdentifier'],
+  argNames: ['store', 'orderIdentifier', 'options'],
 });
 
 module.exports = {
