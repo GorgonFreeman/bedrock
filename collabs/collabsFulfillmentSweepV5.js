@@ -125,6 +125,13 @@ const collabsFulfillmentSweepV5 = async (
           // otherwise discard the logiwa order (leave it shifted)
           return;
         }
+
+        // Remove shopify order from piles
+        const shopifyOrderIndex = piles.shopify.indexOf(shopifyOrder);
+        if (shopifyOrderIndex === -1) {
+          return;
+        }
+        piles.shopify.splice(shopifyOrderIndex, 1);
         
         const { shipmentOrderStatusName } = logiwaOrder;
         if (shipmentOrderStatusName !== 'Shipped') {
