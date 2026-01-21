@@ -96,6 +96,11 @@ const collabsFulfillmentSweepV5 = async (
       {
         createdDateTime_bt: `${ new Date(bulkStartDate).toISOString() },${ new Date().toISOString() }`,
         onItems: (items) => {
+
+          if (shopifyGetterFinished && piles.shopify.length === 0) {
+            logiwaBulkGetter.end();
+          }
+
           piles.logiwaBulk.push(...items);
         },
         logFlavourText: `${ store }:logiwaBulkGetter:`,
