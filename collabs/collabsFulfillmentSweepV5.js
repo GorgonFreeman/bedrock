@@ -16,7 +16,7 @@ const collabsFulfillmentSweepV5 = async (
   store,
 ) => {
 
-  piles = {
+  const piles = {
     shopify: [],
     missing: [],
     unshipped: [],
