@@ -4,7 +4,7 @@ const {
   HOSTED,
   REGIONS_LOGIWA,
 } = require('../constants');
-const { funcApi, logDeep, surveyNestedArrays, Processor, ThresholdActioner, askQuestion, minutes, standardErrorIs, wait, dateTimeFromNow, days } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor, ThresholdActioner, askQuestion, minutes, standardErrorIs, wait, dateTimeFromNow, days, Timer } = require('../utils');
 
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 
@@ -15,6 +15,8 @@ const { logiwaOrdersGetter } = require('../logiwa/logiwaOrdersGet');
 const collabsFulfillmentSweepV5 = async (
   store,
 ) => {
+
+  const timer = new Timer();
 
   const piles = {
     shopify: [],
@@ -219,7 +221,12 @@ const collabsFulfillmentSweepV5 = async (
 
   return { 
     success: true,
-    result: surveyNestedArrays(piles),
+    result: {
+      piles: surveyNestedArrays(piles),
+      metadata: {
+        timeTaken: timer.getTime({ readable: true }),
+      },
+    },
   };
   
 };
