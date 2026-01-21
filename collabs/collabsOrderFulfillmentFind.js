@@ -215,9 +215,22 @@ const collabsOrderFulfillmentFind = async (
       },
     };
   }
+  
+  const tryOrder = new Set();
+  
+  // Prioritise functions where data is supplied
+  if (dataSupplied?.['logiwaOrder']) {
+    tryOrder.add(tryLogiwa);
+  }
+  // ...
 
   if (REGIONS_LOGIWA.includes(store)) {
-    const response = await tryLogiwa();
+    tryOrder.add(tryLogiwa);
+  }
+  // ...
+
+  for (const func of tryOrder) {
+    const response = await func();
     if (response !== undefined) {
       return response;
     }
