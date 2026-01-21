@@ -10,6 +10,8 @@ const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 
 const { collabsOrderFulfillmentFind, collabsOrderFulfillmentFindSchema } = require('../collabs/collabsOrderFulfillmentFind');
 
+const { logiwaOrdersGetter } = require('../logiwa/logiwaOrdersGet');
+
 const collabsFulfillmentSweepV5 = async (
   store,
 ) => {
@@ -45,6 +47,41 @@ const collabsFulfillmentSweepV5 = async (
 
   const wmsGetters = [];
   const assessors = [];
+
+  if (REGIONS_LOGIWA.includes(store)) {
+
+    piles.logiwaBulk = piles.logiwaBulk || [];
+
+    const logiwaBulkGetter = await logiwaOrdersGetter(
+      {
+        onItems: (items) => {
+          piles.logiwaBulk.push(...items);
+        },
+        logFlavourText: `${ store }:logiwaBulkGetter:`,
+      },
+    );
+
+    const logiwaBulkAssessor = new Processor(
+      piles.logiwaBulk,
+      async (pile) => {
+        const logiwaOrder = pile.shift();
+        logDeep(logiwaOrder);
+        await askQuestion('?');
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: false,
+        logFlavourText: `${ store }:logiwaBulkAssessor:`,
+      },
+    );
+
+    logiwaBulkGetter.on('done', () => {
+      logiwaBulkAssessor.canFinish = true;
+    });
+    
+    wmsGetters.push(logiwaBulkGetter);
+    assessors.push(logiwaBulkAssessor);
+  }
     
   const collabsThoroughAssessor = new Processor(
     piles.shopify,
