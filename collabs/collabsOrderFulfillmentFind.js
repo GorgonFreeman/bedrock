@@ -111,8 +111,7 @@ const collabsOrderFulfillmentFind = async (
   const outstandingLineItems = lineItems.filter(li => li.unfulfilledQuantity > 0);
   // logDeep({ outstandingLineItems });
 
-  if (REGIONS_LOGIWA.includes(store)) {
-
+  const tryLogiwa = async () => {
     let logiwaOrder = dataSupplied?.['logiwaOrder'];
 
     if (!logiwaOrder) {
@@ -215,6 +214,13 @@ const collabsOrderFulfillmentFind = async (
         fulfillResults,
       },
     };
+  }
+
+  if (REGIONS_LOGIWA.includes(store)) {
+    const response = await tryLogiwa();
+    if (response !== undefined) {
+      return response;
+    }
   }
 
   return { 
