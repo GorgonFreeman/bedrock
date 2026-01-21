@@ -26,6 +26,37 @@ const collabsFulfillmentSweepV5 = async (
   // Arbitrary date for bulk fetching to start from to get probably-relevant results
   const bulkStartDate = dateTimeFromNow({ minus: days(20), dateOnly: true });
 
+  const handleFulfillmentFindResponse = async (fulfillmentFindResponse, shopifyOrder) => {
+    const { success: fulfillmentFindSuccess, result: fulfillmentFindResult, error: fulfillmentFindError } = fulfillmentFindResponse;
+
+    if (!fulfillmentFindSuccess) {
+
+      if (standardErrorIs(fulfillmentFindError, e => e === 'Order not found')) {
+        piles.missing.push(shopifyOrder);
+        return;
+      }
+
+      // piles.fulfilled.push(fulfillmentFindResponse);
+      // return;
+    }
+
+    const { message, fulfillResults } = fulfillmentFindResult;
+
+    if (message === 'Order not shipped') {
+      piles.unshipped.push(shopifyOrder);
+      return;
+    }
+
+    if (fulfillResults?.length) {
+      piles.fulfilled.push(shopifyOrder);
+      return;
+    }
+    
+    console.log('Unhandled fulfillmentFindResponse');
+    logDeep({ fulfillmentFindResponse });
+    await askQuestion('?');
+  };
+
   let shopifyGetterFinished = false;
 
   const shopifyGetter = await shopifyOrdersGetter(
@@ -77,6 +108,9 @@ const collabsFulfillmentSweepV5 = async (
         
         // Prevent this from clogging up the pipeline with synchronous early returns
         await wait(1);
+
+        logDeep(surveyNestedArrays(piles));
+
         const logiwaOrder = pile.shift();
 
         const shopifyOrder = piles.shopify.find(o => o.name === logiwaOrder.code);
@@ -99,7 +133,24 @@ const collabsFulfillmentSweepV5 = async (
         }
 
         logDeep(logiwaOrder);
-        await askQuestion('?');
+        await askQuestion('Proceed to find fulfillment?');
+
+        const fulfillmentFindResponse = await collabsOrderFulfillmentFind(
+          store, 
+          { 
+            orderName: shopifyOrder.name,
+          }, 
+          { 
+            suppliedData: { 
+              shopifyOrder,
+              logiwaOrder,
+            },
+          },
+        );
+
+        await handleFulfillmentFindResponse(fulfillmentFindResponse, shopifyOrder);
+        
+        return;
       },
       pile => pile.length === 0,
       {
@@ -122,39 +173,13 @@ const collabsFulfillmentSweepV5 = async (
 
       logDeep(surveyNestedArrays(piles));
 
-      const shopifyOrder = pile.pop();
+      const shopifyOrder = pile.shift();
 
       const fulfillmentFindResponse = await collabsOrderFulfillmentFind(store, { orderName: shopifyOrder.name }, { suppliedData: { shopifyOrder } });
 
-      const { success: fulfillmentFindSuccess, result: fulfillmentFindResult, error: fulfillmentFindError } = fulfillmentFindResponse;
+      await handleFulfillmentFindResponse(fulfillmentFindResponse, shopifyOrder);
 
-      if (!fulfillmentFindSuccess) {
-
-        if (standardErrorIs(fulfillmentFindError, e => e === 'Order not found')) {
-          piles.missing.push(shopifyOrder);
-          return;
-        }
-
-        // piles.fulfilled.push(fulfillmentFindResponse);
-        // return;
-      }
-
-      const { message, fulfillResults } = fulfillmentFindResult;
-
-      if (message === 'Order not shipped') {
-        piles.unshipped.push(shopifyOrder);
-        return;
-      }
-
-      if (fulfillResults?.length) {
-        piles.fulfilled.push(shopifyOrder);
-        return;
-      }
-
-      logDeep({ fulfillmentFindResponse });
-      await askQuestion('?');
-
-      // piles.fulfilled.push(fulfillmentFindResponse);
+      return;
     },
     pile => pile.length === 0,
     {
