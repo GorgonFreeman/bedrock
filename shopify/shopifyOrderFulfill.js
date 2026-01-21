@@ -1,5 +1,6 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/fulfillmentCreateV2
 
+const { HOSTED } = require('../constants');
 const { respond, mandateParam, logDeep, askQuestion } = require('../utils');
 const { shopifyClient, shopifyFulfillmentLineItemsFromExternalLineItems } = require('../shopify/shopify.utils');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
@@ -61,7 +62,7 @@ const shopifyOrderFulfill = async (
       attrs: fulfillmentOrderAttrs,
     },
   );
-  logDeep(fulfillmentsResponse);
+  !HOSTED && logDeep(fulfillmentsResponse);
 
   const {
     success: fulfillmentsSuccess,

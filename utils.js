@@ -429,7 +429,7 @@ const getterAsGetFunction = (getterFactory) => async (...args) => {
     errored = errorResponse;
   });
 
-  await getter.run();
+  await getter.run({ verbose: !HOSTED });
 
   if (errored) {
     return errored;
