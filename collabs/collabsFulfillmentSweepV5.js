@@ -4,7 +4,7 @@ const {
   HOSTED,
   REGIONS_LOGIWA,
 } = require('../constants');
-const { funcApi, logDeep, surveyNestedArrays, Processor, ThresholdActioner, askQuestion, minutes, standardErrorIs } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor, ThresholdActioner, askQuestion, minutes, standardErrorIs, wait, dateTimeFromNow, days } = require('../utils');
 
 const { shopifyOrdersGetter } = require('../shopify/shopifyOrdersGet');
 
@@ -22,6 +22,9 @@ const collabsFulfillmentSweepV5 = async (
     unshipped: [],
     fulfilled: [],
   };
+
+  // Arbitrary date for bulk fetching to start from to get probably-relevant results
+  const bulkStartDate = dateTimeFromNow({ minus: days(20), dateOnly: true });
 
   let shopifyGetterFinished = false;
 
@@ -60,6 +63,7 @@ const collabsFulfillmentSweepV5 = async (
 
     const logiwaBulkGetter = await logiwaOrdersGetter(
       {
+        createdDateTime_bt: `${ new Date(bulkStartDate).toISOString() },${ new Date().toISOString() }`,
         onItems: (items) => {
           piles.logiwaBulk.push(...items);
         },
