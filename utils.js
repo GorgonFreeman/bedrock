@@ -1053,6 +1053,7 @@ class Getter extends EventEmitter {
 
   end() {
     this.ended = true;
+    this.emit('done');
   }
 
   // TODO: Interval mode for predictable pagination schemes
