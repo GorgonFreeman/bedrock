@@ -23,6 +23,8 @@ const collabsFulfillmentSweepV5 = async (
     fulfilled: [],
   };
 
+  let shopifyGetterFinished = false;
+
   const shopifyGetter = await shopifyOrdersGetter(
     store,
     {
@@ -39,6 +41,10 @@ const collabsFulfillmentSweepV5 = async (
       onItems: (items) => {
         // logDeep(items);
         piles.shopify.push(...items);
+      },
+
+      onDone: () => {
+        shopifyGetterFinished = true;
       },
   
       logFlavourText: `${ store }:shopifyGetter:`,
@@ -65,6 +71,26 @@ const collabsFulfillmentSweepV5 = async (
       piles.logiwaBulk,
       async (pile) => {
         const logiwaOrder = pile.shift();
+
+        const shopifyOrder = piles.shopify.find(o => o.name === logiwaOrder.code);
+
+        if (!shopifyOrder) {
+
+          // put it back, unless all shopify orders are in
+          if (!shopifyGetterFinished) {
+            piles.logiwaBulk.push(logiwaOrder);
+          }
+          
+          // otherwise discard the logiwa order (leave it shifted)
+          return;
+        }
+        
+        const { shipmentOrderStatusName } = logiwaOrder;
+        if (shipmentOrderStatusName !== 'Shipped') {
+          piles.unshipped.push(shopifyOrder);
+          return;
+        }
+
         logDeep(logiwaOrder);
         await askQuestion('?');
       },
