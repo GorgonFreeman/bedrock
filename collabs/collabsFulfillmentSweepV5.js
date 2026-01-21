@@ -21,17 +21,12 @@ const collabsFulfillmentSweepV5 = async (
     fulfilled: [],
   };
 
-  // Calculate date that is 30 minutes ago (orders must be at least half an hour old)
-  const thirtyMinutesAgo = new Date(Date.now() - minutes(30));
-  const createdAtFilter = `created_at:<${ thirtyMinutesAgo.toISOString().split('.')[0] }`;
-
   const shopifyGetter = await shopifyOrdersGetter(
     store,
     {
       attrs: collabsOrderFulfillmentFindSchema.SHOPIFY_ORDER_ATTRS,
       queries: [
         'created_at:>2025-06-01',
-        createdAtFilter,
         'fulfillment_status:unshipped',
         'status:open',
         'delivery_method:shipping',
