@@ -56,7 +56,7 @@ const collabsFulfillmentSweepV5 = async (
     
     console.log('Unhandled fulfillmentFindResponse');
     logDeep({ fulfillmentFindResponse });
-    await askQuestion('?');
+    !HOSTED && await askQuestion('?');
   };
 
   let shopifyGetterFinished = false;
@@ -116,7 +116,7 @@ const collabsFulfillmentSweepV5 = async (
         // Prevent this from clogging up the pipeline with synchronous early returns
         await wait(1);
 
-        logDeep(surveyNestedArrays(piles));
+        !HOSTED && logDeep(surveyNestedArrays(piles));
 
         const logiwaOrder = pile.shift();
 
@@ -145,9 +145,10 @@ const collabsFulfillmentSweepV5 = async (
           piles.unshipped.push(shopifyOrder);
           return;
         }
-
-        logDeep(logiwaOrder);
-        await askQuestion('Proceed to find fulfillment?');
+        
+        console.log('Logiwa bulk order');
+        logDeep({ logiwaOrder });
+        !HOSTED && await askQuestion('Proceed to find fulfillment?');
 
         const fulfillmentFindResponse = await collabsOrderFulfillmentFind(
           store, 
@@ -170,6 +171,9 @@ const collabsFulfillmentSweepV5 = async (
       {
         canFinish: false,
         logFlavourText: `${ store }:logiwaBulkAssessor:`,
+        runOptions: {
+          verbose: false,
+        },
       },
     );
 
@@ -185,7 +189,7 @@ const collabsFulfillmentSweepV5 = async (
     piles.shopify,
     async (pile) => {
 
-      logDeep(surveyNestedArrays(piles));
+      !HOSTED && logDeep(surveyNestedArrays(piles));
 
       const shopifyOrder = pile.shift();
 
