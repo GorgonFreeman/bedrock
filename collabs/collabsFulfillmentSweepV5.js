@@ -74,6 +74,9 @@ const collabsFulfillmentSweepV5 = async (
     const logiwaBulkAssessor = new Processor(
       piles.logiwaBulk,
       async (pile) => {
+        
+        // Prevent this from clogging up the pipeline with synchronous early returns
+        await wait(1);
         const logiwaOrder = pile.shift();
 
         const shopifyOrder = piles.shopify.find(o => o.name === logiwaOrder.code);
