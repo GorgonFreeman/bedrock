@@ -146,7 +146,7 @@ const shopifyShippingRatesToggle = async (
 };
 
 const shopifyShippingRatesToggleApi = funcApi(shopifyShippingRatesToggle, {
-  argNames: ['credsPath', 'keyword', 'options'],
+  argNames: ['credsPath', 'keyword', 'mode', 'options'],
   allowCrossOrigin: true,
 });
 
