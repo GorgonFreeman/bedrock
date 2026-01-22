@@ -4,6 +4,7 @@ const {
   HOSTED,
   REGIONS_PIPE17,
   REGIONS_BLECKMANN,
+  REGIONS_PVX,
 } = require('../constants');
 
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
@@ -25,6 +26,7 @@ const collabsOrderSyncReviewV3 = async (
   if (![
     REGIONS_PIPE17,
     REGIONS_BLECKMANN,
+    REGIONS_PVX,
   ].some(regionList => regionList.includes(region))) {
     return { success: false, error: [`No platforms supported for region ${ region }`] };
   }
