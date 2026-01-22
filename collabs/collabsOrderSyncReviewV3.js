@@ -17,6 +17,7 @@ const { bleckmannPickticketsGetter } = require('../bleckmann/bleckmannPickticket
 const { bleckmannPickticketGet } = require('../bleckmann/bleckmannPickticketGet');
 
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
+const { peoplevoxOrdersGetById } = require('../peoplevox/peoplevoxOrdersGetById');
 
 const collabsOrderSyncReviewV3 = async (
   region,
@@ -360,6 +361,50 @@ const collabsOrderSyncReviewV3 = async (
     peoplevoxBulkGetter.on('done', () => {
       peoplevoxBulkProcessor.canFinish = true;
     });
+    
+    const peoplevoxThoroughProcessor = new Processor(
+      piles.shopifyOrders,
+      async (pile) => {
+        !HOSTED && console.log(surveyNestedArrays(piles));
+
+        const shopifyOrdersBatch = pile.splice(0, 100);
+        if (shopifyOrdersBatch.length === 0) {
+          return false;
+        }
+
+        const orderIds = shopifyOrdersBatch.map(order => gidToId(order.id));
+        
+        const peoplevoxOrdersResponse = await peoplevoxOrdersGetById(orderIds);
+        const { success: peoplevoxOrdersSuccess, result: peoplevoxOrders } = peoplevoxOrdersResponse;
+        
+        if (!peoplevoxOrdersSuccess) {
+          piles.errors.push({
+            shopifyOrdersBatch,
+            peoplevoxOrdersResponse,
+          });
+          return false;
+        }
+
+        let foundOrderIds = peoplevoxOrders.map(order => order?.['Sales order no.']);
+        foundOrderIds = new Set(foundOrderIds);
+
+        for (const shopifyOrder of shopifyOrdersBatch) {
+          const orderId = gidToId(shopifyOrder.id);
+          if (foundOrderIds.has(orderId)) {
+            piles.found.push(shopifyOrder);
+          } else {
+            piles.missing.push(shopifyOrder);
+          }
+        }
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: true,
+        logFlavourText: `peoplevoxThoroughProcessor:`,
+      },
+    );
+    
+    processors.push(peoplevoxThoroughProcessor);
   }
 
   const tagger = new Processor(
