@@ -5,13 +5,18 @@ const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfil
 const shopifyShippingRatesToggle = async (
   credsPath,
   keyword,
+  mode, // enable, disable
   {
-    on = false,
     apiVersion,
     verbose = false,
     subkey,
   } = {},
 ) => {
+
+  if (mode !== 'enable' && mode !== 'disable') {
+    return { success: false, error: `Invalid mode: ${ mode }` };
+  }
+  const enableRate = mode === 'enable';
 
   const result = [];
   const errors = [];
@@ -80,12 +85,12 @@ const shopifyShippingRatesToggle = async (
       locationGroupZoneName: methodDefinitionLocationGroupZoneName,
     } = target;
 
-    if (methodDefinitionActive === on) {
-      logDeep(`Skipping ${ methodDefinitionName } (${ methodDefinitionDeliveryProfileName }/ ${ methodDefinitionLocationGroupZoneName }) because it is already ${ on ? 'enabled' : 'disabled' }`);
+    if (methodDefinitionActive === enableRate) {
+      logDeep(`Skipping ${ methodDefinitionName } (${ methodDefinitionDeliveryProfileName }/ ${ methodDefinitionLocationGroupZoneName }) because it is already ${ enableRate ? 'enabled' : 'disabled' }`);
       continue;
     }
 
-    logDeep(`Toggling ${ methodDefinitionName } (${ methodDefinitionDeliveryProfileName }/ ${ methodDefinitionLocationGroupZoneName }) to ${ on ? 'enabled' : 'disabled' }`);
+    logDeep(`Toggling ${ methodDefinitionName } (${ methodDefinitionDeliveryProfileName }/ ${ methodDefinitionLocationGroupZoneName }) to ${ enableRate ? 'enabled' : 'disabled' }`);
 
     if (verbose) {
       const toggleContinue = await askQuestion(`Continue? (y/n): `);
@@ -116,7 +121,7 @@ const shopifyShippingRatesToggle = async (
       gidToId(methodDefinitionLocationGroupZoneId),
       gidToId(methodDefinitionId),
       {
-        on,
+        on: enableRate,
         newName,
         apiVersion,
       },
@@ -129,7 +134,7 @@ const shopifyShippingRatesToggle = async (
       continue;
     }
 
-    logDeep(`Successfully toggled ${ methodDefinitionName } to ${ on ? 'enabled' : 'disabled' }`);
+    logDeep(`Successfully toggled ${ methodDefinitionName } to ${ enableRate ? 'enabled' : 'disabled' }`);
     result.push(updateResult);
 
     if (verbose) {
@@ -150,5 +155,5 @@ module.exports = {
   shopifyShippingRatesToggleApi,
 };
 
-// curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "develop", "keyword": "standard", "options": { "on": true } }'
-// curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "develop", "keyword": "standard", "options": { "verbose": true, "on": false } }'
+// curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "develop", "keyword": "standard", mode: "enable" }'
+// curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "develop", "keyword": "standard", mode: "disable", "options": { "verbose": true } }'
