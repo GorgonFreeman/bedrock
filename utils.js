@@ -1898,6 +1898,46 @@ class MultiDex {
 
 const standardErrorIs = (standardError, evaluator) => standardError.every(e => evaluator(e));
 
+class FakeGetter extends EventEmitter {
+  constructor(
+    func,
+    args,
+    {
+      onItems,
+      onDone,
+      itemsExtractor = (response) => {
+        const { success, result: items } = response;
+        if (!success) {
+          throw new Error(response.error);
+        }
+        return items;
+      },
+    } = {},
+  ) {
+    super();
+
+    this.func = func;
+    this.args = args;
+    this.itemsExtractor = itemsExtractor;
+    
+    if (onItems) {
+      this.on('items', onItems);
+    }
+
+    if (onDone) {
+      this.on('done', onDone);
+    }
+  }
+  
+  async run() {
+    const response = await this.func(...this.args);
+    const items = this.itemsExtractor(response);
+    this.emit('items', items);
+    this.emit('done');
+    return response;
+  }
+}
+
 module.exports = {
 
   // Really core
@@ -1974,4 +2014,5 @@ module.exports = {
   ThresholdActioner,
   Timer,
   MultiDex,
+  FakeGetter,
 };
