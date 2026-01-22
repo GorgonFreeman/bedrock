@@ -333,8 +333,20 @@ const collabsOrderSyncReviewV3 = async (
       async (pile) => {
         const peoplevoxOrder = pile.shift();
 
-        logDeep(peoplevoxOrder);
-        await askQuestion('?');
+        const { 'Sales order no.': orderId } = peoplevoxOrder;
+        const shopifyOrder = piles.shopifyOrders.find(o => gidToId(o.id) === orderId);
+
+        if (!shopifyOrder) {
+          return false;
+        }
+
+        piles.found.push(shopifyOrder);
+
+        const orderIndex = piles.shopifyOrders.indexOf(shopifyOrder);
+        if (orderIndex === -1) {
+          return false;
+        }
+        piles.shopifyOrders.splice(orderIndex, 1);
       },
       pile => pile.length === 0,
       {
