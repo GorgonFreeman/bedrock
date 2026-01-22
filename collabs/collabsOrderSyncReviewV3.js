@@ -1,4 +1,4 @@
-const { funcApi, surveyNestedArrays, logDeep, askQuestion, Processor, gidToId, ThresholdActioner, minutes } = require('../utils');
+const { funcApi, surveyNestedArrays, logDeep, askQuestion, Processor, gidToId, ThresholdActioner, minutes, FakeGetter } = require('../utils');
 
 const {
   HOSTED,
@@ -15,6 +15,8 @@ const { pipe17OrderGet } = require('../pipe17/pipe17OrderGet');
 
 const { bleckmannPickticketsGetter } = require('../bleckmann/bleckmannPickticketsGet');
 const { bleckmannPickticketGet } = require('../bleckmann/bleckmannPickticketGet');
+
+const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
 const collabsOrderSyncReviewV3 = async (
   region,
@@ -305,6 +307,47 @@ const collabsOrderSyncReviewV3 = async (
 
     processors.push(bleckmannThoroughProcessor);
 
+  }
+
+  if (REGIONS_PVX.includes(region)) {
+
+    piles.peoplevoxOrders = [];
+
+    const peoplevoxBulkGetter = new FakeGetter(
+      peoplevoxReportGet,
+      ['Orders Last 2 Days'],
+      {
+        onItems: (items) => {
+          piles.peoplevoxOrders.push(...items);
+        },
+        onDone: () => {
+          logDeep(surveyNestedArrays(piles));
+        },
+      },
+    );
+
+    fetchers.push(peoplevoxBulkGetter);
+
+    const peoplevoxBulkProcessor = new Processor(
+      piles.peoplevoxOrders,
+      async (pile) => {
+        const peoplevoxOrder = pile.shift();
+
+        logDeep(peoplevoxOrder);
+        await askQuestion('?');
+      },
+      pile => pile.length === 0,
+      {
+        canFinish: false,
+        logFlavourText: `peoplevoxBulkProcessor:`,
+      },
+    );
+
+    processors.push(peoplevoxBulkProcessor);
+
+    peoplevoxBulkGetter.on('done', () => {
+      peoplevoxBulkProcessor.canFinish = true;
+    });
   }
 
   const tagger = new Processor(
