@@ -22,6 +22,13 @@ const collabsOrderSyncReviewV3 = async (
   } = {},
 ) => {
 
+  if (![
+    REGIONS_PIPE17,
+    REGIONS_BLECKMANN,
+  ].some(regionList => regionList.includes(region))) {
+    return { success: false, error: [`No platforms supported for region ${ region }`] };
+  }
+
   const piles = {
     shopifyOrders: [],
     found: [],
