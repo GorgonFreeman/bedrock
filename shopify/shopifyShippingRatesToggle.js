@@ -112,11 +112,19 @@ const shopifyShippingRatesToggle = async (
     } = target;
 
     if (methodDefinitionActive === enableRate) {
-      logDeep(`Skipping ${ methodDefinitionName } (${ methodDefinitionDeliveryProfileName }/ ${ methodDefinitionLocationGroupZoneName }) because it is already ${ enableRate ? 'enabled' : 'disabled' }`);
+      verbose && logDeep(`Skipping ${ methodDefinitionName } (${ methodDefinitionDeliveryProfileName }/ ${ methodDefinitionLocationGroupZoneName }) because it is already ${ enableRate ? 'enabled' : 'disabled' }`);
+      result.push({
+        message: `Already ${ enableRate ? 'enabled' : 'disabled' }`,
+        id: gidToId(methodDefinitionId),
+        name: methodDefinitionName,
+        deliveryProfileName: gidToId(methodDefinitionDeliveryProfileId),
+        locationGroupZoneName: gidToId(methodDefinitionLocationGroupZoneId),
+        active: methodDefinitionActive,
+      });
       continue;
     }
 
-    logDeep(`Toggling ${ methodDefinitionName } (${ methodDefinitionDeliveryProfileName }/ ${ methodDefinitionLocationGroupZoneName }) to ${ enableRate ? 'enabled' : 'disabled' }`);
+    verbose && logDeep(`Toggling ${ methodDefinitionName } (${ methodDefinitionDeliveryProfileName }/ ${ methodDefinitionLocationGroupZoneName }) to ${ enableRate ? 'enabled' : 'disabled' }`);
 
     if (verbose) {
       const toggleContinue = await askQuestion(`Continue? (y/n): `);
@@ -161,8 +169,8 @@ const shopifyShippingRatesToggle = async (
       continue;
     }
 
-    logDeep(`Successfully toggled ${ methodDefinitionName } to ${ enableRate ? 'enabled' : 'disabled' }`);
-    console.log(`--------------------------------`);
+    verbose && logDeep(`Successfully toggled ${ methodDefinitionName } to ${ enableRate ? 'enabled' : 'disabled' }`);
+    verbose && console.log(`--------------------------------`);
     result.push(updateResult);
 
     if (verbose) {
@@ -171,6 +179,7 @@ const shopifyShippingRatesToggle = async (
     }
   }
 
+  (HOSTED || verbose) && logDeep('result', result);
   return { success, result, errors };
 };
 
