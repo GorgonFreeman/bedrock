@@ -1,22 +1,34 @@
+const { HOSTED } = require('../constants');
+
 const { funcApi, logDeep, gidToId, askQuestion } = require('../utils');
 const { shopifyShippingRateUpdate } = require('../shopify/shopifyShippingRateUpdate');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
 
 const shopifyShippingRatesToggle = async (
   credsPath,
-  keyword,
   mode, // enable, disable
   {
+    keyword,
+  },
+  {
     apiVersion,
-    verbose = false,
+    verbose = false, // If true, list all targetted rates and ask for confirmation before toggling
     subkey,
   } = {},
 ) => {
 
+  // Validate mode
   if (mode !== 'enable' && mode !== 'disable') {
     return { success: false, error: `Invalid mode: ${ mode }` };
   }
   const enableRate = mode === 'enable';
+
+  // Validate ratesIdentifier
+  if (HOSTED
+    && !keyword
+  ) {
+    return { success: false, error: 'Missing rates identifier' };
+  }
 
   const result = [];
   const errors = [];
@@ -41,12 +53,14 @@ const shopifyShippingRatesToggle = async (
     } } }
   }`;
 
+  // Fetch all shipping rates / delivery profiles
   const deliveryProfilesResponse = await shopifyDeliveryProfilesGet(credsPath, { attrs: deliveryProfileAttrs, apiVersion });
   const { success: deliveryProfilesGetSuccess, result: deliveryProfiles } = deliveryProfilesResponse;
   if (!deliveryProfilesGetSuccess) {
     return deliveryProfilesResponse;
   }
 
+  // Map and flatten all delivery profiles to shipping method definitions
   const shippingMethodDefinitions = deliveryProfiles.map(dp => {
     const { id: deliveryProfileId, name: deliveryProfileName } = dp;
     return dp.profileLocationGroups.map(plg => {
@@ -69,8 +83,20 @@ const shopifyShippingRatesToggle = async (
     });
   }).flat(3);
 
-  const targetedShippingMethodDefinitions = shippingMethodDefinitions.filter(methodDef => methodDef.name.toLowerCase().includes(keyword.toLowerCase()));
+  // Identify the targetted shipping method definitions
+  const targetedShippingMethodDefinitions = (() => {
+    if (!keyword) {
+      verbose = true;
+      return shippingMethodDefinitions;
+    }
+    return shippingMethodDefinitions.filter(methodDef => methodDef.name.toLowerCase().includes(keyword.toLowerCase()));
+  })();
 
+  if (targetedShippingMethodDefinitions.length === 0) {
+    return { success: false, error: 'No targetted shipping method definitions found' };
+  }
+
+  // Action the targetted shipping method definitions
   for (const target of targetedShippingMethodDefinitions) {
     const {
       id: methodDefinitionId,
@@ -96,12 +122,13 @@ const shopifyShippingRatesToggle = async (
       const toggleContinue = await askQuestion(`Continue? (y/n): `);
       if (toggleContinue !== 'y') {
         logDeep(`Skipping ${ methodDefinitionName } (${ methodDefinitionDeliveryProfileName }/ ${ methodDefinitionLocationGroupZoneName }) because user did not continue`);
+        console.log(`--------------------------------`);
         continue;
       }
     }
 
     const newName = (() => {
-    if (on) {
+    if (enableRate) {
       if (methodDefinitionName.endsWith(disabledSuffix)) {
         return methodDefinitionName.slice(0, -disabledSuffix.length);
       }
@@ -135,10 +162,12 @@ const shopifyShippingRatesToggle = async (
     }
 
     logDeep(`Successfully toggled ${ methodDefinitionName } to ${ enableRate ? 'enabled' : 'disabled' }`);
+    console.log(`--------------------------------`);
     result.push(updateResult);
 
     if (verbose) {
-      await askQuestion(`Continue to next method definition...`);
+      await askQuestion(`Continue to next method definition?`);
+      console.log(`--------------------------------`);
     }
   }
 
@@ -146,7 +175,7 @@ const shopifyShippingRatesToggle = async (
 };
 
 const shopifyShippingRatesToggleApi = funcApi(shopifyShippingRatesToggle, {
-  argNames: ['credsPath', 'keyword', 'mode', 'options'],
+  argNames: ['credsPath', 'mode', 'ratesIdentifier', 'options'],
   allowCrossOrigin: true,
 });
 
@@ -155,5 +184,7 @@ module.exports = {
   shopifyShippingRatesToggleApi,
 };
 
-// curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "develop", "keyword": "standard", mode: "enable" }'
-// curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "develop", "keyword": "standard", mode: "disable", "options": { "verbose": true } }'
+// curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "develop", "mode": "enable", "ratesIdentifier": { } }'
+// curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "develop", "mode": "disable", "ratesIdentifier": { } }'
+// curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "develop", "mode": "enable", "ratesIdentifier": { "keyword": "standard" } }'
+// curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "develop", "mode": "disable", "ratesIdentifier": { "keyword": "standard" }, "options": { "verbose": true } }'
