@@ -3,75 +3,93 @@ const { respond, logDeep, customAxios, askQuestion, arrayToObj, camelToReadable 
 const { REGIONS_WF } = require('../constants');
 const { collabsOrderSyncCheck } = require('../collabs/collabsOrderSyncCheck');
 
-const COMMAND_NAME = 'order_sync_check'; // slash command
-// const COMMAND_NAME = 'dev__order_sync_check'; // dev slash command for testing
+// const COMMAND_NAME = 'order_sync_check'; // slash command
+const COMMAND_NAME = 'dev__order_sync_check'; // dev slash command for testing
 
 const blocks = {
   intro: {
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: `Let's do an order sync check!`,
+      text: `Order Sync Check`,
     },
   },
-  settings: {
-    heading: {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: '*Settings*',
-      },
+  confirm: {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: `Check order sync for all regions?`,
     },
   },
-  region_select: {
-    heading: {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: '*Select your store to start the check* :hugging_face:',
-      },
-    },
-    buttons: {
-      type: 'actions',
-      elements: REGIONS_WF.map(region => ({
+  buttons: {
+    type: 'actions',
+    elements: [
+      {
         type: 'button',
         text: {
           type: 'plain_text',
-          text: region.toUpperCase(),
+          text: 'Confirm',
         },
-        value: region,
-        action_id: `${ COMMAND_NAME }:region_select:${ region }`,
-      })),
+        value: 'confirm',
+        action_id: `${ COMMAND_NAME }:confirm`,
+      },
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Cancel',
+        },
+        value: 'cancel',
+        action_id: `${ COMMAND_NAME }:cancel`,
+      },
+    ],
+  },
+  loading: {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: `⏳ Processing order sync check...`,
     },
   },
-  result: (regionDisplay, orderSyncCheckResult, { mentionUserId } = {}) => {
-    const {
-      lastNewOrder,
-      lastFulfilledOrder,
-    } = orderSyncCheckResult;
+  cancelled: {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: `Order sync check cancelled.`,
+    },
+  },
+  result: (orderSyncCheckResults) => {
+    const resultBlocks = orderSyncCheckResults.map(result => {
+      const {
+        region,
+        success,
+      } = result;
 
-    const resultText = `${ mentionUserId ? `Hey <@${ mentionUserId }>! ` : '' }Order sync check for ${ regionDisplay }:`;
-    const lastNewOrderText = [
-      `Last new order: <${ lastNewOrder.link }|${ lastNewOrder.name }>`,
-      `- Created at: ${ lastNewOrder.createdAtString }`,
-    ].join('\n');
-    const lastFulfilledOrderText = [
-      `Last fulfilled order: <${ lastFulfilledOrder.link }|${ lastFulfilledOrder.name }>`,
-      `- Created at: ${ lastFulfilledOrder.createdAtString }`,
-      `- Processed at: ${ lastFulfilledOrder.processedAtString }`,
-    ].join('\n');
+      if (!success) {
+        return {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `${ region.toUpperCase() }: ❌\nError checking order sync for ${ region.toUpperCase() }: ${ result?.error || 'Unknown error' }\n\n`,
+          },
+        };
+      }
 
-    return {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: [
-          resultText,
-          lastNewOrderText,
-          lastFulfilledOrderText,
-        ].join('\n'),
-      },
-    };
+      const {
+        lastNewOrder,
+        lastFulfilledOrder,
+      } = result;
+
+      return {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `${ region.toUpperCase() }: ✅\n Latest order synced: <${ lastNewOrder.link }|${ lastNewOrder.name }>\nPlaced at ${ lastNewOrder.createdAtString } ( ${ lastNewOrder.createdAtTimePassedString } )\n\n Latest order fulfilled: <${ lastFulfilledOrder.link }|${ lastFulfilledOrder.name }>\nPlaced at ${ lastFulfilledOrder.createdAtString } ( ${ lastFulfilledOrder.createdAtTimePassedString } )\nProcessed at ${ lastFulfilledOrder.processedAtString } ( ${ lastFulfilledOrder.processedAtTimePassedString } )\n\n`
+        },
+      };
+    });
+    logDeep('resultBlocks', resultBlocks);
+    return resultBlocks;
   },
 };
 
@@ -82,12 +100,10 @@ const slackInteractiveOrderSyncCheck = async (req, res) => {
   
   // If no payload, this is an initiation, e.g. slash command - send the initial blocks
   if (!body?.payload) {
-    console.log(`Initiation, e.g. slash command`);
 
     const initialBlocks = [
-      blocks.intro,
-      blocks.region_select.heading,
-      blocks.region_select.buttons,
+      blocks.confirm,
+      blocks.buttons,
     ];
 
     return respond(res, 200, {
@@ -97,7 +113,6 @@ const slackInteractiveOrderSyncCheck = async (req, res) => {
   }
 
   // Because we got to this point, we have a payload - handle as an interactive step
-  console.log(`Received payload - handling as interactive step`);
   respond(res, 200); // Acknowledge immediately - we'll provide the next step to the response_url later
 
   const payload = JSON.parse(body.payload);
@@ -134,45 +149,56 @@ const slackInteractiveOrderSyncCheck = async (req, res) => {
   const [commandName, actionName, ...actionNodes] = actionId.split(':');
 
   let response;
-  let updatedBlocks;
 
   switch (actionName) {
-    case 'region_select':
-
-      const region = actionValue;
-      const regionDisplay = region.toUpperCase();
-
-      console.log('region', region, regionDisplay);
-
-      // Show "Checking [REGION] order sync..." message
+    case 'confirm':
+      // Send the loading message first
       response = {
         replace_original: 'true',
-        text: `Checking ${ regionDisplay } order sync... :mag:`,
-      };
-
-      // Send the loading message first
+        type: 'section',
+        blocks: [
+          blocks.loading,
+        ],
+      }
       await customAxios(responseUrl, {
         method: 'post',
         body: response,
       });
 
-      // Run the order sync check
-      const orderSyncCheckResponse = await collabsOrderSyncCheck(region);
-      const { success: orderSyncCheckSuccess, result: orderSyncCheckResult } = orderSyncCheckResponse;
-
-      if (!orderSyncCheckSuccess) {
-        response = {
-          replace_original: 'true',
-          text: `${ callerUserId ? `<@${ callerUserId }>, ` : '' }Error checking ${ regionDisplay } order sync: ${ JSON.stringify(orderSyncCheckResponse) }`,
-        };
-        break;
+      const orderSyncCheckResults = [];
+      for (const region of REGIONS_WF) {
+        const orderSyncCheckResponse = await collabsOrderSyncCheck(region);
+        const { success: orderSyncCheckSuccess, result: orderSyncCheckResult } = orderSyncCheckResponse;
+        if (orderSyncCheckSuccess) {
+          orderSyncCheckResults.push({
+            region,
+            success: true,
+            lastNewOrder: orderSyncCheckResult.lastNewOrder,
+            lastFulfilledOrder: orderSyncCheckResult.lastFulfilledOrder,
+          });
+          continue;
+        }
+        orderSyncCheckResults.push({
+          region,
+          success: false,
+          error: orderSyncCheckResponse?.error?.[0] || 'Error checking order sync',
+        });
       }
-
-      // Show the result
+      
+      const result = [
+        blocks.intro,
+        ...blocks.result(orderSyncCheckResults),
+      ];
+      response = {
+        replace_original: 'true',
+        blocks: result,
+      };
+      break;
+    case 'cancel':
       response = {
         replace_original: 'true',
         blocks: [
-          blocks.result(regionDisplay, orderSyncCheckResult, { mentionUserId: callerUserId }),
+          blocks.cancelled,
         ],
       };
       break;
