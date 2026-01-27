@@ -250,7 +250,7 @@ const collabsOrderSyncCheck = async (
       result: {
         lastNewOrder: {
           name: shopifyOrderName,
-          id: shopifyOrderId,
+          id: gidToId(shopifyOrderId),
           link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyOrderId) }`,
           createdAtString: formatDateTimeString(shopifyOrderCreatedAt),
           createdAtTimePassedString: formatTimePassedString(shopifyOrderCreatedAt),
@@ -341,7 +341,7 @@ const collabsOrderSyncCheck = async (
       result: {
         lastNewOrder: {
           name: shopifyOrderName,
-          id: shopifyOrderId,
+          id: gidToId(shopifyOrderId),
           link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyOrderId) }`,
           createdAtString: formatDateTimeString(shopifyOrderCreatedAt),
           createdAtTimePassedString: formatTimePassedString(shopifyOrderCreatedAt),
