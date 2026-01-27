@@ -50,7 +50,7 @@ const collabsOrderSyncCheck = async (
   };
 
   const formatDateTimeString = (dateTime) => {
-    return `${ new Date(dateTime) }`;
+    return `${ new Date(dateTime).toString().replace(/\s*\(.*\)$/, '') }`;
   };
 
   const formatTimePassedString = (dateTime) => {
