@@ -358,11 +358,6 @@ const collabsOrderSyncCheck = async (
       },
     };
   }
-
-  return {
-    success: true,
-    result: {},
-  };
 };
 
 const collabsOrderSyncCheckApi = funcApi(collabsOrderSyncCheck, {
