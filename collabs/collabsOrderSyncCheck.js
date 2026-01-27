@@ -253,13 +253,16 @@ const collabsOrderSyncCheck = async (
           id: shopifyOrderId,
           link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyOrderId) }`,
           createdAtString: formatDateTimeString(shopifyOrderCreatedAt),
+          createdAtTimePassedString: formatTimePassedString(shopifyOrderCreatedAt),
         },
         lastFulfilledOrder: {
           name: shopifyLastFulfilledOrderName,
           id: gidToId(shopifyLastFulfilledOrderId),
           link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyLastFulfilledOrderId) }`,
           createdAtString: formatDateTimeString(shopifyLastFulfilledOrderCreatedAt),
+          createdAtTimePassedString: formatTimePassedString(shopifyLastFulfilledOrderCreatedAt),
           processedAtString: formatDateTimeString(shopifyLastFulfilledOrderProcessedAt),
+          processedAtTimePassedString: formatTimePassedString(shopifyLastFulfilledOrderProcessedAt),
         },
       },
     };
@@ -341,13 +344,16 @@ const collabsOrderSyncCheck = async (
           id: shopifyOrderId,
           link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyOrderId) }`,
           createdAtString: formatDateTimeString(shopifyOrderCreatedAt),
+          createdAtTimePassedString: formatTimePassedString(shopifyOrderCreatedAt),
         },
         lastFulfilledOrder: {
           name: shopifyLastFulfilledOrderName,
           id: gidToId(shopifyLastFulfilledOrderId),
           link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyLastFulfilledOrderId) }`,
           createdAtString: formatDateTimeString(shopifyLastFulfilledOrderCreatedAt),
+          createdAtTimePassedString: formatTimePassedString(shopifyLastFulfilledOrderCreatedAt),
           processedAtString: formatDateTimeString(shopifyLastFulfilledOrderProcessedAt),
+          processedAtTimePassedString: formatTimePassedString(shopifyLastFulfilledOrderProcessedAt),
         },
       },
     };
