@@ -53,6 +53,40 @@ const collabsOrderSyncCheck = async (
     return `${ new Date(dateTime) }`;
   };
 
+  const formatTimePassedString = (dateTime) => {
+  const now = new Date();
+  const past = new Date(dateTime);
+  let diffMs = now - past;
+
+  const seconds = Math.floor(diffMs / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  let output = "";
+
+  if (days > 0) {
+    const remHours = hours % 24;
+    const remMinutes = minutes % 60;
+    output =
+      `${days} day${days === 1 ? '' : 's'}` +
+      (remHours > 0 ? `, ${remHours} hour${remHours === 1 ? '' : 's'}` : '') +
+      (remMinutes > 0 ? `, ${remMinutes} minute${remMinutes === 1 ? '' : 's'}` : '');
+  } else if (hours > 0) {
+    const remMinutes = minutes % 60;
+    output = `${hours} hour${hours === 1 ? '' : 's'}`;
+    if (remMinutes > 0) {
+      output += `, ${remMinutes} minute${remMinutes === 1 ? '' : 's'}`;
+    }
+  } else if (minutes > 0) {
+    output = `${minutes} minute${minutes === 1 ? '' : 's'}`;
+  } else {
+    output = `just now`;
+  }
+
+  return output + (output !== 'just now' ? ' ago' : '');
+  };
+
   const pvxRelevant = REGIONS_PVX.includes(region);
   const logiwaRelevant = REGIONS_LOGIWA.includes(region);
   const bleckmannRelevant = REGIONS_BLECKMANN.includes(region);
@@ -127,13 +161,16 @@ const collabsOrderSyncCheck = async (
           id: gidToId(shopifyOrderId),
           link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyOrderId) }`,
           createdAtString: formatDateTimeString(shopifyOrderCreatedAt),
+          createdAtTimePassedString: formatTimePassedString(shopifyOrderCreatedAt),
         },
         lastFulfilledOrder: {
           name: shopifyLastFulfilledOrderName,
           id: gidToId(shopifyLastFulfilledOrderId),
           link: `https://admin.shopify.com/store/${ regionToShopifyStore[region] }/orders/${ gidToId(shopifyLastFulfilledOrderId) }`,
           createdAtString: formatDateTimeString(shopifyLastFulfilledOrderCreatedAt),
+          createdAtTimePassedString: formatTimePassedString(shopifyLastFulfilledOrderCreatedAt),
           processedAtString: formatDateTimeString(shopifyLastFulfilledOrderProcessedAt),
+          processedAtTimePassedString: formatTimePassedString(shopifyLastFulfilledOrderProcessedAt),
         },
       },
     };
