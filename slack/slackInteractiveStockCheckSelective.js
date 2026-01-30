@@ -1,5 +1,6 @@
 const { HOSTED } = require('../constants');
 const { respond, logDeep, customAxios } = require('../utils');
+const { REGIONS_WF } = require('../constants');
 
 const COMMAND_NAME = 'dev__stock_check_selective'; // slash command
 
