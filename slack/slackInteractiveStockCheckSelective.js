@@ -141,13 +141,13 @@ const slackInteractiveStockCheckSelective = async (req, res) => {
   if (!body?.payload) {
 
     const initialBlocks = [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `I don't do anything yet :hugging_face:`,
-        },
-      },
+      blocks.intro,
+      blocks.settings.heading,
+      blocks.settings.state(DEFAULT_CONFIG.minDiff),
+      blocks.settings.inputs(DEFAULT_CONFIG.minDiff),
+      blocks.region_select.heading,
+      blocks.region_select.buttons,
+      blocks.cancel,
     ];
 
     return respond(res, 200, {
@@ -164,9 +164,28 @@ const slackInteractiveStockCheckSelective = async (req, res) => {
 
   const { 
     response_url: responseUrl,
-    state, 
-    actions, 
+    state,
+    actions,
+    message,
+    user,
   } = payload;
+
+  const { id: callerUserId } = user;
+
+  const {
+    blocks: currentBlocks,
+  } = message;
+  const currentBlocksById = arrayToObj(currentBlocks, { keyProp: 'block_id' });
+
+  settingsStateBlock = currentBlocksById['settings:state'];
+  settingsInputsBlock = currentBlocksById['settings:inputs'];
+
+  const textSettings = settingsStateBlock?.text?.text?.split('|');
+  let stateMinDiff = settingsInputsBlock
+    ? Number(settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value)
+    : Number(textSettings?.[0])
+  ;
+  let stateRegion = textSettings?.[1];  
 
   const action = actions?.[0];
   const { 
@@ -174,14 +193,35 @@ const slackInteractiveStockCheckSelective = async (req, res) => {
     value: actionValue,
   } = action;
 
-  logDeep({
+  !HOSTED && logDeep({
     responseUrl,
     state,
     actionId,
     actionValue,
   });
 
+  const [commandName, actionName, ...actionNodes] = actionId.split(':');
+
   let response;
+  let updatedBlocks;
+
+  let skipExport; // For regions where it's not supported
+
+  switch (actionName) {
+    case 'cancel':
+      response = {
+        delete_original: 'true',
+      };
+      break;
+
+    case 'region_select':
+      stateRegion = actionValue;
+      break;
+
+    default:
+      console.warn(`Unknown actionName: ${ actionName }`);
+      break;
+  }
 
   response = {
     replace_original: 'true',
