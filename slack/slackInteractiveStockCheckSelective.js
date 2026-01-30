@@ -121,12 +121,12 @@ const blocks = {
     ],
   },
 
-  result: (regionDisplay, sheetUrl, { mentionUserId } = {}) => {
+  result: (regionDisplay, stockCheckResults, { mentionUserId } = {}) => {
     return {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `${ mentionUserId ? `Hey <@${ mentionUserId }>! ` : '' }Stock check for ${ regionDisplay }: <${ sheetUrl }|:google_sheets:>`,
+        text: `${ mentionUserId ? `Hey <@${ mentionUserId }>! ` : '' }Stock check for ${ regionDisplay }`,
       },
     };
   },
