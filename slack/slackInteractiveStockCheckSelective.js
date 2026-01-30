@@ -4,10 +4,6 @@ const { REGIONS_WF } = require('../constants');
 
 const COMMAND_NAME = 'dev__stock_check_selective'; // slash command
 
-const DEFAULT_CONFIG = {
-  minDiff: 3,
-};
-
 const VARIANT_FETCH_QUERIES_BY_STORE = {
   au: [
     'tag_not:inv_hold',
@@ -35,49 +31,21 @@ const blocks = {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: '*Settings*',
+        text: '*Enter SKUs to check*',
       },
     },
-
-    state: (minDiff, { region } = {}) => {
-      return {
-        type: 'section',
-        block_id: 'settings:state',
-        text: {
-          type: 'mrkdwn',
-          text: [
-            minDiff,
-            ...region ? [region] : [],
-          ].join('|'),
-        },
-      };
-    },
-
-    inputs: (minDiff) => {
+    inputs: (skuList) => {
       return {
         type: 'actions',
         block_id: 'settings:inputs',
         elements: [
           {
-            type: 'static_select',
-            action_id: `${ COMMAND_NAME }:settings:min_diff`,
+            type: 'Plain_text_input',
+            action_id: `${ COMMAND_NAME }:settings:sku_list`,
+            multiline: true,
             placeholder: {
               type: 'plain_text',
-              text: 'Min diff',
-            },
-            options: Array.from({ length: 11 }, (_, i) => ({
-              text: {
-                type: 'plain_text',
-                text: String(i),
-              },
-              value: String(i),
-            })),
-            initial_option: {
-              text: {
-                type: 'plain_text',
-                text: String(minDiff),
-              },
-              value: String(minDiff),
+              text: 'List of SKUs, one per line',
             },
           },
         ],
@@ -143,7 +111,6 @@ const slackInteractiveStockCheckSelective = async (req, res) => {
     const initialBlocks = [
       blocks.intro,
       blocks.settings.heading,
-      blocks.settings.state(DEFAULT_CONFIG.minDiff),
       blocks.settings.inputs(DEFAULT_CONFIG.minDiff),
       blocks.region_select.heading,
       blocks.region_select.buttons,
