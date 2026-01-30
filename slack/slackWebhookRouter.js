@@ -9,6 +9,7 @@ const commandNameToFunc = {
   'customer_delete': require('../slack/slackInteractiveCustomerDelete'),
   'staff_onboard': require('../bedrock_unlisted/bedrock_unlisted_slackInteractiveStaffOnboard'),
   'staff_offboard': require('../bedrock_unlisted/bedrock_unlisted_slackInteractiveStaffOffboard'),
+  'stock_check_single': require('../slack/slackInteractiveStockCheckSingle'),
 };
 
 const slackWebhookRouterApi = async (req, res) => {
