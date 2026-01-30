@@ -1,9 +1,10 @@
+const { HOSTED } = require('../constants');
 const { respond, logDeep, customAxios } = require('../utils');
 
-const COMMAND_NAME = 'slash_command'; // slash command
+const COMMAND_NAME = 'dev__stock_check_selective'; // slash command
 
-const slackInteractiveStockCheckSingle = async (req, res) => {
-  console.log('slackInteractiveStockCheckSingle');
+const slackInteractiveStockCheckSelective = async (req, res) => {
+  console.log('slackInteractiveStockCheckSelective');
 
   const { body } = req;
   
@@ -65,4 +66,4 @@ const slackInteractiveStockCheckSingle = async (req, res) => {
   });
 };
 
-module.exports = slackInteractiveStockCheckSingle;
+module.exports = slackInteractiveStockCheckSelective;
