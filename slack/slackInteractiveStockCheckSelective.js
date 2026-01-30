@@ -3,6 +3,134 @@ const { respond, logDeep, customAxios } = require('../utils');
 
 const COMMAND_NAME = 'dev__stock_check_selective'; // slash command
 
+const DEFAULT_CONFIG = {
+  minDiff: 3,
+};
+
+const VARIANT_FETCH_QUERIES_BY_STORE = {
+  au: [
+    'tag_not:inv_hold',
+  ],
+  us: [
+    'tag_not:not_for_radial',
+    'tag_not:inv_hold_us',
+  ],
+  uk: [
+    'tag_not:inv_hold_uk',
+  ],
+};
+
+const blocks = {
+  intro: {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: `Let's do a stock check!`,
+    },
+  },
+
+  settings: {
+    heading: {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: '*Settings*',
+      },
+    },
+
+    state: (minDiff, { region } = {}) => {
+      return {
+        type: 'section',
+        block_id: 'settings:state',
+        text: {
+          type: 'mrkdwn',
+          text: [
+            minDiff,
+            ...region ? [region] : [],
+          ].join('|'),
+        },
+      };
+    },
+
+    inputs: (minDiff) => {
+      return {
+        type: 'actions',
+        block_id: 'settings:inputs',
+        elements: [
+          {
+            type: 'static_select',
+            action_id: `${ COMMAND_NAME }:settings:min_diff`,
+            placeholder: {
+              type: 'plain_text',
+              text: 'Min diff',
+            },
+            options: Array.from({ length: 11 }, (_, i) => ({
+              text: {
+                type: 'plain_text',
+                text: String(i),
+              },
+              value: String(i),
+            })),
+            initial_option: {
+              text: {
+                type: 'plain_text',
+                text: String(minDiff),
+              },
+              value: String(minDiff),
+            },
+          },
+        ],
+      };
+    },
+  },
+  region_select: {
+    heading: {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: '*Select your store to start the check* :hugging_face:',
+      },
+    },
+    buttons: {
+      type: 'actions',
+      elements: REGIONS_WF.map(region => ({
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: region.toUpperCase(),
+        },
+        value: region,
+        action_id: `${ COMMAND_NAME }:region_select:${ region }`,
+      })),
+    },
+  },
+  
+  cancel: {
+    type: 'actions',
+    block_id: 'cancel',
+    elements: [
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Cancel',
+        },
+        action_id: `${ COMMAND_NAME }:cancel`,
+      },
+    ],
+  },
+
+  result: (regionDisplay, sheetUrl, { mentionUserId } = {}) => {
+    return {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `${ mentionUserId ? `Hey <@${ mentionUserId }>! ` : '' }Stock check for ${ regionDisplay }: <${ sheetUrl }|:google_sheets:>`,
+      },
+    };
+  },
+};
+
 const slackInteractiveStockCheckSelective = async (req, res) => {
   console.log('slackInteractiveStockCheckSelective');
 
