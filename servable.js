@@ -63,6 +63,7 @@ module.exports = {
   shopifyCustomerUpsert: require('./shopify/shopifyCustomerUpsert').shopifyCustomerUpsertApi,
   shopifyCustomersGet: require('./shopify/shopifyCustomersGet').shopifyCustomersGetApi,
   shopifyDiscountClassTagsReport: require('./shopify/shopifyDiscountClassTagsReport').shopifyDiscountClassTagsReportApi,
+  shopifyDiscountRedeemCodeBulkAdd: require('./shopify/shopifyDiscountRedeemCodeBulkAdd').shopifyDiscountRedeemCodeBulkAddApi,
   shopifyFileCreate: require('./shopify/shopifyFileCreate').shopifyFileCreateApi,
   shopifyFileUpload: require('./shopify/shopifyFileUpload').shopifyFileUploadApi,
   shopifyFilesUploadFromFolder: require('./shopify/shopifyFilesUploadFromFolder').shopifyFilesUploadFromFolderApi,
