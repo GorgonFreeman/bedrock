@@ -21,7 +21,7 @@ const shopifyDiscountRedeemCodeBulkAdd = async (
     {
       discountId: {
         type: 'ID!',
-        value: `gid://shopify/Discount/${ discountId }`,
+        value: `gid://shopify/DiscountCodeNode/${ discountId }`,
       },
       codes: {
         type: '[DiscountRedeemCodeInput!]!',
