@@ -1,11 +1,12 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/discountRedeemCodeBulkAdd
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, arrayToChunks, actionMultipleOrSingle } = require('../utils');
+const { MAX_PAYLOADS } = require('../shopify/shopify.constants');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id codesCount importedCount`;
 
-const shopifyDiscountRedeemCodeBulkAdd = async (
+const shopifyDiscountRedeemCodeBulkAddChunk = async (
   credsPath,
   discountId,
   codes,
@@ -36,6 +37,34 @@ const shopifyDiscountRedeemCodeBulkAdd = async (
   logDeep(response);
   return response;
 };
+
+const shopifyDiscountRedeemCodeBulkAdd = async (
+  credsPath,
+  discountId,
+  codes,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  // Chunk codes array by MAX_PAYLOADS
+  const chunks = arrayToChunks(codes, MAX_PAYLOADS);
+
+  const response = await actionMultipleOrSingle(
+    chunks,
+    shopifyDiscountRedeemCodeBulkAddChunk,
+    (chunk) => ({
+      args: [credsPath, discountId, chunk],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+  
+  logDeep(response);
+  return response;
+}
 
 const shopifyDiscountRedeemCodeBulkAddApi = funcApi(shopifyDiscountRedeemCodeBulkAdd, {
   argNames: ['credsPath', 'discountId', 'codes', 'options'],
