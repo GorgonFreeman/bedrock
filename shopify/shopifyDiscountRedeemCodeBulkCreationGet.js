@@ -1,13 +1,13 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/order
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/discountRedeemCodeBulkCreation
 
 const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 
-const defaultAttrs = `id name`;
+const defaultAttrs = `id codesCount importedCount failedCount done`;
 
 const shopifyDiscountRedeemCodeBulkCreationGetSingle = async (
   credsPath,
-  thingId,
+  discountRedeemCodeBulkCreationId,
   {
     apiVersion,
     attrs = defaultAttrs,
@@ -16,8 +16,8 @@ const shopifyDiscountRedeemCodeBulkCreationGetSingle = async (
   
   const response = await shopifyGetSingle(
     credsPath,
-    'thing',
-    thingId,
+    'discountRedeemCodeBulkCreation',
+    discountRedeemCodeBulkCreationId,
     {
       apiVersion,
       attrs,
@@ -30,17 +30,17 @@ const shopifyDiscountRedeemCodeBulkCreationGetSingle = async (
 
 const shopifyDiscountRedeemCodeBulkCreationGet = async (
   credsPath,
-  thingId,
+  discountRedeemCodeBulkCreationId,
   {
     queueRunOptions,
     ...options
   } = {},
 ) => {
   const response = await actionMultipleOrSingle(
-    thingId,
+    discountRedeemCodeBulkCreationId,
     shopifyDiscountRedeemCodeBulkCreationGetSingle,
-    (thingId) => ({
-      args: [credsPath, thingId],
+    (discountRedeemCodeBulkCreationId) => ({
+      args: [credsPath, discountRedeemCodeBulkCreationId],
       options,
     }),
     {
@@ -53,7 +53,7 @@ const shopifyDiscountRedeemCodeBulkCreationGet = async (
 };
 
 const shopifyDiscountRedeemCodeBulkCreationGetApi = funcApi(shopifyDiscountRedeemCodeBulkCreationGet, {
-  argNames: ['credsPath', 'thingId', 'options'],
+  argNames: ['credsPath', 'discountRedeemCodeBulkCreationId', 'options'],
 });
 
 module.exports = {
@@ -61,4 +61,4 @@ module.exports = {
   shopifyDiscountRedeemCodeBulkCreationGetApi,
 };
 
-// curl localhost:8000/shopifyDiscountRedeemCodeBulkCreationGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "thingId": "7012222266312" }'
+// curl localhost:8000/shopifyDiscountRedeemCodeBulkCreationGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "discountRedeemCodeBulkCreationId": "582383534152" }'
