@@ -1,5 +1,5 @@
 const { HOSTED } = require('../constants');
-const { respond, logDeep, customAxios } = require('../utils');
+const { respond, logDeep, customAxios, arrayToObj } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 
 const COMMAND_NAME = 'dev__stock_check_selective'; // slash command
@@ -26,6 +26,28 @@ const blocks = {
     },
   },
 
+  settings: {
+    heading: {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: '*Settings*',
+      },
+    },
+    state: ({ region } = {}) => {
+      return {
+        type: 'section',
+        block_id: 'settings:state',
+        text: {
+          type: 'mrkdwn',
+          text: [
+            ...region ? [region] : [],
+          ].join('|'),
+        },
+      };
+    },
+  },
+
   sku_input: {
     heading: {
       type: 'section',
@@ -34,25 +56,47 @@ const blocks = {
         text: '*Enter SKUs to check*',
       },
     },
-    textfield: ({ skuList = [] } = {}) => {
-      return {
-        type: 'actions',
-        block_id: 'sku_input:textfield',
-        elements: [
-          {
-            type: 'Plain_text_input',
-            action_id: `${ COMMAND_NAME }:settings:sku_list`,
-            multiline: true,
-            placeholder: {
-              type: 'plain_text',
-              text: 'List of SKUs, one per line',
-            },
-            ...( skuList && skuList.length > 0 ) ? [ { initial_value: skuList.join('\n') } ] : [],
+    textfield: {
+      type: 'input',
+      block_id: 'sku_input:textfield',
+      element: {  
+        type: 'plain_text_input',
+        action_id: `${ COMMAND_NAME }:sku_input:textfield`,
+        multiline: true,
+        placeholder: {
+          type: 'plain_text',
+          text: 'List of SKUs, one per line',
+        },
+      },
+      label: {
+        type: 'plain_text',
+        text: ' ',
+      },
+    },
+    buttons: {
+      type: 'actions',
+      block_id: 'sku_input:buttons',
+      elements: [
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Submit',
           },
-        ],
-      };
+          action_id: `${ COMMAND_NAME }:sku_input:submit`,
+        },
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Cancel',
+          },
+          action_id: `${ COMMAND_NAME }:sku_input:cancel`,
+        },
+      ],
     },
   },
+
   region_select: {
     heading: {
       type: 'section',
@@ -140,6 +184,16 @@ const slackInteractiveStockCheckSelective = async (req, res) => {
 
   const { id: callerUserId } = user;
 
+  const {
+    blocks: currentBlocks,
+  } = message;
+  const currentBlocksById = arrayToObj(currentBlocks, { keyProp: 'block_id' });
+
+  const settingsStateBlock = currentBlocksById['settings:state'];
+  const textSettings = settingsStateBlock?.text?.text?.split('|');
+
+  let stateRegion = textSettings?.[0];
+
   const action = actions?.[0];
   const { 
     action_id: actionId,
@@ -168,10 +222,18 @@ const slackInteractiveStockCheckSelective = async (req, res) => {
       break;
 
     case 'region_select':
-      console.log('region_select', actionValue);
+      stateRegion = actionValue;
+
       response = {
         replace_original: 'true',
-        text: `Checking ${ actionValue.toUpperCase() } stock...`,
+        blocks: [
+          blocks.intro,
+          blocks.settings.state({ region: stateRegion }),
+          blocks.sku_input.heading,
+          blocks.sku_input.textfield,
+          blocks.sku_input.buttons,
+          blocks.cancel,
+        ],
       };
       break;
 
