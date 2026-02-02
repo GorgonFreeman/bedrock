@@ -9,6 +9,8 @@ const shopifyProductsPublishSingle = async (
   {
     apiVersion,
     fetchOptions,
+    includeChannels,
+    excludeChannels,
     demo,
   } = {},
 ) => {
