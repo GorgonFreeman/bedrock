@@ -3,7 +3,28 @@
 const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 
-const defaultAttrs = `id codesCount importedCount failedCount done`;
+const defaultAttrs = `
+  id 
+  codesCount 
+  importedCount 
+  failedCount 
+  done
+  codes (first: 5) {
+    edges {
+      node {
+        discountRedeemCode {
+          code
+        }
+        errors {
+          code
+          extraInfo
+          field
+          message
+        }
+      }
+    }
+  }
+`;
 
 const shopifyDiscountRedeemCodeBulkCreationGetSingle = async (
   credsPath,
