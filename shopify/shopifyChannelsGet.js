@@ -1,9 +1,16 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/things
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/channels
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyGet, shopifyGetter } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
+const defaultAttrs = `
+  id
+  handle
+  name
+  app {
+    handle
+  }
+`;
 
 const payloadMaker = (
   credsPath,
@@ -14,7 +21,7 @@ const payloadMaker = (
 ) => {
   return [
     credsPath, 
-    'thing',
+    'channel',
     { 
       attrs, 
       ...options,
@@ -24,6 +31,7 @@ const payloadMaker = (
 
 const shopifyChannelsGet = async (...args) => {
   const response = await shopifyGet(...payloadMaker(...args));
+  logDeep(response);
   return response;
 };
 
@@ -45,4 +53,4 @@ module.exports = {
   shopifyChannelsGetApi,
 };
 
-// curl localhost:8000/shopifyChannelsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 2 } }'
+// curl localhost:8000/shopifyChannelsGet -H "Content-Type: application/json" -d '{ "credsPath": "au" }'
