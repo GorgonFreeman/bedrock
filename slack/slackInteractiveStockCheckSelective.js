@@ -26,7 +26,7 @@ const blocks = {
     },
   },
 
-  settings: {
+  sku_input: {
     heading: {
       type: 'section',
       text: {
@@ -34,10 +34,10 @@ const blocks = {
         text: '*Enter SKUs to check*',
       },
     },
-    inputs: (skuList) => {
+    textfield: ({ skuList = [] } = {}) => {
       return {
         type: 'actions',
-        block_id: 'settings:inputs',
+        block_id: 'sku_input:textfield',
         elements: [
           {
             type: 'Plain_text_input',
@@ -47,6 +47,7 @@ const blocks = {
               type: 'plain_text',
               text: 'List of SKUs, one per line',
             },
+            ...( skuList && skuList.length > 0 ) ? [ { initial_value: skuList.join('\n') } ] : [],
           },
         ],
       };
@@ -110,12 +111,12 @@ const slackInteractiveStockCheckSelective = async (req, res) => {
 
     const initialBlocks = [
       blocks.intro,
-      blocks.settings.heading,
-      blocks.settings.inputs(DEFAULT_CONFIG.minDiff),
       blocks.region_select.heading,
       blocks.region_select.buttons,
       blocks.cancel,
     ];
+
+    logDeep('initialBlocks', initialBlocks);
 
     return respond(res, 200, {
       response_type: 'in_channel',
@@ -138,21 +139,6 @@ const slackInteractiveStockCheckSelective = async (req, res) => {
   } = payload;
 
   const { id: callerUserId } = user;
-
-  const {
-    blocks: currentBlocks,
-  } = message;
-  const currentBlocksById = arrayToObj(currentBlocks, { keyProp: 'block_id' });
-
-  settingsStateBlock = currentBlocksById['settings:state'];
-  settingsInputsBlock = currentBlocksById['settings:inputs'];
-
-  const textSettings = settingsStateBlock?.text?.text?.split('|');
-  let stateMinDiff = settingsInputsBlock
-    ? Number(settingsInputsBlock?.elements?.find(element => element.action_id === `${ COMMAND_NAME }:settings:min_diff`)?.initial_option?.value)
-    : Number(textSettings?.[0])
-  ;
-  let stateRegion = textSettings?.[1];  
 
   const action = actions?.[0];
   const { 
@@ -182,18 +168,17 @@ const slackInteractiveStockCheckSelective = async (req, res) => {
       break;
 
     case 'region_select':
-      stateRegion = actionValue;
+      console.log('region_select', actionValue);
+      response = {
+        replace_original: 'true',
+        text: `Checking ${ actionValue.toUpperCase() } stock...`,
+      };
       break;
 
     default:
       console.warn(`Unknown actionName: ${ actionName }`);
       break;
   }
-
-  response = {
-    replace_original: 'true',
-    text: `I don't do anything yet :hugging_face:`,
-  };
 
   logDeep('response', response);
   return customAxios(responseUrl, {
