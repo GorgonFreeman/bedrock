@@ -1,36 +1,47 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/orders
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/things
 
 const { funcApi, logDeep } = require('../utils');
-const { shopifyGet } = require('../shopify/shopify.utils');
+const { shopifyGet, shopifyGetter } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id name`;
+const defaultAttrs = `id`;
 
-const FUNC = async (
+const payloadMaker = (
   credsPath,
   {
     attrs = defaultAttrs,
     ...options
   } = {},
 ) => {
-
-  const response = await shopifyGet(
+  return [
     credsPath, 
-    'order', 
-    {
-      attrs,
+    'thing',
+    { 
+      attrs, 
       ...options,
     },
-  );
+  ];
+};
 
+const FUNC = async (...args) => {
+  const response = await shopifyGet(...payloadMaker(...args));
+  return response;
+};
+
+const FUNCter = async (...args) => {
+  const response = await shopifyGetter(...payloadMaker(...args));
   return response;
 };
 
 const FUNCApi = funcApi(FUNC, {
   argNames: ['credsPath', 'options'],
+  validatorsByArg: {
+    credsPath: Boolean,
+  },
 });
 
 module.exports = {
   FUNC,
+  FUNCter,
   FUNCApi,
 };
 
