@@ -52,6 +52,7 @@ module.exports = {
   shopifyBulkOperationGet: require('./shopify/shopifyBulkOperationGet').shopifyBulkOperationGetApi,
   shopifyBulkOperationRunQuery: require('./shopify/shopifyBulkOperationRunQuery').shopifyBulkOperationRunQueryApi,
   shopifyCatalogsGet: require('./shopify/shopifyCatalogsGet').shopifyCatalogsGetApi,
+  shopifyChannelsGet: require('./shopify/shopifyChannelsGet').shopifyChannelsGetApi,
   shopifyCustomerCancelDataErasure: require('./shopify/shopifyCustomerCancelDataErasure').shopifyCustomerCancelDataErasureApi,
   shopifyCustomerCreate: require('./shopify/shopifyCustomerCreate').shopifyCustomerCreateApi,
   shopifyCustomerDelete: require('./shopify/shopifyCustomerDelete').shopifyCustomerDeleteApi,
