@@ -135,12 +135,13 @@ const blocks = {
     ],
   },
 
-  result: (regionDisplay, stockCheckResults, { mentionUserId } = {}) => {
+  result: (region, stockCheckArray, { mentionUserId } = {}) => {
+    const stockCheckRows = stockCheckArray.map(item => `${ item.sku } | Shopify: ${ item.shopifyQty } | WMS: ${ item.wmsQty } | Diff: ${ item.absDiff }` ).join('\n');
     return {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `${ mentionUserId ? `Hey <@${ mentionUserId }>! ` : '' }Stock check for ${ regionDisplay }`,
+        text: `${ mentionUserId ? `Hey <@${ mentionUserId }>! ` : '' }Stock check for ${ region.toUpperCase() }\n\n${ stockCheckRows }`,
       },
     };
   },
@@ -279,7 +280,28 @@ const slackInteractiveStockCheckSelective = async (req, res) => {
               ...VARIANT_FETCH_QUERIES_BY_STORE[stateRegion] || [],
             ],
           });
-          logDeep('inventoryReviewResponse', inventoryReviewResponse);
+          const {
+            success: inventoryReviewSuccess,
+            result: inventoryReviewResult,
+          } = inventoryReviewResponse;
+          if (!inventoryReviewSuccess) {
+            response = {
+              replace_original: 'true',
+              text: `${ callerUserId ? `<@${ callerUserId }>, ` : '' }Error checking ${ stateRegion.toUpperCase() } stock`,
+            };
+            break;
+          }
+
+          const {
+            array: inventoryReviewArray,
+          } = inventoryReviewResult;
+
+          response = {
+            replace_original: 'true',
+            blocks: [
+              blocks.result(stateRegion, inventoryReviewArray, { mentionUserId: callerUserId }),
+            ],
+          };
           break;
 
         default:
