@@ -1,6 +1,7 @@
 const { HOSTED } = require('../constants');
 const { respond, logDeep, customAxios, arrayToObj } = require('../utils');
 const { REGIONS_WF } = require('../constants');
+const { collabsInventoryReview } = require('../collabs/collabsInventoryReview');
 
 const COMMAND_NAME = 'dev__stock_check_selective'; // slash command
 
@@ -232,9 +233,59 @@ const slackInteractiveStockCheckSelective = async (req, res) => {
           blocks.sku_input.heading,
           blocks.sku_input.textfield,
           blocks.sku_input.buttons,
-          blocks.cancel,
         ],
       };
+      break;
+
+    case 'sku_input':
+      switch (actionNodes?.[0]) {
+        case 'cancel':
+          response = {
+            delete_original: 'true',
+          };
+          break;
+
+        case 'submit':
+
+          const textfieldValue = state?.values?.['sku_input:textfield']?.[`${ COMMAND_NAME }:sku_input:textfield`]?.value;
+          const skus = textfieldValue?.split('\n').map(sku => sku.trim()) || [];
+
+          if (skus && skus.length === 0) {
+            response = {
+              replace_original: 'true',
+              text: 'No SKUs provided. Please try again.',
+            };
+            break;
+          }
+
+          response = {
+            replace_original: 'true',
+            text: `Checking ${ stateRegion.toUpperCase() } stock for ${ skus.length } SKUs...`,
+          };
+
+          await customAxios(responseUrl, {
+            method: 'post',
+            body: response,
+          });
+
+          console.log('skus', skus);
+
+          // Run the inventory check
+          const inventoryReviewResponse = await collabsInventoryReview(stateRegion, {
+            skus,
+            shopifyVariantsFetchQueries: [
+              'published_status:published',
+              'product_publication_status:approved',
+              ...VARIANT_FETCH_QUERIES_BY_STORE[stateRegion] || [],
+            ],
+          });
+          logDeep('inventoryReviewResponse', inventoryReviewResponse);
+          break;
+
+        default:
+          console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
+          break;
+      }
       break;
 
     default:
