@@ -1,16 +1,32 @@
 const { funcApi } = require('../utils');
 
+const {
+  HOSTED,
+  REGIONS_WF,
+  REGIONS_PVX,
+  REGIONS_LOGIWA,
+  REGIONS_BLECKMANN,
+} = require('../constants');
+
 const collabsProductDataCheck = async (
-  arg,
+  sku,
   {
-    option,
+    regions = REGIONS_WF
   } = {},
 ) => {
 
-  return { 
-    arg, 
-    option,
-  };
+  const pvxRelevant = REGIONS_PVX.some(region => regions.includes(region));
+  const logiwaRelevant = REGIONS_LOGIWA.some(region => regions.includes(region));
+  const bleckmannRelevant = REGIONS_BLECKMANN.some(region => regions.includes(region));
+  const anyRelevant = [pvxRelevant, logiwaRelevant, bleckmannRelevant].some(Boolean);
+  if (!anyRelevant) {
+    return {
+      success: false,
+      message: 'Region not supported',
+    };
+  }
+
+  // Start product data check
   
 };
 
