@@ -246,3 +246,4 @@ module.exports = {
 // curl localhost:8000/supabaseTableGetAll -H "Content-Type: application/json" -d '{ "credsPath": "foxtron", "tableName": "catalogue_sync_products", "options": { "orderBy": "handle" } }'
 // curl localhost:8000/supabaseRpc -H "Content-Type: application/json" -d '{ "credsPath": "bestie_bonus", "rpcName": "reserve_code", "options": { "rpcArgs": { "allocatedto": "john@whitefoxboutique.com" }, "useMaybeSingle": true } }'
 // curl localhost:8000/supabaseRowUpdate -H "Content-Type: application/json" -d '{ "credsPath": "bestie_bonus", "tableName": "codes", "match": { "code": "BB-B8H79M3RXV" }, "updatePayload": { "allocated": 1234 } }'
+// curl localhost:8000/supabaseRowInsert -H "Content-Type: application/json" -d '{ "credsPath": "bestie_bonus", "tableName": "codes", "rowObject": [{ "code": "BB-2222X39Z84" }, { "code": "BB-22237MN2RW" }] }'
