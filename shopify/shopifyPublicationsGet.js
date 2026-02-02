@@ -1,9 +1,14 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/things
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/publications
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyGet, shopifyGetter } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
+const defaultAttrs = `
+  id 
+  catalog { 
+    title 
+  }
+`;
 
 const payloadMaker = (
   credsPath,
@@ -14,7 +19,7 @@ const payloadMaker = (
 ) => {
   return [
     credsPath, 
-    'thing',
+    'publication',
     { 
       attrs, 
       ...options,
@@ -24,6 +29,7 @@ const payloadMaker = (
 
 const shopifyPublicationsGet = async (...args) => {
   const response = await shopifyGet(...payloadMaker(...args));
+  logDeep(response);
   return response;
 };
 
@@ -45,4 +51,4 @@ module.exports = {
   shopifyPublicationsGetApi,
 };
 
-// curl localhost:8000/shopifyPublicationsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 2 } }'
+// curl localhost:8000/shopifyPublicationsGet -H "Content-Type: application/json" -d '{ "credsPath": "au" }'
