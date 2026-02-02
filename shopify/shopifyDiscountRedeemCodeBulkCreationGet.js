@@ -45,7 +45,6 @@ const shopifyDiscountRedeemCodeBulkCreationGetSingle = async (
     },
   );
   
-  logDeep(response);
   return response;
 };
 
