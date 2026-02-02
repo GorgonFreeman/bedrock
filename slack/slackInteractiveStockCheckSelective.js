@@ -148,7 +148,6 @@ const blocks = {
 };
 
 const slackInteractiveStockCheckSelective = async (req, res) => {
-  console.log('slackInteractiveStockCheckSelective');
 
   const { body } = req;
   
@@ -162,8 +161,6 @@ const slackInteractiveStockCheckSelective = async (req, res) => {
       blocks.cancel,
     ];
 
-    logDeep('initialBlocks', initialBlocks);
-
     return respond(res, 200, {
       response_type: 'in_channel',
       blocks: initialBlocks,
@@ -174,7 +171,6 @@ const slackInteractiveStockCheckSelective = async (req, res) => {
   respond(res, 200); // Acknowledge immediately - we'll provide the next step to the response_url later
 
   const payload = JSON.parse(body.payload);
-  logDeep('payload', payload);
 
   const { 
     response_url: responseUrl,
@@ -280,6 +276,9 @@ const slackInteractiveStockCheckSelective = async (req, res) => {
               ...VARIANT_FETCH_QUERIES_BY_STORE[stateRegion] || [],
             ],
           });
+
+          !HOSTED && logDeep('inventoryReviewResponse', inventoryReviewResponse);
+
           const {
             success: inventoryReviewSuccess,
             result: inventoryReviewResult,
