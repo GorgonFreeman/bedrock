@@ -1,4 +1,4 @@
-const { funcApi } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
 
 const {
   HOSTED,
@@ -8,10 +8,12 @@ const {
   REGIONS_BLECKMANN,
 } = require('../constants');
 
+const { stylearcadeDataGet } = require('../stylearcade/stylearcadeDataGet');
+
 const collabsProductDataCheck = async (
   sku,
   {
-    regions = REGIONS_WF
+    regions = REGIONS_WF,
   } = {},
 ) => {
 
@@ -26,12 +28,30 @@ const collabsProductDataCheck = async (
     };
   }
 
-  // Start product data check
+  const stylearcadeDataResponse = await stylearcadeDataGet(sku);
+  let { success: stylearcadeDataResponseSuccess, result: stylearcadeData } = stylearcadeDataResponse;
+  if (!stylearcadeDataResponseSuccess) {
+    return {
+      success: false,
+      message: 'Error getting stylearcade data',
+    };
+  }
+
+  const targetStylearcadeData = stylearcadeData
+  .map(({ data }) => data).filter(item => item) // remove data: null
+  .filter(item => item.productId === sku); // filter wanted products
+
+  logDeep(targetStylearcadeData);
+
+  return {
+    success: true,
+    result: targetStylearcadeData,
+  }
   
 };
 
 const collabsProductDataCheckApi = funcApi(collabsProductDataCheck, {
-  argNames: ['arg', 'options'],
+  argNames: ['sku', 'options'],
 });
 
 module.exports = {
@@ -39,4 +59,7 @@ module.exports = {
   collabsProductDataCheckApi,
 };
 
-// curl localhost:8000/collabsProductDataCheck -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/collabsProductDataCheck -H "Content-Type: application/json" -d '{ "sku": "WFT2212-1" }'
+// curl localhost:8000/collabsProductDataCheck -H "Content-Type: application/json" -d '{ "sku": "WFT2212-1", "options": { "regions": [ "au" ] } }'
+// curl localhost:8000/collabsProductDataCheck -H "Content-Type: application/json" -d '{ "sku": "WFT2212-1", "options": { "regions": [ "us" ] } }'
+// curl localhost:8000/collabsProductDataCheck -H "Content-Type: application/json" -d '{ "sku": "WFT2212-1", "options": { "regions": [ "uk" ] } }'
