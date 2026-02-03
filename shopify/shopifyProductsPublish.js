@@ -34,6 +34,7 @@ const shopifyProductsPublishSingle = async (
       edges {
         node {
           id
+          name
           catalog {
             title
           }
