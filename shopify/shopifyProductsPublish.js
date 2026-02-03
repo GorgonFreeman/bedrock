@@ -75,6 +75,13 @@ const shopifyProductsPublishSingle = async (
       }
 
       // Using filters
+
+      logDeep({
+        includePublicationsIdentifiers,
+        excludePublicationsIdentifiers,
+      });
+      await askQuestion('Continue?');
+
       let filteredUnpublishedPublications = [];
 
       for (const publication of unpublishedPublications) {
@@ -146,8 +153,8 @@ const shopifyProductsPublishSingle = async (
         unpublishedPublications, 
       } = product;
 
-      // logDeep(product);
-      // await askQuestion('Continue?');
+      logDeep(product);
+      await askQuestion('Continue?');
 
       if (demo) {
         const tagResponse = await shopifyTagsAdd(
