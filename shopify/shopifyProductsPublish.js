@@ -87,28 +87,36 @@ const shopifyProductsPublishSingle = async (
         if (includePublicationsIdentifiers) {
 
           const included = includePublicationsIdentifiers.some(publicationIdentifier => {
-            return pName === publicationIdentifier.publicationName || pId === publicationIdentifier.publicationId;
+            const {
+              publicationId,
+              publicationName,
+            } = publicationIdentifier;
+
+            return pName === publicationName || pId === publicationId;
           });
 
           if (!included) {
             continue;
           }
           
-        }
-        
+        }        
         // Using excluded filters
         if (excludePublicationsIdentifiers) {
 
           const excluded = excludePublicationsIdentifiers.some(publicationIdentifier => {
-            return pName === publicationIdentifier.publicationName || pId === publicationIdentifier.publicationId;
+            const {
+              publicationId,
+              publicationName,
+            } = publicationIdentifier;
+
+            return pName === publicationName || pId === publicationId;
           });
 
           if (excluded) {
             continue;
           }
 
-        }
-        
+        }        
         filteredUnpublishedPublications.push(publication);
       }
 
