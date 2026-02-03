@@ -52,3 +52,4 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyPublicationsGet -H "Content-Type: application/json" -d '{ "credsPath": "au" }'
+// curl localhost:8000/shopifyPublicationsGet -H "Content-Type: application/json" -d '{ "credsPath": "uk", "options": { "attrs": "id name catalog { id title }" } }'
