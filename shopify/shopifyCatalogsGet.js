@@ -21,6 +21,9 @@ const payloadMaker = (
     { 
       attrs, 
       ...options,
+      argumentTypeOverrides: {
+        type: 'CatalogType',
+      },
     },
   ];
 };

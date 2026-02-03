@@ -150,6 +150,7 @@ const shopifyGetter = async (
     
     // Helpers
     resources, // for when plural of the resource isn't `${ resource }s`
+    argumentTypeOverrides = {}, // for when a commonly-named API option is not just a single type, e.g. type being String vs CatalogType
 
     ...getterOptions
   } = {},
@@ -159,7 +160,9 @@ const shopifyGetter = async (
   // Forgive me, this is a capital for legibility
   const Resource = capitaliseString(resource);
   const Resources = capitaliseString(resources);
-
+  
+  // TODO: Decide whether to support argumentTypeOverrides across all arguments, or just the ones that have experienced conflicts
+  // TODO: Consider allowing API options to be optionally passed in as an object, e.g. { queries: { type: 'String', value: 'query' } } and removing argumentTypeOverrides
   const queryTypeDeclaration = [
     '$first: Int!',
     '$cursor: String',
@@ -177,7 +180,7 @@ const shopifyGetter = async (
     ...ownerGid ? ['$owner: ID!,'] : [],
     ...includeClosed ? ['$includeClosed: Boolean,'] : [],
     ...includeLegacy ? ['$includeLegacy: Boolean,'] : [],
-    ...type ? ['$type: String!,'] : [],
+    ...type ? [`$type: ${ argumentTypeOverrides['type'] || 'String!' },`] : [],
   ].join('\n');
 
   const queryVariableDeclaration = [
