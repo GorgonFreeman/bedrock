@@ -114,6 +114,7 @@ module.exports = {
   shopifyProductsAuditZeroPrice: require('./shopify/shopifyProductsAuditZeroPrice').shopifyProductsAuditZeroPriceApi,
   shopifyProductsGet: require('./shopify/shopifyProductsGet').shopifyProductsGetApi,
   shopifyProductsPublish: require('./shopify/shopifyProductsPublish').shopifyProductsPublishApi,
+  shopifyPublicationGet: require('./shopify/shopifyPublicationGet').shopifyPublicationGetApi,
   shopifyPublicationsGet: require('./shopify/shopifyPublicationsGet').shopifyPublicationsGetApi,
   shopifyStagedUploadCreate: require('./shopify/shopifyStagedUploadCreate').shopifyStagedUploadCreateApi,
   shopifyStoreCreditAccountCredit: require('./shopify/shopifyStoreCreditAccountCredit').shopifyStoreCreditAccountCreditApi,
