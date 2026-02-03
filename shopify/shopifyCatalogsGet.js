@@ -50,3 +50,4 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyCatalogsGet -H "Content-Type: application/json" -d '{ "credsPath": "au" }'
+// curl localhost:8000/shopifyCatalogsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "type": "APP", "attrs": "id title apps (first: 50) { edges { node { shopifyDeveloped title handle } } }" } }'
