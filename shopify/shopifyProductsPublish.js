@@ -77,12 +77,12 @@ const shopifyProductsPublishSingle = async (
 
       // Using filters
 
-      logDeep({
-        includePublicationsIdentifiers,
-        excludePublicationsIdentifiers,
-        unpublishedPublications,
-      });
-      await askQuestion('Continue?');
+      // logDeep({
+      //   includePublicationsIdentifiers,
+      //   excludePublicationsIdentifiers,
+      //   unpublishedPublications,
+      // });
+      // await askQuestion('Continue?');
 
       let filteredUnpublishedPublications = [];
 
@@ -131,10 +131,10 @@ const shopifyProductsPublishSingle = async (
         filteredUnpublishedPublications.push(publication);
       }
 
-      logDeep({
-        filteredUnpublishedPublications,
-      });
-      await askQuestion('Continue?');
+      // logDeep({
+      //   filteredUnpublishedPublications,
+      // });
+      // await askQuestion('Continue?');
 
       if (!filteredUnpublishedPublications?.length) {
         return;
@@ -162,8 +162,8 @@ const shopifyProductsPublishSingle = async (
         unpublishedPublications, 
       } = product;
 
-      logDeep(product);
-      await askQuestion('Continue?');
+      // logDeep(product);
+      // await askQuestion('Continue?');
 
       if (demo) {
         const tagResponse = await shopifyTagsAdd(
