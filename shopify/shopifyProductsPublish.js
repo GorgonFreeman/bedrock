@@ -79,6 +79,7 @@ const shopifyProductsPublishSingle = async (
       logDeep({
         includePublicationsIdentifiers,
         excludePublicationsIdentifiers,
+        unpublishedPublications,
       });
       await askQuestion('Continue?');
 
@@ -128,6 +129,11 @@ const shopifyProductsPublishSingle = async (
         
         filteredUnpublishedPublications.push(publication);
       }
+
+      logDeep({
+        filteredUnpublishedPublications,
+      });
+      await askQuestion('Continue?');
 
       if (!filteredUnpublishedPublications?.length) {
         return;
