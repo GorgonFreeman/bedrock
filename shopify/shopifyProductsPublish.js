@@ -15,6 +15,13 @@ const shopifyProductsPublishSingle = async (
   } = {},
 ) => {
 
+  if (includePublicationsIdentifiers && excludePublicationsIdentifiers) {
+    return {
+      success: false,
+      errors: ['Cannot use both includePublicationsIdentifiers and excludePublicationsIdentifiers'],
+    }
+  }
+
   const piles = {
     products: [],
     actionable: [],
@@ -53,9 +60,66 @@ const shopifyProductsPublishSingle = async (
     piles.products,
     async (pile) => {
       const product = pile.shift();
-      if (product.unpublishedPublications.length > 0) {
-        piles.actionable.push(product);
+
+      const { unpublishedPublications } = product;
+
+      if (!unpublishedPublications?.length) {
+        return;
       }
+
+      const usingFilters = includePublicationsIdentifiers || excludePublicationsIdentifiers;
+
+      if (!usingFilters) {
+        piles.actionable.push(product);
+        return;
+      }
+
+      // Using filters
+      let filteredUnpublishedPublications = [];
+
+      for (const publication of unpublishedPublications) {
+        const { 
+          id: pGid,
+          name: pName,
+        } = publication;
+        const pId = gidToId(pGid);
+
+        if (includePublicationsIdentifiers) {
+
+          const included = includePublicationsIdentifiers.some(publicationIdentifier => {
+            return pName === publicationIdentifier.publicationName || pId === publicationIdentifier.publicationId;
+          });
+
+          if (!included) {
+            continue;
+          }
+          
+        }
+        
+        // Using excluded filters
+        if (excludePublicationsIdentifiers) {
+
+          const excluded = excludePublicationsIdentifiers.some(publicationIdentifier => {
+            return pName === publicationIdentifier.publicationName || pId === publicationIdentifier.publicationId;
+          });
+
+          if (excluded) {
+            continue;
+          }
+
+        }
+        
+        filteredUnpublishedPublications.push(publication);
+      }
+
+      if (!filteredUnpublishedPublications?.length) {
+        return;
+      }
+
+      piles.actionable.push({ 
+        ...product,
+        unpublishedPublications: filteredUnpublishedPublications,
+      });
     },
     pile => pile.length === 0,
     {
