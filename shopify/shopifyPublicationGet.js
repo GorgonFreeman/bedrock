@@ -1,4 +1,4 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/order
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/publication
 
 const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
@@ -7,7 +7,7 @@ const defaultAttrs = `id name`;
 
 const shopifyPublicationGetSingle = async (
   credsPath,
-  thingId,
+  publicationId,
   {
     apiVersion,
     attrs = defaultAttrs,
@@ -16,8 +16,8 @@ const shopifyPublicationGetSingle = async (
   
   const response = await shopifyGetSingle(
     credsPath,
-    'thing',
-    thingId,
+    'publication',
+    publicationId,
     {
       apiVersion,
       attrs,
@@ -30,17 +30,17 @@ const shopifyPublicationGetSingle = async (
 
 const shopifyPublicationGet = async (
   credsPath,
-  thingId,
+  publicationId,
   {
     queueRunOptions,
     ...options
   } = {},
 ) => {
   const response = await actionMultipleOrSingle(
-    thingId,
+    publicationId,
     shopifyPublicationGetSingle,
-    (thingId) => ({
-      args: [credsPath, thingId],
+    (publicationId) => ({
+      args: [credsPath, publicationId],
       options,
     }),
     {
@@ -53,7 +53,7 @@ const shopifyPublicationGet = async (
 };
 
 const shopifyPublicationGetApi = funcApi(shopifyPublicationGet, {
-  argNames: ['credsPath', 'thingId', 'options'],
+  argNames: ['credsPath', 'publicationId', 'options'],
 });
 
 module.exports = {
@@ -61,4 +61,4 @@ module.exports = {
   shopifyPublicationGetApi,
 };
 
-// curl localhost:8000/shopifyPublicationGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "thingId": "7012222266312" }'
+// curl localhost:8000/shopifyPublicationGet -H "Content-Type: application/json" -d '{ "credsPath": "uk", "publicationId": "1234567890", "options": { "attrs": "id name catalog { id title }" } }'
