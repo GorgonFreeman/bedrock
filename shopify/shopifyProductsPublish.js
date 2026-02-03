@@ -106,7 +106,8 @@ const shopifyProductsPublishSingle = async (
             continue;
           }
           
-        }        
+        }
+        
         // Using excluded filters
         if (excludePublicationsIdentifiers) {
 
@@ -123,7 +124,8 @@ const shopifyProductsPublishSingle = async (
             continue;
           }
 
-        }        
+        }
+        
         filteredUnpublishedPublications.push(publication);
       }
 
