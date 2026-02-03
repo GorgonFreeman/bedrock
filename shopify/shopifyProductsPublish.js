@@ -259,4 +259,4 @@ module.exports = {
 // Publish online store products on all other channels
 // curl localhost:8000/shopifyProductsPublish -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "fetchOptions": { "queries": ["published_status:published"] } } }'
 // curl localhost:8000/shopifyProductsPublish -H "Content-Type: application/json" -d '{ "credsPath": ["au.publish_sweep", "us.publish_sweep", "uk.publish_sweep"], "options": { "fetchOptions": { "queries": ["published_status:published"] } } }'
-// curl localhost:8000/shopifyProductsPublish -H "Content-Type: application/json" -d '{ "credsPath": "develop", "options": { "includePublicationsIdentifiers": [ { "publicationName": "Inbox" } ] } }'
+// curl localhost:8000/shopifyProductsPublish -H "Content-Type: application/json" -d '{ "credsPath": "develop", "options": { "fetchOptions": { "queries": ["published_status:published"] }, "excludePublicationsIdentifiers": [ { "publicationName": "Point of Sale" } ] } }'
