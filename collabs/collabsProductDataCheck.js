@@ -61,7 +61,6 @@ const collabsProductDataCheck = async (
   }
 
   const targetProduct = targetStylearcadeData[0];
-  const targetProductHandle = handleize(`${ targetProduct.name } ${ targetProduct.colour }`);
   const weight = targetProduct.workflow.find(item => item.stageLabel === 'weight').note || null;
   const dimensions = targetProduct.workflow.find(item => item.stageLabel === 'product dims').note || null;
 
@@ -82,11 +81,11 @@ const collabsProductDataCheck = async (
   // Fetch and compile Shopify product data
   for (const region of regions) {
     const shopifyProductResponse = await shopifyProductGet(region, {
-      handle: targetProductHandle,
+      skuStartsWith: `${ sku }-`,
     }, {
-      attrs: 'id title handle metafields (first:10 namespace:"specifications") { edges { node { id namespace key value } } }',
+      attrs: 'id title handle dimensionsMetafield: metafield(namespace:"specifications", key:"dimensions_cm") { value } weightMetafield: metafield(namespace:"specifications", key:"weight_kg") { value }',
     });
-    const { success: shopifyProductSuccess, result: shopifyProductResult } = shopifyProductResponse;
+    const { success: shopifyProductSuccess, result: shopifyProduct  } = shopifyProductResponse;
     if (!shopifyProductSuccess) {
       resultObject[region] = {
         error: shopifyProductResponse.error,
@@ -95,11 +94,11 @@ const collabsProductDataCheck = async (
       continue;
     }
 
-    const shopifyWeight = shopifyProductResult.product.metafields.find(item => item.namespace === 'specifications' && item.key === 'weight_kg');
-    const shopifyDimensions = shopifyProductResult.product.metafields.find(item => item.namespace === 'specifications' && item.key === 'dimensions_cm');
+    const shopifyDimensions = shopifyProduct.dimensionsMetafield?.value;
+    const shopifyWeight = shopifyProduct.weightMetafield?.value;
     resultObject.shopifyData[region] = {
-      weight: shopifyWeight?.value || null,
-      dimensions: shopifyDimensions?.value || null,
+      weight: shopifyWeight,
+      dimensions: shopifyDimensions,
     };
   }
 
