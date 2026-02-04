@@ -3,6 +3,7 @@
 const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
 const { shopifyClient } = require('../shopify/shopify.utils');
+const { shopifyProductsGet } = require('../shopify/shopifyProductsGet');
 
 const defaultAttrs = `id title handle`;
 
@@ -35,9 +36,41 @@ const shopifyProductGet = async (
   }
 
   if (skuStartsWith) {
-    // TODO
+    
+    const productsResponse = await shopifyProductsGet(
+      credsPath,
+      {
+        queries: [`sku:${ skuStartsWith }*`],
+      },
+    );
+
+    const { success: productsSuccess, result: products } = productsResponse;
+    if (!productsSuccess) {
+      return productsResponse;
+    }
+
+    const productCandidates = products.filter(p => p.sku.startsWith(skuStartsWith));
+
+    if (productCandidates.length === 0) {
+      return {
+        success: false,
+        error: [`No products found with sku starting with '${ skuStartsWith }'`],
+      };
+    }
+
+    if (productCandidates.length > 1) {
+      return {
+        success: false,
+        error: [`Multiple products found with sku starting with '${ skuStartsWith }'. Please refine your partial sku.`],
+      };
+    }
+
+    return {
+      success: true,
+      result: productCandidates[0],
+    };
   }
-  
+
   const query = `
     query GetProductByIdentifier ($identifier: ProductIdentifierInput!) {
       product: productByIdentifier(identifier: $identifier) {
@@ -93,5 +126,6 @@ module.exports = {
   shopifyProductGetApi,
 };
 
-// curl localhost:8000/shopifyProductGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "productIdentifier": { "productId": "6979774283848" } }'
+// curl localhost:8000/shopifyProductGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "productIdentifier": { "productId": "6983241564232" } }'
 // curl localhost:8000/shopifyProductGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "productIdentifier": { "handle": "forever-is-ours-baby-tee-cupcake" } }'
+// curl localhost:8000/shopifyProductGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "productIdentifier": { "skuStartsWith": "EXDAL2376-1-" } }'
