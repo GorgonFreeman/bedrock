@@ -37,7 +37,7 @@ const shopifyProductGet = async (
 
   if (skuStartsWith) {
 
-    attrs += ` exampleVariant: variants(first: 1) { 
+    attrs += ` exampleVariant: variants(first: 1, query: "sku:${ skuStartsWith }*") { 
       edges { 
         node { 
           sku 
