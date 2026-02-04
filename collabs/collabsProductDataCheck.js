@@ -1,4 +1,4 @@
-const { funcApi, logDeep, handleize } = require('../utils');
+const { funcApi, logDeep } = require('../utils');
 
 const {
   HOSTED,
@@ -64,10 +64,6 @@ const collabsProductDataCheck = async (
   const weight = targetProduct.workflow.find(item => item.stageLabel === 'weight').note || null;
   const dimensions = targetProduct.workflow.find(item => item.stageLabel === 'product dims').note || null;
 
-  // logDeep('targetProduct', targetProduct);
-  // logDeep('targetProductHandle', targetProductHandle);
-  // logDeep(weight, dimensions);
-
   let success  = true;
   let resultObject = {
     sku,
@@ -107,7 +103,7 @@ const collabsProductDataCheck = async (
     };
   }
 
-  logDeep('resultObject', resultObject);
+  !HOSTED && logDeep('resultObject', resultObject);
 
   return {
     success,
