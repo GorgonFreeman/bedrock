@@ -75,17 +75,23 @@ const shopifyProductGet = async (
       };
     }
 
+    const productCandidate = productCandidates[0];
+
+    const {
+      exampleVariant,
+      ...product
+    } = productCandidate;
+
     return {
       success: true,
-      result: productCandidates[0],
+      result: product,
     };
   }
 
   const query = `
     query GetProductByIdentifier ($identifier: ProductIdentifierInput!) {
       product: productByIdentifier(identifier: $identifier) {
-        ${ attrs }
-      } 
+        ${ attrs }      } 
     }
   `;
 
