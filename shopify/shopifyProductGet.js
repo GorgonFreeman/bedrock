@@ -49,6 +49,8 @@ const shopifyProductGet = async (
       credsPath,
       {
         queries: [`sku:${ skuStartsWith }*`],
+        attrs,
+        apiVersion,
       },
     );
 
