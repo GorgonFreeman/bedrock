@@ -36,6 +36,14 @@ const shopifyProductGet = async (
   }
 
   if (skuStartsWith) {
+
+    attrs += ` exampleVariant: variants(first: 1) { 
+      edges { 
+        node { 
+          sku 
+        } 
+      } 
+    }`;
     
     const productsResponse = await shopifyProductsGet(
       credsPath,
@@ -49,7 +57,7 @@ const shopifyProductGet = async (
       return productsResponse;
     }
 
-    const productCandidates = products.filter(p => p.sku.startsWith(skuStartsWith));
+    const productCandidates = products.filter(p => p.exampleVariant?.[0].sku.startsWith(skuStartsWith));
 
     if (productCandidates.length === 0) {
       return {
