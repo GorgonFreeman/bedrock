@@ -1,4 +1,4 @@
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, handleize } = require('../utils');
 
 const {
   HOSTED,
@@ -10,6 +10,8 @@ const {
 
 const { stylearcadeDataGet } = require('../stylearcade/stylearcadeDataGet');
 
+const { shopifyProductGet } = require('../shopify/shopifyProductGet');
+
 const collabsProductDataCheck = async (
   sku,
   {
@@ -17,6 +19,7 @@ const collabsProductDataCheck = async (
   } = {},
 ) => {
 
+  // Validate regions
   const pvxRelevant = REGIONS_PVX.some(region => regions.includes(region));
   const logiwaRelevant = REGIONS_LOGIWA.some(region => regions.includes(region));
   const bleckmannRelevant = REGIONS_BLECKMANN.some(region => regions.includes(region));
@@ -28,6 +31,7 @@ const collabsProductDataCheck = async (
     };
   }
 
+  // Fetch Stylearcade data
   const stylearcadeDataResponse = await stylearcadeDataGet(sku);
   let { success: stylearcadeDataResponseSuccess, result: stylearcadeData } = stylearcadeDataResponse;
   if (!stylearcadeDataResponseSuccess) {
@@ -37,6 +41,7 @@ const collabsProductDataCheck = async (
     };
   }
 
+  // Filter Stylearcade data to get the target product
   const targetStylearcadeData = stylearcadeData
   .map(({ data }) => data).filter(item => item) // remove data: null
   .filter(item => item.productId === sku); // filter wanted products
@@ -56,14 +61,55 @@ const collabsProductDataCheck = async (
   }
 
   const targetProduct = targetStylearcadeData[0];
+  const targetProductHandle = handleize(`${ targetProduct.name } ${ targetProduct.colour }`);
   const weight = targetProduct.workflow.find(item => item.stageLabel === 'weight').note || null;
   const dimensions = targetProduct.workflow.find(item => item.stageLabel === 'product dims').note || null;
 
-  logDeep(weight, dimensions);
+  // logDeep('targetProduct', targetProduct);
+  // logDeep('targetProductHandle', targetProductHandle);
+  // logDeep(weight, dimensions);
+
+  let success  = true;
+  let resultObject = {
+    sku,
+    stylearcadeData: {
+      weight,
+      dimensions,
+    },
+    shopifyData: {},
+  };
+
+  // Fetch and compile Shopify product data
+  for (const region of regions) {
+    const shopifyProductResponse = await shopifyProductGet(region, {
+      handle: targetProductHandle,
+    }, {
+      attrs: 'id title handle metafields (first:10 namespace:"specifications") { edges { node { id namespace key value } } }',
+    });
+    const { success: shopifyProductSuccess, result: shopifyProductResult } = shopifyProductResponse;
+    if (!shopifyProductSuccess) {
+      resultObject[region] = {
+        error: shopifyProductResponse.error,
+      };
+      success = false;
+      continue;
+    }
+
+    const shopifyWeight = shopifyProductResult.product.metafields.find(item => item.namespace === 'specifications' && item.key === 'weight_kg');
+    const shopifyDimensions = shopifyProductResult.product.metafields.find(item => item.namespace === 'specifications' && item.key === 'dimensions_cm');
+    resultObject.shopifyData[region] = {
+      weight: shopifyWeight?.value || null,
+      dimensions: shopifyDimensions?.value || null,
+    };
+  }
+
+  logDeep('resultObject', resultObject);
 
   return {
-    success: true,
-    result: null,
+    success,
+    result: {
+      object: resultObject,
+    },
   };
 };
 
