@@ -59,7 +59,7 @@ const shopifyProductGet = async (
       return productsResponse;
     }
 
-    const productCandidates = products.filter(p => p.exampleVariant?.[0].sku.startsWith(skuStartsWith));
+    const productCandidates = products.filter(p => p.exampleVariant?.[0]?.sku?.startsWith(skuStartsWith));
 
     if (productCandidates.length === 0) {
       return {
@@ -67,7 +67,6 @@ const shopifyProductGet = async (
         error: [`No products found with sku starting with '${ skuStartsWith }'`],
       };
     }
-
     if (productCandidates.length > 1) {
       return {
         success: false,
