@@ -36,16 +36,16 @@ const shopifyProductGet = async (
   }
 
   if (skuStartsWith) {
-
-    attrs += ` exampleVariant: variants(first: 1, sortKey: SKU) { 
+    
+    // We use reverse: true because an empty sku field will be first when sorted by SKU
+    attrs += ` exampleVariant: variants(first: 1, sortKey: SKU, reverse: true) { 
       edges { 
         node { 
           sku 
         } 
       } 
     }`;
-    
-    const productsResponse = await shopifyProductsGet(
+        const productsResponse = await shopifyProductsGet(
       credsPath,
       {
         queries: [`sku:${ skuStartsWith }*`],
