@@ -45,7 +45,8 @@ const shopifyProductGet = async (
         } 
       } 
     }`;
-        const productsResponse = await shopifyProductsGet(
+    
+    const productsResponse = await shopifyProductsGet(
       credsPath,
       {
         queries: [`sku:${ skuStartsWith }*`],
@@ -87,17 +88,18 @@ const shopifyProductGet = async (
     };
   }
 
-  const query = `
+  const query = `    
     query GetProductByIdentifier ($identifier: ProductIdentifierInput!) {
       product: productByIdentifier(identifier: $identifier) {
-        ${ attrs }      } 
+        ${ attrs }
+      } 
     }
   `;
 
   const variables = {
     identifier: {
       ...customId && { customId },
-      ...handle && { handle },
+      ...handle && { handle },    
     },
   };
 
