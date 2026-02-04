@@ -83,7 +83,12 @@ const collabsProductDataCheck = async (
     const shopifyProductResponse = await shopifyProductGet(region, {
       skuStartsWith: `${ sku }-`,
     }, {
-      attrs: 'id title handle dimensionsMetafield: metafield(namespace:"specifications", key:"dimensions_cm") { value } weightMetafield: metafield(namespace:"specifications", key:"weight_kg") { value }',
+      attrs: `id title handle
+        dimensionsCmMetafield: metafield(namespace:"specifications", key:"dimensions_cm") { value }
+        dimensionsInchesMetafield: metafield(namespace:"specifications", key:"dimensions_inches") { value }
+        weightKgMetafield: metafield(namespace:"specifications", key:"weight_kg") { value }
+        weightPoundsMetafield: metafield(namespace:"specifications", key:"weight_pounds") { value }
+      `,
     });
     const { success: shopifyProductSuccess, result: shopifyProduct  } = shopifyProductResponse;
     if (!shopifyProductSuccess) {
@@ -94,11 +99,11 @@ const collabsProductDataCheck = async (
       continue;
     }
 
-    const shopifyDimensions = shopifyProduct.dimensionsMetafield?.value;
-    const shopifyWeight = shopifyProduct.weightMetafield?.value;
     resultObject.shopifyData[region] = {
-      weight: shopifyWeight,
-      dimensions: shopifyDimensions,
+      dimensionsCm: shopifyProduct.dimensionsCmMetafield?.value,
+      dimensionsInches: shopifyProduct.dimensionsInchesMetafield?.value,
+      weightKg: shopifyProduct.weightKgMetafield?.value,
+      weightPounds: shopifyProduct.weightPoundsMetafield?.value,
     };
   }
 
