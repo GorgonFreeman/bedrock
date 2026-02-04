@@ -41,13 +41,30 @@ const collabsProductDataCheck = async (
   .map(({ data }) => data).filter(item => item) // remove data: null
   .filter(item => item.productId === sku); // filter wanted products
 
-  logDeep(targetStylearcadeData);
+  if (targetStylearcadeData.length === 0) {
+    return {
+      success: false,
+      message: `Product with SKU: ${ sku } not found in StyleArcade`,
+    };
+  }
+
+  if (targetStylearcadeData.length > 1) {
+    return {
+      success: false,
+      message: `Multiple products found in StyleArcade for SKU: ${ sku }`,
+    };
+  }
+
+  const targetProduct = targetStylearcadeData[0];
+  const weight = targetProduct.workflow.find(item => item.stageLabel === 'weight').note || null;
+  const dimensions = targetProduct.workflow.find(item => item.stageLabel === 'product dims').note || null;
+
+  logDeep(weight, dimensions);
 
   return {
     success: true,
-    result: targetStylearcadeData,
-  }
-  
+    result: null,
+  };
 };
 
 const collabsProductDataCheckApi = funcApi(collabsProductDataCheck, {
