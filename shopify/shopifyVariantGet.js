@@ -55,7 +55,7 @@ const shopifyVariantGetSingle = async (
   if (!variant) {
     return {
       success: false,
-      error: [`Variant with sku '${sku}' not found`],
+      error: [`Variant with sku '${ sku }' not found`],
     };
   }
   
