@@ -12,6 +12,7 @@ const shopifyProductGet = async (
     productId,
     customId,
     handle,
+    skuStartsWith,
   },
   {
     attrs = defaultAttrs,
@@ -19,46 +20,49 @@ const shopifyProductGet = async (
   } = {},
 ) => {
 
-  if (!productId) {
-
-    const query = `
-      query GetProductByIdentifier ($identifier: ProductIdentifierInput!) {
-        product: productByIdentifier(identifier: $identifier) {
-          ${ attrs }
-        } 
-      }
-    `;
-
-    const variables = {
-      identifier: {
-        ...customId && { customId },
-        ...handle && { handle },
-      },
-    };
-
-    const response = await shopifyClient.fetch({
-      method: 'post',
-      body: { query, variables },
-      context: {
-        credsPath,
+  if (productId) {
+    const response = await shopifyGetSingle(
+      credsPath,
+      'product',
+      productId,
+      {
         apiVersion,
+        attrs,
       },
-    });
-
+    );
+  
     return response;
   }
 
-  const response = await shopifyGetSingle(
-    credsPath,
-    'product',
-    productId,
-    {
-      apiVersion,
-      attrs,
-    },
-  );
+  if (skuStartsWith) {
+    // TODO
+  }
+  
+  const query = `
+    query GetProductByIdentifier ($identifier: ProductIdentifierInput!) {
+      product: productByIdentifier(identifier: $identifier) {
+        ${ attrs }
+      } 
+    }
+  `;
 
-  return response;
+  const variables = {
+    identifier: {
+      ...customId && { customId },
+      ...handle && { handle },
+    },
+  };
+
+  const response = await shopifyClient.fetch({
+    method: 'post',
+    body: { query, variables },
+    context: {
+      credsPath,
+      apiVersion,
+    },
+  });
+
+  return response;  
 };
 
 const shopifyProductGetApi = async (req, res) => {
