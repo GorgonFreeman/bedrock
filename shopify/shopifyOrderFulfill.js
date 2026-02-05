@@ -1,13 +1,13 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/fulfillmentCreateV2
 
 const { HOSTED } = require('../constants');
-const { respond, mandateParam, logDeep, askQuestion } = require('../utils');
+const { respond, mandateParam, logDeep, askQuestion, actionMultipleOrSingle } = require('../utils');
 const { shopifyClient, shopifyFulfillmentLineItemsFromExternalLineItems } = require('../shopify/shopify.utils');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 
 const maxLineItemsHandleable = 250;
 
-const shopifyOrderFulfill = async (
+const shopifyOrderFulfillSingle = async (
   credsPath,
   orderIdentifier,
   {
@@ -180,6 +180,29 @@ const shopifyOrderFulfill = async (
   return response;
 };
 
+const shopifyOrderFulfill = async (
+  credsPath,
+  orderIdentifier,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    orderIdentifier,
+    shopifyOrderFulfillSingle,
+    (orderIdentifier) => ({
+      args: [credsPath, orderIdentifier],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+  
+  return response;
+};
+
 const shopifyOrderFulfillApi = async (req, res) => {
   const { 
     credsPath,
@@ -218,6 +241,22 @@ module.exports = {
         "notifyCustomer": false, 
         "originAddress": { 
           "countryCode": "AU" 
+        }, 
+        "trackingInfo": { 
+          "number": "33VVY5069794010075115021965" 
+        } 
+      } 
+    }'
+
+    curl localhost:8000/shopifyOrderFulfill \
+    -H "Content-Type: application/json" \
+    -d '{ 
+      "credsPath": "us", 
+      "orderIdentifier": { "orderId": "6993917280328" }, 
+      "options": { 
+        "notifyCustomer": false, 
+        "originAddress": { 
+          "countryCode": "US" 
         }, 
         "trackingInfo": { 
           "number": "33VVY5069794010075115021965" 
