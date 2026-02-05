@@ -196,6 +196,27 @@ const slackInteractiveProductDataCheck = async (req, res) => {
             body: response,
           });
 
+          const productDataCheckResponse = await collabsProductDataCheck(sku);
+          const {
+            success: productDataCheckSuccess,
+            result: productDataCheckResult,
+          } = productDataCheckResponse;
+
+          if (!productDataCheckSuccess) {
+            response = {
+              replace_original: 'true',
+              text: `Error checking product data for SKU: ${ sku }`,
+            };
+            break;
+          }
+
+          response = {
+            replace_original: 'true',
+            blocks: [
+              blocks.result(sku, productDataCheckResult.object),
+            ],
+          }
+
           break;
 
         case 'cancel':
