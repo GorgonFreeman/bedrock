@@ -16,7 +16,7 @@ const blocks = {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: '*Enter SKUs to check*',
+        text: '*Enter SKU to check*',
       },
     },
     textfield: {
@@ -25,7 +25,7 @@ const blocks = {
       element: {
         type: 'plain_text_input',
         action_id: `${ COMMAND_NAME }:sku_input:textfield`,
-        multiline: true,
+        multiline: false,
       },
       label: {
         type: 'plain_text',
