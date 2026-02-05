@@ -1,6 +1,7 @@
 // https://developers.asana.com/reference/getuser
 
-const { funcApi } = require('../utils');
+const { HOSTED } = require('../constants');
+const { funcApi, logDeep } = require('../utils');
 const { asanaClient } = require('../asana/asana.utils');
 
 const asanaUserGet = async ({
@@ -14,7 +15,8 @@ const asanaUserGet = async ({
       credsPath,
     },
   });
-
+  
+  !HOSTED && logDeep(response);
   return response;
 };
 
