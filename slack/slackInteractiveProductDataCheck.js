@@ -81,13 +81,10 @@ const slackInteractiveProductDataCheck = async (req, res) => {
   if (!body?.payload) {
 
     const initialBlocks = [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `I don't do anything yet :hugging_face:`,
-        },
-      },
+      blocks.intro,
+      blocks.sku_input.heading,
+      blocks.sku_input.textfield,
+      blocks.sku_input.buttons,
     ];
 
     return respond(res, 200, {
