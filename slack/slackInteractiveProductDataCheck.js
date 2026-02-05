@@ -182,11 +182,6 @@ const slackInteractiveProductDataCheck = async (req, res) => {
       break;
   }
 
-  response = {
-    replace_original: 'true',
-    text: `I don't do anything yet :hugging_face:`,
-  };
-
   logDeep('response', response);
   return customAxios(responseUrl, {
     method: 'post',
