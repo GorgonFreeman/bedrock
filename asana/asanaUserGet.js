@@ -1,6 +1,6 @@
 // https://developers.asana.com/reference/getuser
 
-const { respond } = require('../utils');
+const { respond, funcApi } = require('../utils');
 const { asanaClient } = require('../asana/asana.utils');
 
 const asanaUserGet = async ({
@@ -19,14 +19,9 @@ const asanaUserGet = async ({
   return response;
 };
 
-const asanaUserGetApi = async (req, res) => {
-  const { 
-    options = {},
-  } = req.body;
-
-  const result = await asanaUserGet(options);
-  respond(res, 200, result);
-};
+const asanaUserGetApi = funcApi(asanaUserGet, {
+  argNames: ['options'],
+});
 
 module.exports = {
   asanaUserGet,
