@@ -314,4 +314,5 @@ module.exports = {
   bedrock_unlisted_shopifyWishlistDataMigrateIwishToCustom: require('./bedrock_unlisted/bedrock_unlisted_shopifyWishlistDataMigrateIwishToCustom').bedrock_unlisted_shopifyWishlistDataMigrateIwishToCustomApi,
   bedrock_unlisted_slackErrorPost: require('./bedrock_unlisted/bedrock_unlisted_slackErrorPost').bedrock_unlisted_slackErrorPostApi,
   bedrock_unlisted_uwfEntriesExporter: require('./bedrock_unlisted/bedrock_unlisted_uwfEntriesExporter').bedrock_unlisted_uwfEntriesExporterApi,
+  asanaUserGet: require('./asana/asanaUserGet').asanaUserGetApi,
 };
