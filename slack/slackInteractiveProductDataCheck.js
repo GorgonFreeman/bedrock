@@ -67,7 +67,7 @@ const blocks = {
     },
   },
 
-  result: (sku, productDataCheckResult) => {
+  result: (sku, productDataCheckResult, mentionUserId) => {
     const styleArcadeData = productDataCheckResult.stylearcadeData;
     const shopifyData = productDataCheckResult.shopifyData;
     const styleArcadeDataRows = [
@@ -83,13 +83,13 @@ const blocks = {
         `Weight (kg): ${ data.weightKg || 'Not set' }`,
         `Weight (pounds): ${ data.weightPounds || 'Not set' }`,
       ].join('\n');
-    });
+    }).join('\n\n');
     return {
       type: 'section',
       text: {
         type: 'mrkdwn',
         text: [
-          `SKU: ${ sku }`,
+          `${ mentionUserId ? `Hey <@${ mentionUserId }>! ` : '' } Product Data check for SKU ${ sku }:`,
           ...styleArcadeDataRows.length ? [styleArcadeDataRows] : [],
           ...shopifyDataRows.length ? [shopifyDataRows] : [],
         ].join('\n\n'),
@@ -144,7 +144,10 @@ const slackInteractiveProductDataCheck = async (req, res) => {
     response_url: responseUrl,
     state, 
     actions, 
+    user,
   } = payload;
+
+  const { id: callerUserId } = user;
 
   const action = actions?.[0];
   const { 
@@ -213,7 +216,7 @@ const slackInteractiveProductDataCheck = async (req, res) => {
           response = {
             replace_original: 'true',
             blocks: [
-              blocks.result(sku, productDataCheckResult.object),
+              blocks.result(sku, productDataCheckResult.object, callerUserId),
             ],
           }
 
