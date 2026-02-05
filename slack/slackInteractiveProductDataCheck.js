@@ -72,16 +72,16 @@ const blocks = {
     const shopifyData = productDataCheckResult.shopifyData;
     const styleArcadeDataRows = [
       `StyleArcade Data:`,
-      `Weight: ${ styleArcadeData.weight || 'Not set' }`,
-      `Dimensions: ${ styleArcadeData.dimensions || 'Not set' }`,
+      `${ !styleArcadeData.weight ? ':warning: ' : '' } Weight: ${ !styleArcadeData.weight ? 'Not set' : `${ styleArcadeData.weight } kg` }`,
+      `${ !styleArcadeData.dimensions ? ':warning: ' : '' } Dimensions: ${ !styleArcadeData.dimensions ? 'Not set' : `${ styleArcadeData.dimensions } cm` }`,
     ].join('\n');
     const shopifyDataRows = Object.entries(shopifyData).map(([region, data]) => {
       return [
         `Shopify ${ region.toUpperCase() }:`,
-        `Dimensions (cm): ${ data.dimensionsCm || 'Not set' }`,
-        `Dimensions (inches): ${ data.dimensionsInches || 'Not set' }`,
-        `Weight (kg): ${ data.weightKg || 'Not set' }`,
-        `Weight (pounds): ${ data.weightPounds || 'Not set' }`,
+        `${ !data.dimensionsCm ? ':warning: ' : '' } Dimensions (cm): ${ data.dimensionsCm || 'Not set' }`,
+        `${ !data.dimensionsInches ? ':warning: ' : '' } Dimensions (inches): ${ data.dimensionsInches || 'Not set' }`,
+        `${ !data.weightKg ? ':warning: ' : '' } Weight (kg): ${ data.weightKg || 'Not set' }`,
+        `${ !data.weightPounds ? ':warning: ' : '' } Weight (pounds): ${ data.weightPounds || 'Not set' }`,
       ].join('\n');
     }).join('\n\n');
     return {
