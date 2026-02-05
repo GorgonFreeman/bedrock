@@ -1,6 +1,6 @@
 const { respond, logDeep, customAxios } = require('../utils');
 
-const COMMAND_NAME = 'slash_command'; // slash command
+const COMMAND_NAME = 'dev__product_data_check'; // slash command
 
 const blocks = {
   intro: {
