@@ -2,6 +2,76 @@ const { respond, logDeep, customAxios } = require('../utils');
 
 const COMMAND_NAME = 'slash_command'; // slash command
 
+const blocks = {
+  intro: {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: `Let's check product data!`,
+    },
+  },
+
+  sku_input: {
+    heading: {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: '*Enter SKUs to check*',
+      },
+    },
+    textfield: {
+      type: 'input',
+      block_id: 'sku_input:textfield',
+      element: {
+        type: 'plain_text_input',
+        action_id: `${ COMMAND_NAME }:sku_input:textfield`,
+        multiline: true,
+      },
+      label: {
+        type: 'plain_text',
+        text: ' ',
+      },
+    },
+    buttons: {
+      type: 'actions',
+      block_id: 'sku_input:buttons',
+      elements: [
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Submit',
+          },
+          action_id: `${ COMMAND_NAME }:sku_input:submit`,
+        },
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Cancel',
+          },
+          action_id: `${ COMMAND_NAME }:sku_input:cancel`,
+        },
+      ],  
+    },
+  },
+
+  cancel: {
+    type: 'actions',
+    block_id: 'cancel',
+    elements: [
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Submit',
+        },
+        action_id: `${ COMMAND_NAME }:sku_input:submit`,
+      },
+    ],
+  },
+}
+
 const slackInteractiveProductDataCheck = async (req, res) => {
   console.log('slackInteractiveProductDataCheck');
 
