@@ -122,3 +122,7 @@ swap:
 stylearcade:
   BASE_URL: https://api.stylearcade.com/range-plan/v1/tenants/________/export
   API_KEY: ____________________________
+
+asana:
+  BASE_URL: https://app.asana.com/api/1.0
+  PERSONAL_ACCESS_TOKEN: ______________  # Settings > Apps > Developer Console > Personal Access Tokens > Create Token
