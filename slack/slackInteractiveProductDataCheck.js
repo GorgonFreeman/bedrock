@@ -1,4 +1,5 @@
 const { respond, logDeep, customAxios } = require('../utils');
+const { collabsProductDataCheck } = require('../collabs/collabsProductDataCheck');
 
 const COMMAND_NAME = 'dev__product_data_check'; // slash command
 
