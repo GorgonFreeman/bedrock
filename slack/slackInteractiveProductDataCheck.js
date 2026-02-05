@@ -114,7 +114,6 @@ const blocks = {
 }
 
 const slackInteractiveProductDataCheck = async (req, res) => {
-  console.log('slackInteractiveProductDataCheck');
 
   const { body } = req;
   
@@ -138,7 +137,6 @@ const slackInteractiveProductDataCheck = async (req, res) => {
   respond(res, 200); // Acknowledge immediately - we'll provide the next step to the response_url later
 
   const payload = JSON.parse(body.payload);
-  logDeep('payload', payload);
 
   const { 
     response_url: responseUrl,
