@@ -19,6 +19,16 @@ const blocks = {
         text: '*Enter SKU to check*',
       },
     },
+    errorDisplay: (errorMessage) => {
+      return {
+        type: 'section',
+        block_id: 'sku_input:error',
+        text: {
+          type: 'mrkdwn',
+          text: `:warning: ${ errorMessage }`,
+        },
+      };
+    },
     textfield: {
       type: 'input',
       block_id: 'sku_input:textfield',
@@ -123,10 +133,50 @@ const slackInteractiveProductDataCheck = async (req, res) => {
   let response;
 
   switch (actionName) {
+
     case 'sku_input':
+      switch (actionNodes?.[0]) {
+
+        case 'submit':
+          const textFieldValue = state?.values?.['sku_input:textfield']?.[`${ COMMAND_NAME }:sku_input:textfield`]?.value;
+          const sku = textFieldValue?.trim();
+          
+          if (!sku) {
+            response = {
+              replace_original: 'true',
+              blocks: [
+                blocks.intro,
+                blocks.sku_input.heading,
+                blocks.sku_input.errorDisplay('Please enter a valid SKU'),
+                blocks.sku_input.textfield,
+                blocks.sku_input.buttons,
+              ],
+            };
+            return;
+          }
+
+          logDeep({ sku });
+
+          break;
+
+        case 'cancel':
+          response = {
+            delete_original: 'true',
+          };
+          break;
+
+        default:
+          console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
+          break;
+      }
       break;
+
     case 'cancel':
+      response = {
+        delete_original: 'true',
+      };
       break;
+
     default:
       console.warn(`Unknown actionName: ${ actionName }`);
       break;
