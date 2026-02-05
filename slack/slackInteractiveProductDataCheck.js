@@ -152,7 +152,7 @@ const slackInteractiveProductDataCheck = async (req, res) => {
                 blocks.sku_input.buttons,
               ],
             };
-            return;
+            break;
           }
 
           logDeep({ sku });
