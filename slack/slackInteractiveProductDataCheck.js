@@ -111,6 +111,8 @@ const slackInteractiveProductDataCheck = async (req, res) => {
     value: actionValue,
   } = action;
 
+  const [commandName, actionName, ...actionNodes] = actionId.split(':');
+
   logDeep({
     responseUrl,
     state,
@@ -119,6 +121,16 @@ const slackInteractiveProductDataCheck = async (req, res) => {
   });
 
   let response;
+
+  switch (actionName) {
+    case 'sku_input':
+      break;
+    case 'cancel':
+      break;
+    default:
+      console.warn(`Unknown actionName: ${ actionName }`);
+      break;
+  }
 
   response = {
     replace_original: 'true',
