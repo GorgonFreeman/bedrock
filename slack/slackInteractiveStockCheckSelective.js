@@ -3,7 +3,7 @@ const { respond, logDeep, customAxios, arrayToObj } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 const { collabsInventoryReview } = require('../collabs/collabsInventoryReview');
 
-const COMMAND_NAME = 'dev__stock_check_selective'; // slash command
+const COMMAND_NAME = 'stock_check_selective'; // slash command
 
 const VARIANT_FETCH_QUERIES_BY_STORE = {
   au: [
