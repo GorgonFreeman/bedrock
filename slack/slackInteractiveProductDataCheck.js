@@ -66,6 +66,36 @@ const blocks = {
     },
   },
 
+  result: (sku, productDataCheckResult) => {
+    const styleArcadeData = productDataCheckResult.stylearcadeData;
+    const shopifyData = productDataCheckResult.shopifyData;
+    const styleArcadeDataRows = [
+      `StyleArcade Data:`,
+      `Weight: ${ styleArcadeData.weight || 'Not set' }`,
+      `Dimensions: ${ styleArcadeData.dimensions || 'Not set' }`,
+    ].join('\n');
+    const shopifyDataRows = Object.entries(shopifyData).map(([region, data]) => {
+      return [
+        `Shopify ${ region.toUpperCase() }:`,
+        `Dimensions (cm): ${ data.dimensionsCm || 'Not set' }`,
+        `Dimensions (inches): ${ data.dimensionsInches || 'Not set' }`,
+        `Weight (kg): ${ data.weightKg || 'Not set' }`,
+        `Weight (pounds): ${ data.weightPounds || 'Not set' }`,
+      ].join('\n');
+    });
+    return {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: [
+          `SKU: ${ sku }`,
+          ...styleArcadeDataRows.length ? [styleArcadeDataRows] : [],
+          ...shopifyDataRows.length ? [shopifyDataRows] : [],
+        ].join('\n\n'),
+      },
+    };
+  },
+
   cancel: {
     type: 'actions',
     block_id: 'cancel',
