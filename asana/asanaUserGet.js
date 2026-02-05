@@ -1,12 +1,11 @@
 // https://developers.asana.com/reference/getuser
 
-const { respond, funcApi } = require('../utils');
+const { funcApi } = require('../utils');
 const { asanaClient } = require('../asana/asana.utils');
 
 const asanaUserGet = async ({
-  credsPath = '',
+  credsPath,
   userGid = 'me',
-  ...options
 } = {}) => {
 
   const response = await asanaClient.fetch({
