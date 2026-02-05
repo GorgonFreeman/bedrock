@@ -155,7 +155,15 @@ const slackInteractiveProductDataCheck = async (req, res) => {
             break;
           }
 
-          logDeep({ sku });
+          response = {
+            replace_original: 'true',
+            text: `Checking product data for SKU: ${ sku }...`,
+          };
+
+          await customAxios(responseUrl, {
+            method: 'post',
+            body: response,
+          });
 
           break;
 
