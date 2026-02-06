@@ -16,13 +16,7 @@ const blocks = {
   },
 
   sku_input: {
-    heading: {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: '*Enter SKU to check*',
-      },
-    },
+
     errorDisplay: (errorMessage) => {
       return {
         type: 'section',
@@ -33,6 +27,7 @@ const blocks = {
         },
       };
     },
+
     select: {
       type: 'section',
       block_id: 'sku_input:select',
@@ -51,19 +46,7 @@ const blocks = {
         action_id: `${ COMMAND_NAME }:sku_input:select`,
       },
     },
-    textfield: {
-      type: 'input',
-      block_id: 'sku_input:textfield',
-      element: {
-        type: 'plain_text_input',
-        action_id: `${ COMMAND_NAME }:sku_input:textfield`,
-        multiline: false,
-      },
-      label: {
-        type: 'plain_text',
-        text: ' ',
-      },
-    },
+
     buttons: {
       type: 'actions',
       block_id: 'sku_input:buttons',
