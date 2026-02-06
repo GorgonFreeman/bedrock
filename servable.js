@@ -315,5 +315,6 @@ module.exports = {
   bedrock_unlisted_slackErrorPost: require('./bedrock_unlisted/bedrock_unlisted_slackErrorPost').bedrock_unlisted_slackErrorPostApi,
   bedrock_unlisted_uwfEntriesExporter: require('./bedrock_unlisted/bedrock_unlisted_uwfEntriesExporter').bedrock_unlisted_uwfEntriesExporterApi,
   asanaTaskGet: require('./asana/asanaTaskGet').asanaTaskGetApi,
+  asanaTasksGet: require('./asana/asanaTasksGet').asanaTasksGetApi,
   asanaUserGet: require('./asana/asanaUserGet').asanaUserGetApi,
 };
