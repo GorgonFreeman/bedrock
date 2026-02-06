@@ -13,6 +13,8 @@ const asanaTaskGet = async (
   } = {},
 ) => {
 
+  fields = Array.isArray(fields) ? fields.join(',') : fields;
+  
   const params = {
     ...(fields ? { opt_fields: fields } : {}),
     ...(pretty ? { opt_pretty: pretty } : {}),
