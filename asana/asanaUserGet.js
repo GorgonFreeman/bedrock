@@ -6,11 +6,11 @@ const { asanaClient } = require('../asana/asana.utils');
 
 const asanaUserGet = async ({
   credsPath,
-  userGid = 'me',
+  userId = 'me',
 } = {}) => {
 
   const response = await asanaClient.fetch({
-    url: `/users/${ userGid }`,
+    url: `/users/${ userId }`,
     context: {
       credsPath,
     },

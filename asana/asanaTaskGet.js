@@ -5,14 +5,14 @@ const { funcApi, logDeep } = require('../utils');
 const { asanaClient } = require('../asana/asana.utils');
 
 const asanaTaskGet = async (
-  taskGid,
+  taskId,
   {
     credsPath,
   } = {},
 ) => {
 
   const response = await asanaClient.fetch({
-    url: `/tasks/${ taskGid }`,
+    url: `/tasks/${ taskId }`,
     context: {
       credsPath,
     },
@@ -23,9 +23,9 @@ const asanaTaskGet = async (
 };
 
 const asanaTaskGetApi = funcApi(asanaTaskGet, {
-  argNames: ['taskGid', 'options'],
+  argNames: ['taskId', 'options'],
   validatorsByArg: {
-    taskGid: Boolean,
+    taskId: Boolean,
   },
 });
 
@@ -34,4 +34,4 @@ module.exports = {
   asanaTaskGetApi,
 };
 
-// curl localhost:8000/asanaTaskGet -H "Content-Type: application/json" -d '{ "taskGid": "1213084537812001" }'
+// curl localhost:8000/asanaTaskGet -H "Content-Type: application/json" -d '{ "taskId": "1213084537812001" }'
