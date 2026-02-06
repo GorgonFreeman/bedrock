@@ -43,3 +43,4 @@ module.exports = {
 };
 
 // curl localhost:8000/asanaTaskGet -H "Content-Type: application/json" -d '{ "taskId": "1213084537812001" }'
+// curl localhost:8000/asanaTaskGet -H "Content-Type: application/json" -d '{ "taskId": "1213084537812001", "options": { "fields": ["assignee", "workspace", "name"] } }'
