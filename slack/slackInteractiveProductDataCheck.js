@@ -251,9 +251,9 @@ const slackInteractiveProductDataCheck = async (req, res) => {
       switch (actionNodes?.[0]) {
 
         case 'submit':
-          const textFieldValue = state?.values?.['sku_input:textfield']?.[`${ COMMAND_NAME }:sku_input:textfield`]?.value;
-          const sku = textFieldValue?.trim();
-          
+          const selectedOptionValue = state?.values?.['sku_input:select']?.[`${ COMMAND_NAME }:sku_input:select`]?.selected_option?.value;
+          const sku = selectedOptionValue ? selectedOptionValue.trim() : '';
+
           if (!sku) {
             response = {
               replace_original: 'true',
