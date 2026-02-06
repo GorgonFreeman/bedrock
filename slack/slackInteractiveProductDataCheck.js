@@ -30,6 +30,24 @@ const blocks = {
         },
       };
     },
+    select: {
+      type: 'section',
+      block_id: 'sku_input:select',
+      text: {
+        type: 'mrkdwn',
+        text: '*Select SKU to check*',
+      },
+      accessory: {
+        type: 'external_select',
+        action_id: `${ COMMAND_NAME }:sku_input:select`,
+        placeholder: {
+          type: 'plain_text',
+          text: 'Type and search a SKU..',
+        },
+        min_query_length: 1,
+        action_id: `${ COMMAND_NAME }:sku_input:select`,
+      },
+    },
     textfield: {
       type: 'input',
       block_id: 'sku_input:textfield',
