@@ -2,7 +2,7 @@
 
 const { HOSTED } = require('../constants');
 const { funcApi, logDeep } = require('../utils');
-const { asanaClient } = require('../asana/asana.utils');
+const { asanaGet } = require('../asana/asana.utils');
 
 const asanaTasksGet = async (
   metafilter, // The API method requires some of a subset of options to filtering to begin returning tasks.
@@ -35,12 +35,9 @@ const asanaTasksGet = async (
     ...(workspace !== undefined && { workspace }),
   };
 
-  const response = await asanaClient.fetch({
-    url: `/tasks`,
+  const response = await asanaGet('/tasks', {
+    credsPath,
     params,
-    context: {
-      credsPath,
-    },
   });
   
   !HOSTED && logDeep(response);
