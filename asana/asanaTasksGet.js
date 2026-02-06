@@ -1,18 +1,17 @@
-// https://developers.asana.com/reference/getuser
+// https://developers.asana.com/reference/gettasks
 
 const { HOSTED } = require('../constants');
 const { funcApi, logDeep } = require('../utils');
 const { asanaClient } = require('../asana/asana.utils');
 
 const asanaTasksGet = async (
-  thingId,
   {
     credsPath,
   } = {},
 ) => {
 
   const response = await asanaClient.fetch({
-    url: `/things/${ thingId }`,
+    url: `/tasks`,
     context: {
       credsPath,
     },
@@ -23,10 +22,7 @@ const asanaTasksGet = async (
 };
 
 const asanaTasksGetApi = funcApi(asanaTasksGet, {
-  argNames: ['thingId', 'options'],
-  validatorsByArg: {
-    thingId: Boolean,
-  },
+  argNames: ['options'],
 });
 
 module.exports = {
