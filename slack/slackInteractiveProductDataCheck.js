@@ -272,8 +272,9 @@ const slackInteractiveProductDataCheck = async (req, res) => {
           if (!productDataCheckSuccess) {
             response = {
               replace_original: 'true',
-              text: `Error checking product data for SKU: ${ sku }`,
+              text: `Error checking product data for SKU ${ sku }: ${ productDataCheckResponse.message }`,
             };
+            logDeep({ productDataCheckResponse });
             break;
           }
 
