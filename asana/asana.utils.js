@@ -25,18 +25,22 @@ const asanaClient = new CustomAxiosClient({
   baseInterpreter: async (response, context) => {
     
     const { resultsNode } = context;
-
-    logDeep({ response });
-    await askQuestion('?');
-
-    if (!resultsNode) {
-      return response;
+    
+    const { result } = response;
+    let interpretedResult = result?.data ?? result;
+    if (resultsNode) {
+      interpretedResult = interpretedResult?.[resultsNode];
     }
 
-    return {
+    const interpretedResponse = {
       ...response,
-      ...response?.result && { result: response.result?.[resultsNode] },
+      ...response?.result && { result: interpretedResult },
     };
+
+    // logDeep({ interpretedResponse });
+    // await askQuestion('?');
+
+    return interpretedResponse;
   },
 });
 
