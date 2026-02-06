@@ -1,5 +1,8 @@
 const { respond, logDeep, customAxios } = require('../utils');
 const { collabsProductDataCheck } = require('../collabs/collabsProductDataCheck');
+const { shopifyProductsGet } = require('../shopify/shopifyProductsGet');
+
+const DEFAULT_REGION = 'au';
 
 const COMMAND_NAME = 'dev__product_data_check'; // slash command
 
@@ -150,10 +153,71 @@ const slackInteractiveProductDataCheck = async (req, res) => {
     });
   }
 
+  const payload = JSON.parse(body.payload);
+  logDeep('payload', payload);
+  const { type } = payload;
+
+  if (type === 'block_suggestion') {
+    const { value: payloadValue } = payload;
+
+    const shopifyProductsResponse = await shopifyProductsGet(DEFAULT_REGION, {
+      queries: [`sku:${ payloadValue }*`],
+      attrs: `id title handle exampleVariant: variants (first: 1 sortKey: SKU, reverse: true) { edges { node { sku } } }`,
+      limit: 100,
+    });
+
+    const { success: shopifyProductsSuccess, result: shopifyProductCandidates } = shopifyProductsResponse;
+    if (!shopifyProductsSuccess) {
+      console.error('Error finding SKUs', shopifyProductsResponse);
+      return;
+    }
+
+    const optionValues = new Set();
+    shopifyProductCandidates.forEach(product => {
+      const {
+        exampleVariant,
+      } = product;
+
+      const sizeGroupings = [
+        '-3XS/XXS',
+        '-XXS/XS',
+        '-XS/S',
+        '-S/M',
+        '-M/L',
+        '-L/XL',
+        '-XL/XXL',
+        '-XXL/3XL',
+        '-3XS',
+        '-XXS',
+        '-XS',
+        '-S',
+        '-M',
+        '-L',
+        '-XL',
+        '-XXL',
+        '-3XL',
+        '-O/S',
+      ];
+      const sizeGroupingRegex = new RegExp(`(${ sizeGroupings.join('|') })`, 'i');
+      const partialSKU = exampleVariant?.[0]?.sku.replace(sizeGroupingRegex, '');
+      optionValues.add(partialSKU);
+    });
+
+    const options = Array.from(optionValues).map(value => {
+      return {
+        text: {
+          type: 'plain_text',
+          text: value,
+        },
+        value,
+      };
+    });
+
+    return respond(res, 200, { options });
+  }
+
   // Because we got to this point, we have a payload - handle as an interactive step
   respond(res, 200); // Acknowledge immediately - we'll provide the next step to the response_url later
-
-  const payload = JSON.parse(body.payload);
 
   const { 
     response_url: responseUrl,
