@@ -1,4 +1,4 @@
-const { CustomAxiosClient, credsByPath } = require('../utils');
+const { CustomAxiosClient, credsByPath, askQuestion, logDeep } = require('../utils');
 
 const asanaRequestSetup = ({ credsPath } = {}) => {
   const creds = credsByPath(['asana', credsPath]);
@@ -22,9 +22,12 @@ const { baseUrl } = commonCreds;
 const asanaClient = new CustomAxiosClient({
   baseUrl,
   preparer: asanaRequestSetup,
-  baseInterpreter: (response, context) => {
+  baseInterpreter: async (response, context) => {
     
     const { resultsNode } = context;
+
+    logDeep({ response });
+    await askQuestion('?');
 
     if (!resultsNode) {
       return response;
