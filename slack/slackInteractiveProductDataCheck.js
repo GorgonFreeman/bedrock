@@ -183,7 +183,9 @@ const slackInteractiveProductDataCheck = async (req, res) => {
       ];
       const sizeGroupingRegex = new RegExp(`(${ sizeGroupings.join('|') })`, 'i');
       const partialSKU = exampleVariant?.[0]?.sku.replace(sizeGroupingRegex, '');
-      optionValues.add(partialSKU);
+      if (partialSKU.startsWith(payloadValue)) {
+        optionValues.add(partialSKU);
+      }
     });
 
     const options = Array.from(optionValues).map(value => {
