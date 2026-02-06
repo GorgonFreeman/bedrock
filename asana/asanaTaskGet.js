@@ -8,11 +8,19 @@ const asanaTaskGet = async (
   taskId,
   {
     credsPath,
+    fields,
+    pretty,
   } = {},
 ) => {
 
+  const params = {
+    ...(fields ? { opt_fields: fields } : {}),
+    ...(pretty ? { opt_pretty: pretty } : {}),
+  };
+
   const response = await asanaClient.fetch({
     url: `/tasks/${ taskId }`,
+    params,
     context: {
       credsPath,
     },
