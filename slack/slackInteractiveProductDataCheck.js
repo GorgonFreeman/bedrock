@@ -140,8 +140,7 @@ const slackInteractiveProductDataCheck = async (req, res) => {
 
     const initialBlocks = [
       blocks.intro,
-      blocks.sku_input.heading,
-      blocks.sku_input.textfield,
+      blocks.sku_input.select,
       blocks.sku_input.buttons,
     ];
 
