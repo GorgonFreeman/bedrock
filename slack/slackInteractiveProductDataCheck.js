@@ -189,7 +189,7 @@ const slackInteractiveProductDataCheck = async (req, res) => {
       }
     });
 
-    const options = Array.from(optionValues).map(value => {
+    const options = Array.from(optionValues).sort().map(value => {
       return {
         text: {
           type: 'plain_text',
