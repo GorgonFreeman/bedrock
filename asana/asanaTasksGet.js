@@ -23,8 +23,21 @@ const asanaTasksGet = async (
     workspace: metafilterWorkspace,
   } = metafilter;
 
+  project = project || metafilterProject;
+  tag = tag || metafilterTag;
+  assignee = assignee || metafilterAssignee;
+  workspace = workspace || metafilterWorkspace;
+
+  const params = {
+    ...(project !== undefined && { project }),
+    ...(tag !== undefined && { tag }),
+    ...(assignee !== undefined && { assignee }),
+    ...(workspace !== undefined && { workspace }),
+  };
+
   const response = await asanaClient.fetch({
     url: `/tasks`,
+    params,
     context: {
       credsPath,
     },
