@@ -142,9 +142,10 @@ const slackInteractiveProductDataCheck = async (req, res) => {
 
   if (type === 'block_suggestion') {
     const { value: payloadValue } = payload;
+    const payloadValueTrimmed = payloadValue.trim();
 
     const shopifyProductsResponse = await shopifyProductsGet(DEFAULT_REGION, {
-      queries: [`sku:${ payloadValue }*`],
+      queries: [`sku:${ payloadValueTrimmed }*`],
       attrs: `id title handle exampleVariant: variants (first: 1 sortKey: SKU, reverse: true) { edges { node { sku } } }`,
       limit: 100,
     });
@@ -183,7 +184,7 @@ const slackInteractiveProductDataCheck = async (req, res) => {
       ];
       const sizeGroupingRegex = new RegExp(`(${ sizeGroupings.join('|') })`, 'i');
       const partialSKU = exampleVariant?.[0]?.sku.replace(sizeGroupingRegex, '');
-      if (partialSKU.startsWith(payloadValue)) {
+      if (partialSKU.startsWith(payloadValueTrimmed)) {
         optionValues.add(partialSKU);
       }
     });
