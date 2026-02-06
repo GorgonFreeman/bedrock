@@ -259,9 +259,8 @@ const slackInteractiveProductDataCheck = async (req, res) => {
               replace_original: 'true',
               blocks: [
                 blocks.intro,
-                blocks.sku_input.heading,
-                blocks.sku_input.errorDisplay('Please enter a valid SKU'),
-                blocks.sku_input.textfield,
+                blocks.sku_input.select,
+                blocks.sku_input.errorDisplay('Please select a SKU'),
                 blocks.sku_input.buttons,
               ],
             };
