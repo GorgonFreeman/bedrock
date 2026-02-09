@@ -315,6 +315,7 @@ module.exports = {
   bedrock_unlisted_shopifyWishlistDataMigrateIwishToCustom: require('./bedrock_unlisted/bedrock_unlisted_shopifyWishlistDataMigrateIwishToCustom').bedrock_unlisted_shopifyWishlistDataMigrateIwishToCustomApi,
   bedrock_unlisted_slackErrorPost: require('./bedrock_unlisted/bedrock_unlisted_slackErrorPost').bedrock_unlisted_slackErrorPostApi,
   bedrock_unlisted_uwfEntriesExporter: require('./bedrock_unlisted/bedrock_unlisted_uwfEntriesExporter').bedrock_unlisted_uwfEntriesExporterApi,
+  asanaProjectStatusesGet: require('./asana/asanaProjectStatusesGet').asanaProjectStatusesGetApi,
   asanaProjectsGet: require('./asana/asanaProjectsGet').asanaProjectsGetApi,
   asanaSectionAddTask: require('./asana/asanaSectionAddTask').asanaSectionAddTaskApi,
   asanaSectionsGet: require('./asana/asanaSectionsGet').asanaSectionsGetApi,
