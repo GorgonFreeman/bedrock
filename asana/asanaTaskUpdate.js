@@ -26,52 +26,52 @@ const asanaTaskUpdateSingle = async (
   if (customFields) {
     
     if (!convertedCustomFields) {
-    const taskResponse = await asanaTaskGet(taskId, {
-      credsPath,
-    });
+      const taskResponse = await asanaTaskGet(taskId, {
+        credsPath,
+      });
 
-    const {
-      success: taskSuccess,
-      result: task,
-    } = taskResponse;
+      const {
+        success: taskSuccess,
+        result: task,
+      } = taskResponse;
 
-    if (!taskSuccess) {
-      return taskResponse;
-    }
-
-    const { custom_fields } = task;
-
-    const customFieldsDataToIdMap = {};
-
-    for (const customField of custom_fields) {
-      const { 
-        gid: customFieldId,
-        name,
-        type,
-        enum_options,
-      } = customField;
-      
-      customFieldsDataToIdMap[name] = {
-        id: customFieldId,
-        type,
-        ...enum_options && Object.fromEntries(enum_options.map(option => [option.name, option.gid])),
-      };
-    }
-
-    convertedCustomFields = Object.fromEntries(Object.entries(customFields).map(([name, value]) => {
-
-      const fieldData = customFieldsDataToIdMap[name];
-
-      const { id: fieldId, type: fieldType } = fieldData;
-
-      if (fieldType !== 'enum') {
-        return [name, value];    
+      if (!taskSuccess) {
+        return taskResponse;
       }
 
-      const valueId = customFieldsDataToIdMap[name][value];
-      
-      return [fieldId, valueId];
-    }));
+      const { custom_fields } = task;
+
+      const customFieldsDataToIdMap = {};
+
+      for (const customField of custom_fields) {
+        const { 
+          gid: customFieldId,
+          name,
+          type,
+          enum_options,
+        } = customField;
+        
+        customFieldsDataToIdMap[name] = {
+          id: customFieldId,
+          type,
+          ...enum_options && Object.fromEntries(enum_options.map(option => [option.name, option.gid])),
+        };
+      }
+
+      convertedCustomFields = Object.fromEntries(Object.entries(customFields).map(([name, value]) => {
+
+        const fieldData = customFieldsDataToIdMap[name];
+
+        const { id: fieldId, type: fieldType } = fieldData;
+
+        if (fieldType !== 'enum') {
+          return [name, value];    
+        }
+
+        const valueId = customFieldsDataToIdMap[name][value];
+        
+        return [fieldId, valueId];
+      }));
     }
 
     updatePayload.custom_fields = {
