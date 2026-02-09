@@ -11,14 +11,16 @@ const asanaWorkspacesGet = async (
     offset,
     perPage,
 
-    option,
+    fields,
+    pretty,
   } = {},
 ) => {
 
   const params = {
     ...offset !== undefined && { offset },
     ...perPage !== undefined && { limit: perPage },
-    ...option !== undefined && { option },
+    ...fields !== undefined && { opt_fields: fields },
+    ...pretty !== undefined && { opt_pretty: pretty },
   };
 
   const response = await asanaGet('/workspaces', {
@@ -32,9 +34,6 @@ const asanaWorkspacesGet = async (
 
 const asanaWorkspacesGetApi = funcApi(asanaWorkspacesGet, {
   argNames: ['options'],
-  validatorsByArg: {
-    // arg: Boolean,
-  },
 });
 
 module.exports = {
