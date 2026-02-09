@@ -318,6 +318,7 @@ module.exports = {
   asanaProjectsGet: require('./asana/asanaProjectsGet').asanaProjectsGetApi,
   asanaSectionsGet: require('./asana/asanaSectionsGet').asanaSectionsGetApi,
   asanaTaskGet: require('./asana/asanaTaskGet').asanaTaskGetApi,
+  asanaTaskUpdate: require('./asana/asanaTaskUpdate').asanaTaskUpdateApi,
   asanaTasksGet: require('./asana/asanaTasksGet').asanaTasksGetApi,
   asanaUserGet: require('./asana/asanaUserGet').asanaUserGetApi,
   asanaWorkspacesGet: require('./asana/asanaWorkspacesGet').asanaWorkspacesGetApi,
