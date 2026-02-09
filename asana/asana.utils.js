@@ -1,4 +1,5 @@
 const { CustomAxiosClient, credsByPath, askQuestion, logDeep, Getter, getterAsGetFunction } = require('../utils');
+const { MAX_PER_PAGE } = require('../asana/asana.constants');
 
 const asanaRequestSetup = ({ credsPath } = {}) => {
   const creds = credsByPath(['asana', credsPath]);
@@ -49,8 +50,6 @@ const asanaClient = new CustomAxiosClient({
     return interpretedResponse;
   },
 });
-
-const MAX_PER_PAGE = 100;
 
 const asanaGetter = async (
   url,
