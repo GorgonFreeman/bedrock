@@ -1,27 +1,44 @@
-// https://developers.asana.com/reference/gettasks
+// https://developers.asana.com/reference/getsectionsforproject
 
 const { HOSTED } = require('../constants');
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, objHasAny } = require('../utils');
 const { asanaGet } = require('../asana/asana.utils');
+const { asanaProjectHandleToId } = require('../bedrock_unlisted/mappings');
 
 const asanaSectionsGet = async (
+  {
+    projectId,
+    projectHandle,
+  },
   {
     credsPath,
 
     offset,
     perPage,
 
-    option,
+    fields,
+    pretty,
   } = {},
 ) => {
+
+  projectId = projectId || asanaProjectHandleToId[projectHandle];
+  if (!projectId) {
+    return {
+      success: false,
+      error: [`Couldn't get a project ID from projectIdentifier`],
+    };
+  }
+
+  fields = Array.isArray(fields) ? fields.join(',') : fields;
 
   const params = {
     ...offset !== undefined && { offset },
     ...perPage !== undefined && { limit: perPage },
-    ...option !== undefined && { option },
+    ...fields !== undefined && { opt_fields: fields },
+    ...pretty !== undefined && { opt_pretty: pretty },
   };
 
-  const response = await asanaGet('/things', {
+  const response = await asanaGet(`/projects/${ projectId }/sections`, {
     credsPath,
     params,
   });
@@ -31,9 +48,9 @@ const asanaSectionsGet = async (
 };
 
 const asanaSectionsGetApi = funcApi(asanaSectionsGet, {
-  argNames: ['options'],
+  argNames: ['projectIdentifier', 'options'],
   validatorsByArg: {
-    // arg: Boolean,
+    projectIdentifier: p => objHasAny(p, ['projectId', 'projectHandle']),
   },
 });
 
@@ -42,4 +59,4 @@ module.exports = {
   asanaSectionsGetApi,
 };
 
-// curl localhost:8000/asanaSectionsGet
+// curl localhost:8000/asanaSectionsGet -X POST -H "Content-Type: application/json" -d '{"projectIdentifier": {"projectHandle": "dev"}}'
