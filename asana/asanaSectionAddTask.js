@@ -49,4 +49,4 @@ module.exports = {
   asanaSectionAddTaskApi,
 };
 
-// curl localhost:8000/asanaSectionAddTask
+// curl localhost:8000/asanaSectionAddTask -X POST -H "Content-Type: application/json" -d '{ "sectionId": "1208942389126569", "taskId": "1210943776817196" }'
