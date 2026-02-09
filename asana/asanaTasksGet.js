@@ -13,6 +13,13 @@ const asanaTasksGet = async (
     tag,
     assignee,
     workspace,
+    section,
+    completedSince,
+    modifiedSince,
+    fields,
+    pretty,
+    offset,
+    perPage,
   } = {},
 ) => {
 
@@ -33,6 +40,13 @@ const asanaTasksGet = async (
     ...(tag !== undefined && { tag }),
     ...(assignee !== undefined && { assignee }),
     ...(workspace !== undefined && { workspace }),
+    ...(section !== undefined && { section }),
+    ...(completedSince !== undefined && { completed_since: completedSince }),
+    ...(modifiedSince !== undefined && { modified_since: modifiedSince }),
+    ...(fields !== undefined && { opt_fields: fields }),
+    ...(pretty !== undefined && { opt_pretty: pretty }),
+    ...(offset !== undefined && { offset }),
+    ...(perPage !== undefined && { limit: perPage }),
   };
 
   const response = await asanaGet('/tasks', {
