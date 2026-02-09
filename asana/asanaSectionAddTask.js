@@ -1,18 +1,32 @@
-// https://developers.asana.com/reference/getuser
+// https://developers.asana.com/reference/addtaskforsection
 
 const { HOSTED } = require('../constants');
 const { funcApi, logDeep } = require('../utils');
 const { asanaClient } = require('../asana/asana.utils');
 
 const asanaSectionAddTask = async (
-  thingId,
+  sectionId,
+  taskId,
   {
     credsPath,
+
+    pretty,
   } = {},
 ) => {
 
+  const params = {
+    ...pretty !== undefined && { opt_pretty: pretty },
+  };
+
   const response = await asanaClient.fetch({
-    url: `/things/${ thingId }`,
+    url: `/sections/${ sectionId }/addTask`,
+    method: 'post',
+    body: {
+      data: {
+        task: taskId,
+      },
+    },
+    params,
     context: {
       credsPath,
     },
@@ -23,9 +37,10 @@ const asanaSectionAddTask = async (
 };
 
 const asanaSectionAddTaskApi = funcApi(asanaSectionAddTask, {
-  argNames: ['thingId', 'options'],
+  argNames: ['sectionId', 'taskId', 'options'],
   validatorsByArg: {
-    thingId: Boolean,
+    sectionId: Boolean,
+    taskId: Boolean,
   },
 });
 
