@@ -6,6 +6,8 @@ const { asanaClient } = require('../asana/asana.utils');
 
 const { asanaTaskGet } = require('../asana/asanaTaskGet');
 
+let convertedCustomFields;
+
 const asanaTaskUpdateSingle = async (
   taskId,
   updatePayload,
@@ -22,7 +24,8 @@ const asanaTaskUpdateSingle = async (
   const { customFields } = updatePayload;
 
   if (customFields) {
-
+    
+    if (!convertedCustomFields) {
     const taskResponse = await asanaTaskGet(taskId, {
       credsPath,
     });
@@ -55,7 +58,7 @@ const asanaTaskUpdateSingle = async (
       };
     }
 
-    const convertedCustomFields = Object.fromEntries(Object.entries(customFields).map(([name, value]) => {
+    convertedCustomFields = Object.fromEntries(Object.entries(customFields).map(([name, value]) => {
 
       const fieldData = customFieldsDataToIdMap[name];
 
@@ -69,6 +72,7 @@ const asanaTaskUpdateSingle = async (
       
       return [fieldId, valueId];
     }));
+    }
 
     updatePayload.custom_fields = {
       ...updatePayload?.custom_fields || {},
