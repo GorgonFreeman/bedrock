@@ -3,16 +3,18 @@
 const { HOSTED } = require('../constants');
 const { funcApi, logDeep } = require('../utils');
 const { asanaGet } = require('../asana/asana.utils');
+const { asanaWorkspaceHandleToId } = require('../bedrock_unlisted/mappings');
+const { asanaProjectHandleToId } = require('../bedrock_unlisted/mappings');
 
 const asanaTasksGet = async (
   metafilter, // The API method requires some of a subset of options to filtering to begin returning tasks.
   {
     credsPath,
 
-    project,
+    projectIdentifier,
     tag,
     assignee,
-    workspace,
+    workspaceIdentifier,
     section,
     completedSince,
     modifiedSince,
@@ -24,22 +26,61 @@ const asanaTasksGet = async (
 ) => {
 
   const {
-    project: metafilterProject,
+    projectIdentifier: metafilterProjectIdentifier,
     tag: metafilterTag,
     assignee: metafilterAssignee,
-    workspace: metafilterWorkspace,
+    workspaceIdentifier: metafilterWorkspaceIdentifier,
   } = metafilter;
 
-  project = project || metafilterProject;
+  projectIdentifier = projectIdentifier || metafilterProjectIdentifier;
   tag = tag || metafilterTag;
   assignee = assignee || metafilterAssignee;
-  workspace = workspace || metafilterWorkspace;
+  workspaceIdentifier = workspaceIdentifier || metafilterWorkspaceIdentifier;
+
+  let projectId;
+  let workspaceId;
+
+  if (projectIdentifier) {
+
+    const { projectHandle: handle, projectId: id } = projectIdentifier;
+
+    if (id) {
+      projectId = id;
+    } else {
+      projectId = asanaProjectHandleToId[handle];
+    }
+    
+    if (!projectId) {
+      return {
+        success: false,
+        error: [`Couldn't get a project ID from projectIdentifier`],
+      };
+    }
+  }
+
+  if (workspaceIdentifier) {
+
+    const { workspaceHandle: handle, workspaceId: id } = workspaceIdentifier;
+
+    if (id) {
+      workspaceId = id;
+    } else {
+      workspaceId = asanaWorkspaceHandleToId[handle];
+    }
+
+    if (!workspaceId) {
+      return {
+        success: false,
+        error: [`Couldn't get a workspace ID from workspaceIdentifier`],
+      };
+    }
+  }
 
   const params = {
-    ...(project !== undefined && { project }),
+    ...(projectId !== undefined && { project: projectId }),
     ...(tag !== undefined && { tag }),
     ...(assignee !== undefined && { assignee }),
-    ...(workspace !== undefined && { workspace }),
+    ...(workspaceId !== undefined && { workspace: workspaceId }),
     ...(section !== undefined && { section }),
     ...(completedSince !== undefined && { completed_since: completedSince }),
     ...(modifiedSince !== undefined && { modified_since: modifiedSince }),
@@ -61,7 +102,7 @@ const asanaTasksGet = async (
 const asanaTasksGetApi = funcApi(asanaTasksGet, {
   argNames: ['metafilter', 'options'],
   validatorsByArg: {
-    metafilter: p => p?.project || p?.tag || (p?.assignee && p?.workspace),
+    metafilter: p => p?.projectIdentifier || p?.tag || (p?.assignee && p?.workspaceIdentifier),
   },
 });
 
@@ -70,4 +111,4 @@ module.exports = {
   asanaTasksGetApi,
 };
 
-// curl localhost:8000/asanaTasksGet -H "Content-Type: application/json" -d '{ "metafilter": { "project": "1208942389126559" } }'
+// curl localhost:8000/asanaTasksGet -H "Content-Type: application/json" -d '{ "metafilter": { "projectIdentifier": { "projectHandle": "dev" } } }'
