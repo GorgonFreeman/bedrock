@@ -1,7 +1,7 @@
 // https://developers.asana.com/reference/updatetask
 
 const { HOSTED } = require('../constants');
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, askQuestion } = require('../utils');
 const { asanaClient } = require('../asana/asana.utils');
 
 const { asanaTaskGet } = require('../asana/asanaTaskGet');
@@ -44,18 +44,29 @@ const asanaTaskUpdate = async (
       const { 
         gid: customFieldId,
         name,
+        type,
         enum_options,
       } = customField;
       
       customFieldsDataToIdMap[name] = {
         id: customFieldId,
-        ...Object.fromEntries(enum_options.map(option => [option.name, option.gid])),
+        type,
+        ...enum_options && Object.fromEntries(enum_options.map(option => [option.name, option.gid])),
       };
     }
 
     const convertedCustomFields = Object.fromEntries(Object.entries(customFields).map(([name, value]) => {
-      const fieldId = customFieldsDataToIdMap[name]['id'];
+
+      const fieldData = customFieldsDataToIdMap[name];
+
+      const { id: fieldId, type: fieldType } = fieldData;
+
+      if (fieldType !== 'enum') {
+        return [name, value];    
+      }
+
       const valueId = customFieldsDataToIdMap[name][value];
+      
       return [fieldId, valueId];
     }));
 
@@ -100,4 +111,4 @@ module.exports = {
 };
 
 // curl localhost:8000/asanaTaskUpdate -X PUT -H "Content-Type: application/json" -d '{ "taskId": "1234567890", "updatePayload": { "name": "Death Star | Reattach exhaust port shielding" } }'
-// curl localhost:8000/asanaTaskUpdate -X PUT -H "Content-Type: application/json" -d '{ "taskId": "1213070882452430", "updatePayload": { "customFields": { "In This Sprint": "Y" } } }'
+// curl localhost:8000/asanaTaskUpdate -X PUT -H "Content-Type: application/json" -d '{ "taskId": "1213070882452430", "updatePayload": { "customFields": { "In This Sprint": "Y", "In Next Sprint": "N" } } }'
