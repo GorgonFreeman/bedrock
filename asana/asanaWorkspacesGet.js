@@ -1,4 +1,4 @@
-// https://developers.asana.com/reference/gettasks
+// https://developers.asana.com/reference/getworkspaces
 
 const { HOSTED } = require('../constants');
 const { funcApi, logDeep } = require('../utils');
@@ -21,7 +21,7 @@ const asanaWorkspacesGet = async (
     ...option !== undefined && { option },
   };
 
-  const response = await asanaGet('/things', {
+  const response = await asanaGet('/workspaces', {
     credsPath,
     params,
   });
