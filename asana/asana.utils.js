@@ -26,10 +26,10 @@ const asanaClient = new CustomAxiosClient({
   baseInterpreter: async (response, context) => {
     
     const { resultsNode } = context;
-    
+
     const { result } = response;
-    
-    let interpretedResponse = response;
+
+    let interpretedResult = result;
 
     if (objIsOnlyProp(result, 'data')) {
       interpretedResult = result.data;
@@ -39,7 +39,10 @@ const asanaClient = new CustomAxiosClient({
       interpretedResult = interpretedResult?.[resultsNode];
     }
 
-    return interpretedResponse;
+    return {
+      ...response,
+      ...interpretedResult && { result: interpretedResult },
+    };
   },
 });
 
