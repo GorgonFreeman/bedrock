@@ -5,6 +5,7 @@ const { funcApi, logDeep } = require('../utils');
 const { asanaGet } = require('../asana/asana.utils');
 
 const asanaProjectsGet = async (
+  workspaceId,
   {
     credsPath,
 
@@ -14,17 +15,16 @@ const asanaProjectsGet = async (
     fields,
     pretty,
 
-    workspace,
     archived,
   } = {},
 ) => {
 
   const params = {
+    ...workspaceId !== undefined && { workspace: workspaceId },
     ...offset !== undefined && { offset },
     ...perPage !== undefined && { limit: perPage },
     ...fields !== undefined && { opt_fields: fields },
     ...pretty !== undefined && { opt_pretty: pretty },
-    ...workspace !== undefined && { workspace },
     ...archived !== undefined && { archived },
   };
 
@@ -38,7 +38,10 @@ const asanaProjectsGet = async (
 };
 
 const asanaProjectsGetApi = funcApi(asanaProjectsGet, {
-  argNames: ['options'],
+  argNames: ['workspaceId', 'options'],
+  validatorsByArg: {
+    workspaceId: Boolean,
+  },
 });
 
 module.exports = {
@@ -46,4 +49,4 @@ module.exports = {
   asanaProjectsGetApi,
 };
 
-// curl localhost:8000/asanaProjectsGet
+// curl localhost:8000/asanaProjectsGet -H "Content-Type: application/json" -d '{ "workspaceId": "1234567890" }'
