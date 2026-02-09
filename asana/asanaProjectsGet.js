@@ -1,4 +1,4 @@
-// https://developers.asana.com/reference/gettasks
+// https://developers.asana.com/reference/getprojects
 
 const { HOSTED } = require('../constants');
 const { funcApi, logDeep } = require('../utils');
@@ -11,17 +11,24 @@ const asanaProjectsGet = async (
     offset,
     perPage,
 
-    option,
+    fields,
+    pretty,
+
+    workspace,
+    archived,
   } = {},
 ) => {
 
   const params = {
     ...offset !== undefined && { offset },
     ...perPage !== undefined && { limit: perPage },
-    ...option !== undefined && { option },
+    ...fields !== undefined && { opt_fields: fields },
+    ...pretty !== undefined && { opt_pretty: pretty },
+    ...workspace !== undefined && { workspace },
+    ...archived !== undefined && { archived },
   };
 
-  const response = await asanaGet('/things', {
+  const response = await asanaGet('/projects', {
     credsPath,
     params,
   });
@@ -32,9 +39,6 @@ const asanaProjectsGet = async (
 
 const asanaProjectsGetApi = funcApi(asanaProjectsGet, {
   argNames: ['options'],
-  validatorsByArg: {
-    // arg: Boolean,
-  },
 });
 
 module.exports = {
