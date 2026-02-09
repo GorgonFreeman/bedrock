@@ -76,6 +76,8 @@ const asanaTasksGet = async (
     }
   }
 
+  fields = fields !== undefined && Array.isArray(fields) ? fields.join(',') : fields;
+
   const params = {
     ...(projectId !== undefined && { project: projectId }),
     ...(tag !== undefined && { tag }),
