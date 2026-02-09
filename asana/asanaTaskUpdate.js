@@ -1,18 +1,31 @@
-// https://developers.asana.com/reference/getuser
+// https://developers.asana.com/reference/updatetask
 
 const { HOSTED } = require('../constants');
 const { funcApi, logDeep } = require('../utils');
 const { asanaClient } = require('../asana/asana.utils');
 
 const asanaTaskUpdate = async (
-  thingId,
+  taskId,
+  updatePayload,
   {
     credsPath,
+    fields,
+    pretty,
   } = {},
 ) => {
 
+  fields = Array.isArray(fields) ? fields.join(',') : fields;
+
+  const params = {
+    ...(fields ? { opt_fields: fields } : {}),
+    ...(pretty ? { opt_pretty: pretty } : {}),
+  };
+
   const response = await asanaClient.fetch({
-    url: `/things/${ thingId }`,
+    url: `/tasks/${ taskId }`,
+    method: 'put',
+    body: { data: updatePayload },
+    params,
     context: {
       credsPath,
     },
@@ -23,9 +36,10 @@ const asanaTaskUpdate = async (
 };
 
 const asanaTaskUpdateApi = funcApi(asanaTaskUpdate, {
-  argNames: ['thingId', 'options'],
+  argNames: ['taskId', 'updatePayload', 'options'],
   validatorsByArg: {
-    thingId: Boolean,
+    taskId: Boolean,
+    updatePayload: Boolean,
   },
 });
 
