@@ -49,3 +49,4 @@ module.exports = {
 };
 
 // curl localhost:8000/asanaTaskUpdate -X PUT -H "Content-Type: application/json" -d '{ "taskId": "1234567890", "updatePayload": { "name": "Death Star | Reattach exhaust port shielding" } }'
+// curl localhost:8000/asanaTaskUpdate -X PUT -H "Content-Type: application/json" -d '{ "taskId": "1213070882452430", "updatePayload": { "custom_fields": { "In This Sprint": "Y" } } }'
