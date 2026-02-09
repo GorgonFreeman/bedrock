@@ -1,12 +1,12 @@
 // https://developers.asana.com/reference/updatetask
 
 const { HOSTED } = require('../constants');
-const { funcApi, logDeep, askQuestion } = require('../utils');
+const { funcApi, logDeep, askQuestion, actionMultipleOrSingle } = require('../utils');
 const { asanaClient } = require('../asana/asana.utils');
 
 const { asanaTaskGet } = require('../asana/asanaTaskGet');
 
-const asanaTaskUpdate = async (
+const asanaTaskUpdateSingle = async (
   taskId,
   updatePayload,
   {
@@ -97,6 +97,30 @@ const asanaTaskUpdate = async (
   return response;
 };
 
+const asanaTaskUpdate = async (
+  taskId,
+  updatePayload,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    taskId,
+    asanaTaskUpdateSingle,
+    (taskId) => ({
+      args: [taskId, updatePayload],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+  
+  !HOSTED && logDeep(response);
+  return response;
+};
+
 const asanaTaskUpdateApi = funcApi(asanaTaskUpdate, {
   argNames: ['taskId', 'updatePayload', 'options'],
   validatorsByArg: {
@@ -111,4 +135,4 @@ module.exports = {
 };
 
 // curl localhost:8000/asanaTaskUpdate -X PUT -H "Content-Type: application/json" -d '{ "taskId": "1234567890", "updatePayload": { "name": "Death Star | Reattach exhaust port shielding" } }'
-// curl localhost:8000/asanaTaskUpdate -X PUT -H "Content-Type: application/json" -d '{ "taskId": "1213070882452430", "updatePayload": { "customFields": { "In This Sprint": "Y", "In Next Sprint": "N" } } }'
+// curl localhost:8000/asanaTaskUpdate -X PUT -H "Content-Type: application/json" -d '{ "taskId": ["1212832815359844", "1210943776817196", "1213070882452430", "1212919693148860"], "updatePayload": { "customFields": { "In This Sprint": "Y", "In Next Sprint": "N" } } }'
