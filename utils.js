@@ -1938,6 +1938,11 @@ class FakeGetter extends EventEmitter {
   }
 }
 
+const objIsOnlyProp = (obj, prop) => {
+  const keys = Object.keys(obj);
+  return keys.length === 1 && keys[0] === prop;
+};
+
 module.exports = {
 
   // Really core
@@ -2003,6 +2008,7 @@ module.exports = {
   groupObjectsByFields,
   camelToReadable,
   standardErrorIs,
+  objIsOnlyProp,
   
   // Classes
   CustomAxiosClient,

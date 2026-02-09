@@ -1,4 +1,4 @@
-const { CustomAxiosClient, credsByPath, askQuestion, logDeep, Getter, getterAsGetFunction } = require('../utils');
+const { CustomAxiosClient, credsByPath, askQuestion, logDeep, Getter, getterAsGetFunction, objIsOnlyProp } = require('../utils');
 const { MAX_PER_PAGE } = require('../asana/asana.constants');
 
 const asanaRequestSetup = ({ credsPath } = {}) => {
@@ -28,24 +28,16 @@ const asanaClient = new CustomAxiosClient({
     const { resultsNode } = context;
     
     const { result } = response;
-    let interpretedResult = result?.data ?? result;
+    
+    let interpretedResponse = response;
+
+    if (objIsOnlyProp(result, 'data')) {
+      interpretedResult = result.data;
+    }
+
     if (resultsNode) {
       interpretedResult = interpretedResult?.[resultsNode];
     }
-
-    // Preserve pagination metadata (next_page) alongside the data
-    const interpretedResponse = {
-      ...response,
-      ...response?.result && { 
-        result: {
-          data: interpretedResult,
-          ...(result?.next_page && { next_page: result.next_page }),
-        },
-      },
-    };
-
-    // logDeep({ interpretedResponse });
-    // await askQuestion('?');
 
     return interpretedResponse;
   },
