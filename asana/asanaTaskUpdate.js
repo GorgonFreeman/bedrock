@@ -48,4 +48,4 @@ module.exports = {
   asanaTaskUpdateApi,
 };
 
-// curl localhost:8000/asanaTaskUpdate
+// curl localhost:8000/asanaTaskUpdate -X PUT -H "Content-Type: application/json" -d '{ "taskId": "1234567890", "updatePayload": { "name": "Death Star | Reattach exhaust port shielding" } }'
