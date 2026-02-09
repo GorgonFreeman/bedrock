@@ -1,11 +1,15 @@
 // https://developers.asana.com/reference/getprojects
 
 const { HOSTED } = require('../constants');
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, objHasAny } = require('../utils');
 const { asanaGet } = require('../asana/asana.utils');
+const { asanaWorkspaceHandleToId } = require('../bedrock_unlisted/mappings');
 
 const asanaProjectsGet = async (
-  workspaceId,
+  {
+    workspaceHandle,
+    workspaceId,
+  },
   {
     credsPath,
 
@@ -18,6 +22,17 @@ const asanaProjectsGet = async (
     archived,
   } = {},
 ) => {
+
+  if (workspaceHandle) {
+    workspaceId = asanaWorkspaceHandleToId[workspaceHandle];
+  }
+
+  if (!workspaceId) {
+    return {
+      success: false,
+      error: ['Couldn\'t get a workspace ID from workspaceIdentifier'],
+    };
+  }
 
   const params = {
     ...workspaceId !== undefined && { workspace: workspaceId },
@@ -38,9 +53,9 @@ const asanaProjectsGet = async (
 };
 
 const asanaProjectsGetApi = funcApi(asanaProjectsGet, {
-  argNames: ['workspaceId', 'options'],
+  argNames: ['workspaceIdentifier', 'options'],
   validatorsByArg: {
-    workspaceId: Boolean,
+    workspaceIdentifier: p => objHasAny(p, ['workspaceId', 'workspaceHandle']),
   },
 });
 
@@ -49,4 +64,5 @@ module.exports = {
   asanaProjectsGetApi,
 };
 
-// curl localhost:8000/asanaProjectsGet -H "Content-Type: application/json" -d '{ "workspaceId": "1234567890" }'
+// curl localhost:8000/asanaProjectsGet -H "Content-Type: application/json" -d '{ "workspaceIdentifier": { "workspaceId": "1234567890" } }'
+// curl localhost:8000/asanaProjectsGet -H "Content-Type: application/json" -d '{ "workspaceIdentifier": { "workspaceHandle": "wf" } }'
