@@ -68,7 +68,7 @@ const asanaTaskUpdateSingle = async (
           return [name, value];    
         }
 
-        const valueId = customFieldsDataToIdMap[name][value];
+        const valueId = customFieldsDataToIdMap?.[name]?.[value] ?? value;
         
         return [fieldId, valueId];
       }));
@@ -140,3 +140,4 @@ module.exports = {
 
 // curl localhost:8000/asanaTaskUpdate -X PUT -H "Content-Type: application/json" -d '{ "taskId": "1234567890", "updatePayload": { "name": "Death Star | Reattach exhaust port shielding" } }'
 // curl localhost:8000/asanaTaskUpdate -X PUT -H "Content-Type: application/json" -d '{ "taskId": ["1212832815359844", "1210943776817196", "1213070882452430", "1212919693148860"], "updatePayload": { "customFields": { "In This Sprint": "Y", "In Next Sprint": "N" } } }'
+// curl localhost:8000/asanaTaskUpdate -X PUT -H "Content-Type: application/json" -d '{ "taskId": ["1212832815359844", "1210943776817196", "1213070882452430", "1212919693148860"], "updatePayload": { "customFields": { "In This Sprint": null, "In Next Sprint": null } } }'
