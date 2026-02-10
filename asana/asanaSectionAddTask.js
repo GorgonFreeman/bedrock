@@ -37,7 +37,8 @@ const asanaSectionAddTaskSingle = async (
 
     const {
       success: sectionsSuccess,
-      result: sections,    } = sectionsResponse;
+      result: sections,
+    } = sectionsResponse;
 
     if (!sectionsSuccess) {
       return sectionsResponse;
