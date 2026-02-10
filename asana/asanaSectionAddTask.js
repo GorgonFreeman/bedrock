@@ -1,11 +1,11 @@
 // https://developers.asana.com/reference/addtaskforsection
 
 const { HOSTED } = require('../constants');
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { asanaClient } = require('../asana/asana.utils');
 const { asanaSectionsGet } = require('../asana/asanaSectionsGet');
 
-const asanaSectionAddTask = async (
+const asanaSectionAddTaskSingle = async (
   {
     sectionId,
 
@@ -70,7 +70,31 @@ const asanaSectionAddTask = async (
       credsPath,
     },
   });
-  
+
+  !HOSTED && logDeep(response);
+  return response;
+};
+
+const asanaSectionAddTask = async (
+  sectionIdentifier,
+  taskId,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    taskId,
+    asanaSectionAddTaskSingle,
+    (taskId) => ({
+      args: [sectionIdentifier, taskId],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+
   !HOSTED && logDeep(response);
   return response;
 };
