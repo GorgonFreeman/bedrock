@@ -59,4 +59,4 @@ module.exports = {
   asanaSectionsGetApi,
 };
 
-// curl localhost:8000/asanaSectionsGet -X POST -H "Content-Type: application/json" -d '{"projectIdentifier": {"projectHandle": "dev"}}'
+// curl localhost:8000/asanaSectionsGet -X POST -H "Content-Type: application/json" -d '{ "projectIdentifier": { "projectHandle": "dev" } }'
