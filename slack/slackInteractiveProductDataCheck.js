@@ -4,7 +4,7 @@ const { shopifyProductsGet } = require('../shopify/shopifyProductsGet');
 
 const DEFAULT_REGION = 'au';
 
-const COMMAND_NAME = 'dev__product_data_check'; // slash command
+const COMMAND_NAME = 'product_data_check'; // slash command
 
 const blocks = {
   intro: {
