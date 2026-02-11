@@ -1,12 +1,13 @@
 // Checks if any fulfillment requests are pending a response from the fulfillment service.
 // This is essentially an order sync check, for a store where the fulfillment service is not Shopify.
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, minutes } = require('../utils');
 const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
 
 const attrs = `
   id
   name
+  createdAt
   fulfillmentOrders (query: "request_status:SUBMITTED", first: 1) {
     edges {
       node {
@@ -43,9 +44,26 @@ const shopifyOrderFulfillmentRequestReview = async (
   }
 
   const orders = ordersResponse.result || [];
-  const requestSubmittedOrders = orders.filter(
+  const withSubmittedRequest = orders.filter(
     (o) => (o.fulfillmentOrders?.length ?? 0) > 0,
   );
+
+  let requestSubmittedOrders = withSubmittedRequest;
+  const ignored = [];
+
+  if (ignoreWindowMinutes > 0) {
+    const now = new Date();
+    const ignoreWindowMs = minutes(ignoreWindowMinutes);
+    requestSubmittedOrders = withSubmittedRequest.filter((order) => {
+      const age = now - new Date(order.createdAt);
+      if (age < ignoreWindowMs) {
+        ignored.push(order);
+        return false;
+      }
+      return true;
+    });
+  }
+
   const submittedCount = requestSubmittedOrders.length;
 
   const response = {
@@ -53,12 +71,15 @@ const shopifyOrderFulfillmentRequestReview = async (
     result: {
       metadata: {
         submittedCount,
+        ...(ignoreWindowMinutes > 0 && { ignoredCount: ignored.length }),
       },
       samples: {
         submitted: requestSubmittedOrders.slice(0, 10),
+        ...(ignored.length > 0 && { ignored: ignored.slice(0, 10) }),
       },
       piles: {
         requestSubmittedOrders,
+        ...(ignored.length > 0 && { ignored }),
       },
     },
   };
@@ -80,3 +101,4 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyOrderFulfillmentRequestReview -H "Content-Type: application/json" -d '{ "region": "uk" }'
+// curl localhost:8000/shopifyOrderFulfillmentRequestReview -H "Content-Type: application/json" -d '{ "region": "uk", "options": { "ignoreWindowMinutes": 30 } }'
