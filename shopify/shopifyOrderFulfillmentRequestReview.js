@@ -9,10 +9,12 @@ const attrs = `
   id
   name
   createdAt
-  fulfillmentOrders (query: "request_status:SUBMITTED", first: 1) {
+  fulfillmentOrders (query: "request_status:SUBMITTED AND status:IN_PROGRESS", first: 1) {
     edges {
       node {
         id
+        requestStatus
+        status
       }
     }
   }
