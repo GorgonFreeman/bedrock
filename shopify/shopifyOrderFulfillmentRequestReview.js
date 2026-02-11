@@ -7,50 +7,50 @@ const { shopifyClient } = require('../shopify/shopify.utils');
 const defaultAttrs = `id`;
 
 const shopifyOrderFulfillmentRequestReview = async (
-  credsPath,
-  arg,
+  region,
   {
-    apiVersion,
-    option,
+    ignoreWindowMinutes = 0,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
+  /*
+    Fetch all orders from Shopify that are:
+    'created_at:>2025-07-01',
+    '(fulfillment_status:unshipped OR fulfillment_status:partial)',
+    'status:open',
+    'delivery_method:shipping',
+    `tag_not:'fulfillment_request_review_exclude'`,
+    not tagged 'fulfillment_request_answered'
+  */
 
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
+  // If not success, return ordersResponse
+
+  // Find any fulfillment orders with request status 'SUBMITTED'
+
+  const response = {
+    success: true,
+    result: {
+      metadata: {
+        submittedCount,
+      },
+      samples: {
+        submitted: requestSubmittedOrders.slice(0, 10),
+      },
+      piles: {
+        requestSubmittedOrders,
+      },
+    },
   };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
-      apiVersion,
-    },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
 
   logDeep(response);
   return response;
 };
 
 const shopifyOrderFulfillmentRequestReviewApi = funcApi(shopifyOrderFulfillmentRequestReview, {
-  argNames: ['credsPath', 'arg', 'options'],
+  argNames: ['region', 'options'],
+  validatorsByArg: {
+    region: Boolean,
+  },
 });
 
 module.exports = {
@@ -58,4 +58,4 @@ module.exports = {
   shopifyOrderFulfillmentRequestReviewApi,
 };
 
-// curl localhost:8000/shopifyOrderFulfillmentRequestReview -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyOrderFulfillmentRequestReview -H "Content-Type: application/json" -d '{ "region": "uk" }'
