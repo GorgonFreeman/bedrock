@@ -162,29 +162,8 @@ const slackInteractiveProductDataCheck = async (req, res) => {
         exampleVariant,
       } = product;
 
-      const sizeGroupings = [
-        '-3XS/XXS',
-        '-XXS/XS',
-        '-XS/S',
-        '-S/M',
-        '-M/L',
-        '-L/XL',
-        '-XL/XXL',
-        '-XXL/3XL',
-        '-3XS',
-        '-XXS',
-        '-XS',
-        '-S',
-        '-M',
-        '-L',
-        '-XL',
-        '-XXL',
-        '-3XL',
-        '-O/S',
-      ];
-      const sizeGroupingRegex = new RegExp(`(${ sizeGroupings.join('|') })`, 'i');
-      const partialSKU = exampleVariant?.[0]?.sku.replace(sizeGroupingRegex, '');
-      if (partialSKU.startsWith(payloadValueTrimmed)) {
+      const partialSKU = exampleVariant?.[0]?.sku.match(/(\S*\-\d)(?:\-[\S\/]*$)/)?.[1] || null;
+      if (partialSKU && partialSKU.startsWith(payloadValueTrimmed)) {
         optionValues.add(partialSKU);
       }
     });
