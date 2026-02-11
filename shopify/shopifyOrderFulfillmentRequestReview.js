@@ -2,9 +2,19 @@
 // This is essentially an order sync check, for a store where the fulfillment service is not Shopify.
 
 const { funcApi, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
 
-const defaultAttrs = `id`;
+const attrs = `
+  id
+  name
+  fulfillmentOrders (query: "request_status:SUBMITTED", first: 1) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+`;
 
 const shopifyOrderFulfillmentRequestReview = async (
   region,
@@ -13,19 +23,30 @@ const shopifyOrderFulfillmentRequestReview = async (
   } = {},
 ) => {
 
-  /*
-    Fetch all orders from Shopify that are:
-    'created_at:>2025-07-01',
-    '(fulfillment_status:unshipped OR fulfillment_status:partial)',
-    'status:open',
-    'delivery_method:shipping',
-    `tag_not:'fulfillment_request_review_exclude'`,
-    not tagged 'fulfillment_request_answered'
-  */
+  const ordersResponse = await shopifyOrdersGet(
+    region,
+    {
+      queries: [
+        'created_at:>2025-07-01',
+        '(fulfillment_status:unshipped OR fulfillment_status:partial)',
+        'status:open',
+        'delivery_method:shipping',
+        'tag_not:fulfillment_request_review_exclude',
+        'tag_not:fulfillment_request_answered',
+      ],
+      attrs,
+    },
+  );
 
-  // If not success, return ordersResponse
+  if (!ordersResponse?.success) {
+    return ordersResponse;
+  }
 
-  // Find any fulfillment orders with request status 'SUBMITTED'
+  const orders = ordersResponse.result || [];
+  const requestSubmittedOrders = orders.filter(
+    (o) => (o.fulfillmentOrders?.length ?? 0) > 0,
+  );
+  const submittedCount = requestSubmittedOrders.length;
 
   const response = {
     success: true,
@@ -42,7 +63,7 @@ const shopifyOrderFulfillmentRequestReview = async (
     },
   };
 
-  logDeep(response);
+  logDeep('response', response);
   return response;
 };
 
