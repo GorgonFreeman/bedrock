@@ -1,3 +1,6 @@
+// Checks if any fulfillment requests are pending a response from the fulfillment service.
+// This is essentially an order sync check, for a store where the fulfillment service is not Shopify.
+
 const { funcApi, logDeep } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 
