@@ -44,7 +44,7 @@ const asanaSectionAddTaskSingle = async (
       return sectionsResponse;
     }
 
-    sectionId = sections.find(section => section.name === sectionName)?.id;
+    sectionId = sections.find(section => section.name === sectionName)?.gid;
   }
 
   if (!sectionId) {
