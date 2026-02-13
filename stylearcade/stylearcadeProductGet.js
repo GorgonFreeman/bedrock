@@ -1,21 +1,26 @@
 const { funcApi } = require('../utils');
 
 const stylearcadeProductGet = async (
-  arg,
+  productIdentifier,
   {
-    option,
+    credsPath,
   } = {},
 ) => {
 
+  console.warn(`Warning: this function works by paginating through all the products in Style Arcade and returning once it happens upon the one you want, so it's an expensive function.`);
+
   return { 
-    arg, 
-    option,
+    productIdentifier, 
+    credsPath,
   };
   
 };
 
 const stylearcadeProductGetApi = funcApi(stylearcadeProductGet, {
-  argNames: ['arg', 'options'],
+  argNames: ['productIdentifier', 'options'],
+  validatorsByArg: {
+    productIdentifier: p => objHasAny(p, ['productId']) || objHasAll(p, ['productHandle', 'productType']),
+  },
 });
 
 module.exports = {
@@ -23,4 +28,4 @@ module.exports = {
   stylearcadeProductGetApi,
 };
 
-// curl localhost:8000/stylearcadeProductGet -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/stylearcadeProductGet -H "Content-Type: application/json" -d '{ "productIdentifier": { ... } }'
