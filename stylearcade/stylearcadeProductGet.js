@@ -1,9 +1,12 @@
-const { funcApi, logDeep, askQuestion } = require('../utils');
+const { funcApi, logDeep, askQuestion, objHasAny } = require('../utils');
 
-const { styleArcadeDataGetter } = require('../stylearcade/stylearcadeDataGet');
+const { stylearcadeDataGetter } = require('../stylearcade/stylearcadeDataGet');
 
 const stylearcadeProductGet = async (
-  productIdentifier,
+  {
+    skuTrunk, // e.g. ABC123-5 (sku without size)
+    productName,
+  },
   {
     credsPath,
   } = {},
@@ -11,28 +14,53 @@ const stylearcadeProductGet = async (
 
   console.warn(`Warning: this function works by paginating through all the products in Style Arcade and returning once it happens upon the one you want, so it's an expensive function.`);
 
-  const getter = await styleArcadeDataGetter(
+  let foundResult;
+  const getter = await stylearcadeDataGetter(
     {
       credsPath,
       onItems: async (items) => {
-        logDeep(items);
-        await askQuestion('?');
+        for (const item of items) {
+          const { data: itemData } = item;
+
+          if (!itemData) {
+            continue;
+          }
+
+          const {
+            productId,
+            name,
+          } = itemData;
+
+          if (
+            (skuTrunk && productId === skuTrunk)
+            || (productName && name === productName)
+          ) {
+            foundResult = { success: true, result: itemData };
+            getter.end();
+            return;
+          }
+        }
       },
     },
   );
 
   await getter.run();
 
+  if (foundResult) {
+    logDeep({ foundResult });
+    return foundResult;
+  }
+
   return {
     success: false,
-    error: [`Fetched the whole Style Arcade catalogue and didn't find the product`],
+    error: [`Didn't find the product`],
   };
 };
 
 const stylearcadeProductGetApi = funcApi(stylearcadeProductGet, {
   argNames: ['productIdentifier', 'options'],
   validatorsByArg: {
-    productIdentifier: p => objHasAny(p, ['productId']) || objHasAll(p, ['productHandle', 'productType']),
+    productIdentifier: p => objHasAny(p, ['skuTrunk', 'productName']),
   },
 });
 
@@ -41,4 +69,4 @@ module.exports = {
   stylearcadeProductGetApi,
 };
 
-// curl localhost:8000/stylearcadeProductGet -H "Content-Type: application/json" -d '{ "productIdentifier": { ... } }'
+// curl localhost:8000/stylearcadeProductGet -H "Content-Type: application/json" -d '{ "productIdentifier": { "skuTrunk": "WFCAR58-1" } }'
