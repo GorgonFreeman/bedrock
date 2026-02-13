@@ -32,7 +32,7 @@ const collabsProductDataCheck = async (
   }
 
   // Fetch Stylearcade data
-  const stylearcadeDataResponse = await stylearcadeProductGet(skuTrunk);
+  const stylearcadeDataResponse = await stylearcadeProductGet({ skuTrunk });
   let { success: stylearcadeDataResponseSuccess, result: stylearcadeProduct } = stylearcadeDataResponse;
   if (!stylearcadeDataResponseSuccess) {
     return stylearcadeDataResponse;
