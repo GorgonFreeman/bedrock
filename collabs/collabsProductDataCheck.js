@@ -8,12 +8,12 @@ const {
   REGIONS_BLECKMANN,
 } = require('../constants');
 
-const { stylearcadeDataGet } = require('../stylearcade/stylearcadeDataGet');
+const { stylearcadeProductGet } = require('../stylearcade/stylearcadeProductGet');
 
 const { shopifyProductGet } = require('../shopify/shopifyProductGet');
 
 const collabsProductDataCheck = async (
-  sku,
+  skuTrunk,
   {
     regions = REGIONS_WF,
   } = {},
@@ -32,41 +32,18 @@ const collabsProductDataCheck = async (
   }
 
   // Fetch Stylearcade data
-  const stylearcadeDataResponse = await stylearcadeDataGet(sku);
-  let { success: stylearcadeDataResponseSuccess, result: stylearcadeData } = stylearcadeDataResponse;
+  const stylearcadeDataResponse = await stylearcadeProductGet(skuTrunk);
+  let { success: stylearcadeDataResponseSuccess, result: stylearcadeProduct } = stylearcadeDataResponse;
   if (!stylearcadeDataResponseSuccess) {
-    return {
-      success: false,
-      message: 'Error getting stylearcade data',
-    };
+    return stylearcadeDataResponse;
   }
 
-  // Filter Stylearcade data to get the target product
-  const targetStylearcadeData = stylearcadeData
-  .map(({ data }) => data).filter(item => item) // remove data: null
-  .filter(item => item.productId === sku); // filter wanted products
-
-  if (targetStylearcadeData.length === 0) {
-    return {
-      success: false,
-      message: `Product with SKU: ${ sku } not found in StyleArcade`,
-    };
-  }
-
-  if (targetStylearcadeData.length > 1) {
-    return {
-      success: false,
-      message: `Multiple products found in StyleArcade for SKU: ${ sku }`,
-    };
-  }
-
-  const targetProduct = targetStylearcadeData[0];
-  const weight = targetProduct.workflow.find(item => item.stageLabel === 'weight').note || null;
-  const dimensions = targetProduct.workflow.find(item => item.stageLabel === 'product dims').note || null;
+  const weight = stylearcadeProduct.workflow.find(item => item.stageLabel === 'weight').note || null;
+  const dimensions = stylearcadeProduct.workflow.find(item => item.stageLabel === 'product dims').note || null;
 
   let success  = true;
   let resultObject = {
-    sku,
+    skuTrunk,
     stylearcadeData: {
       weight,
       dimensions,
@@ -77,7 +54,7 @@ const collabsProductDataCheck = async (
   // Fetch and compile Shopify product data
   for (const region of regions) {
     const shopifyProductResponse = await shopifyProductGet(region, {
-      skuStartsWith: `${ sku }-`,
+      skuStartsWith: `${ skuTrunk }-`,
     }, {
       attrs: `id title handle
         dimensionsCmMetafield: metafield(namespace:"specifications", key:"dimensions_cm") { value }
@@ -114,7 +91,7 @@ const collabsProductDataCheck = async (
 };
 
 const collabsProductDataCheckApi = funcApi(collabsProductDataCheck, {
-  argNames: ['sku', 'options'],
+  argNames: ['skuTrunk', 'options'],
 });
 
 module.exports = {
@@ -122,7 +99,7 @@ module.exports = {
   collabsProductDataCheckApi,
 };
 
-// curl localhost:8000/collabsProductDataCheck -H "Content-Type: application/json" -d '{ "sku": "WFT2212-1" }'
-// curl localhost:8000/collabsProductDataCheck -H "Content-Type: application/json" -d '{ "sku": "WFT2212-1", "options": { "regions": [ "au" ] } }'
-// curl localhost:8000/collabsProductDataCheck -H "Content-Type: application/json" -d '{ "sku": "WFT2212-1", "options": { "regions": [ "us" ] } }'
-// curl localhost:8000/collabsProductDataCheck -H "Content-Type: application/json" -d '{ "sku": "WFT2212-1", "options": { "regions": [ "uk" ] } }'
+// curl localhost:8000/collabsProductDataCheck -H "Content-Type: application/json" -d '{ "skuTrunk": "WFT2212-1" }'
+// curl localhost:8000/collabsProductDataCheck -H "Content-Type: application/json" -d '{ "skuTrunk": "WFT2212-1", "options": { "regions": [ "au" ] } }'
+// curl localhost:8000/collabsProductDataCheck -H "Content-Type: application/json" -d '{ "skuTrunk": "FSSH03-1", "options": { "regions": [ "us" ] } }'
+// curl localhost:8000/collabsProductDataCheck -H "Content-Type: application/json" -d '{ "skuTrunk": "WFT2212-1", "options": { "regions": [ "uk" ] } }'
