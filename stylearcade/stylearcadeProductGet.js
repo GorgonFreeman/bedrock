@@ -12,6 +12,13 @@ const stylearcadeProductGet = async (
   } = {},
 ) => {
 
+  if (!skuTrunk && !productName) {
+    return {
+      success: false,
+      error: [`You must provide a product identifier`],
+    };
+  }
+
   console.warn(`Warning: this function works by paginating through all the products in Style Arcade and returning once it happens upon the one you want, so it's an expensive function.`);
 
   let foundResult;
