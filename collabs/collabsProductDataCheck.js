@@ -8,7 +8,7 @@ const {
   REGIONS_BLECKMANN,
 } = require('../constants');
 
-const { stylearcadeDataGet } = require('../stylearcade/stylearcadeDataGet');
+const { stylearcadeProductGet } = require('../stylearcade/stylearcadeProductGet');
 
 const { shopifyProductGet } = require('../shopify/shopifyProductGet');
 
@@ -31,38 +31,19 @@ const collabsProductDataCheck = async (
     };
   }
 
-  // Fetch Stylearcade data
-  const stylearcadeDataResponse = await stylearcadeDataGet(sku);
-  let { success: stylearcadeDataResponseSuccess, result: stylearcadeData } = stylearcadeDataResponse;
-  if (!stylearcadeDataResponseSuccess) {
+  // Fetch Stylearcade product data
+  const stylearcadeProductResponse = await stylearcadeProductGet({ skuTrunk: sku });
+  const { success: stylearcadeProductSuccess, result: stylearcadeProduct } = stylearcadeProductResponse;
+  if (!stylearcadeProductSuccess) {
     return {
       success: false,
-      message: 'Error getting stylearcade data',
+      message: stylearcadeProductResponse.error,
     };
   }
 
-  // Filter Stylearcade data to get the target product
-  const targetStylearcadeData = stylearcadeData
-  .map(({ data }) => data).filter(item => item) // remove data: null
-  .filter(item => item.productId === sku); // filter wanted products
-
-  if (targetStylearcadeData.length === 0) {
-    return {
-      success: false,
-      message: `Product with SKU: ${ sku } not found in StyleArcade`,
-    };
-  }
-
-  if (targetStylearcadeData.length > 1) {
-    return {
-      success: false,
-      message: `Multiple products found in StyleArcade for SKU: ${ sku }`,
-    };
-  }
-
-  const targetProduct = targetStylearcadeData[0];
-  const weight = targetProduct.workflow.find(item => item.stageLabel === 'weight').note || null;
-  const dimensions = targetProduct.workflow.find(item => item.stageLabel === 'product dims').note || null;
+  // Extract weight and dimensions from Stylearcade product data
+  const weight = stylearcadeProduct.workflow.find(item => item.stageLabel === 'weight').note || null;
+  const dimensions = stylearcadeProduct.workflow.find(item => item.stageLabel === 'product dims').note || null;
 
   let success  = true;
   let resultObject = {
