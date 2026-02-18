@@ -98,11 +98,12 @@ const etsyRequestSetup = async ({ credsPath, withBearer = false } = {}) => {
 
   const { 
     API_KEY,
+    SHARED_SECRET,
     BASE_URL,
   } = credsByPath(['etsy', credsPath]);
 
   const headers = {
-    'x-api-key': API_KEY,
+    'x-api-key': `${ API_KEY }:${ SHARED_SECRET }`,
   };
 
   if (!withBearer) {

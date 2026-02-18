@@ -13,6 +13,7 @@ const etsyAccessTokenRefresh = async (
   const creds = credsByPath(['etsy', credsPath]);
   const { 
     API_KEY,
+    SHARED_SECRET,
     BASE_URL,
   } = creds;
   
@@ -44,7 +45,7 @@ const etsyAccessTokenRefresh = async (
   const client = new CustomAxiosClient({
     baseUrl: BASE_URL,
     baseHeaders: {
-      'x-api-key': API_KEY,
+      'x-api-key': `${ API_KEY }:${ SHARED_SECRET }`,
     },
   });
   

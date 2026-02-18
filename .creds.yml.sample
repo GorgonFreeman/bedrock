@@ -22,6 +22,7 @@ pipe17:
 
 etsy:
   API_KEY: ____________________________
+  SHARED_SECRET: ______________________
   BASE_URL: https://api.etsy.com/v3
   OAUTH_URL: https://www.etsy.com/oauth/connect
   OAUTH_REDIRECT_URL: https://_________
