@@ -1,3 +1,4 @@
+const { HOSTED } = require('../constants');
 const { funcApi, logDeep, askQuestion, wait, seconds } = require('../utils');
 const { etsyAuthCodeRequest } = require('../etsy/etsyAuthCodeRequest');
 const { etsyAccessTokenRequest } = require('../etsy/etsyAccessTokenRequest');
@@ -7,6 +8,13 @@ const etsyAuthFlowWalkthrough = async (
     credsPath,
   } = {},
 ) => {
+
+  if (HOSTED) {
+    return {
+      success: false,
+      error: [`This function can only be run locally.`],
+    };
+  }
 
   console.log(`1. I'm going to run etsyAuthCodeRequest. A webpage will open. Once you have approved, you will be sent to the redirect url.`);
   await wait(seconds(1));
