@@ -155,10 +155,10 @@ const collabsCustomsDataSweep = async () => {
         af60status: dimsStatus = false,
       } = stylearcadeProduct;
 
-      if (!(hsCodeUs && hsCodeUk)) {
-        piles.dataIncomplete.push(stylearcadeProduct);
-        return;
-      }
+      // if (!(hsCodeUs && hsCodeUk)) {
+      //   piles.dataIncomplete.push(stylearcadeProduct);
+      //   return;
+      // }
 
       const skuTarget = `${ skuTrunk }-`;
 
@@ -198,7 +198,7 @@ const collabsCustomsDataSweep = async () => {
             ItemCode: pvxSku,
           };
 
-          if (pvxHsCode !== hsCodeUs) {
+          if (hsCodeUs && pvxHsCode !== hsCodeUs) {
             !HOSTED && logDeep(`[Peoplevox Update] SKU: ${ pvxSku }, Field: HS Code, Current: "${ pvxHsCode }", Expected: "${ hsCodeUs }"`);
             updatePayload.Attribute5 = hsCodeUs;
           }
@@ -263,7 +263,7 @@ const collabsCustomsDataSweep = async () => {
               starshipitProductId,
               sku,
               {
-                hs_code: hsCodeUs,
+                ...hsCodeUs && { hs_code: hsCodeUs },
                 ...customsDescription && { customs_description: customsDescription },
                 country: countryOfOrigin,
                 mid,
@@ -283,7 +283,7 @@ const collabsCustomsDataSweep = async () => {
               'wf',
               missingSku,
               {
-                hsCode: hsCodeUs,
+                ...hsCodeUs && { hsCode: hsCodeUs },
                 ...customsDescription && { customsDescription: customsDescription },
                 country: countryOfOrigin,
                 mid,
