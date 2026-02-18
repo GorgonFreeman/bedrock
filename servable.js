@@ -225,6 +225,7 @@ module.exports = {
   etsyAccessTokenRequest: require('./etsy/etsyAccessTokenRequest').etsyAccessTokenRequestApi,
   etsyAllListingsGetActive: require('./etsy/etsyAllListingsGetActive').etsyAllListingsGetActiveApi,
   etsyAuthCodeRequest: require('./etsy/etsyAuthCodeRequest').etsyAuthCodeRequestApi,
+  etsyAuthFlowWalkthrough: require('./etsy/etsyAuthFlowWalkthrough').etsyAuthFlowWalkthroughApi,
   etsyBuyerTaxonomyNodePropertiesGet: require('./etsy/etsyBuyerTaxonomyNodePropertiesGet').etsyBuyerTaxonomyNodePropertiesGetApi,
   etsyListingGet: require('./etsy/etsyListingGet').etsyListingGetApi,
   etsyListingImageDelete: require('./etsy/etsyListingImageDelete').etsyListingImageDeleteApi,
