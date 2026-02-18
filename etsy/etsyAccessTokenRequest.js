@@ -7,6 +7,9 @@ const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 const etsyAccessTokenRequest = async (
   {
     credsPath,
+    // Allow passing auth code and verifier explicitly to avoid restarting the server if .env changes
+    authCode,
+    authCodeVerifier,
   } = {},
 ) => {
   
@@ -22,8 +25,8 @@ const etsyAccessTokenRequest = async (
     grant_type: 'authorization_code',
     client_id: API_KEY,
     redirect_uri: OAUTH_REDIRECT_URL,
-    code: AUTH_CODE,
-    code_verifier: AUTH_CODEVERIFIER,
+    code: authCode || AUTH_CODE,
+    code_verifier: authCodeVerifier || AUTH_CODEVERIFIER,
   };
 
   const response = await etsyClient.fetch({
