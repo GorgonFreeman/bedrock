@@ -1,7 +1,7 @@
-const { respond, mandateParam, logDeep, credsByPath } = require('../utils');
+const { respond, mandateParam, logDeep, credsByPath, actionMultipleOrSingle } = require('../utils');
 const { printifyClient } = require('../printify/printify.utils');
 
-const printifyOrderSubmit = async (
+const printifyOrderSubmitSingle = async (
   orderId,
   {
     credsPath,
@@ -22,7 +22,7 @@ const printifyOrderSubmit = async (
   }
 
   const response = await printifyClient.fetch({
-    url: `/shops/${ shopId }/orders/${ orderId }/send_to_production.json`, 
+    url: `/shops/${ shopId }/orders/${ orderId }/send_to_production.json`,
     method: 'post',
     verbose: true,
     context: {
@@ -32,11 +32,32 @@ const printifyOrderSubmit = async (
 
   logDeep(response);
   return response;
-  
+};
+
+const printifyOrderSubmit = async (
+  orderId,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    orderId,
+    printifyOrderSubmitSingle,
+    (orderId) => ({
+      args: [orderId],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+
+  return response;
 };
 
 const printifyOrderSubmitApi = async (req, res) => {
-  const { 
+  const {
     orderId,
     options,
   } = req.body;

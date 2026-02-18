@@ -141,7 +141,6 @@ module.exports = {
   printifyOrderSubmit: require('./printify/printifyOrderSubmit').printifyOrderSubmitApi,
   printifyOrdersCreate: require('./printify/printifyOrdersCreate').printifyOrdersCreateApi,
   printifyOrdersGet: require('./printify/printifyOrdersGet').printifyOrdersGetApi,
-  printifyOrdersSubmit: require('./printify/printifyOrdersSubmit').printifyOrdersSubmitApi,
   printifyProductCreate: require('./printify/printifyProductCreate').printifyProductCreateApi,
   printifyProductDelete: require('./printify/printifyProductDelete').printifyProductDeleteApi,
   printifyProductGet: require('./printify/printifyProductGet').printifyProductGetApi,
