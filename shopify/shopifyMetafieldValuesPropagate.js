@@ -30,6 +30,10 @@ const metafieldIsEmpty = async (value, type) => {
     return value === '[]';
   }
 
+  if (type === 'number_decimal' && parseFloat(value) === 0) {
+    return true;
+  }
+
   return value === null;
 };
 
