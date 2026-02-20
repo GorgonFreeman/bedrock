@@ -1265,10 +1265,11 @@ class Processor extends EventEmitter {
     return pileExhaustedCheck(pile);
   }
   
-  async run({
-    interval = false,
-    verbose = true,
-  } = this.runOptions) {
+  async run(opts = {}) {
+    const {
+      interval = false,
+      verbose = true,
+    } = { ...this.runOptions, ...opts };
     
     let finished = false;
     let results = [];
