@@ -478,6 +478,9 @@ const funcApi = (
     requestVerifiers = [],
     bodyModifiers = [],
 
+    passThroughReq = false,
+    passThroughBody = false,
+
     errorReporter,
     errorReporterPayload = {},
     errorFilters = [], // Array of functions that take errors and return booleans - at least one error must pass for reporting to fire.
@@ -556,7 +559,15 @@ const funcApi = (
       }
     }
 
-    const response = await func(...argNames?.length ? argNames.map(argName => body[argName]) : []);
+    const args = passThroughReq
+      ? [req]
+      : (
+        passThroughBody
+        ? [body]
+        : argNames?.length ? argNames.map(argName => body[argName]) : []
+      );
+
+    const response = await func(...args);
     
     const { success, error } = response;
     if (errorReporter && !success) {
