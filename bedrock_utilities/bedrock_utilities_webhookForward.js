@@ -18,7 +18,12 @@ const bedrock_utilities_webhookForward = async (req) => {
   
 };
 
-const bedrock_utilities_webhookForwardApi = funcApi(bedrock_utilities_webhookForward);
+const bedrock_utilities_webhookForwardApi = funcApi(
+  bedrock_utilities_webhookForward,
+  {
+    passThroughReq: true,
+  },
+);
 
 module.exports = {
   bedrock_utilities_webhookForward,
