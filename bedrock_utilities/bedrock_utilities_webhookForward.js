@@ -11,15 +11,13 @@ const bedrock_utilities_webhookForward = async (
 ) => {
 
   return { 
-    arg, 
-    option,
+    success: true,
+    message: `Webhook forwarded to ${ forwardUrl }`,
   };
   
 };
 
-const bedrock_utilities_webhookForwardApi = funcApi(bedrock_utilities_webhookForward, {
-  argNames: ['arg', 'options'],
-});
+const bedrock_utilities_webhookForwardApi = funcApi(bedrock_utilities_webhookForward);
 
 module.exports = {
   bedrock_utilities_webhookForward,
