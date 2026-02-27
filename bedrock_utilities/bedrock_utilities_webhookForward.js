@@ -1,14 +1,15 @@
 // A function that responds quickly to a webhook, and sends the webhook where it needs to go. 
 // This is to separate the response from the action taken.
 
-const { funcApi } = require('../utils');
+const { funcApi, customAxios } = require('../utils');
 
-const bedrock_utilities_webhookForward = async (
-  arg,
-  {
-    option,
-  } = {},
-) => {
+const bedrock_utilities_webhookForward = async (req) => {
+
+  const { body } = req;
+
+  const forwardUrl = 'TODO';
+
+  customAxios('post', forwardUrl, { originalHeaders: headers, ...body });
 
   return { 
     success: true,
