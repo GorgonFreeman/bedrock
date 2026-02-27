@@ -1,3 +1,6 @@
+// A function that responds quickly to a webhook, and sends the webhook where it needs to go. 
+// This is to separate the response from the action taken.
+
 const { funcApi } = require('../utils');
 
 const bedrock_utilities_webhookForward = async (
