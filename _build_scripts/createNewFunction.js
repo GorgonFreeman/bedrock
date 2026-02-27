@@ -138,8 +138,10 @@ const createNewFunction = async () => {
   }
 
   try {
-    const separator = dir?.includes('_') ? '_' : '';
-    const funcName = dir ? `${ dir }${ separator }${ capitaliseString(name) }` : name;
+    const hasUnderscore = dir?.includes('_');
+    const separator = hasUnderscore ? '_' : '';
+    const formattedName = hasUnderscore ? name : capitaliseString(name);
+    const funcName = dir ? `${ dir }${ separator }${ formattedName }` : name;
     const pathName = dir ? `${ dir }/` : '';
 
     const script = await scriptFileContents(funcName, pathName, selectedTemplate);
