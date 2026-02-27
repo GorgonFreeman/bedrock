@@ -129,7 +129,8 @@ const createNewFunction = async () => {
     }
   }
 
-  const name = await askQuestion(`What do you want to call it? ${ dir }`);
+  const promptSuffix = dir?.includes('_') ? `${ dir }_` : dir;
+  const name = await askQuestion(`What do you want to call it? ${ promptSuffix }`);
 
   if (!name) {
     console.error('Error getting script name');
@@ -137,7 +138,8 @@ const createNewFunction = async () => {
   }
 
   try {
-    const funcName = dir ? `${ dir }${ capitaliseString(name) }` : name;
+    const separator = dir?.includes('_') ? '_' : '';
+    const funcName = dir ? `${ dir }${ separator }${ capitaliseString(name) }` : name;
     const pathName = dir ? `${ dir }/` : '';
 
     const script = await scriptFileContents(funcName, pathName, selectedTemplate);
