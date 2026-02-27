@@ -45,6 +45,14 @@ const bedrock_utilities_webhookForward = async (req) => {
     forwardUrl = FORWARD_URL;
   }
 
+  if (!forwardUrl) {
+    logDeep(req);
+    return {
+      success: false,
+      error: [`No forwarding url - logging only`],
+    };
+  }
+
   customAxios('post', forwardUrl, { 
     metadata: { 
       headers,
@@ -56,7 +64,6 @@ const bedrock_utilities_webhookForward = async (req) => {
     success: true,
     message: `Webhook forwarded to ${ forwardUrl }`,
   };
-  
 };
 
 const bedrock_utilities_webhookForwardApi = funcApi(
