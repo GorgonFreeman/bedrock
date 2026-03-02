@@ -1,29 +1,26 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/webhookSubscriptionDelete
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
-
 const shopifyWebhookSubscriptionDelete = async (
   credsPath,
-  pageInput,
+  subscriptionId,
   {
     apiVersion,
-    returnAttrs = defaultAttrs,
   } = {},
 ) => {
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'webhookSubscriptionDelete',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      id: {
+        type: 'ID!',
+        value: `gid://shopify/WebhookSubscription/${ subscriptionId }`,
       },
     },
-    `page { ${ returnAttrs } }`,
+    `deletedWebhookSubscriptionId`,
     { 
       apiVersion,
     },
@@ -33,7 +30,7 @@ const shopifyWebhookSubscriptionDelete = async (
 };
 
 const shopifyWebhookSubscriptionDeleteApi = funcApi(shopifyWebhookSubscriptionDelete, {
-  argNames: ['credsPath', 'pageInput', 'options'],
+  argNames: ['credsPath', 'subscriptionId', 'options'],
 });
 
 module.exports = {
@@ -41,4 +38,4 @@ module.exports = {
   shopifyWebhookSubscriptionDeleteApi,
 };
 
-// curl http://localhost:8000/shopifyWebhookSubscriptionDelete -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyWebhookSubscriptionDelete -H 'Content-Type: application/json' -d '{ "credsPath": "au", "subscriptionId": "1179140456520" }'
