@@ -57,11 +57,15 @@ const bedrock_utilities_webhookForward = async (req) => {
     };
   }
 
-  customAxios('post', forwardUrl, { 
-    metadata: { 
-      headers,
-    }, 
-    ...body,
+  customAxios(forwardUrl, {
+    method: 'post',
+    headers,
+    body: {
+      metadata: {
+        headers,
+      },
+      ...body,
+    },
   });
 
   return { 
