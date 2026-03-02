@@ -1,5 +1,6 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/customerUpdate
 
+const { HOSTED } = require('../constants');
 const { respond, mandateParam, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
@@ -32,7 +33,7 @@ const shopifyCustomerUpdate = async (
       apiVersion,
     },
   );
-  logDeep(response);
+  !HOSTED && logDeep(response);
   return response;
 };
 
