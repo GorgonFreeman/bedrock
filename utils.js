@@ -1,4 +1,5 @@
 require('dotenv').config();
+const chalk = require('chalk');
 const jsYaml = require('js-yaml');
 const fs = require('fs').promises;
 const readline = require('readline');
@@ -1595,6 +1596,55 @@ const interactiveChooseOption = async (
     : selectedOption;
 };
 
+const interactiveChooseMultiple = async (
+  question,
+  options,
+  { nameNode, valueNode } = {},
+) => {
+
+  if (!options?.length) {
+    throw new Error('No options provided to interactiveChooseMultiple');
+  }
+
+  const selectedIndices = new Set();
+
+  const formatOption = (option, index) => {
+    const name = nameNode
+      ? option?.[nameNode]
+      : typeof option === 'object'
+        ? JSON.stringify(option)
+        : option;
+    const line = `[${ index + 1 }] ${ name }`;
+    return selectedIndices.has(index) ? chalk.hex('#FFA500')(line) : line;
+  };
+
+  while (true) {
+    const prompt = `${ question }:\n${ options.map(formatOption).join('\n') }\nEnter number to toggle (or Enter when done): `;
+    const answer = (await askQuestion(prompt)).trim();
+
+    if (!answer) {
+      break;
+    }
+
+    const selectedIndex = parseInt(answer, 10) - 1;
+    if (selectedIndex >= 0 && selectedIndex < options.length) {
+      if (selectedIndices.has(selectedIndex)) {
+        selectedIndices.delete(selectedIndex);
+      } else {
+        selectedIndices.add(selectedIndex);
+      }
+    }
+  }
+
+  const selectedOptions = Array.from(selectedIndices)
+    .sort((a, b) => a - b)
+    .map(i => options[i]);
+
+  return valueNode
+    ? selectedOptions.map(o => o?.[valueNode])
+    : selectedOptions;
+};
+
 const checkHostedApiKey = async (req, res) => {
   const { headers } = req;
   const { 'x-api-key': apiKey } = headers;
@@ -2006,6 +2056,7 @@ module.exports = {
   arrayUnique,
   arraySortByProp,
   interactiveChooseOption,
+  interactiveChooseMultiple,
   standardRequestVerifiers,
   parseBoolean,
   objToArray,
