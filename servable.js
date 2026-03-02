@@ -131,6 +131,7 @@ module.exports = {
   shopifyVariantGet: require('./shopify/shopifyVariantGet').shopifyVariantGetApi,
   shopifyVariantsGet: require('./shopify/shopifyVariantsGet').shopifyVariantsGetApi,
   shopifyWebhookSubscriptionCreate: require('./shopify/shopifyWebhookSubscriptionCreate').shopifyWebhookSubscriptionCreateApi,
+  shopifyWebhookSubscriptionsGet: require('./shopify/shopifyWebhookSubscriptionsGet').shopifyWebhookSubscriptionsGetApi,
   printifyBlueprintGet: require('./printify/printifyBlueprintGet').printifyBlueprintGetApi,
   printifyBlueprintPrintProviderVariantsGet: require('./printify/printifyBlueprintPrintProviderVariantsGet').printifyBlueprintPrintProviderVariantsGetApi,
   printifyBlueprintPrintProvidersGet: require('./printify/printifyBlueprintPrintProvidersGet').printifyBlueprintPrintProvidersGetApi,
