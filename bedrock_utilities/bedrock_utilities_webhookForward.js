@@ -15,7 +15,7 @@ const bedrock_utilities_webhookForward = async (req) => {
 
   // 1. From options arg in body
   if (!forwardUrl) {
-    const { options } = body;
+    const { options = {} } = body;
     const { forwardUrl: optionsForwardUrl } = options;
     if (optionsForwardUrl) {
       forwardUrl = optionsForwardUrl;
