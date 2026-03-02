@@ -1,9 +1,9 @@
-const { funcApi, logDeep, interactiveChooseMultiple, gidToId } = require('../utils');
+const { funcApi, logDeep, interactiveChooseMultiple, gidToId, actionMultipleOrSingle } = require('../utils');
 
 const { shopifyWebhookSubscriptionsGet } = require('../shopify/shopifyWebhookSubscriptionsGet');
 const { shopifyWebhookSubscriptionDelete } = require('../shopify/shopifyWebhookSubscriptionDelete');
 
-const shopifyWebhookSubscriptionsDeleteInteractive = async (
+const shopifyWebhookSubscriptionsDeleteInteractiveSingle = async (
   credsPath,
   {
     apiVersion,
@@ -53,6 +53,26 @@ const shopifyWebhookSubscriptionsDeleteInteractive = async (
   return deleteResponse;
 };
 
+const shopifyWebhookSubscriptionsDeleteInteractive = async (
+  credsPath,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  return actionMultipleOrSingle(
+    credsPath,
+    shopifyWebhookSubscriptionsDeleteInteractiveSingle,
+    (credsPath) => ({
+      args: [credsPath],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+};
+
 const shopifyWebhookSubscriptionsDeleteInteractiveApi = funcApi(shopifyWebhookSubscriptionsDeleteInteractive, {
   argNames: ['credsPath', 'options'],
 });
@@ -63,3 +83,4 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyWebhookSubscriptionsDeleteInteractive -H "Content-Type: application/json" -d '{ "credsPath": "au" }'
+// curl localhost:8000/shopifyWebhookSubscriptionsDeleteInteractive -H "Content-Type: application/json" -d '{ "credsPath": ["au", "us", "uk"] }'
