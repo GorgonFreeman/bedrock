@@ -60,4 +60,4 @@ module.exports = {
 };
 
 // curl http://localhost:8000/shopifyWebhookSubscriptionCreate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "topic": "CUSTOMERS_UPDATE", "uri": "https://..." }'
-// curl http://localhost:8000/shopifyWebhookSubscriptionCreate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "topic": "CUSTOMERS_UPDATE", "uri": "https://...", "options": { "format": "json", "includeFields": ["id", "note"], "metafields": [{ "namespace": "facts", "key": "date_of_birth" }] } }'
+// curl http://localhost:8000/shopifyWebhookSubscriptionCreate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "topic": "CUSTOMERS_UPDATE", "uri": "https://...", "options": { "format": "JSON", "includeFields": ["id", "note"], "metafields": [{ "namespace": "facts", "key": "date_of_birth" }] } }'
