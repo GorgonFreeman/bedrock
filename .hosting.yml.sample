@@ -26,6 +26,15 @@ functions:
 
     # If function isn't named the same as this entry
     entry_point: anyFuncNameYouWant (anyFuncNameYouWant.js from servable.js)
+  
+  # Example webhook setup
+  hookForwardButtonPress:
+    entry_point: bedrock_utilities_webhookForward
+    min_instances: 1
+    set_env_vars: FORWARD_URL=https://.../platformWebhookButtonPressHandle
+  hookHandleButtonPress:
+    entry_point: platformWebhookButtonPressHandle
+    min_instances: 1
 
 groups:
   doing_things:
