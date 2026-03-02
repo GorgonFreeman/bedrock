@@ -20,7 +20,7 @@ const attrs = `
   tags
   defaultEmailAddress { marketingState }
   defaultPhoneNumber { marketingState }
-  mfDateOfBirth: metafield(namespace: "facts", key: "date_of_birth") {
+  mfDateOfBirth: metafield(namespace: "facts", key: "birth_date") {
     value
   }
   mfGender: metafield(namespace: "facts", key: "gender") {
@@ -286,7 +286,7 @@ const shopifyCustomerUpsert = async (
     ...((dateOfBirthRelevant || genderRelevant || miscMetafieldsRelevant) && { metafields: [
       ...(dateOfBirthRelevant ? [{
         namespace: 'facts',
-        key: 'date_of_birth',
+        key: 'birth_date',
         value: dateOfBirth,
         type: 'date',
       }] : []),
