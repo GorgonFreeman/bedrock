@@ -1,13 +1,14 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/webhookSubscriptionUpdate
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `id topic uri`;
 
 const shopifyWebhookSubscriptionUpdate = async (
   credsPath,
-  pageInput,
+  subscriptionId,
+  updatePayload,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
@@ -16,14 +17,18 @@ const shopifyWebhookSubscriptionUpdate = async (
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'webhookSubscriptionUpdate',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      id: {
+        type: 'ID!',
+        value: `gid://shopify/WebhookSubscription/${ subscriptionId }`,
+      },
+      webhookSubscription: {
+        type: 'WebhookSubscriptionInput!',
+        value: updatePayload,
       },
     },
-    `page { ${ returnAttrs } }`,
+    `webhookSubscription { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -33,7 +38,7 @@ const shopifyWebhookSubscriptionUpdate = async (
 };
 
 const shopifyWebhookSubscriptionUpdateApi = funcApi(shopifyWebhookSubscriptionUpdate, {
-  argNames: ['credsPath', 'pageInput', 'options'],
+  argNames: ['credsPath', 'subscriptionId', 'updatePayload', 'options'],
 });
 
 module.exports = {
@@ -41,4 +46,4 @@ module.exports = {
   shopifyWebhookSubscriptionUpdateApi,
 };
 
-// curl http://localhost:8000/shopifyWebhookSubscriptionUpdate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyWebhookSubscriptionUpdate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "subscriptionId": "1179149303880", "updatePayload": { "metafieldNamespaces": ["facts"], "metafields": [{ "namespace": "facts", "key": "date_of_birth" }], "includeFields": ["id", "note", "metafields"] } }'
