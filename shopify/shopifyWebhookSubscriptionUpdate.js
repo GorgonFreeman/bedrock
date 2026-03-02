@@ -46,4 +46,5 @@ module.exports = {
   shopifyWebhookSubscriptionUpdateApi,
 };
 
+// Note: It seems like you have to specify metafields AND metafieldNamespaces AND include "metafields" in the includedFields to get the metafield in the payload. TODO: Confirm.
 // curl http://localhost:8000/shopifyWebhookSubscriptionUpdate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "subscriptionId": "1179149303880", "updatePayload": { "metafieldNamespaces": ["facts"], "metafields": [{ "namespace": "facts", "key": "date_of_birth" }], "includeFields": ["id", "note", "metafields"] } }'
