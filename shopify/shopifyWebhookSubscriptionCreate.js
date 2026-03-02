@@ -9,10 +9,16 @@ const shopifyWebhookSubscriptionCreate = async (
   credsPath,
   topic,
   uri,
-  // Add args/options
   {
     apiVersion,
     returnAttrs = defaultAttrs,
+    
+    // direct API options
+    format,
+    includeFields,
+    metafieldNamespaces,
+    metafields,
+
   } = {},
 ) => {
 
