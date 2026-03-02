@@ -7,7 +7,11 @@ const { funcApi, customAxios } = require('../utils');
 
 const bedrock_utilities_webhookForward = async (req) => {
 
-  const { headers, body, query } = req;
+  const { 
+    headers = {}, 
+    body = {}, 
+    query = {}, 
+  } = req;
 
   let forwardUrl;
 
