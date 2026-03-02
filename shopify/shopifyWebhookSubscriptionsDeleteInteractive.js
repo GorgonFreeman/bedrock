@@ -1,4 +1,4 @@
-const { funcApi, logDeep, interactiveChooseOption } = require('../utils');
+const { funcApi, logDeep, interactiveChooseMultiple } = require('../utils');
 
 const { shopifyWebhookSubscriptionsGet } = require('../shopify/shopifyWebhookSubscriptionsGet');
 const { shopifyWebhookSubscriptionDelete } = require('../shopify/shopifyWebhookSubscriptionDelete');
@@ -22,11 +22,24 @@ const shopifyWebhookSubscriptionsDeleteInteractive = async (
     return webhookSubs;
   }
 
+  const subscriptionsToDelete = await interactiveChooseMultiple(
+    'Choose subscriptions to delete',
+    webhookSubs,
+    {
+      nameNode: 'topic',
+    },
+  );
 
+  logDeep('subscriptionsToDelete', subscriptionsToDelete);
+
+  return {
+    success: true,
+    result: subscriptionsToDelete,
+  }
 };
 
 const shopifyWebhookSubscriptionsDeleteInteractiveApi = funcApi(shopifyWebhookSubscriptionsDeleteInteractive, {
-  argNames: ['credsPath', 'arg', 'options'],
+  argNames: ['credsPath', 'options'],
 });
 
 module.exports = {
@@ -34,4 +47,4 @@ module.exports = {
   shopifyWebhookSubscriptionsDeleteInteractiveApi,
 };
 
-// curl localhost:8000/shopifyWebhookSubscriptionsDeleteInteractive -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyWebhookSubscriptionsDeleteInteractive -H "Content-Type: application/json" -d '{ "credsPath": "au" }'
