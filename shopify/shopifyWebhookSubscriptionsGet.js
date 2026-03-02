@@ -1,9 +1,9 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/things
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/webhooksubscriptions
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyGet, shopifyGetter } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
+const defaultAttrs = `id topic uri`;
 
 const payloadMaker = (
   credsPath,
@@ -14,7 +14,7 @@ const payloadMaker = (
 ) => {
   return [
     credsPath, 
-    'thing',
+    'webhookSubscription',
     { 
       attrs, 
       ...options,
@@ -45,4 +45,4 @@ module.exports = {
   shopifyWebhookSubscriptionsGetApi,
 };
 
-// curl localhost:8000/shopifyWebhookSubscriptionsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 2 } }'
+// curl localhost:8000/shopifyWebhookSubscriptionsGet -H "Content-Type: application/json" -d '{ "credsPath": "au" }'
