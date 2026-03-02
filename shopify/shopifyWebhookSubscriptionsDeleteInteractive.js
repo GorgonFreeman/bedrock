@@ -1,4 +1,4 @@
-const { funcApi, logDeep, interactiveChooseMultiple } = require('../utils');
+const { funcApi, logDeep, interactiveChooseMultiple, gidToId } = require('../utils');
 
 const { shopifyWebhookSubscriptionsGet } = require('../shopify/shopifyWebhookSubscriptionsGet');
 const { shopifyWebhookSubscriptionDelete } = require('../shopify/shopifyWebhookSubscriptionDelete');
@@ -12,6 +12,7 @@ const shopifyWebhookSubscriptionsDeleteInteractive = async (
 
   const shopifyWebhookSubscriptionsResponse = await shopifyWebhookSubscriptionsGet(credsPath, {
     apiVersion,
+    attrs: 'id topic uri',
   });
   
   const {
@@ -26,16 +27,30 @@ const shopifyWebhookSubscriptionsDeleteInteractive = async (
     'Choose subscriptions to delete',
     webhookSubs,
     {
-      nameNode: 'topic',
+      nameNode: 'uri',
     },
   );
 
   logDeep('subscriptionsToDelete', subscriptionsToDelete);
 
-  return {
-    success: true,
-    result: subscriptionsToDelete,
+  if (!subscriptionsToDelete?.length) {
+    return { 
+      success: true, 
+      result: {
+        message: 'No subscriptions chosen',
+      } 
+    };
   }
+
+  const deleteResponse = await shopifyWebhookSubscriptionDelete(
+    credsPath, 
+    subscriptionsToDelete.map(({ id: subGid }) => gidToId(subGid)), 
+    { 
+      apiVersion,
+    },
+  );
+
+  return deleteResponse;
 };
 
 const shopifyWebhookSubscriptionsDeleteInteractiveApi = funcApi(shopifyWebhookSubscriptionsDeleteInteractive, {
