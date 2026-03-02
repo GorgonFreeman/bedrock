@@ -14,6 +14,7 @@ const shopifyWebhookSubscriptionCreate = async (
     returnAttrs = defaultAttrs,
     
     // direct API options
+    filter,
     format,
     includeFields,
     metafieldNamespaces,
@@ -34,6 +35,7 @@ const shopifyWebhookSubscriptionCreate = async (
         type: 'WebhookSubscriptionInput!',
         value: {
           uri,
+          ...(filter && { filter }),
           ...(format && { format }),
           ...(includeFields && { includeFields }),
           ...(metafieldNamespaces && { metafieldNamespaces }),
