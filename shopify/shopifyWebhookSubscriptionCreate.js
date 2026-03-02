@@ -34,6 +34,10 @@ const shopifyWebhookSubscriptionCreate = async (
         type: 'WebhookSubscriptionInput!',
         value: {
           uri,
+          ...(format && { format }),
+          ...(includeFields && { includeFields }),
+          ...(metafieldNamespaces && { metafieldNamespaces }),
+          ...(metafields && { metafields }),
         },
       },
     },
