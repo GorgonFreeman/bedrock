@@ -1,18 +1,18 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/webhookSubscriptionCreate
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id topic uri`;
 
-const shopifyWebhookSubscriptionCreate = async (
+const shopifyWebhookSubscriptionCreateSingle = async (
   credsPath,
   topic,
   uri,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
-    
+
     // direct API options
     filter,
     format,
@@ -52,6 +52,28 @@ const shopifyWebhookSubscriptionCreate = async (
   return response;
 };
 
+const shopifyWebhookSubscriptionCreate = async (
+  credsPath,
+  topic,
+  uri,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  return actionMultipleOrSingle(
+    credsPath,
+    shopifyWebhookSubscriptionCreateSingle,
+    (credsPath) => ({
+      args: [credsPath, topic, uri],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+};
+
 const shopifyWebhookSubscriptionCreateApi = funcApi(shopifyWebhookSubscriptionCreate, {
   argNames: ['credsPath', 'topic', 'uri', 'options'],
 });
@@ -62,4 +84,5 @@ module.exports = {
 };
 
 // curl http://localhost:8000/shopifyWebhookSubscriptionCreate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "topic": "CUSTOMERS_UPDATE", "uri": "https://..." }'
+// curl http://localhost:8000/shopifyWebhookSubscriptionCreate -H 'Content-Type: application/json' -d '{ "credsPath": ["au", "us", "uk"], "topic": "CUSTOMERS_UPDATE", "uri": "https://..." }'
 // curl http://localhost:8000/shopifyWebhookSubscriptionCreate -H 'Content-Type: application/json' -d '{ "credsPath": "au", "topic": "CUSTOMERS_UPDATE", "uri": "https://...", "options": { "format": "JSON", "includeFields": ["id", "note", "metafields"], "metafieldNamespaces": ["facts"], "metafields": [{ "namespace": "facts", "key": "birth_date" }] } }'
