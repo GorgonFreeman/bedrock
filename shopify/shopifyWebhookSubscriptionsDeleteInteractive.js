@@ -1,49 +1,28 @@
-const { funcApi, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+const { funcApi, logDeep, interactiveChooseOption } = require('../utils');
 
-const defaultAttrs = `id`;
+const { shopifyWebhookSubscriptionsGet } = require('../shopify/shopifyWebhookSubscriptionsGet');
+const { shopifyWebhookSubscriptionDelete } = require('../shopify/shopifyWebhookSubscriptionDelete');
 
 const shopifyWebhookSubscriptionsDeleteInteractive = async (
   credsPath,
-  arg,
   {
     apiVersion,
-    option,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
-      apiVersion,
-    },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
+  const shopifyWebhookSubscriptionsResponse = await shopifyWebhookSubscriptionsGet(credsPath, {
+    apiVersion,
   });
+  
+  const {
+    success: shopifyWebhookSubscriptionsSuccess,
+    result: webhookSubs,
+  } = shopifyWebhookSubscriptionsResponse;
+  if (!shopifyWebhookSubscriptionsSuccess) {
+    return webhookSubs;
+  }
 
-  logDeep(response);
-  return response;
+
 };
 
 const shopifyWebhookSubscriptionsDeleteInteractiveApi = funcApi(shopifyWebhookSubscriptionsDeleteInteractive, {
