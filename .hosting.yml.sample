@@ -7,8 +7,11 @@ google_cloud_info:
 
 functions:
   platformThingDo: 
-    # If different from function name:
-    src: platform/platformThingDo
+
+    # If function isn't in servable.js
+    source: platform/platformThingDo
+    entry_point: platformThingDo
+
     memory: 1024
     timeout: 300
     max_instances: 1
