@@ -1,9 +1,9 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/webhookSubscriptionDelete
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const shopifyWebhookSubscriptionDelete = async (
+const shopifyWebhookSubscriptionDeleteSingle = async (
   credsPath,
   subscriptionId,
   {
@@ -29,6 +29,27 @@ const shopifyWebhookSubscriptionDelete = async (
   return response;
 };
 
+const shopifyWebhookSubscriptionDelete = async (
+  credsPath,
+  subscriptionId,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  return actionMultipleOrSingle(
+    subscriptionId,
+    shopifyWebhookSubscriptionDeleteSingle,
+    (subscriptionId) => ({
+      args: [credsPath, subscriptionId],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+};
+
 const shopifyWebhookSubscriptionDeleteApi = funcApi(shopifyWebhookSubscriptionDelete, {
   argNames: ['credsPath', 'subscriptionId', 'options'],
 });
@@ -39,3 +60,4 @@ module.exports = {
 };
 
 // curl http://localhost:8000/shopifyWebhookSubscriptionDelete -H 'Content-Type: application/json' -d '{ "credsPath": "au", "subscriptionId": "1179140456520" }'
+// curl http://localhost:8000/shopifyWebhookSubscriptionDelete -H 'Content-Type: application/json' -d '{ "credsPath": "au", "subscriptionId": ["1179140456520", "1179140456521"] }'
