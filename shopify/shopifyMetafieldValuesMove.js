@@ -1,4 +1,4 @@
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays } = require('../utils');
 const { shopifyGetter } = require('../shopify/shopify.utils');
 const { shopifyMetafieldsSet } = require('../shopify/shopifyMetafieldsSet');
 
@@ -19,10 +19,48 @@ const shopifyMetafieldValuesMove = async (
     toMetafieldPath,
   });
 
-  // Use the correct getter for the resource
+  const piles = {
+    resources: [],
+    shopifyMetafieldsSet: [],
+    results: [],
+  };
+
+  const [fromMfNamespace, fromMfKey] = fromMetafieldPath.split('.');
+  const [toMfNamespace, toMfKey] = toMetafieldPath.split('.');
+
+  // Use the dynamic getter to fetch resources
   // Include the from and to metafield paths in the query
+  const getter = await shopifyGetter(
+    store,
+    resource,
+    {
+      attrs: `
+        id
+        fromMetafield: metafield(namespace: "${ fromMfNamespace }", key: "${ fromMfKey }") {
+          value
+        }
+        toMetafield: metafield(namespace: "${ toMfNamespace }", key: "${ toMfKey }") {
+          value
+        }
+      `,
+
+      apiVersion,
+      
+      onItems: (items) => {
+        piles.resources.push(...items);
+
+        logDeep(surveyNestedArrays(piles));
+        logDeep(piles.resources[piles.resources.length - 1]);
+      },
+    },
+  );
+  
   // Use an assessor to determine whether the values already match or not
   // Use an actioner to self-serve from the metafieldsSet pile
+
+  await Promise.all([
+    getter.run(),
+  ]);
 
   return {
     success: true,
