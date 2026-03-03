@@ -1,4 +1,4 @@
-const { funcApi, logDeep, surveyNestedArrays, Processor } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor, askQuestion } = require('../utils');
 const { shopifyGetter } = require('../shopify/shopify.utils');
 const { shopifyMetafieldsSet } = require('../shopify/shopifyMetafieldsSet');
 
@@ -107,10 +107,37 @@ const shopifyMetafieldValuesMove = async (
   });
 
   // Use an actioner to self-serve from the metafieldsSet pile
+  const actioner = new Processor(
+    piles.shopifyMetafieldsSet,
+    async (pile) => {
+      const args = pile.shift();
+
+      logDeep(args);
+      await askQuestion('?');
+
+      const response = await shopifyMetafieldsSet(...args);
+      
+      if (!response?.success) {
+        console.error(response);
+      }
+
+      piles.results.push(response);
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+      logFlavourText: 'shopifyMetafieldsSet',
+    },
+  );
+
+  assessor.on('done', () => {
+    actioner.canFinish = true;
+  });
 
   await Promise.all([
     getter.run(),
     assessor.run(),
+    actioner.run(),
   ]);
 
   return {
