@@ -1,4 +1,4 @@
-const { funcApi, logDeep, surveyNestedArrays } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor } = require('../utils');
 const { shopifyGetter } = require('../shopify/shopify.utils');
 const { shopifyMetafieldsSet } = require('../shopify/shopifyMetafieldsSet');
 
@@ -37,9 +37,11 @@ const shopifyMetafieldValuesMove = async (
       attrs: `
         id
         fromMetafield: metafield(namespace: "${ fromMfNamespace }", key: "${ fromMfKey }") {
+          type
           value
         }
         toMetafield: metafield(namespace: "${ toMfNamespace }", key: "${ toMfKey }") {
+          type
           value
         }
       `,
@@ -56,17 +58,64 @@ const shopifyMetafieldValuesMove = async (
   );
   
   // Use an assessor to determine whether the values already match or not
+  const assessor = new Processor(
+    piles.resources,
+    async (pile) => {
+      const resource = pile.shift();
+      const { id: resourceGid, fromMetafield, toMetafield } = resource;
+      const { value: fromValue, type: fromType } = fromMetafield || {};
+      const { value: toValue, type: toType } = toMetafield || {};
+      
+      // If no value in fromMetafield, skip
+      // TODO: Consider mode that would clear toMetafield
+      if (!fromValue) {
+        return;
+      }
+      
+      // If metafields already match, skip
+      if (toValue === fromValue) {
+        return;
+      }
+      
+      // If types don't match, that's weird.
+      if (toType && (fromType !== toType)) {
+        throw new Error(`Type mismatch for ${ fromMetafieldPath } and ${ toMetafieldPath } (${ fromType } vs ${ toType })`);
+      }
+
+      piles.shopifyMetafieldsSet.push([
+        store,
+        [{
+          ownerId: resourceGid,
+          namespace: toMfNamespace,
+          key: toMfKey,
+          type: fromType,
+          value: fromValue,
+        }],
+        {
+          apiVersion,
+        },
+      ]);
+    },
+    pile => pile.length === 0,
+    {
+      canFinish: false,
+    },
+  );
+
+  getter.on('done', () => {
+    assessor.canFinish = true;
+  });
+
   // Use an actioner to self-serve from the metafieldsSet pile
 
   await Promise.all([
     getter.run(),
+    assessor.run(),
   ]);
 
   return {
     success: true,
-    result: {
-      message: `I don't do anything yet`,
-    },
+    result: surveyNestedArrays(piles),
   };
 };
 
