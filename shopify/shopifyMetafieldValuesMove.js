@@ -1,53 +1,39 @@
 const { funcApi, logDeep } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
-
 const shopifyMetafieldValuesMove = async (
-  credsPath,
-  arg,
+  store,
+  resource,
+  fromMetafieldPath,
+  toMetafieldPath,
   {
     apiVersion,
-    option,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
-      apiVersion,
-    },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
+  logDeep({
+    store,
+    resource,
+    fromMetafieldPath,
+    toMetafieldPath,
   });
 
-  logDeep(response);
-  return response;
+  return {
+    success: true,
+    result: {
+      message: `I don't do anything yet`,
+    },
+  };
 };
 
 const shopifyMetafieldValuesMoveApi = funcApi(shopifyMetafieldValuesMove, {
-  argNames: ['credsPath', 'arg', 'options'],
+  argNames: ['store', 'resource', 'fromMetafieldPath', 'toMetafieldPath', 'options'],
+  validatorsByArg: {
+    store: Boolean,
+    resource: Boolean,
+    fromMetafieldPath: p => p.includes('.'),
+    toMetafieldPath: p => p.includes('.'),
+  },
 });
 
 module.exports = {
@@ -55,4 +41,4 @@ module.exports = {
   shopifyMetafieldValuesMoveApi,
 };
 
-// curl localhost:8000/shopifyMetafieldValuesMove -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyMetafieldValuesMove -H "Content-Type: application/json" -d '{ "store": "au", "resource": "customer", "fromMetafieldPath": "facts.date_of_birth", "toMetafieldPath": "facts.birth_date" }'
