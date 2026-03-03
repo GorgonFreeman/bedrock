@@ -1,5 +1,6 @@
 const { funcApi, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+const { shopifyGetter } = require('../shopify/shopify.utils');
+const { shopifyMetafieldsSet } = require('../shopify/shopifyMetafieldsSet');
 
 const shopifyMetafieldValuesMove = async (
   store,
@@ -17,6 +18,11 @@ const shopifyMetafieldValuesMove = async (
     fromMetafieldPath,
     toMetafieldPath,
   });
+
+  // Use the correct getter for the resource
+  // Include the from and to metafield paths in the query
+  // Use an assessor to determine whether the values already match or not
+  // Use an actioner to self-serve from the metafieldsSet pile
 
   return {
     success: true,
