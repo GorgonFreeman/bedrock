@@ -75,7 +75,9 @@ const shopifyMetafieldValuesMove = async (
       ],
       {
         onItems: (items) => {
-          piles.resources.push(...items);
+          for (const item of items) {
+            piles.resources.push(item);
+          }
         },
         onDone: () => {
           logDeep(surveyNestedArrays(piles));
