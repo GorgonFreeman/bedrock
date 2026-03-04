@@ -76,6 +76,7 @@ module.exports = {
   shopifyFulfillmentOrderSubmitCancellationRequest: require('./shopify/shopifyFulfillmentOrderSubmitCancellationRequest').shopifyFulfillmentOrderSubmitCancellationRequestApi,
   shopifyFulfillmentOrderSubmitFulfillmentRequest: require('./shopify/shopifyFulfillmentOrderSubmitFulfillmentRequest').shopifyFulfillmentOrderSubmitFulfillmentRequestApi,
   shopifyGetSingle: require('./shopify/shopifyGetSingle').shopifyGetSingleApi,
+  shopifyGiftCardCreate: require('./shopify/shopifyGiftCardCreate').shopifyGiftCardCreateApi,
   shopifyGiftCardDeactivate: require('./shopify/shopifyGiftCardDeactivate').shopifyGiftCardDeactivateApi,
   shopifyGiftCardDisable: require('./shopify/shopifyGiftCardDisable').shopifyGiftCardDisableApi,
   shopifyGiftCardGet: require('./shopify/shopifyGiftCardGet').shopifyGiftCardGetApi,
