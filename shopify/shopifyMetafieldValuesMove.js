@@ -2,6 +2,10 @@ const { funcApi, logDeep, surveyNestedArrays, Processor, askQuestion } = require
 const { shopifyGetter } = require('../shopify/shopify.utils');
 const { shopifyMetafieldsSet } = require('../shopify/shopifyMetafieldsSet');
 
+const {
+  MAX_METAFIELDS_PER_SET,
+} = require('../shopify/shopify.constants');
+
 const shopifyMetafieldValuesMove = async (
   store,
   resource,
@@ -10,15 +14,13 @@ const shopifyMetafieldValuesMove = async (
   {
     apiVersion,
     onlyMoveIfNewer = false,
-
   } = {},
 ) => {
 
   logDeep({
     store,
     resource,
-    fromMetafieldPath,
-    toMetafieldPath,
+    fromMetafieldPath,    toMetafieldPath,
   });
 
   const piles = {
@@ -101,19 +103,13 @@ const shopifyMetafieldValuesMove = async (
         throw new Error(`Type mismatch for ${ fromMetafieldPath } and ${ toMetafieldPath } (${ fromType } vs ${ toType })`);
       }
       
-      piles.shopifyMetafieldsSet.push([
-        store,
-        [{
-          ownerId: resourceGid,
-          namespace: toMfNamespace,
-          key: toMfKey,
-          type: fromType,
-          value: fromValue,
-        }],
-        {
-          apiVersion,
-        },
-      ]);
+      piles.shopifyMetafieldsSet.push({
+        ownerId: resourceGid,
+        namespace: toMfNamespace,
+        key: toMfKey,
+        type: fromType,
+        value: fromValue,
+      });
     },
     pile => pile.length === 0,
     {
@@ -126,32 +122,35 @@ const shopifyMetafieldValuesMove = async (
   });
 
   // Use an actioner to self-serve from the metafieldsSet pile
-  // TODO: Process metafields in batches while setting
   const actioner = new Processor(
     piles.shopifyMetafieldsSet,
     async (pile) => {
-      const args = pile.shift();
+      const metafieldPayloads = pile.splice(0, MAX_METAFIELDS_PER_SET);
 
-      logDeep(args);
+      logDeep(metafieldPayloads);
       await askQuestion('?');
 
-      const response = await shopifyMetafieldsSet(...args);
+      const response = await shopifyMetafieldsSet(
+        store,
+        metafieldPayloads,
+        {
+          apiVersion,
+        },
+      );
       
       if (!response?.success) {
         console.error(response);
       }
 
       piles.results.push(response);
-    },
-    pile => pile.length === 0,
+    },    pile => pile.length === 0,
     {
       canFinish: false,
       logFlavourText: 'shopifyMetafieldsSet',
     },
   );
 
-  assessor.on('done', () => {
-    actioner.canFinish = true;
+  assessor.on('done', () => {    actioner.canFinish = true;
   });
 
   await Promise.all([
