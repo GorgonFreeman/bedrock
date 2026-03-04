@@ -20,7 +20,8 @@ const shopifyMetafieldValuesMove = async (
   logDeep({
     store,
     resource,
-    fromMetafieldPath,    toMetafieldPath,
+    fromMetafieldPath,    
+    toMetafieldPath,
   });
 
   const piles = {
