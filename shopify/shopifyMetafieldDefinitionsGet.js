@@ -1,9 +1,9 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/things
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/metafieldDefinitions
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyGet, shopifyGetter } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
+const defaultAttrs = `id name namespace key`;
 
 const payloadMaker = (
   credsPath,
@@ -14,7 +14,7 @@ const payloadMaker = (
 ) => {
   return [
     credsPath, 
-    'thing',
+    'metafieldDefinition',
     { 
       attrs, 
       ...options,
