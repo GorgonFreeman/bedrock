@@ -9,6 +9,8 @@ const shopifyMetafieldValuesMove = async (
   toMetafieldPath,
   {
     apiVersion,
+    onlyMoveIfNewer = false,
+
   } = {},
 ) => {
 
@@ -41,10 +43,12 @@ const shopifyMetafieldValuesMove = async (
         fromMetafield: metafield(namespace: "${ fromMfNamespace }", key: "${ fromMfKey }") {
           type
           value
+          ${ onlyMoveIfNewer ? 'updatedAt' : '' }
         }
         toMetafield: metafield(namespace: "${ toMfNamespace }", key: "${ toMfKey }") {
           type
           value
+          ${ onlyMoveIfNewer ? 'updatedAt' : '' }
         }
       `,
 
@@ -65,8 +69,16 @@ const shopifyMetafieldValuesMove = async (
     async (pile) => {
       const resource = pile.shift();
       const { id: resourceGid, fromMetafield, toMetafield } = resource;
-      const { value: fromValue, type: fromType } = fromMetafield || {};
-      const { value: toValue, type: toType } = toMetafield || {};
+      const { 
+        value: fromValue, 
+        type: fromType,
+        updatedAt: fromUpdatedAt,
+      } = fromMetafield || {};
+      const { 
+        value: toValue, 
+        type: toType,
+        updatedAt: toUpdatedAt,
+      } = toMetafield || {};
       
       // If no value in fromMetafield, skip
       // TODO: Consider mode that would clear toMetafield
@@ -76,6 +88,11 @@ const shopifyMetafieldValuesMove = async (
       
       // If metafields already match, skip
       if (toValue === fromValue) {
+        return;
+      }
+      
+      // If onlyMoveIfNewer and toMetafield was updated more recently, skip
+      if (onlyMoveIfNewer && (fromUpdatedAt < toUpdatedAt)) {
         return;
       }
       
