@@ -1,3 +1,4 @@
+const { HOSTED } = require('../constants');
 const { funcApi, logDeep, askQuestion, wait, seconds, gidToId, customAxios } = require('../utils');
 const { shopifyJsonlInterpret } = require('../shopify/shopify.utils');
 
@@ -67,6 +68,8 @@ const shopifyBulkOperationDo = async (
         attrs: 'id status objectCount url',
       },
     );
+
+    !HOSTED && logDeep('runningBulkOperationResponse', runningBulkOperationResponse);
   
     const {
       success: runningSuccess,
@@ -87,7 +90,6 @@ const shopifyBulkOperationDo = async (
   } while (['CREATED', 'RUNNING'].includes(runningOpStatus));
 
   if (runningOpStatus === 'COMPLETED') {
-    // TODO: Get and return data from bulk operation
     logDeep('runningOpResult', runningOpResult);
 
     const {
