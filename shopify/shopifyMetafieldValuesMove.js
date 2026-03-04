@@ -76,7 +76,10 @@ const shopifyMetafieldValuesMove = async (
       {
         onItems: (items) => {
           for (const item of items) {
-            piles.resources.push(item);
+            // TODO: Handle differently if implementing clearing if no value in from
+            if (item?.fromMetafield) {
+              piles.resources.push(item);
+            }
           }
         },
         onDone: () => {
