@@ -71,7 +71,10 @@ const shopifyMetafieldValuesMove = async (
         store, 
         'query',
         shopifyBulkQuery,
-        { apiVersion },
+        { 
+          apiVersion, 
+          // resumeBulkOperationId: 1111111111111, 
+        },
       ],
       {
         onItems: (items) => {
