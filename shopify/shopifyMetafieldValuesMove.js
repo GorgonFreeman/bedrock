@@ -82,7 +82,7 @@ const shopifyMetafieldValuesMove = async (
       if (toType && (fromType !== toType)) {
         throw new Error(`Type mismatch for ${ fromMetafieldPath } and ${ toMetafieldPath } (${ fromType } vs ${ toType })`);
       }
-
+      
       piles.shopifyMetafieldsSet.push([
         store,
         [{
