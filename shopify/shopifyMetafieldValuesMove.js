@@ -1,6 +1,7 @@
-const { funcApi, logDeep, surveyNestedArrays, Processor, askQuestion } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor, askQuestion, FakeGetter } = require('../utils');
 const { shopifyGetter } = require('../shopify/shopify.utils');
 const { shopifyMetafieldsSet } = require('../shopify/shopifyMetafieldsSet');
+const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
 
 const {
   MAX_METAFIELDS_PER_SET,
@@ -14,6 +15,7 @@ const shopifyMetafieldValuesMove = async (
   {
     apiVersion,
     onlyMoveIfNewer = false,
+    useBulkFetch = false,
   } = {},
 ) => {
 
@@ -33,38 +35,74 @@ const shopifyMetafieldValuesMove = async (
   const [fromMfNamespace, fromMfKey] = fromMetafieldPath.split('.');
   const [toMfNamespace, toMfKey] = toMetafieldPath.split('.');
 
+  const attrs = `
+    id
+    fromMetafield: metafield(namespace: "${ fromMfNamespace }", key: "${ fromMfKey }") {
+      type
+      value
+      ${ onlyMoveIfNewer ? 'updatedAt' : '' }
+    }
+    toMetafield: metafield(namespace: "${ toMfNamespace }", key: "${ toMfKey }") {
+      type
+      value
+      ${ onlyMoveIfNewer ? 'updatedAt' : '' }
+    }
+  `;
+
   // Use the dynamic getter to fetch resources
   // Include the from and to metafield paths in the query
-  const getter = await shopifyGetter(
-    store,
-    resource,
-    {
-      // Note: not working, I think query won't work without a metafield definition
-      queries: [`metafields.${ fromMfNamespace }.${ fromMfKey }:*`],
-      attrs: `
-        id
-        fromMetafield: metafield(namespace: "${ fromMfNamespace }", key: "${ fromMfKey }") {
-          type
-          value
-          ${ onlyMoveIfNewer ? 'updatedAt' : '' }
-        }
-        toMetafield: metafield(namespace: "${ toMfNamespace }", key: "${ toMfKey }") {
-          type
-          value
-          ${ onlyMoveIfNewer ? 'updatedAt' : '' }
-        }
-      `,
+  let getter;
+  
+  if (useBulkFetch) {
 
-      apiVersion,
-      
-      onItems: (items) => {
-        piles.resources.push(...items);
+    const shopifyBulkQuery = `{
+      ${ resource }s(query: "metafields.${ fromMfNamespace }.${ fromMfKey }:*") {
+        edges {
+          node {
+            ${ attrs }
+          }
+        }
+      }
+    }`;
 
-        logDeep(surveyNestedArrays(piles));
-        logDeep(piles.resources[piles.resources.length - 1]);
+    getter = new FakeGetter(
+      shopifyBulkOperationDo,
+      [
+        store, 
+        'query',
+        shopifyBulkQuery,
+        { apiVersion },
+      ],
+      {
+        onItems: (items) => {
+          piles.resources.push(...items);
+        },
+        onDone: () => {
+          logDeep(surveyNestedArrays(piles));
+        },
       },
-    },
-  );
+    );
+
+  } else {
+    getter = await shopifyGetter(
+      store,
+      resource,
+      {
+        // Note: not working, I think query won't work without a metafield definition
+        queries: [`metafields.${ fromMfNamespace }.${ fromMfKey }:*`],
+        attrs,
+
+        apiVersion,
+        
+        onItems: (items) => {
+          piles.resources.push(...items);
+
+          logDeep(surveyNestedArrays(piles));
+          logDeep(piles.resources[piles.resources.length - 1]);
+        },
+      },
+    );
+  }
   
   // Use an assessor to determine whether the values already match or not
   const assessor = new Processor(
@@ -183,4 +221,4 @@ module.exports = {
   shopifyMetafieldValuesMoveApi,
 };
 
-// curl localhost:8000/shopifyMetafieldValuesMove -H "Content-Type: application/json" -d '{ "store": "au", "resource": "customer", "fromMetafieldPath": "facts.date_of_birth", "toMetafieldPath": "facts.birth_date", "options": { "onlyMoveIfNewer": true } }'
+// curl localhost:8000/shopifyMetafieldValuesMove -H "Content-Type: application/json" -d '{ "store": "au", "resource": "customer", "fromMetafieldPath": "facts.date_of_birth", "toMetafieldPath": "facts.birth_date", "options": { "onlyMoveIfNewer": true, "useBulkFetch": true } }'
