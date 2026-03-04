@@ -7,6 +7,7 @@ const defaultAttrs = `id name namespace key`;
 
 const payloadMaker = (
   credsPath,
+  ownerType,
   {
     attrs = defaultAttrs,
     ...options
@@ -17,6 +18,7 @@ const payloadMaker = (
     'metafieldDefinition',
     { 
       attrs, 
+      ownerType,
       ...options,
     },
   ];
@@ -33,9 +35,14 @@ const shopifyMetafieldDefinitionsGetter = async (...args) => {
 };
 
 const shopifyMetafieldDefinitionsGetApi = funcApi(shopifyMetafieldDefinitionsGet, {
-  argNames: ['credsPath', 'options'],
+  argNames: [
+    'credsPath', 
+    'ownerType', 
+    'options',
+  ],
   validatorsByArg: {
     credsPath: Boolean,
+    ownerType: Boolean,
   },
 });
 
@@ -45,4 +52,4 @@ module.exports = {
   shopifyMetafieldDefinitionsGetApi,
 };
 
-// curl localhost:8000/shopifyMetafieldDefinitionsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 2 } }'
+// curl localhost:8000/shopifyMetafieldDefinitionsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "ownerType": "PRODUCT", "options": { "limit": 2 } }'
