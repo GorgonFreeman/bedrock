@@ -126,6 +126,7 @@ const shopifyMetafieldValuesMove = async (
   });
 
   // Use an actioner to self-serve from the metafieldsSet pile
+  // TODO: Process metafields in batches while setting
   const actioner = new Processor(
     piles.shopifyMetafieldsSet,
     async (pile) => {
