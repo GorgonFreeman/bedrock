@@ -143,14 +143,16 @@ const shopifyMetafieldValuesMove = async (
       }
 
       piles.results.push(response);
-    },    pile => pile.length === 0,
+    },
+    pile => pile.length === 0,
     {
       canFinish: false,
       logFlavourText: 'shopifyMetafieldsSet',
     },
   );
 
-  assessor.on('done', () => {    actioner.canFinish = true;
+  assessor.on('done', () => {
+    actioner.canFinish = true;
   });
 
   await Promise.all([
