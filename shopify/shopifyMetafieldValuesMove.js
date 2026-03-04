@@ -34,6 +34,7 @@ const shopifyMetafieldValuesMove = async (
     store,
     resource,
     {
+      queries: [`metafields.${ fromMfNamespace }.${ fromMfKey }:*`],
       attrs: `
         id
         fromMetafield: metafield(namespace: "${ fromMfNamespace }", key: "${ fromMfKey }") {
