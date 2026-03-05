@@ -4,7 +4,15 @@ const { logDeep, respond } = require('../utils');
 
 const bedrock_utilities_geoRedirectApi = async (req, res) => {
 
-  logDeep({ req });
+  const { 
+    method,
+    headers = {},
+  } = req;
+
+  if (method !== 'GET') {
+    respond(res, 405, { message: `Method not allowed` });
+    return;
+  }
 
   let country;
   
