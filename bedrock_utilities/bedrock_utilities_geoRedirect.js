@@ -39,19 +39,24 @@ const bedrock_utilities_geoRedirectApi = async (req, res) => {
   let country;
 
   // Try getting country from Google Cloud Function headers
+  console.log('Trying Cloud Function country header');
   ({ 'x-appengine-country': country } = headers);
 
   if (!country) {
     // Try getting country from Cloudflare headers
+    console.log('Trying Cloudflare country header');
     ({ 'cf-ipcountry': country } = headers);
   }
 
   if (!country) {
     // Fall back to geoip-lite lookup from client IP
+    console.log('Trying geoip-lite lookup');
     const forwardedFor = headers['x-forwarded-for'];
     const ip = forwardedFor
       ? forwardedFor.split(',')[0].trim()
       : (headers['x-real-ip'] || socket?.remoteAddress || '').trim();
+    
+    logDeep({ ip });
     
     if (!ip) {
       // TODO: Send to default location
@@ -59,6 +64,7 @@ const bedrock_utilities_geoRedirectApi = async (req, res) => {
     }
 
     const geo = geoip.lookup(ip);
+    logDeep({ geo });
     country = geo?.country;
   }
 
