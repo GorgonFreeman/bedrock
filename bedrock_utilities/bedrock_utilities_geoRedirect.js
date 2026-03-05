@@ -25,14 +25,18 @@ const bedrock_utilities_geoRedirectApi = async (req, res) => {
   if (!GEOREDIRECT_URL_MAP) {
     return respond(res, 500, { message: `GEOREDIRECT_URL_MAP is not set` });
   }
-   
+
+  let urlMap;
   try {
-    GEOREDIRECT_URL_MAP = JSON.parse(GEOREDIRECT_URL_MAP);
+    urlMap = typeof GEOREDIRECT_URL_MAP === 'string'
+      ? JSON.parse(GEOREDIRECT_URL_MAP)
+      : GEOREDIRECT_URL_MAP;
   } catch (err) {
-    return respond(res, 500, { message: `GEOREDIRECT_URL_MAP is invalid JSON` });
+    console.warn(err);
+    return respond(res, 500, { message: `Error parsing GEOREDIRECT_URL_MAP`, err });
   }
 
-  const fallbackUrl = GEOREDIRECT_URL_MAP?.fallback;
+  const fallbackUrl = urlMap?.fallback;
   if (!fallbackUrl) {
     return respond(res, 500, { message: `GEOREDIRECT_URL_MAP must have a fallback key` });
   }
