@@ -2,7 +2,7 @@
 /* 
   Deploy it with a .env variable GEOREDIRECT_URL_MAP, which is a JSON object like the following:
   {
-    default: 'https://www.ikea.com',
+    fallback: 'https://www.ikea.com',
     AU: 'https://www.ikea.com/au',
     US: 'https://www.ikea.com/us',
     GB: 'https://www.ikea.com/gb',
@@ -10,7 +10,7 @@
     FR: 'https://www.ikea.com/fr',
     NZ: 'https://www.ikea.com/nz',
   }
-  TODO: Consider more powerful formats or a transformation function, or supporting interpolation in default address
+  TODO: Consider more powerful formats or a transformation function, or supporting interpolation in fallback address
 */
 
 require('dotenv').config();
@@ -32,9 +32,9 @@ const bedrock_utilities_geoRedirectApi = async (req, res) => {
     return respond(res, 500, { message: `GEOREDIRECT_URL_MAP is invalid JSON` });
   }
 
-  const defaultUrl = GEOREDIRECT_URL_MAP?.default;
-  if (!defaultUrl) {
-    return respond(res, 500, { message: `GEOREDIRECT_URL_MAP must have a default key` });
+  const fallbackUrl = GEOREDIRECT_URL_MAP?.fallback;
+  if (!fallbackUrl) {
+    return respond(res, 500, { message: `GEOREDIRECT_URL_MAP must have a fallback key` });
   }
 
   const {
@@ -71,7 +71,7 @@ const bedrock_utilities_geoRedirectApi = async (req, res) => {
     
     if (!ip) {
       console.warn(`No IP address found`);
-      return res.writeHead(302, { 'Location': defaultUrl }).end();
+      return res.writeHead(302, { 'Location': fallbackUrl }).end();
     }
 
     const geo = geoip.lookup(ip);
@@ -81,10 +81,10 @@ const bedrock_utilities_geoRedirectApi = async (req, res) => {
 
   if (!country) {
     console.warn(`No country found`);
-    return res.writeHead(302, { 'Location': defaultUrl }).end();
+    return res.writeHead(302, { 'Location': fallbackUrl }).end();
   }
 
-  const redirectUrl = GEOREDIRECT_URL_MAP[country.toUpperCase()] || defaultUrl;
+  const redirectUrl = GEOREDIRECT_URL_MAP[country.toUpperCase()] || fallbackUrl;
   return res.writeHead(302, { 'Location': redirectUrl }).end();
 };
 
