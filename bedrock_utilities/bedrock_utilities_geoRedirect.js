@@ -3,6 +3,7 @@
   Deploy it with a .env variable GEOREDIRECT_URL_MAP, which is a JSON object like the following:
   {
     fallback: 'https://www.ikea.com',
+    any: 'https://www.ikea.com/[country]',
     AU: 'https://www.ikea.com/au',
     US: 'https://www.ikea.com/us',
     GB: 'https://www.ikea.com/gb',
@@ -10,7 +11,6 @@
     FR: 'https://www.ikea.com/fr',
     NZ: 'https://www.ikea.com/nz',
   }
-  TODO: Consider more powerful formats or a transformation function, or supporting interpolation in fallback address
 */
 
 require('dotenv').config();
@@ -84,7 +84,7 @@ const bedrock_utilities_geoRedirectApi = async (req, res) => {
     return res.writeHead(302, { 'Location': fallbackUrl }).end();
   }
 
-  const redirectUrl = GEOREDIRECT_URL_MAP[country.toUpperCase()] || fallbackUrl;
+  const redirectUrl = urlMap[country.toUpperCase()] || urlMap?.any?.replace('[country]', country.toLowerCase()) || fallbackUrl;
   return res.writeHead(302, { 'Location': redirectUrl }).end();
 };
 
