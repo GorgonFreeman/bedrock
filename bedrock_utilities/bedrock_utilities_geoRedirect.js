@@ -4,6 +4,19 @@ const bedrock_utilities_geoRedirectApi = async (req, res) => {
 
   logDeep({ req });
 
+  let country;
+  
+  // Try getting country from Google Cloud Function headers
+  ({ 'x-appengine-country': country } = headers);
+
+  if (!country) {
+    // Try getting country from Cloudflare headers
+    ({ 'cf-ipcountry': country } = headers);
+  }
+
+  if (!country) {
+    // Use some kind of geo IP setup
+  }
 
   respond(res, 200, { message: `I don't do anything yet` });
 };
