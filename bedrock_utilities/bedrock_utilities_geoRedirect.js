@@ -1,25 +1,14 @@
-const { funcApi } = require('../utils');
+const { logDeep, respond } = require('../utils');
 
-const bedrock_utilities_geoRedirect = async (
-  arg,
-  {
-    option,
-  } = {},
-) => {
+const bedrock_utilities_geoRedirectApi = async (req, res) => {
 
-  return { 
-    arg, 
-    option,
-  };
-  
+  logDeep({ req });
+
+
+  respond(res, 200, { message: `I don't do anything yet` });
 };
 
-const bedrock_utilities_geoRedirectApi = funcApi(bedrock_utilities_geoRedirect, {
-  argNames: ['arg', 'options'],
-});
-
 module.exports = {
-  bedrock_utilities_geoRedirect,
   bedrock_utilities_geoRedirectApi,
 };
 
