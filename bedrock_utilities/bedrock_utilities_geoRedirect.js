@@ -16,29 +16,28 @@
 require('dotenv').config();
 const geoip = require('geoip-lite');
 
-let { GEOREDIRECT_URL_MAP } = process.env;
+const { GEOREDIRECT_URL_MAP } = process.env;
+
+let urlMap;
+try {
+  urlMap = GEOREDIRECT_URL_MAP ? JSON.parse(GEOREDIRECT_URL_MAP) : null;
+} catch (err) {
+  console.warn('Error parsing GEOREDIRECT_URL_MAP', err);
+  urlMap = null;
+}
 
 const { logDeep, respond } = require('../utils');
 
 const bedrock_utilities_geoRedirectApi = async (req, res) => {
 
-  if (!GEOREDIRECT_URL_MAP) {
-    return respond(res, 500, { message: `GEOREDIRECT_URL_MAP is not set` });
+  if (!urlMap) {
+    return respond(res, 500, { message: `GEOREDIRECT_URL_MAP is not set, or invalid` });
   }
 
-  let urlMap;
-  try {
-    urlMap = typeof GEOREDIRECT_URL_MAP === 'string'
-      ? JSON.parse(GEOREDIRECT_URL_MAP)
-      : GEOREDIRECT_URL_MAP;
-  } catch (err) {
-    console.warn(err);
-    return respond(res, 500, { message: `Error parsing GEOREDIRECT_URL_MAP`, err });
-  }
+  const { fallback: fallbackUrl } = urlMap;
 
-  const fallbackUrl = urlMap?.fallback;
   if (!fallbackUrl) {
-    return respond(res, 500, { message: `GEOREDIRECT_URL_MAP must have a fallback key` });
+    return respond(res, 500, { message: `GEOREDIRECT_URL_MAP has no 'fallback' node` });
   }
 
   const {
