@@ -1,3 +1,5 @@
+// To redirect a user to a regional URL based on their country.
+
 const { logDeep, respond } = require('../utils');
 
 const bedrock_utilities_geoRedirectApi = async (req, res) => {
