@@ -49,7 +49,7 @@ const collabsOrderSyncReviewV3 = async (
       `tag_not:'Sync:Confirmed'`,
     ],
     us: [
-      `tag:'sync-to-radial'`,
+      `(tag:'sync-to-radial' OR (tag_not:'sync-to-radial' AND tag_not:'manual_review_needed'))`,
     ],
   };
 
