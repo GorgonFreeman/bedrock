@@ -1,4 +1,17 @@
 // To redirect a user to a regional URL based on their country.
+/* 
+  Deploy it with a .env variable REDIRECT_URL_MAP, which is a JSON object like the following:
+  {
+    default: 'https://www.ikea.com',
+    AU: 'https://www.ikea.com/au',
+    US: 'https://www.ikea.com/us',
+    GB: 'https://www.ikea.com/gb',
+    DE: 'https://www.ikea.com/de',
+    FR: 'https://www.ikea.com/fr',
+    NZ: 'https://www.ikea.com/nz',
+  }
+  TODO: Consider more powerful formats or a transformation function, or supporting interpolation in default address
+*/
 
 const geoip = require('geoip-lite');
 const { logDeep, respond } = require('../utils');
