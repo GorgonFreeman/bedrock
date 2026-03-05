@@ -16,7 +16,7 @@
 require('dotenv').config();
 const geoip = require('geoip-lite');
 
-const { GEOREDIRECT_URL_MAP } = process.env;
+let { GEOREDIRECT_URL_MAP } = process.env;
 
 const { logDeep, respond } = require('../utils');
 
@@ -24,6 +24,17 @@ const bedrock_utilities_geoRedirectApi = async (req, res) => {
 
   if (!GEOREDIRECT_URL_MAP) {
     return respond(res, 500, { message: `GEOREDIRECT_URL_MAP is not set` });
+  }
+   
+  try {
+    GEOREDIRECT_URL_MAP = JSON.parse(GEOREDIRECT_URL_MAP);
+  } catch (err) {
+    return respond(res, 500, { message: `GEOREDIRECT_URL_MAP is invalid JSON` });
+  }
+
+  const defaultUrl = GEOREDIRECT_URL_MAP?.default;
+  if (!defaultUrl) {
+    return respond(res, 500, { message: `GEOREDIRECT_URL_MAP must have a default key` });
   }
 
   const {
@@ -59,8 +70,8 @@ const bedrock_utilities_geoRedirectApi = async (req, res) => {
     logDeep({ ip });
     
     if (!ip) {
-      // TODO: Send to default location
-      return respond(res, 200, { message: `No IP address found` });
+      console.warn(`No IP address found`);
+      return res.writeHead(302, { 'Location': defaultUrl }).end();
     }
 
     const geo = geoip.lookup(ip);
@@ -69,11 +80,12 @@ const bedrock_utilities_geoRedirectApi = async (req, res) => {
   }
 
   if (!country) {
-    // TODO: Send to default location
-    return respond(res, 200, { message: `No country found` });
+    console.warn(`No country found`);
+    return res.writeHead(302, { 'Location': defaultUrl }).end();
   }
 
-  return respond(res, 200, { message: `I don't do anything yet`, country });
+  const redirectUrl = GEOREDIRECT_URL_MAP[country.toUpperCase()] || defaultUrl;
+  return res.writeHead(302, { 'Location': redirectUrl }).end();
 };
 
 module.exports = {
