@@ -80,4 +80,4 @@ module.exports = {
   bedrock_utilities_geoRedirectApi,
 };
 
-// curl localhost:8000/bedrock_utilities_geoRedirect -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl https://db75-14-200-157-146.ngrok-free.app/bedrock_utilities_geoRedirect
