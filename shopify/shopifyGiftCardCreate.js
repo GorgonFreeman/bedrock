@@ -11,6 +11,14 @@ const shopifyGiftCardCreate = async (
   {
     apiVersion,
     returnAttrs = defaultAttrs,
+    
+    // API options
+    code,
+    customerId,
+    expiresOn,
+    note,
+    recipientAttributes,
+    templateSuffix,
   } = {},
 ) => {
 
@@ -22,6 +30,12 @@ const shopifyGiftCardCreate = async (
         type: 'GiftCardCreateInput!',
         value: {
           initialValue: initialValueDecimal,
+          ...(code && { code }),
+          ...(customerId && { customerId }),
+          ...(expiresOn && { expiresOn }),
+          ...(note && { note }),
+          ...(recipientAttributes && { recipientAttributes }),
+          ...(templateSuffix && { templateSuffix }),
         },
       },
     },
