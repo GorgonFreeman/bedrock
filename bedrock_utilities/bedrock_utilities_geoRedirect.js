@@ -1,6 +1,6 @@
 // To redirect a user to a regional URL based on their country.
 /* 
-  Deploy it with a .env variable REDIRECT_URL_MAP, which is a JSON object like the following:
+  Deploy it with a .env variable GEOREDIRECT_URL_MAP, which is a JSON object like the following:
   {
     default: 'https://www.ikea.com',
     AU: 'https://www.ikea.com/au',
@@ -13,10 +13,18 @@
   TODO: Consider more powerful formats or a transformation function, or supporting interpolation in default address
 */
 
+require('dotenv').config();
 const geoip = require('geoip-lite');
+
+const { GEOREDIRECT_URL_MAP } = process.env;
+
 const { logDeep, respond } = require('../utils');
 
 const bedrock_utilities_geoRedirectApi = async (req, res) => {
+
+  if (!GEOREDIRECT_URL_MAP) {
+    return respond(res, 500, { message: `GEOREDIRECT_URL_MAP is not set` });
+  }
 
   const {
     method,
@@ -25,8 +33,7 @@ const bedrock_utilities_geoRedirectApi = async (req, res) => {
   } = req;
 
   if (method !== 'GET') {
-    respond(res, 405, { message: `Method not allowed` });
-    return;
+    return respond(res, 405, { message: `Method not allowed` });
   }
 
   let country;
