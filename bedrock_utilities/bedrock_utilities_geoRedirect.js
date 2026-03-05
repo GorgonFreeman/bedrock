@@ -35,7 +35,7 @@ const bedrock_utilities_geoRedirectApi = async (req, res) => {
     
     if (!ip) {
       // TODO: Send to default location
-      respond(res, 200, { message: `No IP address found` });
+      return respond(res, 200, { message: `No IP address found` });
     }
 
     const geo = geoip.lookup(ip);
@@ -44,10 +44,10 @@ const bedrock_utilities_geoRedirectApi = async (req, res) => {
 
   if (!country) {
     // TODO: Send to default location
-    respond(res, 200, { message: `No country found` });
+    return respond(res, 200, { message: `No country found` });
   }
 
-  respond(res, 200, { message: `I don't do anything yet`, country });
+  return respond(res, 200, { message: `I don't do anything yet`, country });
 };
 
 module.exports = {
