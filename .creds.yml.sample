@@ -85,6 +85,7 @@ slack:
   BASE_URL: https://slack.com/api
   BOT_TOKEN: xoxb-_____________________
   SIGNING_SECRET: _____________________
+  USER_TOKEN: xoxp-____________________
   CHANNEL_IDS:
     hidden_testing: C06GAG30145
 
