@@ -1,45 +1,14 @@
-const { funcApi, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
-
-const defaultAttrs = `id`;
+const { funcApi, logDeep, customAxios, credsByPath } = require('../utils');
 
 const shopifyCountriesGet = async (
-  credsPath,
-  arg,
-  {
-    apiVersion,
-    option,
-  } = {},
+  store,
 ) => {
+ 
+  const creds = credsByPath(['shopify', store]);
+  const { STORE_URL } = creds;
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
-      apiVersion,
-    },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
+  const response = await customAxios(`https://${ STORE_URL }.myshopify.com/services/countries.json`, {
+    method: 'get',
   });
 
   logDeep(response);
@@ -47,7 +16,7 @@ const shopifyCountriesGet = async (
 };
 
 const shopifyCountriesGetApi = funcApi(shopifyCountriesGet, {
-  argNames: ['credsPath', 'arg', 'options'],
+  argNames: ['store'],
 });
 
 module.exports = {
@@ -55,4 +24,4 @@ module.exports = {
   shopifyCountriesGetApi,
 };
 
-// curl localhost:8000/shopifyCountriesGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyCountriesGet -H "Content-Type: application/json" -d '{ "store": "au" }'
