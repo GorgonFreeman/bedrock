@@ -1,3 +1,4 @@
+const { HOSTED } = require('../constants');
 const { funcApi, logDeep, customAxios, credsByPath } = require('../utils');
 
 const shopifyCountriesGet = async (
@@ -11,7 +12,7 @@ const shopifyCountriesGet = async (
     method: 'get',
   });
 
-  logDeep(response);
+  !HOSTED && logDeep(response);
   return response;
 };
 
