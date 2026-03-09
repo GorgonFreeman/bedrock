@@ -55,6 +55,7 @@ module.exports = {
   shopifyCatalogsGet: require('./shopify/shopifyCatalogsGet').shopifyCatalogsGetApi,
   shopifyChannelsGet: require('./shopify/shopifyChannelsGet').shopifyChannelsGetApi,
   shopifyCountriesGet: require('./shopify/shopifyCountriesGet').shopifyCountriesGetApi,
+  shopifyCustomerAddressCreate: require('./shopify/shopifyCustomerAddressCreate').shopifyCustomerAddressCreateApi,
   shopifyCustomerCancelDataErasure: require('./shopify/shopifyCustomerCancelDataErasure').shopifyCustomerCancelDataErasureApi,
   shopifyCustomerCreate: require('./shopify/shopifyCustomerCreate').shopifyCustomerCreateApi,
   shopifyCustomerDelete: require('./shopify/shopifyCustomerDelete').shopifyCustomerDeleteApi,
