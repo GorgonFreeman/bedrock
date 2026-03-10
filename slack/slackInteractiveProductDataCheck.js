@@ -162,7 +162,7 @@ const slackInteractiveProductDataCheck = async (req, res) => {
         exampleVariant,
       } = product;
 
-      const partialSKU = exampleVariant?.[0]?.sku.match(/(\S*\-\d)(?:\-[\S\/]*$)/)?.[1] || null;
+      const partialSKU = exampleVariant?.[0]?.sku.match(/(\S*\-\d+)(?:\-[\S\/]*$)?/)?.[1] || null;
       if (partialSKU && partialSKU.startsWith(payloadValueTrimmed)) {
         optionValues.add(partialSKU);
       }
