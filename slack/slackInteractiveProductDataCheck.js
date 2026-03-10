@@ -121,12 +121,72 @@ const slackInteractiveProductDataCheck = async (req, res) => {
 
   const { body } = req;
   
+  const { text: commandText } = body;
+
+  if (commandText) {
+
+    const {
+      response_url: responseUrl,
+      user_id: userId,
+    } = body;
+
+    // console.log(`Full slack command with command text > /${ COMMAND_NAME } ${ commandText }`);
+
+    // Extract the SKU from the command text
+    const sku = commandText.trim().match(/(\S*\-\d+)(?:\-[\S\/]*$)?/)?.[1] || null;
+
+    if (sku) {
+
+      // Check if the SKU exists in Shopify
+      const shopifyProductsResponse = await shopifyProductsGet(DEFAULT_REGION, {
+        queries: [`sku:${ sku }*`],
+        attrs: `id title handle`,
+        limit: 100,
+      });
+  
+      const { success: shopifyProductsSuccess, result: shopifyProductCandidates } = shopifyProductsResponse;
+
+      if (shopifyProductsSuccess && shopifyProductCandidates.length === 1) {
+
+        respond(res, 200); // Acknowledge immediately - we'll provide the next step to the response_url later
+
+        // Send the initial response to the response_url
+        await customAxios (responseUrl, {
+          method: 'post',
+          body: {
+            response_type: 'in_channel',
+            replace_original: 'true',
+            text: `Checking product data for SKU: ${ sku }...`,
+          }
+        });
+
+        // Check the product data in StyleArcade
+        const productDataCheckResponse = await collabsProductDataCheck(sku);
+        const { success: productDataCheckSuccess, result: productDataCheckResult } = productDataCheckResponse;
+        if (productDataCheckSuccess) {
+
+          // Send the final response to the response_url
+          return customAxios(responseUrl, {
+            method: 'post',
+            body: {
+              replace_original: 'true',
+              blocks: [
+                blocks.result(sku, productDataCheckResult.object, userId),
+              ],
+            },
+          });
+        }
+      }
+    }
+  }
+  
   // If no payload, this is an initiation, e.g. slash command - send the initial blocks
   if (!body?.payload) {
 
     const initialBlocks = [
       blocks.intro,
       blocks.sku_input.select,
+      ...commandText ? [blocks.sku_input.errorDisplay(`SKU '${ commandText }' not found`)] : [], // If command text was provided, display an error at initial blocks
       blocks.sku_input.buttons,
     ];
 
