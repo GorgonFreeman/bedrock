@@ -133,7 +133,7 @@ const slackInteractiveProductDataCheck = async (req, res) => {
     // console.log(`Full slack command with command text > /${ COMMAND_NAME } ${ commandText }`);
 
     // Extract the SKU from the command text
-    const sku = commandText.trim().match(/(\S*\-\d+)(?:\-[\S\/]*$)?/)?.[1] || null;
+    const sku = commandText.trim().match(/(\S*\d\-\d+)(?:\-[\d\S\/]*$)/)?.[1] || null;
 
     if (sku) {
 
