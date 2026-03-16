@@ -1,48 +1,102 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/queries/things
 
-const { funcApi, logDeep } = require('../utils');
-const { shopifyGet, shopifyGetter } = require('../shopify/shopify.utils');
+const { respond, mandateParam, logDeep, objHasAny } = require('../utils');
+const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
+const { shopifyClient } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
+const defaultAttrs = `id codeDiscount { __typename ... on DiscountCodeBasic { title summary status } }`;
 
-const payloadMaker = (
+const shopifyDiscountGet = async (
   credsPath,
   {
+    discountId,
+    discountCode,
+  },
+  {
+    apiVersion,
     attrs = defaultAttrs,
-    ...options
   } = {},
 ) => {
-  return [
-    credsPath, 
-    'thing',
-    { 
-      attrs, 
-      ...options,
-    },
-  ];
+
+  if (discountId) {
+    console.log('Fetching with discountId', discountId);
+    const response = await shopifyGetSingle(
+      credsPath,
+      'discount',
+      discountId,
+      {
+        apiVersion,
+        attrs,
+      }
+    )
+    return response;
+  }
+
+  if (discountCode) {
+    console.log('Fetching with discountCode', discountCode);
+    const query = `
+      query GetDiscountByCode ($code: String!) {
+        codeDiscountNodeByCode(code: $code) {
+          ${ attrs }
+        }
+      }
+    `;
+    const variables = {
+      code: discountCode,
+    };
+    const response = await shopifyClient.fetch({
+      method: 'post',
+      body: { query, variables },
+      context: {
+        credsPath,
+        apiVersion,
+      },
+      interpreter: async (response) => {
+        return {
+          ...response,
+          ...response.result ? {
+            result: response.result.codeDiscountNodeByCode,
+          } : {},
+        };
+      },
+    });
+
+    logDeep(response);
+    return response;
+  }
+
+  return {
+    success: false,
+    error: ['Invalid discount identifier provided'],
+  };
 };
 
-const shopifyDiscountGet = async (...args) => {
-  const response = await shopifyGet(...payloadMaker(...args));
-  return response;
-};
+const shopifyDiscountGetApi = async (req, res) => {
+  const {
+    credsPath,
+    discountIdentifier,
+    options,
+  } = req.body;
 
-const shopifyDiscountGetter = async (...args) => {
-  const response = await shopifyGetter(...payloadMaker(...args));
-  return response;
-};
+  const paramsValid = await Promise.all([
+    mandateParam(res, 'credsPath', credsPath),
+    mandateParam(res, 'discountIdentifier', discountIdentifier, p => objHasAny(p, ['discountId', 'discountCode'])),
+  ]);
+  if (paramsValid.some(valid => valid === false)) {
+    return;
+  }
 
-const shopifyDiscountGetApi = funcApi(shopifyDiscountGet, {
-  argNames: ['credsPath', 'options'],
-  validatorsByArg: {
-    credsPath: Boolean,
-  },
-});
+  const result = await shopifyDiscountGet(
+    credsPath,
+    discountIdentifier,
+    options,
+  );
+  respond(res, 200, result);
+};
 
 module.exports = {
   shopifyDiscountGet,
-  shopifyDiscountGetter,
   shopifyDiscountGetApi,
 };
 
-// curl localhost:8000/shopifyDiscountGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 2 } }'
+// curl localhost:8000/shopifyDiscountGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "discountIdentifier": { "discountCode": "STAFF40" } }'
