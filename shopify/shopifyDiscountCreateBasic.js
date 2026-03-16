@@ -7,7 +7,7 @@ const defaultAttrs = `id title handle`;
 
 const shopifyDiscountCreateBasic = async (
   credsPath,
-  pageInput,
+  discountInput,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
@@ -16,14 +16,14 @@ const shopifyDiscountCreateBasic = async (
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'discountCodeBasicCreate',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      automaticAppDiscount: {
+        type: 'DiscountCodeBasicInput!',
+        value: discountInput,
       },
     },
-    `page { ${ returnAttrs } }`,
+    `basicCodeDiscount { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
