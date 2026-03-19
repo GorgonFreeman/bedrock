@@ -1,9 +1,9 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/discountCodeBasicCreate
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `title codes(first: 10) { nodes { code } }`;
 
 const shopifyDiscountCreateBasic = async (
   credsPath,
@@ -18,12 +18,19 @@ const shopifyDiscountCreateBasic = async (
     credsPath,
     'discountCodeBasicCreate',
     {
-      automaticAppDiscount: {
+      basicCodeDiscount: {
         type: 'DiscountCodeBasicInput!',
         value: discountInput,
       },
     },
-    `basicCodeDiscount { ${ returnAttrs } }`,
+    `codeDiscountNode {
+        id
+        codeDiscount {
+          ... on DiscountCodeBasic {
+            ${ returnAttrs }
+          }
+        }
+      }`,
     { 
       apiVersion,
     },
