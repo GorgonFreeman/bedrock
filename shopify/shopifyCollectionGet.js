@@ -1,59 +1,79 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/order
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/collection
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/collectionbyidentifier
 
-const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
+const { funcApi, logDeep, objHasAny } = require('../utils');
 const { shopifyGetSingle } = require('../shopify/shopifyGetSingle');
+const { shopifyClient } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id name`;
+const defaultAttrs = `id title handle`;
 
-const shopifyCollectionGetSingle = async (
+const shopifyCollectionGet = async (
   credsPath,
-  thingId,
+  {
+    collectionId,
+    customId,
+    handle,
+  },
   {
     apiVersion,
     attrs = defaultAttrs,
   } = {},
 ) => {
-  
+
+  if (!collectionId) {
+
+    const query = `
+      query GetCollectionByIdentifier($identifier: CollectionIdentifierInput!) {
+        collection: collectionByIdentifier(identifier: $identifier) {
+          ${ attrs }
+        }
+      }
+    `;
+    const variables = {
+      identifier: {
+        ...customId && { customId },
+        ...handle && { handle },
+      },
+    };
+    const response = await shopifyClient.fetch({
+      method: 'post',
+      body: { query, variables },
+      context: {
+        credsPath,
+        apiVersion,
+      },
+      interpreter: async (response) => {
+        return {
+          ...response,
+          ...response.result ? {
+            result: response.result.collection,
+          } : {},
+        };
+      },
+    });
+
+    return response;
+  }
+
   const response = await shopifyGetSingle(
     credsPath,
-    'thing',
-    thingId,
+    'collection',
+    collectionId,
     {
       apiVersion,
       attrs,
     },
   );
-  
-  logDeep(response);
-  return response;
-};
 
-const shopifyCollectionGet = async (
-  credsPath,
-  thingId,
-  {
-    queueRunOptions,
-    ...options
-  } = {},
-) => {
-  const response = await actionMultipleOrSingle(
-    thingId,
-    shopifyCollectionGetSingle,
-    (thingId) => ({
-      args: [credsPath, thingId],
-      options,
-    }),
-    {
-      ...(queueRunOptions ? { queueRunOptions } : {}),
-    },
-  );
-  
-  logDeep(response);
   return response;
 };
 
 const shopifyCollectionGetApi = funcApi(shopifyCollectionGet, {
-  argNames: ['credsPath', 'thingId', 'options'],
+  argNames: ['credsPath', 'collectionIdentifier', 'options'],
+  validatorsByArg: {
+    credsPath: Boolean,
+    collectionIdentifier: p => objHasAny(p, ['collectionId', 'customId', 'handle']),
+  },
 });
 
 module.exports = {
@@ -61,4 +81,6 @@ module.exports = {
   shopifyCollectionGetApi,
 };
 
-// curl localhost:8000/shopifyCollectionGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "thingId": "7012222266312" }'
+// curl localhost:8000/shopifyCollectionGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "collectionIdentifier": { "collectionId": "7012222266312" } }'
+// curl localhost:8000/shopifyCollectionGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "collectionIdentifier": { "handle": "discountable" } }'
+// curl localhost:8000/shopifyCollectionGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "collectionIdentifier": { "customId": "1234567890" } }'
