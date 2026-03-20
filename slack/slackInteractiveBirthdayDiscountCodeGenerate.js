@@ -188,6 +188,12 @@ const slackInteractiveBirthdayDiscountCodeGenerate = async (req, res) => {
 
     // Continue with discoutn code generation
 
+    case 'cancel':
+      response = {
+        delete_original: 'true',
+      };
+      break;
+
     default:
       console.warn(`Unknown actionName: ${ actionName }`);
       return;
