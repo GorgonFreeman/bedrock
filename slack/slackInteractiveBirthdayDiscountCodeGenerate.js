@@ -191,7 +191,7 @@ const slackInteractiveBirthdayDiscountCodeGenerate = async (req, res) => {
         method: 'post',
         body: {
           replace_original: 'true',
-          text: `Found customer ${ emailAddress } in ${ region.toUpperCase() }!`,
+          text: `Found customer ${ emailAddress } in ${ region.toUpperCase() }! Generating birthday discount code...`,
         },
       });
 
