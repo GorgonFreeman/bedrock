@@ -1,6 +1,7 @@
 const { respond, logDeep, customAxios, gidToId, arrayToObj } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
+const { bedrock_unlisted_birthdayDiscountCodeGenerate } = require('../bedrock_unlisted/bedrock_unlisted_birthdayDiscountCodeGenerate');
 
 const COMMAND_NAME = 'customer_bday_code_create'; // slash command
 
