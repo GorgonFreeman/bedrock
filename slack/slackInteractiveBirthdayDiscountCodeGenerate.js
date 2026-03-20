@@ -153,6 +153,10 @@ const slackInteractiveBirthdayDiscountCodeGenerate = async (req, res) => {
           return;
       }
       break;
+
+    default:
+      console.warn(`Unknown actionName: ${ actionName }`);
+      return;
   }
 
   logDeep('response', response);
