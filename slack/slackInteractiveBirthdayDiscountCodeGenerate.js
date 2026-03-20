@@ -195,6 +195,27 @@ const slackInteractiveBirthdayDiscountCodeGenerate = async (req, res) => {
         },
       });
 
+      // Generate the birthday discount code
+      const birthdayDiscountCodeResponse = await bedrock_unlisted_birthdayDiscountCodeGenerate(region, emailAddress);
+      const {
+        success: birthdayDiscountCodeSuccess,
+        result: birthdayDiscountCodeResult,
+      } = birthdayDiscountCodeResponse;
+
+      if (!birthdayDiscountCodeSuccess) {
+        response = {
+          replace_original: 'true',
+          text: `Error generating birthday discount code: ${ JSON.stringify(birthdayDiscountCodeResponse) }`,
+        };
+        break;
+      }
+
+      // Give discount code back to user
+      response = {
+        replace_original: 'true',
+        text: `Birthday discount code generated successfully! ${ birthdayDiscountCodeResult.discountCode }`,
+      };
+
       break;
 
     case 'cancel':
