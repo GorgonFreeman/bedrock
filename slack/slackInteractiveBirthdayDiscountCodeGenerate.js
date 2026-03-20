@@ -1,5 +1,6 @@
-const { respond, logDeep, customAxios } = require('../utils');
+const { respond, logDeep, customAxios, gidToId, arrayToObj } = require('../utils');
 const { REGIONS_WF } = require('../constants');
+const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
 
 const COMMAND_NAME = 'customer_bday_code_create'; // slash command
 
