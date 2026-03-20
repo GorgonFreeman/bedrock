@@ -163,6 +163,29 @@ const slackInteractiveBirthdayDiscountCodeGenerate = async (req, res) => {
       }
       break;
 
+    case 'store_select':
+
+    const region = actionNodes?.[0];
+    const emailDisplayBlock = currentBlocksById['state:email'];
+    const emailAddress = emailDisplayBlock?.text?.text?.split('Email: ')?.[1]?.split('|')?.[1]?.split('>')?.[0];
+
+    // Fetch the custoemr from Shopify once region context is available
+    const customerResponse = await shopifyCustomerGet(region, { email: emailAddress });
+    const {
+      success: customerGetSuccess,
+      result: shopifyCustomer,
+    } = customerResponse;
+
+    if (!customerGetSuccess) {
+      response = {
+        replace_original: 'true',
+        text: `Error getting customer: ${ JSON.stringify(customerResponse) }`,
+      };
+      break;
+    }
+
+    // Continue with discoutn code generation
+
     default:
       console.warn(`Unknown actionName: ${ actionName }`);
       return;
