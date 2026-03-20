@@ -125,6 +125,8 @@ const slackInteractiveBirthdayDiscountCodeGenerate = async (req, res) => {
     actionValue,
   });
 
+  const [commandName, actionName, ...actionNodes] = actionId.split(':');
+
   let response;
 
   response = {
