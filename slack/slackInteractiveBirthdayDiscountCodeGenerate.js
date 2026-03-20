@@ -214,7 +214,7 @@ const slackInteractiveBirthdayDiscountCodeGenerate = async (req, res) => {
       // Give discount code back to user
       response = {
         replace_original: 'true',
-        text: `Birthday discount code generated successfully! ${ birthdayDiscountCodeResult.discountCode }`,
+        text: `Birthday discount code generated successfully for ${ emailAddress } in ${ region.toUpperCase() }! \n\`${ birthdayDiscountCodeResult.discountCode }\``,
       };
 
       break;
