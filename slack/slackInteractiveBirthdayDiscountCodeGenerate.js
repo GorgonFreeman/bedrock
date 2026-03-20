@@ -106,6 +106,15 @@ const slackInteractiveBirthdayDiscountCodeGenerate = async (req, res) => {
   const payload = JSON.parse(body.payload);
   logDeep('payload', payload);
 
+  const {
+    message,
+  } = payload;
+
+  const {
+    blocks: currentBlocks,
+  } = message;
+  const currentBlocksById = arrayToObj(currentBlocks, { keyProp: 'block_id' });
+
   const { 
     response_url: responseUrl,
     state, 
