@@ -129,10 +129,31 @@ const slackInteractiveBirthdayDiscountCodeGenerate = async (req, res) => {
 
   let response;
 
-  response = {
-    replace_original: 'true',
-    text: `I don't do anything yet :hugging_face:`,
-  };
+  switch (actionName) {
+
+    case 'email':
+
+      switch (actionNodes?.[0]) {
+
+        case 'save':
+          const emailAddress = state?.values?.email_input?.email?.value || '';
+          logDeep('emailAddress', emailAddress);
+          response = {
+            replace_original: 'true',
+            blocks: [
+              blocks.email_select.display(emailAddress),
+              ...blocks.store_select.ask,
+              blocks.cancel,
+            ],
+          };
+          break;
+
+        default:
+          console.warn(`Unknown actionNode: ${ actionNodes?.[0] }`);
+          return;
+      }
+      break;
+  }
 
   logDeep('response', response);
   return customAxios(responseUrl, {
