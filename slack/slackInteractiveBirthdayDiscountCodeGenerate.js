@@ -186,7 +186,16 @@ const slackInteractiveBirthdayDiscountCodeGenerate = async (req, res) => {
       break;
     }
 
-    // Continue with discoutn code generation
+    // Inform user that customer was found
+    await customAxios(responseUrl, {
+      method: 'post',
+      body: {
+        replace_original: 'true',
+        text: `Found customer ${ emailAddress } in ${ region.toUpperCase() }!`,
+      },
+    });
+
+    break;
 
     case 'cancel':
       response = {
