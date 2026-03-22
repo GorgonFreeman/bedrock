@@ -187,6 +187,14 @@ const slackInteractiveBirthdayDiscountCodeGenerate = async (req, res) => {
         break;
       }
 
+      if (!shopifyCustomer) {
+        response = {
+          replace_original: 'true',
+          text: `Customer ${ emailAddress } not found in ${ region.toUpperCase() }!`,
+        };
+        break;
+      }
+
       // Inform user that customer was found
       await customAxios(responseUrl, {
         method: 'post',
