@@ -10,6 +10,7 @@ const commandNameToFunc = {
   'staff_onboard': require('../bedrock_unlisted/bedrock_unlisted_slackInteractiveStaffOnboard'),
   'staff_offboard': require('../bedrock_unlisted/bedrock_unlisted_slackInteractiveStaffOffboard'),
   'product_data_check': require('../slack/slackInteractiveProductDataCheck'),
+  'bleckmann_declines_export': require('../bedrock_unlisted/bedrock_unlisted_slackInteractiveBleckmannDeclinesExport'),
 };
 
 const slackWebhookRouterApi = async (req, res) => {
