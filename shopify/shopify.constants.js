@@ -39,4 +39,9 @@ module.exports = {
     'safety_stock',
     'shrinkage',
   ],
+  INVENTORY_HOLD_REGIONAL_TAGS: {
+    au: 'inv_hold',
+    us: 'inv_hold_us',
+    uk: 'inv_hold_uk',
+  },
 };
