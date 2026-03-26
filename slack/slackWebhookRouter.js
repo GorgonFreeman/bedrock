@@ -11,6 +11,7 @@ const commandNameToFunc = {
   'staff_offboard': require('../bedrock_unlisted/bedrock_unlisted_slackInteractiveStaffOffboard'),
   'product_data_check': require('../slack/slackInteractiveProductDataCheck'),
   'bleckmann_declines_export': require('../bedrock_unlisted/bedrock_unlisted_slackInteractiveBleckmannDeclinesExport'),
+  'inventory_hold': require('../bedrock_unlisted/bedrock_unlisted_slackInteractiveInventoryHold'),
 };
 
 const slackWebhookRouterApi = async (req, res) => {
