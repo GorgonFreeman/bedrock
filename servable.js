@@ -342,6 +342,7 @@ module.exports = {
   bedrock_unlisted_shopifyOrdersMarkFulfillmentRequested: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_shopifyOrdersMarkFulfillmentRequested').bedrock_unlisted_shopifyOrdersMarkFulfillmentRequestedApi),
   bedrock_unlisted_shopifyOrdersTagWithShippingMethod: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_shopifyOrdersTagWithShippingMethod').bedrock_unlisted_shopifyOrdersTagWithShippingMethodApi),
   bedrock_unlisted_shopifyProductsDimsReview: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_shopifyProductsDimsReview').bedrock_unlisted_shopifyProductsDimsReviewApi),
+  bedrock_unlisted_shopifyProductsInventoryHoldTagUpdate: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_shopifyProductsInventoryHoldTagUpdate').bedrock_unlisted_shopifyProductsInventoryHoldTagUpdateApi),
   bedrock_unlisted_shopifyPublishSweep: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_shopifyPublishSweep').bedrock_unlisted_shopifyPublishSweepApi),
   bedrock_unlisted_shopifyRefundsActionOneOff: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_shopifyRefundsActionOneOff').bedrock_unlisted_shopifyRefundsActionOneOffApi),
   bedrock_unlisted_shopifyStaffCustomerOffboard: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_shopifyStaffCustomerOffboard').bedrock_unlisted_shopifyStaffCustomerOffboardApi),
