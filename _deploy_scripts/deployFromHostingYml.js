@@ -2,12 +2,14 @@ const { readFileYaml, interactiveChooseOption } = require('../utils');
 const { execCommand } = require('./execCommand');
 const { formatSetEnvVarsForGcloud, shellQuoteSingle } = require('./setEnvVarsGcloud');
 
-/** Maps the Node version running this script to gcloud's runtime id (e.g. nodejs22). Override with `runtime` in .hosting.yml if GCP does not support your local major yet. */
+/** Highest Node major offered by Cloud Functions for this repo; raise when GCP adds a newer GA. */
+const GCLOUD_NODEJS_MAX_MAJOR = 24;
+
+/** `nodejs{major}` where major = min(local Node major, GCLOUD_NODEJS_MAX_MAJOR). Override with `runtime` in .hosting.yml. */
 function gcloudRuntimeFromCurrentNode() {
-  const major = Number.parseInt(process.versions.node.split('.')[0], 10);
-  if (Number.isNaN(major)) {
-    return 'nodejs20';
-  }
+  const localMajor = Number.parseInt(process.versions.node.split('.')[0], 10);
+  const effective = Number.isNaN(localMajor) ? GCLOUD_NODEJS_MAX_MAJOR : localMajor;
+  const major = Math.min(effective, GCLOUD_NODEJS_MAX_MAJOR);
   return `nodejs${ major }`;
 }
 
