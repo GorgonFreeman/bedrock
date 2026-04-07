@@ -2,6 +2,15 @@ const { readFileYaml, interactiveChooseOption } = require('../utils');
 const { execCommand } = require('./execCommand');
 const { formatSetEnvVarsForGcloud, shellQuoteSingle } = require('./setEnvVarsGcloud');
 
+/** Maps the Node version running this script to gcloud's runtime id (e.g. nodejs22). Override with `runtime` in .hosting.yml if GCP does not support your local major yet. */
+function gcloudRuntimeFromCurrentNode() {
+  const major = Number.parseInt(process.versions.node.split('.')[0], 10);
+  if (Number.isNaN(major)) {
+    return 'nodejs20';
+  }
+  return `nodejs${ major }`;
+}
+
 (async() => {
   try {
     const hostingYml = await readFileYaml('.hosting.yml');
@@ -94,7 +103,7 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
     project,
     region,
     trigger = 'http',
-    runtime = 'nodejs20',
+    runtime = gcloudRuntimeFromCurrentNode(),
     allowUnauthenticated = true,
     gen2 = true,
     set_env_vars: setEnvVars,
