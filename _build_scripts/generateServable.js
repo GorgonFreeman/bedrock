@@ -14,7 +14,9 @@ const generateServable = async () => {
         const apiFunc = moduleExport[apiFuncName];
         
         if (apiFunc && typeof apiFunc === 'function') {
-          moduleExportsEntries.push(`  ${ funcName }: require('./${ func.path }').${ apiFuncName },`);
+          moduleExportsEntries.push(
+            `  ${ funcName }: lazy(() => require('./${ func.path }').${ apiFuncName }),`,
+          );
         }
       }
     } catch (error) {
@@ -22,7 +24,17 @@ const generateServable = async () => {
     }
   }
   
-  const newServableContent = `module.exports = {
+  const newServableContent = `const lazy = (loader) => {
+  let cached;
+  return (req, res) => {
+    if (!cached) {
+      cached = loader();
+    }
+    return cached(req, res);
+  };
+};
+
+module.exports = {
 ${ moduleExportsEntries.join('\n') }
 };`;
   
