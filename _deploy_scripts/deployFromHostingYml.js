@@ -1,5 +1,6 @@
 const { readFileYaml, interactiveChooseOption } = require('../utils');
 const { execCommand } = require('./execCommand');
+const { formatSetEnvVarsForGcloud, shellQuoteSingle } = require('./setEnvVarsGcloud');
 
 (async() => {
   try {
@@ -106,7 +107,9 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
     ...miscCommandArgs
   } = config;
 
-  setEnvVars = `HOSTED=true${ setEnvVars ? `,${ setEnvVars }` : '' }`;
+  const rawSetEnvVars = `HOSTED=true${ setEnvVars ? `,${ setEnvVars }` : '' }`;
+  const setEnvVarsForGcloud = formatSetEnvVarsForGcloud(rawSetEnvVars);
+  const setEnvVarsQuoted = shellQuoteSingle(setEnvVarsForGcloud);
 
   const deployCommand = [
     `gcloud functions deploy ${ functionName }`,
@@ -114,7 +117,7 @@ async function deployFunction(functionName, functionConfig, gcloudInfo) {
     `--region ${ region }`,
     `--trigger-${ trigger }`,
     `--runtime ${ runtime }`,
-    `--set-env-vars ${ setEnvVars }`,
+    `--set-env-vars ${ setEnvVarsQuoted }`,
     ...(allowUnauthenticated ? ['--allow-unauthenticated'] : []),
     ...(gen2 ? ['--gen2'] : []),
     ...Object.entries(miscCommandArgs).map(([key, value]) => `--${ key.replaceAll('_', '-') } ${ value }`),
