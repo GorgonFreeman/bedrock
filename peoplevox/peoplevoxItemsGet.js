@@ -57,4 +57,6 @@ module.exports = {
   peoplevoxItemsGetApi,
 };
 
+// TODO: Consider making searchClause an option, and defaulting to all item types.
+// curl localhost:8000/peoplevoxItemsGet -H "Content-Type: application/json" -d '{ "searchClause": "" }'
 // curl localhost:8000/peoplevoxItemsGet -H "Content-Type: application/json" -d '{ "searchClause": "ItemCode.StartsWith(\"EXDAL355-1-\")" }'
