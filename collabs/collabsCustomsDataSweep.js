@@ -83,7 +83,7 @@ const collabsCustomsDataSweep = async () => {
     region,
     {
       queries: [
-        `published_status:published`,
+        `status:active`,
       ],
       attrs: `
         id
