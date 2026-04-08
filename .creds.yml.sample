@@ -115,6 +115,17 @@ googlesheets:
       ...
     }
 
+googlecalendar:
+  SERVICE_ACCOUNT_JSON: 
+    {
+      "type": "service_account",
+      "project_id": "your-project-id",
+      "private_key_id": "key-id",
+      "private_key": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n",
+      "client_email": "your-service-account@project.iam.gserviceaccount.com",
+      ...
+    }
+
 swap:
   acc:
     BASE_URL: https://returnsportal.co/api/1.1/xx
