@@ -1,3 +1,5 @@
+// TODO: Replace axios with fetch - unnecessary
+
 require('dotenv').config();
 const chalk = require('chalk');
 const jsYaml = require('js-yaml');
