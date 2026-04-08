@@ -31,8 +31,82 @@ const blocks = {
           text: region.toUpperCase(),
         },
         value: region,
+        action_id: `${ COMMAND_NAME }:region_select:${ region }`,
       })),
     },
+
+    context: (region) => {
+      return {
+        type: 'section',
+        block_id: 'region_select:context',
+        text: {
+          type: 'mrkdwn',
+          text: `Selected region: ${ region }`,
+        },
+      };
+    },
+  },
+
+  rates_select: {
+    intro: {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: 'Select rates to toggle:',
+      },
+    },
+
+    ask: {
+      type: 'section',
+      block_id: 'rates_select:select',
+      text: {
+        type: 'mrkdwn',
+        text: 'Type and select rates to toggle:',
+      },
+      accessory: {
+        type: 'external_select',
+        action_id: `${ COMMAND_NAME }:rates_select:select`,
+        placeholder: {
+          type: 'plain_text',
+          text: 'Type and search a rate..',
+        },
+        min_query_length: 1,
+      },
+    },
+
+    context: (targettedRates) => {
+      return {
+        type: 'section',
+        block_id: 'rates_select:context',
+        text: {
+          type: 'mrkdwn',
+          text: `Targetted rates:\n${ targettedRates.length > 0 ? targettedRates.map(r => `- ${ r.name }`).join('\n') : 'None' }`,
+        },
+      };
+    },
+  },
+
+  action_buttons: {
+    type: 'actions',
+    block_id: 'action_buttons',
+    elements: [
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Enable',
+        },
+        action_id: `${ COMMAND_NAME }:action_buttons:enable`,
+      },
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Disable',
+        },
+        action_id: `${ COMMAND_NAME }:action_buttons:disable`,
+      },
+    ],
   },
 
   cancel: {
@@ -44,6 +118,7 @@ const blocks = {
           type: 'plain_text',
           text: 'Cancel',
         },
+        action_id: `${ COMMAND_NAME }:cancel`,
       },
     ],
   },
@@ -88,6 +163,7 @@ const slackInteractiveShippingRatesToggle = async (req, res) => {
     action_id: actionId,
     value: actionValue,
   } = action;
+  const [commandName, actionName, ...actionNodes] = actionId.split(':');
 
   logDeep({
     responseUrl,
@@ -99,6 +175,24 @@ const slackInteractiveShippingRatesToggle = async (req, res) => {
   let response;
 
   switch (actionName) {
+
+    case 'region_select':
+
+      const region = actionNodes?.[0];
+
+      response = {
+        replace_original: 'true',
+        blocks: [
+          blocks.intro,
+          blocks.region_select.context(region),
+          blocks.rates_select.intro,
+          blocks.rates_select.ask,
+          blocks.rates_select.context([]),
+          blocks.action_buttons,
+          blocks.cancel,
+        ],
+      };
+      break;
 
     case 'cancel':
       response = {
