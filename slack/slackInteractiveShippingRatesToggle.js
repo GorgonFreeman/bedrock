@@ -1,6 +1,54 @@
 const { respond, logDeep, customAxios } = require('../utils');
+const { REGIONS_WF } = require('../constants');
 
-const COMMAND_NAME = 'slash_command'; // slash command
+const COMMAND_NAME = 'shipping_rates_toggle'; // slash command
+
+const blocks = {
+
+  intro: {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: '*Shipping Rates Toggle*',
+    },
+  },
+
+  region_select: {
+    intro: {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: 'Select a region:',
+      },
+    },
+
+    ask: {
+      type: 'actions',
+      elements: REGIONS_WF.map(region => ({
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: region.toUpperCase(),
+        },
+        value: region,
+      })),
+    },
+  },
+
+  cancel: {
+    type: 'actions',
+    elements: [
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Cancel',
+        },
+      },
+    ],
+  },
+
+};
 
 const slackInteractiveShippingRatesToggle = async (req, res) => {
   console.log('slackInteractiveShippingRatesToggle');
@@ -11,13 +59,10 @@ const slackInteractiveShippingRatesToggle = async (req, res) => {
   if (!body?.payload) {
 
     const initialBlocks = [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `I don't do anything yet :hugging_face:`,
-        },
-      },
+      blocks.intro,
+      blocks.region_select.intro,
+      blocks.region_select.ask,
+      blocks.cancel,
     ];
 
     return respond(res, 200, {
@@ -53,10 +98,18 @@ const slackInteractiveShippingRatesToggle = async (req, res) => {
 
   let response;
 
-  response = {
-    replace_original: 'true',
-    text: `I don't do anything yet :hugging_face:`,
-  };
+  switch (actionName) {
+
+    case 'cancel':
+      response = {
+        delete_original: 'true',
+      };
+      break;
+      
+    default:
+      console.warn(`Unknown actionName: ${ actionName }`);
+      break;
+  }
 
   logDeep('response', response);
   return customAxios(responseUrl, {
