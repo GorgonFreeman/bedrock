@@ -35,6 +35,7 @@ module.exports = {
   supabaseTableGetAll: lazy(() => require('./supabase/supabase.utils').supabaseTableGetAllApi),
   supabaseRpc: lazy(() => require('./supabase/supabase.utils').supabaseRpcApi),
   stylearcadeDataGet: lazy(() => require('./stylearcade/stylearcadeDataGet').stylearcadeDataGetApi),
+  stylearcadeProductExport: lazy(() => require('./stylearcade/stylearcadeProductExport').stylearcadeProductExportApi),
   stylearcadeProductGet: lazy(() => require('./stylearcade/stylearcadeProductGet').stylearcadeProductGetApi),
   starshipitAddressCreate: lazy(() => require('./starshipit/starshipitAddressCreate').starshipitAddressCreateApi),
   starshipitAddressDelete: lazy(() => require('./starshipit/starshipitAddressDelete').starshipitAddressDeleteApi),
