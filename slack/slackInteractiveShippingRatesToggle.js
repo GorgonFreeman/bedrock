@@ -1,5 +1,6 @@
-const { respond, logDeep, customAxios } = require('../utils');
+const { respond, logDeep, customAxios, arrayToObj, gidToId } = require('../utils');
 const { REGIONS_WF } = require('../constants');
+const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
 
 const COMMAND_NAME = 'shipping_rates_toggle'; // slash command
 
@@ -58,19 +59,19 @@ const blocks = {
 
     ask: {
       type: 'section',
-      block_id: 'rates_select:select',
+      block_id: 'rates_select:ask',
       text: {
         type: 'mrkdwn',
         text: 'Type and select rates to toggle:',
       },
       accessory: {
         type: 'external_select',
-        action_id: `${ COMMAND_NAME }:rates_select:select`,
         placeholder: {
           type: 'plain_text',
           text: 'Type and search a rate..',
         },
         min_query_length: 1,
+        action_id: `${ COMMAND_NAME }:rates_select:select`,
       },
     },
 
@@ -80,7 +81,7 @@ const blocks = {
         block_id: 'rates_select:context',
         text: {
           type: 'mrkdwn',
-          text: `Targetted rates:\n${ targettedRates.length > 0 ? targettedRates.map(r => `- ${ r.name }`).join('\n') : 'None' }`,
+          text: `Targeted rates:\n${ targettedRates.length > 0 ? targettedRates.map(r => `- ${ r.name }`).join('\n') : 'None' }`,
         },
       };
     },
@@ -146,11 +147,92 @@ const slackInteractiveShippingRatesToggle = async (req, res) => {
     });
   }
 
-  // Because we got to this point, we have a payload - handle as an interactive step
-  respond(res, 200); // Acknowledge immediately - we'll provide the next step to the response_url later
-
   const payload = JSON.parse(body.payload);
   logDeep('payload', payload);
+
+  const {
+    type,
+    message,
+  } = payload;
+
+  const {
+    blocks: currentBlocks,
+  } = message;
+  const currentBlocksById = arrayToObj(currentBlocks, { keyProp: 'block_id' });
+
+  if (type === 'block_suggestion') {
+
+    // Get selected region
+    const selectedRegion = currentBlocksById['region_select:context']?.text?.text?.split('Selected region: ')?.[1]?.trim();
+    logDeep('selectedRegion', selectedRegion);
+
+    // Fetch all delivery profiles
+    const deliveryProfileAttrs = `id name profileLocationGroups {
+      locationGroup {
+        id
+      }
+      locationGroupZones (first: 15) { edges { node {
+        zone {
+          id
+          name
+        }
+        methodDefinitions (first: 10) { edges { node {
+          id
+          name
+          active
+        } } }
+      } } }
+    }`;
+    const deliveryProfilesResponse = await shopifyDeliveryProfilesGet(selectedRegion, { attrs: deliveryProfileAttrs });
+    const { success: deliveryProfilesGetSuccess, result: deliveryProfiles } = deliveryProfilesResponse;
+    if (!deliveryProfilesGetSuccess) {
+      return deliveryProfilesResponse;
+    }
+
+    // Map and flatten all delivery profiles to shipping method definitions
+    const shippingMethodDefinitions = deliveryProfiles.map(dp => {
+      const { id: deliveryProfileId, name: deliveryProfileName } = dp;
+      return dp.profileLocationGroups.map(plg => {
+        const { locationGroup } = plg;
+        const { id: locationGroupId } = locationGroup;
+        return plg.locationGroupZones.map(lgz => {
+          const { zone } = lgz;
+          const { id: locationGroupZoneId, name: locationGroupZoneName } = zone;
+          return lgz.methodDefinitions.map(methodDef => {
+            return {
+              ...methodDef,
+              deliveryProfileId,
+              deliveryProfileName,
+              locationGroupId,
+              locationGroupZoneId,
+              locationGroupZoneName,
+            };
+          });
+        });
+      });
+    }).flat(3);
+
+    const { value: payloadValue } = payload;
+    const payloadValueTrimmed = payloadValue.trim();
+
+    // Filter matching shipping method definitions
+    const optionValues = shippingMethodDefinitions.filter(rate => rate.name.toLowerCase().includes(payloadValueTrimmed.toLowerCase()));
+    const options = optionValues.map(value => {
+      return {
+        text: {
+          type: 'plain_text',
+          text: `${ value.name }`,
+        },
+        value: gidToId(value.id),
+      }
+    });
+    logDeep('options', options);
+
+    return respond(res, 200, { options });
+  }
+
+  // Because we got to this point, we have a payload - handle as an interactive step
+  respond(res, 200); // Acknowledge immediately - we'll provide the next step to the response_url later
 
   const { 
     response_url: responseUrl,
@@ -192,6 +274,12 @@ const slackInteractiveShippingRatesToggle = async (req, res) => {
           blocks.cancel,
         ],
       };
+      break;
+
+    case 'rates_select':
+
+      const selectedRegion = currentBlocksById['region_select:context']?.text?.text?.split('Selected region: ')?.[1]?.trim();
+      logDeep('selectedRegion', selectedRegion);
       break;
 
     case 'cancel':
