@@ -51,6 +51,11 @@ const stylearcadeProductExport = async (
       return;
     }
 
+    if (!sizeConvention || !sizeConvention.sizes) {
+      console.error(`No size convention or sizes found for product ${ productId }`);
+      return;
+    }
+
     sizeConvention.sizes.forEach((size, index) => {
       const {
         name: sizeName,
