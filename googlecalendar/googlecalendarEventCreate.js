@@ -5,11 +5,12 @@ const googlecalendarEventCreate = async (
   eventData,
   {
     credsPath,
+    subject,
     calendarId = 'primary',
   } = {},
 ) => {
 
-  const calendarClient = getGoogleCalendarClient({ credsPath });
+  const calendarClient = getGoogleCalendarClient({ credsPath, subject });
 
   try {
     const clientResponse = await calendarClient.events.insert({

@@ -4,6 +4,7 @@ const { getGoogleCalendarClient } = require('../googlecalendar/googlecalendar.ut
 const googlecalendarEventsGet = async (
   {
     credsPath,
+    subject,
     calendarId = 'primary',
     timeMin,
     timeMax,
@@ -14,7 +15,7 @@ const googlecalendarEventsGet = async (
   } = {},
 ) => {
 
-  const calendarClient = getGoogleCalendarClient({ credsPath });
+  const calendarClient = getGoogleCalendarClient({ credsPath, subject });
 
   try {
     const clientResponse = await calendarClient.events.list({

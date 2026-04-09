@@ -1,7 +1,7 @@
 const { funcApi } = require('../utils');
 const { getGoogleCalendarClient } = require('../googlecalendar/googlecalendar.utils');
 
-const googlecalendarEventGet = async (
+const googlecalendarEventDelete = async (
   eventId,
   {
     credsPath,
@@ -13,7 +13,7 @@ const googlecalendarEventGet = async (
   const calendarClient = getGoogleCalendarClient({ credsPath, subject });
 
   try {
-    const clientResponse = await calendarClient.events.get({
+    const clientResponse = await calendarClient.events.delete({
       calendarId,
       eventId,
     });
@@ -30,13 +30,13 @@ const googlecalendarEventGet = async (
   }
 };
 
-const googlecalendarEventGetApi = funcApi(googlecalendarEventGet, {
+const googlecalendarEventDeleteApi = funcApi(googlecalendarEventDelete, {
   argNames: ['eventId', 'options'],
 });
 
 module.exports = {
-  googlecalendarEventGet,
-  googlecalendarEventGetApi,
+  googlecalendarEventDelete,
+  googlecalendarEventDeleteApi,
 };
 
-// curl localhost:8000/googlecalendarEventGet -H "Content-Type: application/json" -d '{ "eventId": "abc123" }'
+// curl localhost:8000/googlecalendarEventDelete -H "Content-Type: application/json" -d '{ "eventId": "abc123" }'

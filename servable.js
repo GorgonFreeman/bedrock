@@ -242,6 +242,7 @@ module.exports = {
   googledriveFilesGet: lazy(() => require('./googledrive/googledriveFilesGet').googledriveFilesGetApi),
   googlecalendarCalendarsGet: lazy(() => require('./googlecalendar/googlecalendarCalendarsGet').googlecalendarCalendarsGetApi),
   googlecalendarEventCreate: lazy(() => require('./googlecalendar/googlecalendarEventCreate').googlecalendarEventCreateApi),
+  googlecalendarEventDelete: lazy(() => require('./googlecalendar/googlecalendarEventDelete').googlecalendarEventDeleteApi),
   googlecalendarEventGet: lazy(() => require('./googlecalendar/googlecalendarEventGet').googlecalendarEventGetApi),
   googlecalendarEventsGet: lazy(() => require('./googlecalendar/googlecalendarEventsGet').googlecalendarEventsGetApi),
   etsyAccessTokenRefresh: lazy(() => require('./etsy/etsyAccessTokenRefresh').etsyAccessTokenRefreshApi),

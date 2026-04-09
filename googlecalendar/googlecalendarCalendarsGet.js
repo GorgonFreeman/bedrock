@@ -4,10 +4,11 @@ const { getGoogleCalendarClient } = require('../googlecalendar/googlecalendar.ut
 const googlecalendarCalendarsGet = async (
   {
     credsPath,
+    subject,
   } = {},
 ) => {
 
-  const calendarClient = getGoogleCalendarClient({ credsPath });
+  const calendarClient = getGoogleCalendarClient({ credsPath, subject });
 
   try {
     const clientResponse = await calendarClient.calendarList.list();
