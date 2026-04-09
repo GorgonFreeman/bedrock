@@ -1,6 +1,8 @@
 const { funcApi, logDeep, askQuestion } = require('../utils');
 const { stylearcadeDataGet } = require('../stylearcade/stylearcadeDataGet');
-con
+const { shopifyProductGet } = require('../shopify/shopifyProductGet');
+
+const DEFAULT_REGION = 'au';
 
 const stylearcadeProductExport = async (
   {
@@ -16,7 +18,7 @@ const stylearcadeProductExport = async (
   }
 
   const productExport = [];
-  styleArcadeData.forEach(product => {
+  styleArcadeData.forEach(async product => {
     if (!product.data) {
       return;
     }
@@ -31,6 +33,23 @@ const stylearcadeProductExport = async (
       // priceStatus, // may be able to fetch from original price and current price, but current price is not available in range plan api
       // productCount, // need to confirm if this is necessary and what this is actually counting
     } = product.data;
+
+    // Check if product exists and is active in Shopify
+    const shopifyProductResponse = await shopifyProductGet(DEFAULT_REGION,
+      {
+        skuStartsWith: `${ productId }`,
+      },
+      {
+        attrs: `id title status`,
+      },
+    );
+    const { success: shopifyProductResponseSuccess, result: shopifyProduct } = shopifyProductResponse;
+    if (!shopifyProductResponseSuccess) {
+      return;
+    }
+    if (!shopifyProduct || shopifyProduct.status !== 'active') {
+      return;
+    }
 
     sizeConvention.sizes.forEach((size, index) => {
       const {
