@@ -1,6 +1,5 @@
 const { funcApi, logDeep, askQuestion } = require('../utils');
 const { stylearcadeDataGet } = require('../stylearcade/stylearcadeDataGet');
-const { shopifyProductGet } = require('../shopify/shopifyProductGet');
 
 const DEFAULT_REGION = 'au';
 
@@ -30,25 +29,20 @@ const stylearcadeProductExport = async (
       colour,
       category,
       subCategory,
+      workflow,
       // priceStatus, // may be able to fetch from original price and current price, but current price is not available in range plan api
       // productCount, // need to confirm if this is necessary and what this is actually counting
     } = product.data;
 
-    // Check if product exists and is active in Shopify
-    const shopifyProductResponse = await shopifyProductGet(DEFAULT_REGION,
-      {
-        skuStartsWith: `${ productId }`,
-      },
-      {
-        attrs: `id title status`,
-      },
+    // Check if product is in Approved status
+    const isApproved = workflow.some(
+      (workflow) =>
+        workflow.stageLabel &&
+        workflow.stageLabel === "approved" &&
+        workflow.status === true,
     );
-    const { success: shopifyProductResponseSuccess, result: shopifyProduct } = shopifyProductResponse;
-    if (!shopifyProductResponseSuccess) {
-      return;
-    }
-    if (!shopifyProduct || shopifyProduct.status !== 'active') {
-      return;
+    if (!isApproved) {
+      continue;
     }
 
     // Check size convention info from Style Arcade
