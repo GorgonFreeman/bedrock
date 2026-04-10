@@ -83,13 +83,8 @@ const slackInteractiveStylearcadeProductExport = async (req, res) => {
     }
 
     const initialBlocks = [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `I don't do anything yet :hugging_face:`,
-        },
-      },
+      blocks.intro,
+      blocks.buttons,
     ];
 
     return respond(res, 200, {
