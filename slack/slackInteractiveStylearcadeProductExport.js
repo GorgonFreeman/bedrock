@@ -120,9 +120,28 @@ const slackInteractiveStylearcadeProductExport = async (req, res) => {
 
   let response;
 
-  response = {
-    replace_original: 'true',
-    text: `I don't do anything yet :hugging_face:`,
+  const [commandName, actionName, ...actionNodes] = actionId.split(':');
+
+  switch (actionName) {
+    case 'export':
+
+      // Respond with loading message
+      await customAxios(responseUrl, {
+        method: 'post',
+        body: {
+          replace_original: 'true',
+          blocks: [blocks.loading],
+        },
+      });
+      
+      break;
+
+    case 'cancel':
+      break;
+
+    default:
+      console.warn(`Unknown actionName: ${ actionName }`);
+      return;
   };
 
   logDeep('response', response);
