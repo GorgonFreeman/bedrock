@@ -49,13 +49,6 @@ const blocks = {
   },
 
   rates_select: {
-    intro: {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: 'Select rates to toggle:',
-      },
-    },
 
     ask: {
       type: 'section',
@@ -267,7 +260,6 @@ const slackInteractiveShippingRatesToggle = async (req, res) => {
         blocks: [
           blocks.intro,
           blocks.region_select.context(region),
-          blocks.rates_select.intro,
           blocks.rates_select.ask,
           blocks.rates_select.context([]),
           blocks.action_buttons,
