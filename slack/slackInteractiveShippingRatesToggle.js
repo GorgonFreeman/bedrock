@@ -209,14 +209,14 @@ const slackInteractiveShippingRatesToggle = async (req, res) => {
     const payloadValueTrimmed = payloadValue.trim();
 
     // Filter matching shipping method definitions
-    const optionValues = shippingMethodDefinitions.filter(rate => rate.name.toLowerCase().includes(payloadValueTrimmed.toLowerCase()));
+    const optionValues = Array.from(new Set(shippingMethodDefinitions.map(rate => rate.name).filter(rate => rate.toLowerCase().includes(payloadValueTrimmed.toLowerCase()))));
     const options = optionValues.map(value => {
       return {
         text: {
           type: 'plain_text',
-          text: `${ value.name }`,
+          text: value,
         },
-        value: gidToId(value.id),
+        value: value,
       }
     });
     logDeep('options', options);
@@ -272,6 +272,11 @@ const slackInteractiveShippingRatesToggle = async (req, res) => {
 
       const selectedRegion = currentBlocksById['region_select:context']?.text?.text?.split('Selected region: ')?.[1]?.trim();
       logDeep('selectedRegion', selectedRegion);
+
+      const selectedOptionValue = state.values?.['rates_select:ask']?.[`${ COMMAND_NAME }:rates_select`]?.selected_option?.value;
+      const selectedRate = selectedOptionValue ? selectedOptionValue.trim() : '';
+      logDeep('selectedRate', selectedRate);
+
       break;
 
     case 'cancel':
