@@ -1,6 +1,72 @@
 const { respond, logDeep, customAxios } = require('../utils');
 
-const COMMAND_NAME = 'slash_command'; // slash command
+const { stylearcadeProductExport } = require('../stylearcade/stylearcadeProductExport');
+
+const COMMAND_NAME = 'stylearcade_product_export'; // slash command
+
+const blocks = {
+
+  intro: {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: 'Hey, I\'m going to run a Style Arcade product export for you. This will take a few minutes. Continue export?',
+    },
+  },
+
+  buttons: {
+    type: 'actions',
+    elements: [
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Export',
+        },
+        value: 'export',
+        action_id: `${ COMMAND_NAME }:export`,
+      },
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Cancel',
+        },
+        value: 'cancel',
+        action_id: `${ COMMAND_NAME }:cancel`,
+      },
+    ],
+  },
+
+  loading: {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: 'Running Style Arcade product export...',
+    },
+  },
+
+  error: (errorMessage) => {
+    return {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `Error exporting Style Arcade product: ${ errorMessage }`,
+      },
+    };
+  },
+
+  sheetBlock: (sheetUrl, sheetName) => {
+    return {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `${ sheetName }: <${ sheetUrl }|:google_sheets:>`,
+      },
+    };
+  },
+
+};
 
 const slackInteractiveStylearcadeProductExport = async (req, res) => {
   console.log('slackInteractiveStylearcadeProductExport');
