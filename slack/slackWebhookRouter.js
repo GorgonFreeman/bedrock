@@ -16,6 +16,7 @@ const commandNameToFunc = {
   'shipping_rates_toggle': require('../slack/slackInteractiveShippingRatesToggleV2'),
   'order_sync_check': require('../slack/slackInteractiveOrderSyncCheck'),
   'shipping_rates_disabled_report': require('../slack/slackInteractiveShippingRatesDisabledReport'),
+  'stylearcade_product_export': require('../slack/slackInteractiveStylearcadeProductExport'),
 };
 
 const slackWebhookRouterApi = async (req, res) => {
