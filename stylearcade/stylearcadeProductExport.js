@@ -1,8 +1,6 @@
 const { funcApi, logDeep, askQuestion } = require('../utils');
 const { stylearcadeDataGet } = require('../stylearcade/stylearcadeDataGet');
 
-const DEFAULT_REGION = 'au';
-
 const stylearcadeProductExport = async (
   {
     option,
