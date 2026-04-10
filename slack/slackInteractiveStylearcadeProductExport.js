@@ -133,7 +133,26 @@ const slackInteractiveStylearcadeProductExport = async (req, res) => {
           blocks: [blocks.loading],
         },
       });
-      
+
+      // Run the export
+      const exportResponse = await stylearcadeProductExport();
+      const { success: exportSuccess, result: exportResult } = exportResponse;
+      if (!exportSuccess) {
+        response = {
+          replace_original: 'true',
+          blocks: [blocks.error(JSON.stringify(exportResponse))],
+        };
+        break;
+      }
+
+      const {
+        sheetUrl,
+        sheetName,
+      } = exportResult;
+      response = {
+        replace_original: 'true',
+        blocks: [blocks.sheetBlock(sheetUrl, sheetName)],
+      };
       break;
 
     case 'cancel':
