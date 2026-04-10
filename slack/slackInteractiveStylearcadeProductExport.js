@@ -156,6 +156,9 @@ const slackInteractiveStylearcadeProductExport = async (req, res) => {
       break;
 
     case 'cancel':
+      response = {
+        delete_original: 'true',
+      };
       break;
 
     default:
