@@ -1,8 +1,10 @@
 const { respond, logDeep, customAxios } = require('../utils');
+const { slackCommandRestrictToChannels } = require('../slack/slack.utils');
 
 const { stylearcadeProductExport } = require('../stylearcade/stylearcadeProductExport');
 
 const COMMAND_NAME = 'stylearcade_product_export'; // slash command
+const ALLOWED_CHANNELS = ['stylearcadeproductexport', 'foxtron_testing'];
 
 const blocks = {
 
@@ -75,6 +77,10 @@ const slackInteractiveStylearcadeProductExport = async (req, res) => {
   
   // If no payload, this is an initiation, e.g. slash command - send the initial blocks
   if (!body?.payload) {
+
+    if (!slackCommandRestrictToChannels(req, res, ALLOWED_CHANNELS)) {
+      return;
+    }
 
     const initialBlocks = [
       {
