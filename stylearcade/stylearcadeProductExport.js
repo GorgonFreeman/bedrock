@@ -1,5 +1,8 @@
 const { funcApi, logDeep, askQuestion } = require('../utils');
 const { stylearcadeDataGet } = require('../stylearcade/stylearcadeDataGet');
+const { googlesheetsSpreadsheetSheetAdd } = require('../googlesheets/googlesheetsSpreadsheetSheetAdd');
+
+const SHEET_HANDLE = 'style_arcade_product_export';
 
 const stylearcadeProductExport = async (
   {
@@ -68,9 +71,31 @@ const stylearcadeProductExport = async (
 
   logDeep('productExport', productExport);
 
+  // Upload to Google Sheets
+  const sheetName = new Date().toISOString();
+  const sheetResponse = await googlesheetsSpreadsheetSheetAdd(
+    {
+      spreadsheetHandle: SHEET_HANDLE,
+    },
+    {
+      objArray: productExport,
+    },
+    {
+      sheetName,
+    },
+  );
+  const { success: sheetSuccess, result: sheetResult } = sheetResponse;
+  if (!sheetSuccess) {
+    return sheetResponse;
+  }
+  const { sheetUrl } = sheetResult;
+
   return {
     success: true,
-    result: {},
+    result: {
+      sheetUrl,
+      sheetName,
+    },
   };
 };
 
