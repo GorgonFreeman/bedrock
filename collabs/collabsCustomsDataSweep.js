@@ -23,6 +23,9 @@ const { bedrock_unlisted_slackErrorPost } = require('../bedrock_unlisted/bedrock
 
 const REGIONS = REGIONS_WF;
 
+/** True when Style Arcade / sweep has a value worth applying (do not clear remote data when sweep is empty). */
+const sweepFieldPresent = (v) => v != null && String(v).trim() !== '';
+
 const collabsCustomsDataSweep = async () => {
 
   // 1. Get all customs data from Style Arcade - this is the source of truth.
@@ -198,7 +201,7 @@ const collabsCustomsDataSweep = async () => {
             ItemCode: pvxSku,
           };
 
-          if (hsCodeUs && pvxHsCode !== hsCodeUs) {
+          if (sweepFieldPresent(hsCodeUs) && pvxHsCode !== hsCodeUs) {
             !HOSTED && logDeep(`[Peoplevox Update] SKU: ${ pvxSku }, Field: HS Code, Current: "${ pvxHsCode }", Expected: "${ hsCodeUs }"`);
             updatePayload.Attribute5 = hsCodeUs;
           }
@@ -206,7 +209,7 @@ const collabsCustomsDataSweep = async () => {
             !HOSTED && logDeep(`[Peoplevox Update] SKU: ${ pvxSku }, Field: Country of Origin, Current: "${ pvxCountryOfOrigin }", Expected: "${ countryOfOrigin }"`);
             updatePayload.Attribute6 = countryOfOrigin;
           }
-          if (customsDescription && (pvxCustomsDescription !== customsDescription)) {
+          if (sweepFieldPresent(customsDescription) && (pvxCustomsDescription !== customsDescription)) {
             !HOSTED && logDeep(`[Peoplevox Update] SKU: ${ pvxSku }, Field: Customs Description, Current: "${ pvxCustomsDescription }", Expected: "${ customsDescription }"`);
             updatePayload.Attribute8 = customsDescription;
           }
@@ -235,22 +238,24 @@ const collabsCustomsDataSweep = async () => {
             country: starshipitCountry,
             mid: starshipitMid,
           } = starshipitItem;
-  
-          if (!(
-            starshipitHsCode === hsCodeUs 
-            && (starshipitCustomsDescription === customsDescription) || !customsDescription 
-            && starshipitCountry === countryOfOrigin 
-            && starshipitMid === mid
-          )) {
+
+          const hsSweepPresent = sweepFieldPresent(hsCodeUs);
+          const descSweepPresent = sweepFieldPresent(customsDescription);
+          const hsInSync = !hsSweepPresent || starshipitHsCode === hsCodeUs;
+          const descInSync = !descSweepPresent || starshipitCustomsDescription === customsDescription;
+          const countryInSync = starshipitCountry === countryOfOrigin;
+          const midInSync = starshipitMid === mid;
+
+          if (!(hsInSync && descInSync && countryInSync && midInSync)) {
             
             if (!HOSTED) {
-              if (starshipitHsCode !== hsCodeUs) {
+              if (hsSweepPresent && starshipitHsCode !== hsCodeUs) {
                 logDeep(`[Starshipit Update] SKU: ${ sku }, Field: HS Code, Current: "${ starshipitHsCode }", Expected: "${ hsCodeUs }"`);
               }
-              if (customsDescription && (starshipitCustomsDescription !== customsDescription)) {
+              if (descSweepPresent && (starshipitCustomsDescription !== customsDescription)) {
                 logDeep(`[Starshipit Update] SKU: ${ sku }, Field: Customs Description, Current: "${ starshipitCustomsDescription }", Expected: "${ customsDescription }"`);
               }
-              if (starshipitCountry !== countryOfOrigin) {
+              if (countryOfOrigin != null && starshipitCountry !== countryOfOrigin) {
                 logDeep(`[Starshipit Update] SKU: ${ sku }, Field: Country, Current: "${ starshipitCountry }", Expected: "${ countryOfOrigin }"`);
               }
               if (starshipitMid !== mid) {
@@ -263,10 +268,10 @@ const collabsCustomsDataSweep = async () => {
               starshipitProductId,
               sku,
               {
-                ...hsCodeUs && { hs_code: hsCodeUs },
-                ...customsDescription && { customs_description: customsDescription },
+                ...hsSweepPresent && { hs_code: hsCodeUs },
+                ...descSweepPresent && { customs_description: customsDescription },
                 country: countryOfOrigin,
-                mid,
+                ...mid && { mid },
               },
             ];
             // logDeep(starshipitUpdateArgs);
@@ -283,10 +288,10 @@ const collabsCustomsDataSweep = async () => {
               'wf',
               missingSku,
               {
-                ...hsCodeUs && { hsCode: hsCodeUs },
-                ...customsDescription && { customsDescription: customsDescription },
+                ...sweepFieldPresent(hsCodeUs) && { hsCode: hsCodeUs },
+                ...sweepFieldPresent(customsDescription) && { customsDescription: customsDescription },
                 country: countryOfOrigin,
-                mid,
+                ...mid && { mid },
               },
             ];
             // logDeep(starshipitAddArgs);
@@ -323,15 +328,21 @@ const collabsCustomsDataSweep = async () => {
         } = shopifyRegionProduct;
 
         const relevantHsCode = region === 'uk' ? hsCodeUk : hsCodeUs;
+        const relevantHsSweepPresent = region === 'uk'
+          ? sweepFieldPresent(hsCodeUk)
+          : sweepFieldPresent(hsCodeUs);
 
         // Parse dimensions from Style Arcade af60note
         const parsedDimensions = parseDimensions(dimsNote);
 
         !HOSTED && console.log(parsedDimensions);
 
-        const updateCustomsDescription = customsDescription && (mfCustomsDescription?.value !== customsDescription);
-        const updateHsCode = relevantHsCode && (mfHsCode?.value !== relevantHsCode);
-        const updateCountryCodeOfOrigin = countryCodeOfOrigin && (mfCountryCodeOfOrigin?.value !== countryCodeOfOrigin);
+        const updateCustomsDescription = sweepFieldPresent(customsDescription)
+          && (mfCustomsDescription?.value !== String(customsDescription));
+        const updateHsCode = relevantHsSweepPresent
+          && (mfHsCode?.value !== String(relevantHsCode));
+        const updateCountryCodeOfOrigin = countryCodeOfOrigin
+          && (mfCountryCodeOfOrigin?.value !== countryCodeOfOrigin);
         const updateMid = mid && (mfMid?.value !== mid);
         const updateDimsCm = parsedDimensions && (mfDimsCm?.value !== parsedDimensions.cm);
         const updateDimsInches = parsedDimensions && (mfDimsInches?.value !== parsedDimensions.inches);
@@ -433,13 +444,14 @@ const collabsCustomsDataSweep = async () => {
             const { inventoryItem } = v;
             const { id: inventoryItemGid } = inventoryItem;
             const inventoryItemId = gidToId(inventoryItemGid);
+            const input = {
+              ...updateHsCode && { harmonizedSystemCode: relevantHsCode },
+              ...updateCountryCodeOfOrigin && { countryCodeOfOrigin: countryCodeOfOrigin },
+            };
             return [
               region,
               inventoryItemId,
-              {
-                harmonizedSystemCode: relevantHsCode,
-                countryCodeOfOrigin: countryCodeOfOrigin,
-              },
+              input,
             ];
           });
           piles.shopifyInventoryItemUpdate.push(...inventoryItemUpdatePayloads);         
@@ -457,13 +469,18 @@ const collabsCustomsDataSweep = async () => {
           } = inventoryItem;
           const inventoryItemId = gidToId(inventoryItemGid);
 
-          if (harmonizedSystemCode !== relevantHsCode || countryCodeOfOrigin !== currentCountryCodeOfOrigin) {
+          const hsMismatch = relevantHsSweepPresent
+            && String(harmonizedSystemCode ?? '') !== String(relevantHsCode);
+          const countryMismatch = countryCodeOfOrigin
+            && String(currentCountryCodeOfOrigin ?? '') !== String(countryCodeOfOrigin);
+
+          if (hsMismatch || countryMismatch) {
             
             if (!HOSTED) {
-              if (harmonizedSystemCode !== relevantHsCode) {
+              if (hsMismatch) {
                 logDeep(`[Shopify Inventory Item Update] Region: ${ region }, SKU: ${ v.sku }, Field: harmonizedSystemCode, Current: "${ harmonizedSystemCode }", Expected: "${ relevantHsCode }"`);
               }
-              if (currentCountryCodeOfOrigin !== countryCodeOfOrigin) {
+              if (countryMismatch) {
                 logDeep(`[Shopify Inventory Item Update] Region: ${ region }, SKU: ${ v.sku }, Field: countryCodeOfOrigin, Current: "${ currentCountryCodeOfOrigin }", Expected: "${ countryCodeOfOrigin }"`);
               }
             }
@@ -472,8 +489,8 @@ const collabsCustomsDataSweep = async () => {
               region,
               inventoryItemId,
               {
-                harmonizedSystemCode: relevantHsCode,
-                countryCodeOfOrigin: countryCodeOfOrigin,
+                ...hsMismatch && { harmonizedSystemCode: relevantHsCode },
+                ...countryMismatch && { countryCodeOfOrigin: countryCodeOfOrigin },
               },
             ];
             piles.shopifyInventoryItemUpdate.push(shopifyInventoryItemUpdateArgs);
