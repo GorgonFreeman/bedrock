@@ -17,11 +17,10 @@ const stylearcadeProductExport = async (
   }
 
   const productExport = [];
-  styleArcadeData.forEach(async product => {
+  for (const product of styleArcadeData) {
     if (!product.data) {
-      return;
+      continue;
     }
-    logDeep('product', product);
     const {
       productId,
       sizeConvention,
@@ -48,10 +47,10 @@ const stylearcadeProductExport = async (
     // Check size convention info from Style Arcade
     if (!sizeConvention || !sizeConvention.sizes) {
       console.error(`No size convention or sizes found for product ${ productId }`);
-      return;
+      continue;
     }
 
-    sizeConvention.sizes.forEach((size, index) => {
+    for (const size of Object.values(sizeConvention.sizes)) {
       const {
         name: sizeName,
       } = size;
@@ -65,11 +64,9 @@ const stylearcadeProductExport = async (
         "Category": category,
         "Subcategory": subCategory,
       });
-    });
-    if (productExport.length >= 10) {
-      return;
+      console.log(`${ productId }-${ sizeName }`);
     }
-  });
+  }
 
   logDeep('productExport', productExport);
 
