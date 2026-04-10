@@ -52,6 +52,9 @@ const stylearcadeProductExport = async (
     }
 
     for (const size of Object.values(sizeConvention.sizes)) {
+      if (!size) {
+        continue;
+      }
       const {
         name: sizeName,
       } = size;
