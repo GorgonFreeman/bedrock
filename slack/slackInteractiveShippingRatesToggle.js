@@ -71,7 +71,7 @@ const blocks = {
           text: 'Type and search a rate..',
         },
         min_query_length: 1,
-        action_id: `${ COMMAND_NAME }:rates_select:select`,
+        action_id: `${ COMMAND_NAME }:rates_select`,
       },
     },
 
