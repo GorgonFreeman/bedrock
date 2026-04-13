@@ -1,6 +1,102 @@
 const { respond, logDeep, customAxios } = require('../utils');
+const { REGIONS_WF } = require('../constants');
 
 const COMMAND_NAME = 'shipping_rates_toggle'; // slash command
+
+const blocks = {
+
+  intro: {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: '*Shipping Rates Toggle*',
+    },
+  },
+
+  divider: {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: '--------------------------------',
+    },
+  },
+
+  store_selector: {
+
+    button: (store) => {
+      return {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: store.toUpperCase(),
+        },
+        value: store,
+        action_id: `${ COMMAND_NAME }:store_select:${ store }`,
+      }
+    },
+
+  },
+
+  zone_selector: {
+
+    buttons: (store, zones) => {
+      return zones.map(zone => {
+        return {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: zone.toUpperCase(),
+          },
+          value: zone,
+          action_id: `${ COMMAND_NAME }:zone_select:${ store }:${ zone }`,
+        }
+      });
+    },
+
+  },
+
+  rate_selector: {
+
+    checkboxes: (rates) => {
+      return {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: 'Select rates to toggle:',
+        },
+        accessory: {
+          type: 'checkboxes',
+          options: rates.map(rate => {
+            return {
+              text: {
+                type: 'plain_text',
+                text: rate.toUpperCase(),
+              },
+              value: rate,
+            }
+          }),
+          action_id: `${ COMMAND_NAME }:rate_select`,
+        },
+      };
+    },
+  },
+
+  cancel: {
+    type: 'actions',
+    elements: [
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Cancel',
+        },
+        value: 'cancel',
+        action_id: `${ COMMAND_NAME }:cancel`,
+      },
+    ],
+  },
+
+};
 
 const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
   console.log('slackInteractiveShippingRatesToggleV2');
