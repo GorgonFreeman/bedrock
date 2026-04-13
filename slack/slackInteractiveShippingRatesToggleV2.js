@@ -121,7 +121,7 @@ const deliveryProfilesGetFlatByStore = async () => {
       } } }
     } } }
   }`;
-  const flatForRegion = (deliveryProfiles, region) => {
+  const flatForStore = (deliveryProfiles, store) => {
     return deliveryProfiles.map(dp => {
       const { id: deliveryProfileId, name: deliveryProfileName } = dp;
       return dp.profileLocationGroups.map(plg => {
@@ -133,7 +133,7 @@ const deliveryProfilesGetFlatByStore = async () => {
           return lgz.methodDefinitions.map(methodDef => {
             return {
               ...methodDef,
-              region,
+              store,
               deliveryProfileId,
               deliveryProfileName,
               locationGroupId,
@@ -147,13 +147,13 @@ const deliveryProfilesGetFlatByStore = async () => {
   };
 
   const shippingRatesByStore = await Promise.all(
-    REGIONS_WF.map(async (region) => {
-      const deliveryProfilesResponse = await shopifyDeliveryProfilesGet(region, { attrs: deliveryProfileAttrs });
+    REGIONS_WF.map(async (store) => {
+      const deliveryProfilesResponse = await shopifyDeliveryProfilesGet(store, { attrs: deliveryProfileAttrs });
       const { success: deliveryProfilesGetSuccess, result: deliveryProfiles } = deliveryProfilesResponse;
       if (!deliveryProfilesGetSuccess || !deliveryProfiles?.length) {
         return [];
       }
-      return flatForRegion(deliveryProfiles, region);
+      return flatForStore(deliveryProfiles, store);
     }),
   );
   return shippingRatesByStore.flat();
