@@ -34,7 +34,7 @@ const blocks = {
       },
     },
 
-    buttons: REGIONS_WF.map(region => {
+    buttons: REGIONS_WF.map(store => {
       return {
         type: 'actions',
         elements: [
@@ -42,10 +42,10 @@ const blocks = {
             type: 'button',
             text: {
               type: 'plain_text',
-              text: region.toUpperCase(),
+              text: store.toUpperCase(),
             },
-            value: region,
-            action_id: `${ COMMAND_NAME }:store_select:${ region }`,
+            value: store,
+            action_id: `${ COMMAND_NAME }:store_select:${ store }`,
           }
         ],
       }
