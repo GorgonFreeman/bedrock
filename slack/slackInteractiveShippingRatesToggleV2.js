@@ -178,6 +178,9 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
     });
   }
 
+  // Fetch all shipping rates
+  const shippingRatesByStore = await deliveryProfilesGetFlatByStore();
+
   // Because we got to this point, we have a payload - handle as an interactive step
   respond(res, 200); // Acknowledge immediately - we'll provide the next step to the response_url later
 
