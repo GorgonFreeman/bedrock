@@ -68,13 +68,13 @@ const blocks = {
       },
     },
 
-    context: (targettedRates) => {
+    context: (targetedRates) => {
       return {
         type: 'section',
         block_id: 'rates_select:context',
         text: {
           type: 'mrkdwn',
-          text: `Targeted rates:\n${ targettedRates.length > 0 ? targettedRates.map(r => `- ${ r.name }`).join('\n') : 'None' }`,
+          text: `Targeted rates:\n${ targetedRates.length > 0 ? targetedRates.map(r => `* ${ r }`).join('\n') : 'None' }`,
         },
       };
     },
@@ -280,9 +280,37 @@ const slackInteractiveShippingRatesToggle = async (req, res) => {
       const selectedRegion = currentBlocksById['region_select:context']?.text?.text?.split('Selected region: ')?.[1]?.trim();
       logDeep('selectedRegion', selectedRegion);
 
+      const shippingMethodDefinitions = await deliveryProfilesGetFlat(selectedRegion);
+      logDeep('shippingMethodDefinitions', shippingMethodDefinitions);
+
       const selectedOptionValue = state.values?.['rates_select:ask']?.[`${ COMMAND_NAME }:rates_select`]?.selected_option?.value;
       const selectedRate = selectedOptionValue ? selectedOptionValue.trim() : '';
       logDeep('selectedRate', selectedRate);
+
+      const selectedRateZoneCount = shippingMethodDefinitions.filter(rate => rate.name === selectedRate).length || 0;
+      const rateNameToAdd = `${ selectedRate } (${ selectedRateZoneCount } zones)`;
+      logDeep('rateNameToAdd', rateNameToAdd);
+
+      const targetedRatesString = currentBlocksById['rates_select:context']?.text?.text?.split('Targeted rates:')?.[1]?.trim();
+      const targetedRates = targetedRatesString === "None" ? [] : targetedRatesString.split('\n').map(rate => rate.trim().split('* ')[1]);
+      logDeep('targetedRates', targetedRates);
+
+      if (!targetedRates.includes(rateNameToAdd)) {
+        targetedRates.push(rateNameToAdd);
+      }
+      logDeep('targettedRates after', targetedRates);
+
+      response = {
+        replace_original: 'true',
+        blocks: [
+          blocks.intro,
+          blocks.region_select.context(selectedRegion),
+          blocks.rates_select.ask,
+          blocks.rates_select.context(targetedRates),
+          blocks.action_buttons,
+          blocks.cancel,
+        ],
+      }
 
       break;
 
