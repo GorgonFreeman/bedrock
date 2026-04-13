@@ -117,37 +117,39 @@ const blocks = {
     },
   },
 
-  action_buttons: {
-    type: 'actions',
-    elements: [
-      {
-        type: 'button',
-        text: {
-          type: 'plain_text',
-          text: 'Submit',
+  action_buttons: ({ initialPage = false } = {}) => {
+    return {
+      type: 'actions',
+      elements: [
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Submit',
+          },
+          value: 'submit',
+          action_id: `${ COMMAND_NAME }:submit`,
         },
-        value: 'submit',
-        action_id: `${ COMMAND_NAME }:submit`,
-      },
-      {
-        type: 'button',
-        text: {
-          type: 'plain_text',
-          text: 'Go back',
+        ...(initialPage ? [] : [{
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Go back',
+          },
+          value: 'go_back',
+          action_id: `${ COMMAND_NAME }:go_back`,
+        }]),
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Cancel',
+          },
+          value: 'cancel',
+          action_id: `${ COMMAND_NAME }:cancel`,
         },
-        value: 'go_back',
-        action_id: `${ COMMAND_NAME }:go_back`,
-      },
-      {
-        type: 'button',
-        text: {
-          type: 'plain_text',
-          text: 'Cancel',
-        },
-        value: 'cancel',
-        action_id: `${ COMMAND_NAME }:cancel`,
-      },
-    ],
+      ],
+    };
   },
 
 };
@@ -221,7 +223,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       blocks.store_selector.intro,
       ...blocks.store_selector.buttons,
       blocks.divider,
-      blocks.action_buttons,
+      blocks.action_buttons({ initialPage: true }),
     ];
 
     return respond(res, 200, {
@@ -283,7 +285,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           blocks.zone_selector.intro,
           ...blocks.zone_selector.buttons(selectedStore, regionalShippingZones),
           blocks.divider,
-          blocks.action_buttons,
+          blocks.action_buttons(),
         ],
       }
 
@@ -298,7 +300,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           blocks.store_selector.intro,
           ...blocks.store_selector.buttons,
           blocks.divider,
-          blocks.action_buttons,
+          blocks.action_buttons({ initialPage: true }),
         ],
       };
       break;
