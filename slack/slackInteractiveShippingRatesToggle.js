@@ -140,7 +140,7 @@ const deliveryProfilesGetFlat = async (selectedRegion) => {
   const deliveryProfilesResponse = await shopifyDeliveryProfilesGet(selectedRegion, { attrs: deliveryProfileAttrs });
   const { success: deliveryProfilesGetSuccess, result: deliveryProfiles } = deliveryProfilesResponse;
   if (!deliveryProfilesGetSuccess) {
-    return deliveryProfilesResponse;
+    return [];
   }
 
   // Map and flatten all delivery profiles to shipping method definitions
@@ -208,7 +208,9 @@ const slackInteractiveShippingRatesToggle = async (req, res) => {
     const selectedRegion = currentBlocksById['region_select:context']?.text?.text?.split('Selected region: ')?.[1]?.trim();
     logDeep('selectedRegion', selectedRegion);
 
-    // Move to a function
+    // Get shipping method definitions
+    const shippingMethodDefinitions = await deliveryProfilesGetFlat(selectedRegion);
+    logDeep('shippingMethodDefinitions', shippingMethodDefinitions);
 
     const { value: payloadValue } = payload;
     const payloadValueTrimmed = payloadValue.trim();
