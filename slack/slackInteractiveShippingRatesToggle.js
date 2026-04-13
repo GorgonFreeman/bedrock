@@ -119,6 +119,10 @@ const blocks = {
 
 };
 
+const deliveryProfilesGetFlat = async (selectedRegion) => {
+  // Move the logic here
+}
+
 const slackInteractiveShippingRatesToggle = async (req, res) => {
   console.log('slackInteractiveShippingRatesToggle');
 
@@ -159,51 +163,7 @@ const slackInteractiveShippingRatesToggle = async (req, res) => {
     const selectedRegion = currentBlocksById['region_select:context']?.text?.text?.split('Selected region: ')?.[1]?.trim();
     logDeep('selectedRegion', selectedRegion);
 
-    // Fetch all delivery profiles
-    const deliveryProfileAttrs = `id name profileLocationGroups {
-      locationGroup {
-        id
-      }
-      locationGroupZones (first: 15) { edges { node {
-        zone {
-          id
-          name
-        }
-        methodDefinitions (first: 10) { edges { node {
-          id
-          name
-          active
-        } } }
-      } } }
-    }`;
-    const deliveryProfilesResponse = await shopifyDeliveryProfilesGet(selectedRegion, { attrs: deliveryProfileAttrs });
-    const { success: deliveryProfilesGetSuccess, result: deliveryProfiles } = deliveryProfilesResponse;
-    if (!deliveryProfilesGetSuccess) {
-      return deliveryProfilesResponse;
-    }
-
-    // Map and flatten all delivery profiles to shipping method definitions
-    const shippingMethodDefinitions = deliveryProfiles.map(dp => {
-      const { id: deliveryProfileId, name: deliveryProfileName } = dp;
-      return dp.profileLocationGroups.map(plg => {
-        const { locationGroup } = plg;
-        const { id: locationGroupId } = locationGroup;
-        return plg.locationGroupZones.map(lgz => {
-          const { zone } = lgz;
-          const { id: locationGroupZoneId, name: locationGroupZoneName } = zone;
-          return lgz.methodDefinitions.map(methodDef => {
-            return {
-              ...methodDef,
-              deliveryProfileId,
-              deliveryProfileName,
-              locationGroupId,
-              locationGroupZoneId,
-              locationGroupZoneName,
-            };
-          });
-        });
-      });
-    }).flat(3);
+    // Move to a function
 
     const { value: payloadValue } = payload;
     const payloadValueTrimmed = payloadValue.trim();
