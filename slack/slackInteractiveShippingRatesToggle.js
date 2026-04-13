@@ -288,6 +288,9 @@ const slackInteractiveShippingRatesToggle = async (req, res) => {
       // Get selected rate
       const selectedOptionValue = state.values?.['rates_select:ask']?.[`${ COMMAND_NAME }:rates_select`]?.selected_option?.value;
       const selectedRate = selectedOptionValue ? selectedOptionValue.trim() : '';
+      if (!selectedRate) {
+        break;
+      }
       logDeep('selectedRate', selectedRate);
 
       // Generate the rate name to add to list and display
