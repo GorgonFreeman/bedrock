@@ -24,18 +24,22 @@ const blocks = {
 
   store_selector: {
 
-    button: (store) => {
+    buttons: REGIONS_WF.map(region => {
       return {
-        type: 'button',
-        text: {
-          type: 'plain_text',
-          text: store.toUpperCase(),
-        },
-        value: store,
-        action_id: `${ COMMAND_NAME }:store_select:${ store }`,
+        type: 'actions',
+        elements: [
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: region.toUpperCase(),
+            },
+            value: region,
+            action_id: `${ COMMAND_NAME }:store_select:${ region }`,
+          }
+        ],
       }
-    },
-
+    }),
   },
 
   zone_selector: {
@@ -163,13 +167,9 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
   if (!body?.payload) {
 
     const initialBlocks = [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `I don't do anything yet :hugging_face:`,
-        },
-      },
+      blocks.intro,
+      ...blocks.store_selector.buttons,
+      blocks.cancel,
     ];
 
     return respond(res, 200, {
