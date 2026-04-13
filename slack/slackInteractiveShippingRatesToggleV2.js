@@ -99,8 +99,8 @@ const blocks = {
 
 };
 
-const deliveryProfilesGetFlat = async (selectedRegion) => {
-  // Fetch all delivery profiles
+// Fetch a flattened lisst of shipping rates per store
+const deliveryProfilesGetFlatByStore = async () => {
   const deliveryProfileAttrs = `id name profileLocationGroups {
     locationGroup {
       id
@@ -117,36 +117,42 @@ const deliveryProfilesGetFlat = async (selectedRegion) => {
       } } }
     } } }
   }`;
-  const deliveryProfilesResponse = await shopifyDeliveryProfilesGet(selectedRegion, { attrs: deliveryProfileAttrs });
-  const { success: deliveryProfilesGetSuccess, result: deliveryProfiles } = deliveryProfilesResponse;
-  if (!deliveryProfilesGetSuccess) {
-    return [];
-  }
-
-  // Map and flatten all delivery profiles to shipping method definitions
-  const shippingMethodDefinitions = deliveryProfiles.map(dp => {
-    const { id: deliveryProfileId, name: deliveryProfileName } = dp;
-    return dp.profileLocationGroups.map(plg => {
-      const { locationGroup } = plg;
-      const { id: locationGroupId } = locationGroup;
-      return plg.locationGroupZones.map(lgz => {
-        const { zone } = lgz;
-        const { id: locationGroupZoneId, name: locationGroupZoneName } = zone;
-        return lgz.methodDefinitions.map(methodDef => {
-          return {
-            ...methodDef,
-            deliveryProfileId,
-            deliveryProfileName,
-            locationGroupId,
-            locationGroupZoneId,
-            locationGroupZoneName,
-          };
+  const flatForRegion = (deliveryProfiles, region) => {
+    return deliveryProfiles.map(dp => {
+      const { id: deliveryProfileId, name: deliveryProfileName } = dp;
+      return dp.profileLocationGroups.map(plg => {
+        const { locationGroup } = plg;
+        const { id: locationGroupId } = locationGroup;
+        return plg.locationGroupZones.map(lgz => {
+          const { zone } = lgz;
+          const { id: locationGroupZoneId, name: locationGroupZoneName } = zone;
+          return lgz.methodDefinitions.map(methodDef => {
+            return {
+              ...methodDef,
+              region,
+              deliveryProfileId,
+              deliveryProfileName,
+              locationGroupId,
+              locationGroupZoneId,
+              locationGroupZoneName,
+            };
+          });
         });
       });
-    });
-  }).flat(3);
-  return shippingMethodDefinitions;
-}
+    }).flat(3);
+  };
+
+  return Promise.all(
+    REGIONS_WF.map(async (region) => {
+      const deliveryProfilesResponse = await shopifyDeliveryProfilesGet(region, { attrs: deliveryProfileAttrs });
+      const { success: deliveryProfilesGetSuccess, result: deliveryProfiles } = deliveryProfilesResponse;
+      if (!deliveryProfilesGetSuccess || !deliveryProfiles?.length) {
+        return [];
+      }
+      return flatForRegion(deliveryProfiles, region);
+    }),
+  );
+};
 
 const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
   console.log('slackInteractiveShippingRatesToggleV2');
