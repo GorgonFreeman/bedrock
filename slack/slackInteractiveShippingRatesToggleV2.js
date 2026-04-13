@@ -205,10 +205,19 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
 
   let response;
 
-  response = {
-    replace_original: 'true',
-    text: `I don't do anything yet :hugging_face:`,
-  };
+  switch (actionName) {
+
+    case 'cancel':
+
+      response = {
+        delete_original: 'true',
+      };
+      break;
+
+    default:
+      console.warn(`Unknown actionName: ${ actionName }`);
+      break;
+  }
 
   logDeep('response', response);
   return customAxios(responseUrl, {
