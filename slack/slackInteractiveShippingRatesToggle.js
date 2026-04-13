@@ -277,24 +277,30 @@ const slackInteractiveShippingRatesToggle = async (req, res) => {
 
     case 'rates_select':
 
+      // Get selected region
       const selectedRegion = currentBlocksById['region_select:context']?.text?.text?.split('Selected region: ')?.[1]?.trim();
       logDeep('selectedRegion', selectedRegion);
 
+      // Get shipping method definitions
       const shippingMethodDefinitions = await deliveryProfilesGetFlat(selectedRegion);
       logDeep('shippingMethodDefinitions', shippingMethodDefinitions);
 
+      // Get selected rate
       const selectedOptionValue = state.values?.['rates_select:ask']?.[`${ COMMAND_NAME }:rates_select`]?.selected_option?.value;
       const selectedRate = selectedOptionValue ? selectedOptionValue.trim() : '';
       logDeep('selectedRate', selectedRate);
 
+      // Generate the rate name to add to list and display
       const selectedRateZoneCount = shippingMethodDefinitions.filter(rate => rate.name === selectedRate).length || 0;
       const rateNameToAdd = `${ selectedRate } (${ selectedRateZoneCount } zones)`;
       logDeep('rateNameToAdd', rateNameToAdd);
 
+      // Get current targeted rates
       const targetedRatesString = currentBlocksById['rates_select:context']?.text?.text?.split('Targeted rates:')?.[1]?.trim();
       const targetedRates = targetedRatesString === "None" ? [] : targetedRatesString.split('\n').map(rate => rate.trim().split('* ')[1]);
       logDeep('targetedRates', targetedRates);
 
+      // Add the generated rate name to the list
       if (!targetedRates.includes(rateNameToAdd)) {
         targetedRates.push(rateNameToAdd);
       }
