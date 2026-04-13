@@ -146,7 +146,7 @@ const deliveryProfilesGetFlatByStore = async () => {
     }).flat(3);
   };
 
-  return Promise.all(
+  const shippingRatesByStore = await Promise.all(
     REGIONS_WF.map(async (region) => {
       const deliveryProfilesResponse = await shopifyDeliveryProfilesGet(region, { attrs: deliveryProfileAttrs });
       const { success: deliveryProfilesGetSuccess, result: deliveryProfiles } = deliveryProfilesResponse;
@@ -156,6 +156,7 @@ const deliveryProfilesGetFlatByStore = async () => {
       return flatForRegion(deliveryProfiles, region);
     }),
   );
+  return shippingRatesByStore.flat();
 };
 
 const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
