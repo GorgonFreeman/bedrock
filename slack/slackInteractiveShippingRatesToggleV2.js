@@ -26,6 +26,14 @@ const blocks = {
 
   store_selector: {
 
+    intro: {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: 'Select a store:',
+      },
+    },
+
     buttons: REGIONS_WF.map(region => {
       return {
         type: 'actions',
@@ -45,6 +53,14 @@ const blocks = {
   },
 
   zone_selector: {
+
+    intro: {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: 'Select a delivery zone:',
+      },
+    },
 
     buttons: (store, zones) => {
       return zones.map(zone => {
@@ -93,9 +109,27 @@ const blocks = {
     },
   },
 
-  cancel: {
+  action_buttons: {
     type: 'actions',
     elements: [
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Submit',
+        },
+        value: 'submit',
+        action_id: `${ COMMAND_NAME }:submit`,
+      },
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Go back',
+        },
+        value: 'go_back',
+        action_id: `${ COMMAND_NAME }:go_back`,
+      },
       {
         type: 'button',
         text: {
@@ -176,8 +210,10 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
 
     const initialBlocks = [
       blocks.intro,
+      blocks.store_selector.intro,
       ...blocks.store_selector.buttons,
-      blocks.cancel,
+      blocks.divider,
+      blocks.action_buttons,
     ];
 
     return respond(res, 200, {
@@ -236,8 +272,10 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
         replace_original: 'true',
         blocks: [
           blocks.intro,
+          blocks.zone_selector.intro,
           ...blocks.zone_selector.buttons(selectedStore, regionalShippingZones),
-          blocks.cancel,
+          blocks.divider,
+          blocks.action_buttons,
         ],
       }
 
