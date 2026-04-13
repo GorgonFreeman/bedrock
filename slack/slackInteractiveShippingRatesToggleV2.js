@@ -2,6 +2,8 @@ const { respond, logDeep, customAxios } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
 
+const DEFAULT_PROFILE_NAME = 'General profile';
+
 const COMMAND_NAME = 'shipping_rates_toggle'; // slash command
 
 const blocks = {
@@ -204,6 +206,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
     action_id: actionId,
     value: actionValue,
   } = action;
+  const [commandName, actionName, ...actionNodes] = actionId.split(':');
 
   logDeep({
     responseUrl,
@@ -215,6 +218,30 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
   let response;
 
   switch (actionName) {
+
+    case 'store_select':
+
+      const selectedStore = actionNodes?.[0];
+      logDeep('selectedStore', selectedStore);
+
+      const regionalShippingRates = shippingRatesByStore
+        .filter(rate => rate.store === selectedStore)
+        .filter(rate => rate.deliveryProfileName === DEFAULT_PROFILE_NAME);
+      logDeep({ regionalShippingRates });
+
+      const regionalShippingZones = Array.from(new Set(regionalShippingRates.map(rate => rate.locationGroupZoneName)));
+      logDeep({ regionalShippingZones });
+
+      response = {
+        replace_original: 'true',
+        blocks: [
+          blocks.intro,
+          ...blocks.zone_selector.buttons(selectedStore, regionalShippingZones),
+          blocks.cancel,
+        ],
+      }
+
+      break;
 
     case 'cancel':
 
