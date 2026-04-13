@@ -47,13 +47,18 @@ const blocks = {
     buttons: (store, zones) => {
       return zones.map(zone => {
         return {
-          type: 'button',
-          text: {
-            type: 'plain_text',
-            text: zone.toUpperCase(),
-          },
-          value: zone,
-          action_id: `${ COMMAND_NAME }:zone_select:${ store }:${ zone }`,
+          type: 'actions',
+          elements: [
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: zone.toUpperCase(),
+              },
+              value: zone,
+              action_id: `${ COMMAND_NAME }:zone_select:${ store }:${ zone }`,
+            }
+          ],
         }
       });
     },
