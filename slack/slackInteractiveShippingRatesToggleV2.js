@@ -1,5 +1,6 @@
 const { respond, logDeep, customAxios } = require('../utils');
 const { REGIONS_WF } = require('../constants');
+const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
 
 const COMMAND_NAME = 'shipping_rates_toggle'; // slash command
 
