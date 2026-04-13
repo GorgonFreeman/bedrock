@@ -85,6 +85,14 @@ const blocks = {
 
   rate_selector: {
 
+    intro: {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: 'Toggle rates for this zone:',
+      },
+    },
+
     checkboxes: (rates) => {
       return {
         type: 'section',
