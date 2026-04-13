@@ -280,6 +280,20 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       }
 
       break;
+    
+    case 'go_back':
+
+      response = {
+        replace_original: 'true',
+        blocks: [
+          blocks.intro,
+          blocks.store_selector.intro,
+          ...blocks.store_selector.buttons,
+          blocks.divider,
+          blocks.action_buttons,
+        ],
+      };
+      break;
 
     case 'cancel':
 
