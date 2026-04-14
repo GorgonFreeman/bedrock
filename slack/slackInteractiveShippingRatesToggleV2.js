@@ -3,6 +3,7 @@ const { REGIONS_WF } = require('../constants');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
 
 const DEFAULT_PROFILE_NAME = 'General profile';
+const TOGGLING_LIST_HEADER = 'Toggling:';
 const ENABLED_SYMBOL = ':white_tick:';
 const DISABLED_SYMBOL = ':x:';
 
@@ -129,7 +130,7 @@ const blocks = {
         block_id: 'toggled_rates:list',
         text: {
           type: 'mrkdwn',
-          text: `Will toggle:\n${ toggledRates.length > 0
+          text: `${ TOGGLING_LIST_HEADER }\n${ toggledRates.length > 0
             ? toggledRates.map(rate => `${ rate.enable ? ENABLED_SYMBOL : DISABLED_SYMBOL } | ${ rate.name } | Store: ${ rate.store.toUpperCase() } | Zone: ${ rate.locationGroupZoneName } | ${ gidToId(rate.id) }`).join('\n')
             : 'None' }`,
         },
@@ -303,7 +304,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
   const getRatesToggleStatus = () => {
     // Fetch the toggled rates context from the list block
     toggledRatesString =
-      currentBlocksById['toggled_rates:list']?.text?.text?.split('Will toggle:')?.[1]?.trim().split('\n')
+      currentBlocksById['toggled_rates:list']?.text?.text?.split(TOGGLING_LIST_HEADER)?.[1]?.trim().split('\n')
       .map(rate => rate.trim());
 
     // Calculate the rates toggle status
