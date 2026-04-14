@@ -349,7 +349,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       logDeep({ regionalShippingZones });
 
       // Fetch the toggled rates context from the list block
-      toggledRatesString = getRatesToggleStatus();
+      ratesToggleStatus = getRatesToggleStatus();
       logDeep({ ratesToggleStatus });
 
       response = {
@@ -382,7 +382,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       logDeep({ regionalShippingRatesForZone });
 
       // Fetch the toggled rates context from the list block
-      toggledRatesString = getRatesToggleStatus();
+      ratesToggleStatus = getRatesToggleStatus();
       logDeep({ ratesToggleStatus });
 
       response = {
@@ -416,7 +416,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       logDeep({ selectedOptions });
 
       // Fetch the toggled rates context from the list block
-      toggledRatesString = getRatesToggleStatus();
+      ratesToggleStatus = getRatesToggleStatus();
       logDeep({ ratesToggleStatus });
 
       // Update the toggled rates context with the selected options
