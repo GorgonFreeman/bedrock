@@ -306,30 +306,29 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       .map(rate => rate.trim());
 
     // Calculate the rates toggle status
-    ratesToggleStatus = (() => {
-      if (toggledRatesString[0] === 'None') {
-        return shippingRatesByStore.map(rate => {
-          return {
-            ...rate,
-            enable: rate.active,
-          }
-        });
-      }
+    if (toggledRatesString[0] === 'None') {
       return shippingRatesByStore.map(rate => {
-        const rateString = toggledRatesString.find(rateString => rateString.split('|')[4]?.trim() === gidToId(rate.id));
-        if (!rateString) {
-          return {
-            ...rate,
-            enable: rate.active,
-          }
-        }
-        const toggleIcon = rateString?.split('|')?.[0]?.trim();
         return {
           ...rate,
-          enable: toggleIcon === ENABLED_SYMBOL,
-        };
+          enable: rate.active,
+        }
       });
-    })();
+    }
+    return shippingRatesByStore.map(rate => {
+      const rateString = toggledRatesString.find(rateString => rateString.split('|')[4]?.trim() === gidToId(rate.id));
+      logDeep({ rateString });
+      if (!rateString) {
+        return {
+          ...rate,
+          enable: rate.active,
+        }
+      }
+      const toggleIcon = rateString?.split('|')?.[0]?.trim();
+      return {
+        ...rate,
+        enable: toggleIcon === ENABLED_SYMBOL,
+      };
+    });
   }
 
   switch (actionName) {
