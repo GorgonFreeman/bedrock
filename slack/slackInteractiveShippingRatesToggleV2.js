@@ -116,35 +116,19 @@ const blocks = {
 
   toggled_rates: {
 
-    list: (enable, targetedRates) => {
+    list: (rates) => {
+
+      // Filter rates that needs toggling
+      const toggledRates = rates.filter(rate => rate.enable !== rate.active);
+
       return {
-        type: 'rich_text',
-        elements: [
-          {
-            type: 'rich_text_section',
-            elements: [
-              { type: 'text', text: `Will ${ enable ? 'enable' : 'disable' }:` },
-            ],
-          },
-          {
-            type: 'rich_text_list',
-            style: 'bullet',
-            indent: 0,
-            elements: [
-              ...targetedRates.map(rate => {
-                return {
-                  type: 'rich_text_section',
-                  elements: [
-                    { type: 'text', text: rate.name },
-                    { type: 'text', text: `${ rate.store.toUpperCase() } Store` },
-                    { type: 'text', text: `${ rate.locationGroupZoneName } Zone` },
-                    { type: 'text', text: `${ gidToId(rate.id) } Delivery Profile` },
-                  ],
-                };
-              }),
-            ],
-          },
-        ],
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `Will toggle:\n${ toggledRates.length > 0
+            ? toggledRates.map(rate => `${ rate.enable ? ':white_tick:' : ':x:' } ${ rate.name } | Store: ${ rate.store.toUpperCase() } | Zone: ${ rate.locationGroupZoneName } | ${ gidToId(rate.id) })`).join('\n')
+            : 'None' }`,
+        },
       }
     },
 
