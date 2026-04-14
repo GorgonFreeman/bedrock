@@ -93,7 +93,7 @@ const blocks = {
         },
         accessory: {
           type: 'checkboxes',
-          initial_options: rates.filter(rate => rate.active).map(rate => {
+          initial_options: rates.filter(rate => rate.enable).map(rate => {
             return {
               text: {
                 type: 'plain_text',
