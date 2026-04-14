@@ -337,6 +337,16 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
         ],
       };
       break;
+
+    case 'rate_toggle':
+
+      selectedStore = actionNodes?.[0];
+      logDeep('selectedStore', selectedStore);
+
+      selectedZone = actionNodes?.[1];
+      logDeep('selectedZone', selectedZone);
+      
+      break;
     
     case 'go_back':
 
