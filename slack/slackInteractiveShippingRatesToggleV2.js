@@ -1,4 +1,4 @@
-const { respond, logDeep, customAxios } = require('../utils');
+const { respond, logDeep, customAxios, gidToId } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
 
@@ -85,15 +85,7 @@ const blocks = {
 
   rate_selector: {
 
-    intro: {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: 'Toggle rates for this zone:',
-      },
-    },
-
-    checkboxes: (rates) => {
+    checkboxes: (selectedStore, selectedZone, rates) => {
       return {
         type: 'section',
         text: {
@@ -106,12 +98,12 @@ const blocks = {
             return {
               text: {
                 type: 'plain_text',
-                text: rate.toUpperCase(),
+                text: rate.name,
               },
-              value: rate,
+              value: gidToId(rate.id),
             }
           }),
-          action_id: `${ COMMAND_NAME }:rate_select`,
+          action_id: `${ COMMAND_NAME }:rate_select:${ selectedStore }:${ selectedZone }`,
         },
       };
     },
@@ -263,14 +255,19 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
 
   let response;
 
+  let selectedStore;
+  let selectedZone;
+  let regionalShippingRates;
+  let regionalShippingRatesForZone;
+
   switch (actionName) {
 
     case 'store_select':
 
-      const selectedStore = actionNodes?.[0];
+      selectedStore = actionNodes?.[0];
       logDeep('selectedStore', selectedStore);
 
-      const regionalShippingRates = shippingRatesByStore
+      regionalShippingRates = shippingRatesByStore
         .filter(rate => rate.store === selectedStore)
         .filter(rate => rate.deliveryProfileName === DEFAULT_PROFILE_NAME);
       logDeep({ regionalShippingRates });
@@ -289,6 +286,31 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
         ],
       }
 
+      break;
+
+    case 'zone_select':
+
+      selectedStore = actionNodes?.[0];
+      logDeep('selectedStore', selectedStore);
+
+      selectedZone = actionNodes?.[1];
+      logDeep('selectedZone', selectedZone);
+
+      regionalShippingRatesForZone = shippingRatesByStore
+        .filter(rate => rate.store === selectedStore)
+        .filter(rate => rate.deliveryProfileName === DEFAULT_PROFILE_NAME)
+        .filter(rate => rate.locationGroupZoneName === selectedZone);
+      logDeep({ regionalShippingRatesForZone });
+
+      response = {
+        replace_original: 'true',
+        blocks: [
+          blocks.intro,
+          blocks.rate_selector.checkboxes(selectedStore, selectedZone, regionalShippingRatesForZone),
+          blocks.divider,
+          blocks.action_buttons(),
+        ],
+      };
       break;
     
     case 'go_back':
