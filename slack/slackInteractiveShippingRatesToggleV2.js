@@ -94,6 +94,15 @@ const blocks = {
         },
         accessory: {
           type: 'checkboxes',
+          initial_options: rates.filter(rate => rate.active).map(rate => {
+            return {
+              text: {
+                type: 'plain_text',
+                text: rate.name,
+              },
+              value: gidToId(rate.id),
+            }
+          }),
           options: rates.map(rate => {
             return {
               text: {
