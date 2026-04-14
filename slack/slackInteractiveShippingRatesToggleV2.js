@@ -351,7 +351,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           blocks.zone_selector.intro,
           ...blocks.zone_selector.buttons(selectedStore, regionalShippingZones),
           blocks.divider,
-          blocks.toggled_rates.list([]),
+          blocks.toggled_rates.list(ratesToggleStatus),
           blocks.divider,
           blocks.action_buttons(),
         ],
@@ -383,7 +383,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           blocks.intro,
           blocks.rate_toggle.checkboxes(selectedStore, selectedZone, regionalShippingRatesForZone),
           blocks.divider,
-          blocks.toggled_rates.list([]),
+          blocks.toggled_rates.list(ratesToggleStatus),
           blocks.divider,
           blocks.action_buttons(),
         ],
@@ -418,7 +418,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           enable: selectedOptions.some(option => option.value === gidToId(rate.id)),
         }
       });
-      logDeep({ regionalShippingRatesForZone });
+      logDeep({ ratesToggleStatus });
 
       response = {
         replace_original: 'true',
@@ -426,7 +426,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           blocks.intro,
           blocks.rate_toggle.checkboxes(selectedStore, selectedZone, regionalShippingRatesForZone),
           blocks.divider,
-          blocks.toggled_rates.list(regionalShippingRatesForZone),
+          blocks.toggled_rates.list(ratesToggleStatus),
           blocks.divider,
           blocks.action_buttons(),
         ],
@@ -451,7 +451,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           blocks.store_selector.intro,
           ...blocks.store_selector.buttons,
           blocks.divider,
-          blocks.toggled_rates.list([]),
+          blocks.toggled_rates.list(ratesToggleStatus),
           blocks.divider,
           blocks.action_buttons({ initialPage: true }),
         ],
