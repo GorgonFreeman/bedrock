@@ -17,11 +17,7 @@ const blocks = {
   },
 
   divider: {
-    type: 'section',
-    text: {
-      type: 'mrkdwn',
-      text: '--------------------------------',
-    },
+    type: 'divider',
   },
 
   store_selector: {
