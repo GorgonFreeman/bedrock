@@ -126,6 +126,7 @@ const blocks = {
 
       return {
         type: 'section',
+        block_id: 'toggled_rates:list',
         text: {
           type: 'mrkdwn',
           text: `Will toggle:\n${ toggledRates.length > 0
