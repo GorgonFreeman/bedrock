@@ -211,6 +211,7 @@ const deliveryProfilesGetFlatByStore = async () => {
               locationGroupId,
               locationGroupZoneId,
               locationGroupZoneName,
+              enable: methodDef.active,
             };
           });
         });
