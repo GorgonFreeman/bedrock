@@ -3,6 +3,8 @@ const { REGIONS_WF } = require('../constants');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
 
 const DEFAULT_PROFILE_NAME = 'General profile';
+const ENABLED_SYMBOL = ':white_tick:';
+const DISABLED_SYMBOL = ':x:';
 
 const COMMAND_NAME = 'shipping_rates_toggle'; // slash command
 
@@ -127,7 +129,7 @@ const blocks = {
         text: {
           type: 'mrkdwn',
           text: `Will toggle:\n${ toggledRates.length > 0
-            ? toggledRates.map(rate => `${ rate.enable ? ':white_tick:' : ':x:' } ${ rate.name } | Store: ${ rate.store.toUpperCase() } | Zone: ${ rate.locationGroupZoneName } | ${ gidToId(rate.id) }`).join('\n')
+            ? toggledRates.map(rate => `${ rate.enable ? ENABLED_SYMBOL : DISABLED_SYMBOL } | ${ rate.name } | Store: ${ rate.store.toUpperCase() } | Zone: ${ rate.locationGroupZoneName } | ${ gidToId(rate.id) }`).join('\n')
             : 'None' }`,
         },
       }
