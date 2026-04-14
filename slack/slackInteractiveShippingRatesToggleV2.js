@@ -114,6 +114,42 @@ const blocks = {
     },
   },
 
+  toggled_rates: {
+
+    list: (enable, targetedRates) => {
+      return {
+        type: 'rich_text',
+        elements: [
+          {
+            type: 'rich_text_section',
+            elements: [
+              { type: 'text', text: `Will ${ enable ? 'enable' : 'disable' }:` },
+            ],
+          },
+          {
+            type: 'rich_text_list',
+            style: 'bullet',
+            indent: 0,
+            elements: [
+              ...targetedRates.map(rate => {
+                return {
+                  type: 'rich_text_section',
+                  elements: [
+                    { type: 'text', text: rate.name },
+                    { type: 'text', text: `${ rate.store.toUpperCase() } Store` },
+                    { type: 'text', text: `${ rate.locationGroupZoneName } Zone` },
+                    { type: 'text', text: `${ gidToId(rate.id) } Delivery Profile` },
+                  ],
+                };
+              }),
+            ],
+          },
+        ],
+      }
+    },
+
+  },
+
   action_buttons: ({ initialPage = false } = {}) => {
     return {
       type: 'actions',
