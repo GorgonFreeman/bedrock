@@ -84,6 +84,7 @@ const blocks = {
     checkboxes: (selectedStore, selectedZone, rates) => {
       return {
         type: 'section',
+        block_id: 'rate_toggle:checkboxes',
         text: {
           type: 'mrkdwn',
           text: 'Select rates to toggle:',
@@ -126,7 +127,7 @@ const blocks = {
         text: {
           type: 'mrkdwn',
           text: `Will toggle:\n${ toggledRates.length > 0
-            ? toggledRates.map(rate => `${ rate.enable ? ':white_tick:' : ':x:' } ${ rate.name } | Store: ${ rate.store.toUpperCase() } | Zone: ${ rate.locationGroupZoneName } | ${ gidToId(rate.id) })`).join('\n')
+            ? toggledRates.map(rate => `${ rate.enable ? ':white_tick:' : ':x:' } ${ rate.name } | Store: ${ rate.store.toUpperCase() } | Zone: ${ rate.locationGroupZoneName } | ${ gidToId(rate.id) }`).join('\n')
             : 'None' }`,
         },
       }
@@ -240,6 +241,8 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       blocks.store_selector.intro,
       ...blocks.store_selector.buttons,
       blocks.divider,
+      blocks.toggled_rates.list([]),
+      blocks.divider,
       blocks.action_buttons({ initialPage: true }),
     ];
 
@@ -307,6 +310,8 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           blocks.zone_selector.intro,
           ...blocks.zone_selector.buttons(selectedStore, regionalShippingZones),
           blocks.divider,
+          blocks.toggled_rates.list([]),
+          blocks.divider,
           blocks.action_buttons(),
         ],
       }
@@ -333,6 +338,8 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           blocks.intro,
           blocks.rate_toggle.checkboxes(selectedStore, selectedZone, regionalShippingRatesForZone),
           blocks.divider,
+          blocks.toggled_rates.list([]),
+          blocks.divider,
           blocks.action_buttons(),
         ],
       };
@@ -345,6 +352,35 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
 
       selectedZone = actionNodes?.[1];
       logDeep('selectedZone', selectedZone);
+
+      regionalShippingRatesForZone = shippingRatesByStore
+        .filter(rate => rate.store === selectedStore)
+        .filter(rate => rate.deliveryProfileName === DEFAULT_PROFILE_NAME)
+        .filter(rate => rate.locationGroupZoneName === selectedZone);
+      logDeep({ regionalShippingRatesForZone });
+
+      const selectedOptions = state.values['rate_toggle:checkboxes']?.[`${ COMMAND_NAME }:rate_toggle:${ selectedStore }:${ selectedZone }`]?.selected_options;
+      logDeep({ selectedOptions });
+
+      regionalShippingRatesForZone = regionalShippingRatesForZone.map(rate => {
+        return {
+          ...rate,
+          enable: selectedOptions.some(option => option.value === gidToId(rate.id)),
+        }
+      });
+      logDeep({ regionalShippingRatesForZone });
+
+      response = {
+        replace_original: 'true',
+        blocks: [
+          blocks.intro,
+          blocks.rate_toggle.checkboxes(selectedStore, selectedZone, regionalShippingRatesForZone),
+          blocks.divider,
+          blocks.toggled_rates.list(regionalShippingRatesForZone),
+          blocks.divider,
+          blocks.action_buttons(),
+        ],
+      };
       
       break;
     
@@ -356,6 +392,8 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           blocks.intro,
           blocks.store_selector.intro,
           ...blocks.store_selector.buttons,
+          blocks.divider,
+          blocks.toggled_rates.list([]),
           blocks.divider,
           blocks.action_buttons({ initialPage: true }),
         ],
