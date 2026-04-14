@@ -289,6 +289,41 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
   let selectedZone;
   let regionalShippingRates;
   let regionalShippingRatesForZone;
+  let toggledRatesString = [];
+  let ratesToggleStatus = [];
+
+  const getRatesToggleStatus = () => {
+    // Fetch the toggled rates context from the list block
+    toggledRatesString =
+      currentBlocksById['toggled_rates:list']?.text?.text?.split('Will toggle:')?.[1]?.trim().split('\n')
+      .map(rate => rate.trim());
+
+    // Calculate the rates toggle status
+    ratesToggleStatus = (() => {
+      if (toggledRatesString[0] === 'None') {
+        return shippingRatesByStore.map(rate => {
+          return {
+            ...rate,
+            enable: rate.active,
+          }
+        });
+      }
+      return shippingRatesByStore.map(rate => {
+        const rateString = toggledRatesString.find(rateString => rateString.split('|')[4]?.trim() === gidToId(rate.id));
+        if (!rateString) {
+          return {
+            ...rate,
+            enable: rate.active,
+          }
+        }
+        const toggleIcon = rateString?.split('|')?.[0]?.trim();
+        return {
+          ...rate,
+          enable: toggleIcon === ENABLED_SYMBOL,
+        };
+      });
+    })();
+  }
 
   switch (actionName) {
 
@@ -304,6 +339,10 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
 
       const regionalShippingZones = Array.from(new Set(regionalShippingRates.map(rate => rate.locationGroupZoneName)));
       logDeep({ regionalShippingZones });
+
+      // Fetch the toggled rates context from the list block
+      toggledRatesString = getRatesToggleStatus();
+      logDeep({ ratesToggleStatus });
 
       response = {
         replace_original: 'true',
@@ -333,6 +372,10 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
         .filter(rate => rate.deliveryProfileName === DEFAULT_PROFILE_NAME)
         .filter(rate => rate.locationGroupZoneName === selectedZone);
       logDeep({ regionalShippingRatesForZone });
+
+      // Fetch the toggled rates context from the list block
+      toggledRatesString = getRatesToggleStatus();
+      logDeep({ ratesToggleStatus });
 
       response = {
         replace_original: 'true',
@@ -364,7 +407,12 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       const selectedOptions = state.values['rate_toggle:checkboxes']?.[`${ COMMAND_NAME }:rate_toggle:${ selectedStore }:${ selectedZone }`]?.selected_options;
       logDeep({ selectedOptions });
 
-      regionalShippingRatesForZone = regionalShippingRatesForZone.map(rate => {
+      // Fetch the toggled rates context from the list block
+      toggledRatesString = getRatesToggleStatus();
+      logDeep({ ratesToggleStatus });
+
+      // Update the toggled rates context with the selected options
+      ratesToggleStatus = regionalShippingRatesForZone.map(rate => {
         return {
           ...rate,
           enable: selectedOptions.some(option => option.value === gidToId(rate.id)),
@@ -387,6 +435,14 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       break;
     
     case 'go_back':
+
+      // Fetch the toggled rates context from the list block
+      toggledRatesString =
+        currentBlocksById['toggled_rates:list']?.text?.text?.split('Will toggle:')?.[1]?.trim().split('\n')
+        .map(rate => rate.trim());
+
+      ratesToggleStatus = getRatesToggleStatus();
+      logDeep({ ratesToggleStatus });
 
       response = {
         replace_original: 'true',
