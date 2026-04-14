@@ -104,6 +104,7 @@ module.exports = {
   shopifyLocationsGet: lazy(() => require('./shopify/shopifyLocationsGet').shopifyLocationsGetApi),
   shopifyMetafieldDefinitionsGet: lazy(() => require('./shopify/shopifyMetafieldDefinitionsGet').shopifyMetafieldDefinitionsGetApi),
   shopifyMetafieldGet: lazy(() => require('./shopify/shopifyMetafieldGet').shopifyMetafieldGetApi),
+  shopifyMetafieldValuesDelete: lazy(() => require('./shopify/shopifyMetafieldValuesDelete').shopifyMetafieldValuesDeleteApi),
   shopifyMetafieldValuesMove: lazy(() => require('./shopify/shopifyMetafieldValuesMove').shopifyMetafieldValuesMoveApi),
   shopifyMetafieldValuesPropagate: lazy(() => require('./shopify/shopifyMetafieldValuesPropagate').shopifyMetafieldValuesPropagateApi),
   shopifyMetafieldsDelete: lazy(() => require('./shopify/shopifyMetafieldsDelete').shopifyMetafieldsDeleteApi),
