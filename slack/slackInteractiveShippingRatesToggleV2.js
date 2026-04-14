@@ -268,7 +268,13 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
     response_url: responseUrl,
     state, 
     actions, 
+    message,
   } = payload;
+
+  const {
+    blocks: currentBlocks,
+  } = message;
+  const currentBlocksById = arrayToObj(currentBlocks, { keyProp: 'block_id' });
 
   const action = actions?.[0];
   const { 
