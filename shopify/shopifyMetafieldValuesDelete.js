@@ -1,4 +1,4 @@
-const { funcApi, logDeep, surveyNestedArrays, Processor, FakeGetter } = require('../utils');
+const { funcApi, logDeep, surveyNestedArrays, Processor, FakeGetter, actionMultipleOrSingle } = require('../utils');
 const { shopifyGetter } = require('../shopify/shopify.utils');
 const { shopifyMetafieldsDelete } = require('../shopify/shopifyMetafieldsDelete');
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
@@ -7,7 +7,7 @@ const {
   MAX_METAFIELDS_PER_SET,
 } = require('../shopify/shopify.constants');
 
-const shopifyMetafieldValuesDelete = async (
+const shopifyMetafieldValuesDeleteSingle = async (
   store,
   resource,
   metafieldPath,
@@ -168,10 +168,41 @@ const shopifyMetafieldValuesDelete = async (
   };
 };
 
+const shopifyMetafieldValuesDelete = async (
+  store,
+  resource,
+  metafieldPath,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+
+  const response = await actionMultipleOrSingle(
+    store,
+    shopifyMetafieldValuesDeleteSingle,
+    (storeSingle) => ({
+      args: [storeSingle, resource, metafieldPath],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+
+  logDeep(response);
+  return response;
+};
+
 const shopifyMetafieldValuesDeleteApi = funcApi(shopifyMetafieldValuesDelete, {
   argNames: ['store', 'resource', 'metafieldPath', 'options'],
   validatorsByArg: {
-    store: Boolean,
+    store: (p) => {
+      if (Array.isArray(p)) {
+        return p.length > 0 && p.every(Boolean);
+      }
+      return Boolean(p);
+    },
     resource: Boolean,
     metafieldPath: p => p.includes('.'),
   },
@@ -179,7 +210,9 @@ const shopifyMetafieldValuesDeleteApi = funcApi(shopifyMetafieldValuesDelete, {
 
 module.exports = {
   shopifyMetafieldValuesDelete,
+  shopifyMetafieldValuesDeleteSingle,
   shopifyMetafieldValuesDeleteApi,
 };
 
-// curl localhost:8000/shopifyMetafieldValuesDelete -H "Content-Type: application/json" -d '{ "store": "au", "resource": "customer", "metafieldPath": "facts.birth_date", "options": { "useBulkFetch": true } }'
+// curl localhost:8000/shopifyMetafieldValuesDelete -H "Content-Type: application/json" -d '{ "store": "au", "resource": "customer", "metafieldPath": "competitions.entries_string" }'
+// curl localhost:8000/shopifyMetafieldValuesDelete -H "Content-Type: application/json" -d '{ "store": ["au", "us"], "resource": "customer", "metafieldPath": "competitions.entries_string" }'
