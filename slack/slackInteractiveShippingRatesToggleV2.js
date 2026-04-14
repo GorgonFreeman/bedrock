@@ -79,7 +79,7 @@ const blocks = {
 
   },
 
-  rate_selector: {
+  rate_toggle: {
 
     checkboxes: (selectedStore, selectedZone, rates) => {
       return {
@@ -108,7 +108,7 @@ const blocks = {
               value: gidToId(rate.id),
             }
           }),
-          action_id: `${ COMMAND_NAME }:rate_select:${ selectedStore }:${ selectedZone }`,
+          action_id: `${ COMMAND_NAME }:rate_toggle:${ selectedStore }:${ selectedZone }`,
         },
       };
     },
@@ -311,7 +311,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
         replace_original: 'true',
         blocks: [
           blocks.intro,
-          blocks.rate_selector.checkboxes(selectedStore, selectedZone, regionalShippingRatesForZone),
+          blocks.rate_toggle.checkboxes(selectedStore, selectedZone, regionalShippingRatesForZone),
           blocks.divider,
           blocks.action_buttons(),
         ],
