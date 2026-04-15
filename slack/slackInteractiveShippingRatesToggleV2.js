@@ -89,7 +89,7 @@ const blocks = {
     checkboxes: (selectedStore, selectedZone, rates) => {
       return {
         type: 'section',
-        block_id: 'rate_toggle:checkboxes',
+        block_id: `rate_toggle:checkboxes:${ selectedStore }`,
         text: {
           type: 'mrkdwn',
           text: 'Select rates to toggle:',
@@ -435,7 +435,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
         .filter(rate => rate.locationGroupZoneName === selectedZone);
       logDeep({ regionalShippingRatesForZone });
 
-      const selectedOptions = state.values['rate_toggle:checkboxes']?.[`${ COMMAND_NAME }:rate_toggle:${ selectedStore }:${ selectedZone }`]?.selected_options;
+      const selectedOptions = state.values[`rate_toggle:checkboxes:${ selectedStore }`]?.[`${ COMMAND_NAME }:rate_toggle:${ selectedStore }:${ selectedZone }`]?.selected_options;
       logDeep({ selectedOptions });
 
       // Fetch the toggled rates context from the list block
