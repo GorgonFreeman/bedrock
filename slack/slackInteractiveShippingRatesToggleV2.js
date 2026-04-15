@@ -69,12 +69,17 @@ const blocks = {
         block_id: 'zone_selector:breadcrumbs',
         elements: [
           {
-            type: 'text',
-            text: `Home > ${ selectedStore.toUpperCase() }`,
-            style: {
-              italic: true,
-            },
-          },
+            type: 'rich_text_section',
+            elements: [
+              {
+                type: 'text',
+                text: `Home > ${ selectedStore.toUpperCase() }`,
+                style: {
+                  italic: true,
+                },
+              },
+            ],
+          }
         ],
       };
     },
@@ -108,11 +113,16 @@ const blocks = {
         block_id: 'rate_toggle:breadcrumbs',
         elements: [
           {
-            type: 'text',
-            text: `Home > ${ selectedStore.toUpperCase() } > ${ selectedZone }`,
-            style: {
-              italic: true,
-            },
+            type: 'rich_text_section',
+            elements: [
+              {
+                type: 'text',
+                text: `Home > ${ selectedStore.toUpperCase() } > ${ selectedZone }`,
+                style: {
+                  italic: true,
+                },
+              },
+            ],
           },
         ],
       };
