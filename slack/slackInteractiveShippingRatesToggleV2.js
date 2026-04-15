@@ -589,6 +589,37 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       }
       break;
 
+    case 'submit':
+
+      ratesToggleStatus = getRatesToggleStatus();
+      logDeep({ ratesToggleStatus });
+
+      const ratesToToggle = ratesToggleStatus.filter(rate => rate.enable !== rate.active);
+      logDeep({ ratesToToggle });
+
+      // If no rates to toggle, show an error and go back to the store selector
+      if (ratesToToggle.length === 0) {
+        response = {
+          replace_original: 'true',
+          blocks: [
+            blocks.intro,
+            blocks.store_selector.intro,
+            ...blocks.store_selector.buttons,
+            blocks.divider,
+            blocks.toggled_rates.list(ratesToggleStatus),
+            blocks.divider,
+            blocks.error('No shipping rates toggled to be submitted!'),
+            blocks.divider,
+            blocks.action_buttons(),
+          ],
+        };
+        break;
+      }
+
+      // Update the toggled shipping rates
+
+      break;
+
     case 'cancel':
 
       response = {
