@@ -471,10 +471,6 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
     case 'home':
 
       // Fetch the toggled rates context from the list block
-      toggledRatesString =
-        currentBlocksById['toggled_rates:list']?.text?.text?.split('Will toggle:')?.[1]?.trim().split('\n')
-        .map(rate => rate.trim());
-
       ratesToggleStatus = getRatesToggleStatus();
       logDeep({ ratesToggleStatus });
 
