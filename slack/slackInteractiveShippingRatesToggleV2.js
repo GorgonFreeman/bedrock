@@ -27,6 +27,7 @@ const blocks = {
 
     intro: {
       type: 'section',
+      block_id: 'store_selector:intro',
       text: {
         type: 'mrkdwn',
         text: 'Select a store:',
@@ -55,6 +56,7 @@ const blocks = {
 
     intro: {
       type: 'section',
+      block_id: 'zone_selector:intro',
       text: {
         type: 'mrkdwn',
         text: 'Select a delivery zone:',
