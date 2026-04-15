@@ -488,6 +488,57 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       };
       break;
 
+    case 'go_back':
+
+      ratesToggleStatus = getRatesToggleStatus();
+      logDeep({ ratesToggleStatus });
+
+      // Find the rate toggle checkbox block
+      const rateToggleCheckboxBlock = Object.keys(currentBlocksById).find(key => key.startsWith('rate_toggle:checkboxes'));
+      if (rateToggleCheckboxBlock) {
+
+        const selectedStore = rateToggleCheckboxBlock.split('rate_toggle:checkboxes:')[1];
+        logDeep('selectedStore', selectedStore);
+
+        regionalShippingRates = shippingRatesByStore
+          .filter(rate => rate.store === selectedStore)
+          .filter(rate => rate.deliveryProfileName === DEFAULT_PROFILE_NAME);
+        logDeep({ regionalShippingRates });
+
+        const regionalShippingZones = Array.from(new Set(regionalShippingRates.map(rate => rate.locationGroupZoneName)));
+        logDeep({ regionalShippingZones });
+
+        // Respond with the zone selector step
+        response = {
+          replace_original: 'true',
+          blocks: [
+            blocks.intro,
+            blocks.zone_selector.intro,
+            ...blocks.zone_selector.buttons(selectedStore, regionalShippingZones),
+            blocks.divider,
+            blocks.toggled_rates.list(ratesToggleStatus),
+            blocks.divider,
+            blocks.action_buttons(),
+          ],
+        };
+        break;
+      }
+
+      // Otherwise, go back to first step
+      response = {
+        replace_original: 'true',
+        blocks: [
+          blocks.intro,
+          blocks.store_selector.intro,
+          ...blocks.store_selector.buttons,
+          blocks.divider,
+          blocks.toggled_rates.list(ratesToggleStatus),
+          blocks.divider,
+          blocks.action_buttons({ initialPage: true }),
+        ],
+      }
+      break;
+
     case 'cancel':
 
       response = {
