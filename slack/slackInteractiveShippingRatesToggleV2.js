@@ -141,7 +141,10 @@ const blocks = {
 
   },
 
-  action_buttons: ({ initialPage = false } = {}) => {
+  action_buttons: ({
+    goBack = false,
+    home = false,
+  } = {}) => {
     return {
       type: 'actions',
       elements: [
@@ -154,16 +157,7 @@ const blocks = {
           value: 'submit',
           action_id: `${ COMMAND_NAME }:submit`,
         },
-        ...(initialPage ? [] : [
-          {
-            type: 'button',
-            text: {
-              type: 'plain_text',
-              text: 'Go back',
-            },
-            value: 'go_back',
-            action_id: `${ COMMAND_NAME }:go_back`,
-          },
+        ...(home ? [] : [
           {
             type: 'button',
             text: {
@@ -172,6 +166,17 @@ const blocks = {
             },
             value: 'home',
             action_id: `${ COMMAND_NAME }:home`,
+          },
+        ]),
+        ...(goBack ? [] : [
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'Go back',
+            },
+            value: 'go_back',
+            action_id: `${ COMMAND_NAME }:go_back`,
           },
         ]),
         {
