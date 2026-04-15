@@ -90,8 +90,6 @@ const shopifyShippingRatesToggle = async (
 
     logDeep({ shippingMethodDefinitions });
 
-    await askQuestion('Continue?');
-
     const targetedShippingMethodDefinition = shippingMethodDefinitions.find(methodDef => gidToId(methodDef.id) === shippingRateId);
     if (!targetedShippingMethodDefinition) {
       return { success: false, error: 'No targetted shipping method definition found' };
@@ -126,11 +124,6 @@ const shopifyShippingRatesToggle = async (
         return null;
       }
     })();
-
-    logDeep({ enableRate });
-    logDeep({ newName });
-
-    await askQuestion('Continue?');
 
     const updateResponse = await shopifyShippingRateUpdate(
       credsPath,
