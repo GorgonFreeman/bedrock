@@ -152,15 +152,26 @@ const blocks = {
           value: 'submit',
           action_id: `${ COMMAND_NAME }:submit`,
         },
-        ...(initialPage ? [] : [{
-          type: 'button',
-          text: {
-            type: 'plain_text',
-            text: 'Go back',
+        ...(initialPage ? [] : [
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'Go back',
+            },
+            value: 'go_back',
+            action_id: `${ COMMAND_NAME }:go_back`,
           },
-          value: 'go_back',
-          action_id: `${ COMMAND_NAME }:go_back`,
-        }]),
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'Home',
+            },
+            value: 'home',
+            action_id: `${ COMMAND_NAME }:home`,
+          },
+        ]),
         {
           type: 'button',
           text: {
@@ -455,7 +466,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       
       break;
     
-    case 'go_back':
+    case 'home':
 
       // Fetch the toggled rates context from the list block
       toggledRatesString =
