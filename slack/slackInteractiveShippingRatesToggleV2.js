@@ -157,7 +157,7 @@ const blocks = {
           value: 'submit',
           action_id: `${ COMMAND_NAME }:submit`,
         },
-        ...(home ? [] : [
+        ...(!home ? [] : [
           {
             type: 'button',
             text: {
@@ -168,7 +168,7 @@ const blocks = {
             action_id: `${ COMMAND_NAME }:home`,
           },
         ]),
-        ...(goBack ? [] : [
+        ...(!goBack ? [] : [
           {
             type: 'button',
             text: {
