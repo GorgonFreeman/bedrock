@@ -1,6 +1,7 @@
 const { respond, logDeep, customAxios, gidToId, arrayToObj } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
+const { shopifyShippingRatesToggle } = require('../shopify/shopifyShippingRatesToggle');
 
 const DEFAULT_PROFILE_NAME = 'General profile';
 const TOGGLING_LIST_HEADER = 'Toggling:';
@@ -650,8 +651,53 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
         break;
       }
 
-      // Update the toggled shipping rates
+      // Display loading message while toggling shipping rates
+      response = {
+        replace_original: 'true',
+        blocks: [
+          blocks.intro,
+          blocks.result.loading,
+        ],
+      };
+      await customAxios(responseUrl, {
+        method: 'post',
+        body: response,
+      });
 
+      // Update the toggled shipping rates
+      const results = [];
+      for (const rate of ratesToToggle) {
+        const {
+          id,
+          store: credsPath,
+          enable: enableRate,
+        } = rate;
+        mode = enableRate ? 'enable' : 'disable';
+        const shippingRateUpdateResponse = await shopifyShippingRatesToggle(credsPath, mode, { shippingRateId: gidToId(id) });
+        logDeep({ shippingRateUpdateResponse });
+        const { success: shippingRateUpdateSuccess, result: shippingRateUpdateResult, error: shippingRateUpdateError } = shippingRateUpdateResponse;
+        if (!shippingRateUpdateSuccess) {
+          results.push({
+            ...rate,
+            success: false,
+            message: shippingRateUpdateError,
+          });
+          continue;
+        }
+        results.push({
+          ...rate,
+          success: true,
+          message: `Successfully ${ enableRate ? 'enabled' : 'disabled' }`,
+        });
+      }
+
+      response = {
+        replace_original: 'true',
+        blocks: [
+          blocks.intro,
+          blocks.result.list(results),
+        ],
+      }
       break;
 
     case 'cancel':
