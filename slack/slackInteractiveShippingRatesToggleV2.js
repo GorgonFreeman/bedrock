@@ -5,7 +5,7 @@ const { shopifyShippingRatesToggle } = require('../shopify/shopifyShippingRatesT
 
 const DEFAULT_PROFILE_NAME = 'General profile';
 const TOGGLING_LIST_HEADER = 'Toggling:';
-const ENABLED_SYMBOL = ':white_tick:';
+const ENABLED_SYMBOL = ':white_check_mark:';
 const DISABLED_SYMBOL = ':x:';
 
 const COMMAND_NAME = 'shipping_rates_toggle'; // slash command
