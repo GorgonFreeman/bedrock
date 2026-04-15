@@ -245,6 +245,29 @@ const blocks = {
     };
   },
 
+  result: {
+
+    loading: {
+      type: 'section',
+      block_id: 'result:loading',
+      text: {
+        type: 'mrkdwn',
+        text: 'Toggling shipping rates...',
+      },
+    },
+
+    list: (results) => {
+      return {
+        type: 'section',
+        block_id: 'result:list',
+        text: {
+          type: 'mrkdwn',
+          text: `Results:\n${ results.map(result => `${ result.name } | Store: ${ result.store.toUpperCase() } | Zone: ${ result.locationGroupZoneName } | ${ result.message }`).join('\n') }`,
+        },
+      };
+    },
+  },
+
 };
 
 // Fetch a flattened lisst of shipping rates per store
