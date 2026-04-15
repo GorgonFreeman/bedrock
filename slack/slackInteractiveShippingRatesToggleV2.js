@@ -266,7 +266,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       blocks.divider,
       blocks.toggled_rates.list([]),
       blocks.divider,
-      blocks.action_buttons({ initialPage: true }),
+      blocks.action_buttons(),
     ];
 
     return respond(res, 200, {
@@ -379,7 +379,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           blocks.divider,
           blocks.toggled_rates.list(ratesToggleStatus),
           blocks.divider,
-          blocks.action_buttons(),
+          blocks.action_buttons({ goBack: true }),
         ],
       }
 
@@ -421,7 +421,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           blocks.divider,
           blocks.toggled_rates.list(ratesToggleStatus),
           blocks.divider,
-          blocks.action_buttons(),
+          blocks.action_buttons({ home: true, goBack: true }),
         ],
       };
       break;
@@ -467,7 +467,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           blocks.divider,
           blocks.toggled_rates.list(ratesToggleStatus),
           blocks.divider,
-          blocks.action_buttons(),
+          blocks.action_buttons({ home: true, goBack: true }),
         ],
       };
       
@@ -488,7 +488,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           blocks.divider,
           blocks.toggled_rates.list(ratesToggleStatus),
           blocks.divider,
-          blocks.action_buttons({ initialPage: true }),
+          blocks.action_buttons(),
         ],
       };
       break;
@@ -523,7 +523,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
             blocks.divider,
             blocks.toggled_rates.list(ratesToggleStatus),
             blocks.divider,
-            blocks.action_buttons(),
+            blocks.action_buttons({ goBack: true }),
           ],
         };
         break;
@@ -539,7 +539,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           blocks.divider,
           blocks.toggled_rates.list(ratesToggleStatus),
           blocks.divider,
-          blocks.action_buttons({ initialPage: true }),
+          blocks.action_buttons(),
         ],
       }
       break;
