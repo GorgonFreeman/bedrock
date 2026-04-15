@@ -385,6 +385,16 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       ratesToggleStatus = getRatesToggleStatus();
       logDeep({ ratesToggleStatus });
 
+      // Update the regional shipping rates for the zone with the toggled rates status
+      regionalShippingRatesForZone = regionalShippingRatesForZone.map(rate => {
+        const toggleStatus = ratesToggleStatus.find(rateToggleStatus => gidToId(rateToggleStatus.id) === gidToId(rate.id));
+        return {
+          ...rate,
+          enable: toggleStatus?.enable ?? rate.active,
+        }
+      });
+      logDeep({ regionalShippingRatesForZone });
+
       response = {
         replace_original: 'true',
         blocks: [
