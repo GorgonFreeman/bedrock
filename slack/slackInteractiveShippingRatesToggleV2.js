@@ -63,6 +63,22 @@ const blocks = {
       },
     },
 
+    breadcrumbs: (selectedStore) => {
+      return {
+        type: 'rich_text',
+        block_id: 'zone_selector:breadcrumbs',
+        elements: [
+          {
+            type: 'text',
+            text: `Home > ${ selectedStore.toUpperCase() }`,
+            style: {
+              italic: true,
+            },
+          },
+        ],
+      };
+    },
+
     buttons: (store, zones) => {
       return zones.map(zone => {
         return {
@@ -85,6 +101,22 @@ const blocks = {
   },
 
   rate_toggle: {
+
+    breadcrumbs: (selectedStore, selectedZone) => {
+      return {
+        type: 'rich_text',
+        block_id: 'rate_toggle:breadcrumbs',
+        elements: [
+          {
+            type: 'text',
+            text: `Home > ${ selectedStore.toUpperCase() } > ${ selectedZone }`,
+            style: {
+              italic: true,
+            },
+          },
+        ],
+      };
+    },
 
     checkboxes: (selectedStore, selectedZone, rates) => {
       return {
@@ -374,6 +406,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
         replace_original: 'true',
         blocks: [
           blocks.intro,
+          blocks.zone_selector.breadcrumbs(selectedStore),
           blocks.zone_selector.intro,
           ...blocks.zone_selector.buttons(selectedStore, regionalShippingZones),
           blocks.divider,
@@ -417,6 +450,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
         replace_original: 'true',
         blocks: [
           blocks.intro,
+          blocks.rate_toggle.breadcrumbs(selectedStore, selectedZone),
           blocks.rate_toggle.checkboxes(selectedStore, selectedZone, regionalShippingRatesForZone),
           blocks.divider,
           blocks.toggled_rates.list(ratesToggleStatus),
@@ -518,6 +552,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           replace_original: 'true',
           blocks: [
             blocks.intro,
+            blocks.zone_selector.breadcrumbs(selectedStore),
             blocks.zone_selector.intro,
             ...blocks.zone_selector.buttons(selectedStore, regionalShippingZones),
             blocks.divider,
