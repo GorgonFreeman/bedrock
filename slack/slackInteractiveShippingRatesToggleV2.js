@@ -430,7 +430,10 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       logDeep({ ratesToggleStatus });
 
       // Update the toggled rates context with the selected options
-      ratesToggleStatus = regionalShippingRatesForZone.map(rate => {
+      ratesToggleStatus = ratesToggleStatus.map(rate => {
+        if (!regionalShippingRatesForZone.some(rateForZone => gidToId(rateForZone.id) === gidToId(rate.id))) {
+          return rate;
+        }
         return {
           ...rate,
           enable: selectedOptions.some(option => option.value === gidToId(rate.id)),
