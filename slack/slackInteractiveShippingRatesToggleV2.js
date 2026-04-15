@@ -183,6 +183,17 @@ const blocks = {
 
   },
 
+  error: (message) => {
+    return {
+      type: 'section',
+      block_id: 'error:message',
+      text: {
+        type: 'mrkdwn',
+        text: message,
+      },
+    };
+  },
+
   action_buttons: ({
     goBack = false,
     home = false,
