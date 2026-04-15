@@ -9,6 +9,7 @@ const shopifyShippingRatesToggle = async (
   mode, // enable, disable
   {
     keyword,
+    shippingRateId,
   },
   {
     apiVersion,
@@ -25,6 +26,7 @@ const shopifyShippingRatesToggle = async (
 
   // Validate ratesIdentifier
   if (HOSTED
+    && !shippingRateId
     && !keyword
   ) {
     return { success: false, error: 'Missing rates identifier' };
@@ -82,6 +84,78 @@ const shopifyShippingRatesToggle = async (
       });
     });
   }).flat(3);
+
+  // identify the targeted method with the shippingRateId
+  if (shippingRateId) {
+
+    logDeep({ shippingMethodDefinitions });
+
+    await askQuestion('Continue?');
+
+    const targetedShippingMethodDefinition = shippingMethodDefinitions.find(methodDef => gidToId(methodDef.id) === shippingRateId);
+    if (!targetedShippingMethodDefinition) {
+      return { success: false, error: 'No targetted shipping method definition found' };
+    }
+
+    const {
+      name: methodDefinitionName,
+      active: methodDefinitionActive,
+      deliveryProfileId: methodDefinitionDeliveryProfileId,
+      locationGroupId: methodDefinitionLocationGroupId,
+      locationGroupZoneId: methodDefinitionLocationGroupZoneId,
+      id: methodDefinitionId,
+    } = targetedShippingMethodDefinition;
+
+    if (methodDefinitionActive === enableRate) {
+      return {
+        success: false,
+        error: `Shipping rate is already ${ enableRate ? 'enabled' : 'disabled' }`,
+      };
+    }
+
+    const newName = (() => {
+      if (enableRate) {
+        if (methodDefinitionName.endsWith(disabledSuffix)) {
+          return methodDefinitionName.slice(0, -disabledSuffix.length);
+        }
+        return null;
+      } else {
+        if (!methodDefinitionName.endsWith(disabledSuffix)) {
+          return methodDefinitionName + disabledSuffix;
+        }
+        return null;
+      }
+    })();
+
+    logDeep({ enableRate });
+    logDeep({ newName });
+
+    await askQuestion('Continue?');
+
+    const updateResponse = await shopifyShippingRateUpdate(
+      credsPath,
+      gidToId(methodDefinitionDeliveryProfileId),
+      gidToId(methodDefinitionLocationGroupId),
+      gidToId(methodDefinitionLocationGroupZoneId),
+      gidToId(methodDefinitionId),
+      {
+        on: enableRate,
+        newName,
+        apiVersion,
+      },
+    );
+    const { success: updateSuccess, result: updateResult } = updateResponse;
+    if (!updateSuccess) {
+      return {
+        success: false,
+        error: updateResult.error,
+      };
+    }
+    return {
+      success: true,
+      result: updateResult,
+    };
+  }
 
   // Identify the targetted shipping method definitions
   const targetedShippingMethodDefinitions = (() => {
@@ -195,5 +269,6 @@ module.exports = {
 
 // curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "develop", "mode": "enable", "ratesIdentifier": { } }'
 // curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "develop", "mode": "disable", "ratesIdentifier": { } }'
+// curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "develop", "mode": "enable", "ratesIdentifier": { "shippingRateId": "1234567890" } }'
 // curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "develop", "mode": "enable", "ratesIdentifier": { "keyword": "standard" } }'
 // curl localhost:8000/shopifyShippingRatesToggle -H "Content-Type: application/json" -d '{ "credsPath": "develop", "mode": "disable", "ratesIdentifier": { "keyword": "standard" }, "options": { "verbose": true } }'
