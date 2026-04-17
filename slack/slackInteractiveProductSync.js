@@ -80,6 +80,34 @@ const blocks = {
       };
     },
 
+    pvx_result: (result) => {
+
+      if (!result.success) {
+        return {
+          type: 'section',
+          block_id: 'result:pvx_result',
+          text: {
+            type: 'mrkdwn',
+            text: `:warning: Error syncing to PVX: ${ result.error || result.message }`,
+          },
+        };
+      }
+
+      const {
+        message,
+        skuResolution,
+      } = result;
+
+      return {
+        type: 'section',
+        block_id: 'result:pvx_result',
+        text: {
+          type: 'mrkdwn',
+          text: `Successfully synced to PVX: ${ message }${ skuResolution?.unresolvedSkus?.length ? `\nUnresolved SKUs: ${ skuResolution.unresolvedSkus.join(', ') }` : '' }`,
+        },
+      };
+    },
+
   },
 
 };
