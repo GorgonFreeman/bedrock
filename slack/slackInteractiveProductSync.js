@@ -108,8 +108,35 @@ const blocks = {
       };
     },
 
-  },
+    regions_result: (result) => {
 
+      if (!result.success) {
+        return {
+          type: 'section',
+          block_id: 'result:regions_result',
+          text: {
+            type: 'mrkdwn',
+            text: `:warning: Error syncing to ${ REGIONS_WF.filter(region => region !== SOURCE_REGION).map(region => region.toUpperCase()).join(', ') } regions: ${ result.error || result.message }`,
+          },
+        };
+      }
+
+      const {
+        message,
+        skuResolution,
+      } = result;
+
+      return {
+        type: 'section',
+        block_id: 'result:regions_result',
+        text: {
+          type: 'mrkdwn',
+          text: `Successfully synced to ${ REGIONS_WF.filter(region => region !== SOURCE_REGION).map(region => region.toUpperCase()).join(', ') } regions: ${ message }${ skuResolution?.unresolvedSkus?.length ? `\nUnresolved SKUs: ${ skuResolution.unresolvedSkus.join(', ') }` : '' }`,
+        },
+      };
+    },
+
+  },
 };
 
 const slackInteractiveProductSync = async (req, res) => {
@@ -161,13 +188,17 @@ const slackInteractiveProductSync = async (req, res) => {
 
   const [commandName, actionName, ...actionNodes] = actionId.split(':');
 
+  let skuList;
+  let skus;
+  let partialSkus;
+
   switch (actionName) {
 
     case 'sync_to_pvx':
 
-      const skuList = state?.values?.[`sku_input:sku_list`]?.[`${ COMMAND_NAME }:sku_input`]?.value;
-      const skus = skuList?.split(' ')?.map(sku => sku.trim());
-      const partialSkus = skusToPartialSkus(skus);
+      skuList = state?.values?.[`sku_input:sku_list`]?.[`${ COMMAND_NAME }:sku_input`]?.value;
+      skus = skuList?.split(' ')?.map(sku => sku.trim());
+      partialSkus = skusToPartialSkus(skus);
 
       logDeep({ partialSkus });
 
@@ -198,6 +229,44 @@ const slackInteractiveProductSync = async (req, res) => {
         replace_original: true,
         blocks: [
           blocks.result.pvx_result(reconcilePvxResult),
+        ],
+      };
+
+      break;
+
+    case 'sync_to_regions':
+
+      skuList = state?.values?.[`sku_input:sku_list`]?.[`${ COMMAND_NAME }:sku_input`]?.value;
+      skus = skuList?.split(' ')?.map(sku => sku.trim());
+      partialSkus = skusToPartialSkus(skus);
+
+      logDeep({ partialSkus });
+
+      // Respond with a loading messages
+      await customAxios(responseUrl, {
+        method: 'post',
+        body: {
+          replace_original: true,
+          blocks: [
+            blocks.result.loading(`Syncing to ${ REGIONS_WF.filter(region => region !== SOURCE_REGION).map(region => region.toUpperCase()).join(', ') } regions...`),
+          ],
+        },
+      });
+
+      const syncRegionsResponse = await customAxios(SYNC_REGIONS_ENDPOINT, {
+        method: 'post',
+        body: {
+          skus: partialSkus,
+        },
+      });
+      const { success: syncRegionsSuccess, result: syncRegionsResult } = syncRegionsResponse;
+
+      logDeep({ syncRegionsResult });
+
+      response = {
+        replace_original: true,
+        blocks: [
+          blocks.result.regions_result(syncRegionsResult),
         ],
       };
 
