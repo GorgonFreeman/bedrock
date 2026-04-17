@@ -98,12 +98,19 @@ const blocks = {
         skuResolution,
       } = result;
 
+      const {
+        requestedSkus,
+        unresolvedSkus,
+      } = skuResolution;
+
+      const syncedSkus = requestedSkus?.filter(sku => !unresolvedSkus?.includes(sku));
+
       return {
         type: 'section',
         block_id: 'result:pvx_result',
         text: {
           type: 'mrkdwn',
-          text: `${ callerUserId ? `Hey <@${ callerUserId }>! ` : '' }Successfully synced to PVX: ${ message }${ skuResolution?.unresolvedSkus?.length ? `\nUnresolved SKUs: ${ skuResolution.unresolvedSkus.join(', ') }` : '' }`,
+          text: `${ callerUserId ? `Hey <@${ callerUserId }>! ` : '' }Successfully synced to PVX: ${ message }${ syncedSkus?.length ? `\nSynced SKUs: ${ syncedSkus.join(', ') }` : '' }${ unresolvedSkus?.length ? `\nUnresolved SKUs: ${ unresolvedSkus.join(', ') }` : '' }`,
         },
       };
     },
@@ -126,12 +133,19 @@ const blocks = {
         skuResolution,
       } = result;
 
+      const {
+        requestedSkus,
+        unresolvedSkus,
+      } = skuResolution;
+
+      const syncedSkus = requestedSkus?.filter(sku => !unresolvedSkus?.includes(sku));
+
       return {
         type: 'section',
         block_id: 'result:regions_result',
         text: {
           type: 'mrkdwn',
-          text: `${ callerUserId ? `Hey <@${ callerUserId }>! ` : '' }Successfully synced to ${ REGIONS_WF.filter(region => region !== SOURCE_REGION).map(region => region.toUpperCase()).join(', ') } regions${ skuResolution?.unresolvedSkus?.length ? `\nUnresolved SKUs: ${ skuResolution.unresolvedSkus.join(', ') }` : '' }`,
+          text: `${ callerUserId ? `Hey <@${ callerUserId }>! ` : '' }Successfully synced to ${ REGIONS_WF.filter(region => region !== SOURCE_REGION).map(region => region.toUpperCase()).join(', ') } regions${ syncedSkus?.length ? `\nSynced SKUs: ${ syncedSkus.join(', ') }` : '' }${ unresolvedSkus?.length ? `\nUnresolved SKUs: ${ unresolvedSkus.join(', ') }` : '' }`,
         },
       };
     },
