@@ -1,6 +1,77 @@
 const { respond, logDeep, customAxios } = require('../utils');
+const { REGIONS_WF } = require('../constants');
+
+const SOURCE_REGION = 'au';
 
 const COMMAND_NAME = 'product_sync'; // slash command
+
+const blocks = {
+
+  intro: {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: `*Product Sync*`,
+    },
+  },
+
+  sku_input: {
+    type: 'input',
+    block_id: 'sku_input:sku_list',
+    label: {
+      type: 'plain_text',
+      text: 'SKUs (one per line)',
+    },
+    optional: false,
+    element: {
+      type: 'plain_text_input',
+      placeholder: {
+        type: 'plain_text',
+        text: 'Enter SKUs...',
+      },
+      action_id: `${ COMMAND_NAME }:sku_input`,
+    },
+  },
+
+  buttons: {
+    type: 'actions',
+    block_id: 'buttons',
+    elements: [
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Sync to PVX',
+        },
+        action_id: `${ COMMAND_NAME }:sync_to_pvx`,
+      },
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: `Sync to ${ REGIONS_WF.filter(region => region !== SOURCE_REGION).map(region => region.toUpperCase()).join(', ') }`,
+        },
+        action_id: `${ COMMAND_NAME }:sync_to_regions`,
+      },
+    ],
+  },
+
+  result: {
+
+    loading: (message) => {
+      return {
+      type: 'section',
+      block_id: 'result:loading',
+      text: {
+        type: 'mrkdwn',
+          text: message,
+        },
+      };
+    },
+
+  },
+
+};
 
 const slackInteractiveProductSync = async (req, res) => {
   console.log('slackInteractiveProductSync');
