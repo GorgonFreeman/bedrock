@@ -53,6 +53,14 @@ const blocks = {
         },
         action_id: `${ COMMAND_NAME }:sync_to_regions`,
       },
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Cancel',
+        },
+        action_id: `${ COMMAND_NAME }:cancel`,
+      },
     ],
   },
 
