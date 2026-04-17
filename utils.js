@@ -467,6 +467,14 @@ const objSatisfies = (obj, validators) => {
   return validators.every(validator => validator(obj));
 };
 
+const skusToPartialSkus = (skus) => {
+  return Array.from(new Set(
+    skus
+      .map((sku) => sku.match(/^(\S*\d-\d+)(?=-|$)/)?.[1])
+      .filter(Boolean),
+  ));
+}
+
 const funcApi = (
   func, 
   { 
@@ -2049,6 +2057,7 @@ module.exports = {
   objHasAny,
   objHasAll,
   objSatisfies,
+  skusToPartialSkus,
   arrayToChunks,
   gidToId,
   surveyObjects,
