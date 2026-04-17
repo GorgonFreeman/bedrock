@@ -5,6 +5,9 @@ const SOURCE_REGION = 'au';
 
 const COMMAND_NAME = 'product_sync'; // slash command
 
+const RECONCILE_PVX_ENDPOINT = 'https://australia-southeast1-foxtware.cloudfunctions.net/apexCatalogueSyncReconsilePvx';
+const SYNC_REGIONS_ENDPOINT = 'https://australia-southeast1-foxtware.cloudfunctions.net/apexCatalogueShopifyToShopify';
+
 const blocks = {
 
   intro: {
