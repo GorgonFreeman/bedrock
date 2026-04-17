@@ -103,7 +103,7 @@ const blocks = {
         block_id: 'result:pvx_result',
         text: {
           type: 'mrkdwn',
-          text: `${ callerUserId ? `Hey <@${ callerUserId }>! ` : '' }Successfully synced to PVX ${ skuResolution?.unresolvedSkus?.length ? `\nUnresolved SKUs: ${ skuResolution.unresolvedSkus.join(', ') }` : '' }`,
+          text: `${ callerUserId ? `Hey <@${ callerUserId }>! ` : '' }Successfully synced to PVX: ${ message }${ skuResolution?.unresolvedSkus?.length ? `\nUnresolved SKUs: ${ skuResolution.unresolvedSkus.join(', ') }` : '' }`,
         },
       };
     },
@@ -131,7 +131,7 @@ const blocks = {
         block_id: 'result:regions_result',
         text: {
           type: 'mrkdwn',
-          text: `${ callerUserId ? `Hey <@${ callerUserId }>! ` : '' }Successfully synced to ${ REGIONS_WF.filter(region => region !== SOURCE_REGION).map(region => region.toUpperCase()).join(', ') } regions: ${ message }${ skuResolution?.unresolvedSkus?.length ? `\nUnresolved SKUs: ${ skuResolution.unresolvedSkus.join(', ') }` : '' }`,
+          text: `${ callerUserId ? `Hey <@${ callerUserId }>! ` : '' }Successfully synced to ${ REGIONS_WF.filter(region => region !== SOURCE_REGION).map(region => region.toUpperCase()).join(', ') } regions${ skuResolution?.unresolvedSkus?.length ? `\nUnresolved SKUs: ${ skuResolution.unresolvedSkus.join(', ') }` : '' }`,
         },
       };
     },
