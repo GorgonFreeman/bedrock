@@ -1,4 +1,4 @@
-const { respond, logDeep, customAxios } = require('../utils');
+const { respond, logDeep, customAxios, skusToPartialSkus } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 
 const SOURCE_REGION = 'au';
@@ -162,6 +162,46 @@ const slackInteractiveProductSync = async (req, res) => {
   const [commandName, actionName, ...actionNodes] = actionId.split(':');
 
   switch (actionName) {
+
+    case 'sync_to_pvx':
+
+      const skuList = state?.values?.[`sku_input:sku_list`]?.[`${ COMMAND_NAME }:sku_input`]?.value;
+      const skus = skuList?.split(' ')?.map(sku => sku.trim());
+      const partialSkus = skusToPartialSkus(skus);
+
+      logDeep({ partialSkus });
+
+      // Respond with a loading messages
+      await customAxios(responseUrl, {
+        method: 'post',
+        body: {
+          replace_original: true,
+          blocks: [
+            blocks.result.loading(`Syncing to PVX...`),
+          ],
+        },
+      });
+
+      const reconcilePvxResponse = await customAxios(RECONCILE_PVX_ENDPOINT, {
+        method: 'post',
+        body: {
+          options: {
+            skus: partialSkus,
+          },
+        },
+      });
+      const { success: reconcilePvxSuccess, result: reconcilePvxResult } = reconcilePvxResponse;
+
+      logDeep({ reconcilePvxResult });
+      
+      response = {
+        replace_original: true,
+        blocks: [
+          blocks.result.pvx_result(reconcilePvxResult),
+        ],
+      };
+
+      break;
 
     case 'cancel':
       response = {
