@@ -128,10 +128,20 @@ const slackInteractiveProductSync = async (req, res) => {
 
   let response;
 
-  response = {
-    replace_original: 'true',
-    text: `I don't do anything yet :hugging_face:`,
-  };
+  const [commandName, actionName, ...actionNodes] = actionId.split(':');
+
+  switch (actionName) {
+
+    case 'cancel':
+      response = {
+        delete_original: 'true',
+      };
+      break;
+
+    default:
+      console.warn(`Unknown actionName: ${ actionName }`);
+      break;
+  }
 
   logDeep('response', response);
   return customAxios(responseUrl, {
