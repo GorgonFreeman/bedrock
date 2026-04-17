@@ -90,13 +90,9 @@ const slackInteractiveProductSync = async (req, res) => {
   if (!body?.payload) {
 
     const initialBlocks = [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `I don't do anything yet :hugging_face:`,
-        },
-      },
+      blocks.intro,
+      blocks.sku_input,
+      blocks.buttons,
     ];
 
     return respond(res, 200, {
