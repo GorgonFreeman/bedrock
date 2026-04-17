@@ -13,6 +13,7 @@ const commandNameToFunc = {
   'bleckmann_declines_export': require('../bedrock_unlisted/bedrock_unlisted_slackInteractiveBleckmannDeclinesExport'),
   'inventory_hold': require('../bedrock_unlisted/bedrock_unlisted_slackInteractiveInventoryHold'),
   'customer_bday_code_create': require('../bedrock_unlisted/bedrock_unlisted_slackInteractiveBirthdayDiscountCodeGenerate'),
+  'product_sync': require('../slack/slackInteractiveProductSync'),
 };
 
 const slackWebhookRouterApi = async (req, res) => {
