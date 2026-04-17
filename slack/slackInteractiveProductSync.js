@@ -80,7 +80,7 @@ const blocks = {
       };
     },
 
-    pvx_result: (result) => {
+    pvx_result: (callerUserId, result) => {
 
       if (!result.success) {
         return {
@@ -88,7 +88,7 @@ const blocks = {
           block_id: 'result:pvx_result',
           text: {
             type: 'mrkdwn',
-            text: `:warning: Error syncing to PVX: ${ result.error || result.message }`,
+            text: `:warning: ${ callerUserId ? `Hey <@${ callerUserId }>! ` : '' }Error syncing to PVX: ${ result.error || result.message }`,
           },
         };
       }
@@ -103,12 +103,12 @@ const blocks = {
         block_id: 'result:pvx_result',
         text: {
           type: 'mrkdwn',
-          text: `Successfully synced to PVX: ${ message }${ skuResolution?.unresolvedSkus?.length ? `\nUnresolved SKUs: ${ skuResolution.unresolvedSkus.join(', ') }` : '' }`,
+          text: `${ callerUserId ? `Hey <@${ callerUserId }>! ` : '' }Successfully synced to PVX ${ skuResolution?.unresolvedSkus?.length ? `\nUnresolved SKUs: ${ skuResolution.unresolvedSkus.join(', ') }` : '' }`,
         },
       };
     },
 
-    regions_result: (result) => {
+    regions_result: (callerUserId, result) => {
 
       if (!result.success) {
         return {
@@ -116,7 +116,7 @@ const blocks = {
           block_id: 'result:regions_result',
           text: {
             type: 'mrkdwn',
-            text: `:warning: Error syncing to ${ REGIONS_WF.filter(region => region !== SOURCE_REGION).map(region => region.toUpperCase()).join(', ') } regions: ${ result.error || result.message }`,
+            text: `:warning: ${ callerUserId ? `Hey <@${ callerUserId }>! ` : '' }Error syncing to ${ REGIONS_WF.filter(region => region !== SOURCE_REGION).map(region => region.toUpperCase()).join(', ') } regions: ${ result.error || result.message }`,
           },
         };
       }
@@ -131,7 +131,7 @@ const blocks = {
         block_id: 'result:regions_result',
         text: {
           type: 'mrkdwn',
-          text: `Successfully synced to ${ REGIONS_WF.filter(region => region !== SOURCE_REGION).map(region => region.toUpperCase()).join(', ') } regions: ${ message }${ skuResolution?.unresolvedSkus?.length ? `\nUnresolved SKUs: ${ skuResolution.unresolvedSkus.join(', ') }` : '' }`,
+          text: `${ callerUserId ? `Hey <@${ callerUserId }>! ` : '' }Successfully synced to ${ REGIONS_WF.filter(region => region !== SOURCE_REGION).map(region => region.toUpperCase()).join(', ') } regions: ${ message }${ skuResolution?.unresolvedSkus?.length ? `\nUnresolved SKUs: ${ skuResolution.unresolvedSkus.join(', ') }` : '' }`,
         },
       };
     },
@@ -169,7 +169,10 @@ const slackInteractiveProductSync = async (req, res) => {
     response_url: responseUrl,
     state, 
     actions, 
+    user,
   } = payload;
+
+  const { id: callerUserId } = user;
 
   const action = actions?.[0];
   const { 
@@ -228,7 +231,7 @@ const slackInteractiveProductSync = async (req, res) => {
       response = {
         replace_original: true,
         blocks: [
-          blocks.result.pvx_result(reconcilePvxResult),
+          blocks.result.pvx_result(callerUserId, reconcilePvxResult),
         ],
       };
 
@@ -266,7 +269,7 @@ const slackInteractiveProductSync = async (req, res) => {
       response = {
         replace_original: true,
         blocks: [
-          blocks.result.regions_result(syncRegionsResult),
+          blocks.result.regions_result(callerUserId, syncRegionsResult),
         ],
       };
 
