@@ -116,7 +116,7 @@ const blocks = {
       },
     },
 
-    breadcrumbs: (selectedStore) => {
+    breadcrumbs: (selectedStore, selectedProfile) => {
       return {
         type: 'rich_text',
         block_id: 'zone_selector:breadcrumbs',
@@ -126,7 +126,7 @@ const blocks = {
             elements: [
               {
                 type: 'text',
-                text: `Home > ${ selectedStore.toUpperCase() }`,
+                text: `Home > ${ selectedStore.toUpperCase() } > ${ selectedProfile }`,
                 style: {
                   italic: true,
                 },
@@ -137,7 +137,7 @@ const blocks = {
       };
     },
 
-    buttons: (store, zones) => {
+    buttons: (store, profile, zones) => {
       return zones.map(zone => {
         return {
           type: 'actions',
@@ -146,10 +146,10 @@ const blocks = {
               type: 'button',
               text: {
                 type: 'plain_text',
-                text: zone.toUpperCase(),
+                text: zone,
               },
               value: zone,
-              action_id: `${ COMMAND_NAME }:zone_select:${ store }:${ zone }`,
+              action_id: `${ COMMAND_NAME }:zone_select:${ store }:${ profile }:${ zone }`,
             }
           ],
         }
