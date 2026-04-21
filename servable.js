@@ -139,6 +139,7 @@ module.exports = {
   shopifyPublicationsGet: lazy(() => require('./shopify/shopifyPublicationsGet').shopifyPublicationsGetApi),
   shopifyStagedUploadCreate: lazy(() => require('./shopify/shopifyStagedUploadCreate').shopifyStagedUploadCreateApi),
   shopifyStaleCompleteTheLook: lazy(() => require('./shopify/shopifyStaleCompleteTheLook').shopifyStaleCompleteTheLookApi),
+  shopifyStaleCompleteTheLookTag: lazy(() => require('./shopify/shopifyStaleCompleteTheLookTag').shopifyStaleCompleteTheLookTagApi),
   shopifyStoreCreditAccountCredit: lazy(() => require('./shopify/shopifyStoreCreditAccountCredit').shopifyStoreCreditAccountCreditApi),
   shopifyStoreCreditAccountDebit: lazy(() => require('./shopify/shopifyStoreCreditAccountDebit').shopifyStoreCreditAccountDebitApi),
   shopifyStoreCreditLifetimeGet: lazy(() => require('./shopify/shopifyStoreCreditLifetimeGet').shopifyStoreCreditLifetimeGetApi),
