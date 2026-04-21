@@ -1,5 +1,11 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/tagsAdd
 // Product search: https://shopify.dev/docs/api/usage/search-syntax
+//
+// Product sync: **AU is the source region**; US/UK (etc.) follow AU. If something exists on a
+// regional store but not on AU, sync removes it. Regional products therefore carry `custom.id` =
+// the **AU** product id (digits only). Flow: run the stale-CTL scan on the regional `scanCredsPath`,
+// read each parent’s `custom.id`, build `gid://shopify/Product/{id}`, then `tagsAdd` on **AU**
+// (`credsPath` — the base/canonical store).
 
 const { funcApi } = require("../utils");
 const { shopifyCredsPathDistill } = require("../shopify/shopify.utils");
@@ -9,6 +15,29 @@ const {
 const { shopifyTagsAdd } = require("./shopifyTagsAdd");
 
 const DEFAULT_COMPLETE_THE_LOOK_REVIEW_TAG = "complete_the_look_review";
+
+/**
+ * Scan-side metafield: other regions store the **AU (tag-store) product id** here, without the
+ * `gid://shopify/Product/` prefix. Cross-region tagging builds that GID on `credsPath` directly.
+ */
+const CUSTOM_ID_METAFIELD = { namespace: "custom", key: "id" };
+
+/**
+ * @param {string|number} customId — AU numeric product id, or full `gid://shopify/Product/…`
+ * @returns {{ ok: true, gid: string } | { ok: false, reason: string }}
+ */
+const auProductGidFromCustomId = (customId) => {
+  const raw = String(customId ?? "").trim();
+  if (!raw) {
+    return { ok: false, reason: "empty" };
+  }
+  const fromGid = /^gid:\/\/shopify\/Product\/(\d+)$/i.exec(raw);
+  const digits = fromGid ? fromGid[1] : raw;
+  if (!/^\d+$/.test(digits)) {
+    return { ok: false, reason: "not_numeric_product_id" };
+  }
+  return { ok: true, gid: `gid://shopify/Product/${digits}` };
+};
 
 const resolveTagBase = (tag) => {
   if (tag === undefined || tag === null) {
@@ -45,27 +74,50 @@ const buildRegionTag = (resolvedBase, region) => {
 };
 
 /**
- * Runs `shopifyStaleCompleteTheLook` on products **not** already tagged, then adds the tag to each
- * **parent** product that has at least one sold-out Complete the Look pick.
+ * Runs the stale Complete the Look scan (optionally on **another** store), then tags matching
+ * **parent** products on **`credsPath`** (canonical / base store — AU in your sync).
  *
- * Tag applied: `{tagBase}_{region}` (default base `complete_the_look_review`). **Region** is always
- * the first segment of `credsPath` (e.g. `credsPath: "au"` → `complete_the_look_review_au`).
+ * - **`credsPath`**: where `tagsAdd` runs; `shopifyCredsPathDistill(credsPath).region` drives the
+ *   `_region` suffix on the tag (e.g. `complete_the_look_review_au`).
+ * - **`options.scanCredsPath`**: Admin store to scan (US, UK, …); defaults to `credsPath` when you
+ *   only need one store.
+ * - Cross-store: scan finds parents with sold-out CTL refs on the regional store; each parent’s
+ *   **`custom.id`** is the **AU** numeric product id → `gid://shopify/Product/{id}` on `credsPath`.
  *
- * @param {string} credsPath — store credentials path; first segment is the region suffix for the tag
+ * When scan and tag use the same `credsPath`, products already carrying the full tag are excluded
+ * from the scan via `-tag:…`. When they differ, that exclude is not applied on the scan store.
+ *
+ * @param {string} credsPath — tag target store (e.g. `au`)
  * @param {object} [options]
  * @param {string} [options.tag] — base tag before `_region` (default: `complete_the_look_review`)
+ * @param {string} [options.scanCredsPath] — scan store (default: same as `credsPath`)
  */
 const shopifyStaleCompleteTheLookTag = async (credsPath, options = {}) => {
-  const { tag: tagOption } = options;
+  const {
+    tag: tagOption,
+    scanCredsPath: scanCredsPathOption,
+    apiVersion,
+  } = options;
 
-  const { region } = shopifyCredsPathDistill(credsPath);
+  const tagCredsPath = credsPath;
+  const scanCredsPath =
+    scanCredsPathOption !== undefined && scanCredsPathOption !== null
+      ? String(scanCredsPathOption).trim()
+      : tagCredsPath;
+
+  const crossRegion = scanCredsPath !== tagCredsPath;
+
+  const { region } = shopifyCredsPathDistill(tagCredsPath);
 
   const tagBase = resolveTagBase(tagOption);
   const tag = buildRegionTag(tagBase, region);
 
   const excludeClause = productSearchExcludeTagClause(tag);
-  const stale = await shopifyStaleCompleteTheLook(credsPath, {
-    ...(excludeClause && { queries: [excludeClause] }),
+  const sameStore = scanCredsPath === tagCredsPath;
+
+  const stale = await shopifyStaleCompleteTheLook(scanCredsPath, {
+    ...(sameStore && excludeClause && { queries: [excludeClause] }),
+    ...(apiVersion && { apiVersion }),
   });
 
   if (!stale.success) {
@@ -80,29 +132,77 @@ const shopifyStaleCompleteTheLookTag = async (credsPath, options = {}) => {
     };
   }
 
-  const parentIds = parents.map((entry) => entry.parent.id);
+  const resolutionErrors = [];
+  const parentIds = [];
+
+  if (sameStore) {
+    for (const entry of parents) {
+      parentIds.push(entry.parent.id);
+    }
+  } else {
+    for (const entry of parents) {
+      const cid = entry.parent.customId;
+      if (cid == null || String(cid).trim() === "") {
+        resolutionErrors.push({
+          scanParentId: entry.parent.id,
+          scanParentHandle: entry.parent.handle,
+          message: "missing custom.id metafield value on scan store",
+        });
+        continue;
+      }
+      const gidRes = auProductGidFromCustomId(cid);
+      if (!gidRes.ok) {
+        resolutionErrors.push({
+          scanParentId: entry.parent.id,
+          scanParentHandle: entry.parent.handle,
+          customId: cid,
+          message:
+            gidRes.reason === "empty"
+              ? "missing custom.id metafield value on scan store"
+              : "custom.id must be AU numeric product id or gid://shopify/Product/…",
+        });
+        continue;
+      }
+      parentIds.push(gidRes.gid);
+    }
+  }
 
   const baseResult = {
     tag,
     tagBase,
     region,
-    productSearchQuery: excludeClause || null,
+    tagCredsPath,
+    scanCredsPath,
+    crossRegion,
+    productSearchQuery: sameStore ? excludeClause || null : null,
+    crossRegionAuGidFromCustomId: crossRegion ? true : null,
     parentIdsTagged: parentIds,
     tagged: parentIds.length,
+    resolutionErrors:
+      resolutionErrors.length > 0 ? resolutionErrors : undefined,
     stale: stale.result,
   };
 
   if (parentIds.length === 0) {
     return {
-      success: true,
+      success: resolutionErrors.length === 0,
+      ...(resolutionErrors.length > 0 && {
+        error: [
+          {
+            message:
+              "No tag-store products resolved; see result.resolutionErrors",
+          },
+        ],
+      }),
       result: baseResult,
     };
   }
 
-  const tagsResponse = await shopifyTagsAdd(credsPath, parentIds, [tag], {
+  const tagsResponse = await shopifyTagsAdd(tagCredsPath, parentIds, [tag], {
     queueRunOptions: {
       interval: 20,
     },
+    ...(apiVersion && { apiVersion }),
   });
 
   if (!tagsResponse.success) {
@@ -139,9 +239,11 @@ module.exports = {
   shopifyStaleCompleteTheLookTag,
   shopifyStaleCompleteTheLookTagApi,
   DEFAULT_COMPLETE_THE_LOOK_REVIEW_TAG,
+  CUSTOM_ID_METAFIELD,
 };
 
-// curl http://localhost:8000/shopifyStaleCompleteTheLookTag -H 'Content-Type: application/json' -d '{ "credsPath": "au", "options": {} }'
-// → tag `complete_the_look_review_au`, scan excludes products already with that tag
-// curl http://localhost:8000/shopifyStaleCompleteTheLookTag -H 'Content-Type: application/json' -d '{ "credsPath": "us", "options": { "tag": "ctl_review" } }'
-// → tag `ctl_review_us`
+// Same store (AU scan + AU tag), excludes already tagged:
+// curl http://localhost:8000/shopifyStaleCompleteTheLookTag -H 'Content-Type: application/json' -d '{ "credsPath": "au" }'
+//
+// Scan US, tag AU — `custom.id` on US parents = AU numeric product id → GID on AU:
+// curl http://localhost:8000/shopifyStaleCompleteTheLookTag -H 'Content-Type: application/json' -d '{ "credsPath": "au", "options": { "scanCredsPath": "us" } }'

@@ -6,13 +6,17 @@ const { funcApi } = require("../utils");
 const { shopifyGetter } = require("../shopify/shopify.utils");
 const { shopifyProductsGet } = require("../shopify/shopifyProductsGet");
 
-// `tracksInventory` + `totalInventory` (validated Admin API).
+/** Shared product id across stores: `custom.id` metafield. */
 const defaultAttrs = `
   id
   handle
   title
   totalInventory
   tracksInventory
+  customId: metafield(namespace: "custom", key: "id") {
+    value
+    type
+  }
   ctl: metafield(namespace: "related_products", key: "complete_the_look") {
     value
     type
@@ -51,12 +55,13 @@ const payloadMaker = (credsPath, { attrs = defaultAttrs, ...options } = {}) => {
  * - `parents` — **one entry per top-level product** (the product that owns the CTL metafield).
  *   Each entry has `parent` (that product) and `soldOutReferences` (**array**: sold-out CTL picks,
  *   **unique by referenced product GID** — duplicate GIDs in the metafield JSON are ignored).
+ *   `parent.customId` is the **`custom.id`** metafield value (same logical product on another store).
  * - `rows` — **one entry per sold-out referenced product** (denormalized). If a parent has three
  *   bad refs, you get **three** rows with the same `parent*` fields and three different
  *   `referencedProduct*` fields — singular names because each row describes **one** ref.
  *
  * @param {string} credsPath
- * @param {object} [options] — passed through to `shopifyProductsGet` except `attrs`
+ * @param {object} [options] — passed through to `shopifyProductsGet` except `attrs`, `keyBy`
  */
 const shopifyStaleCompleteTheLook = async (credsPath, options = {}) => {
   const {
@@ -124,11 +129,16 @@ const shopifyStaleCompleteTheLook = async (credsPath, options = {}) => {
       continue;
     }
 
+    const customRaw = parent.customId;
+    const customId =
+      typeof customRaw === "string" ? customRaw : customRaw?.value ?? null;
+
     parents.push({
       parent: {
         id: parent.id,
         handle: parent.handle,
         title: parent.title,
+        customId,
       },
       soldOutReferences,
     });
@@ -147,6 +157,7 @@ const shopifyStaleCompleteTheLook = async (credsPath, options = {}) => {
         parentHandle: p.parent.handle,
         parentTitle: p.parent.title,
         parentId: p.parent.id,
+        parentCustomId: p.parent.customId,
         referencedProductId: ref.id,
         referencedProductHandle: ref.handle,
         referencedProductTitle: ref.title,
@@ -199,4 +210,3 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyStaleCompleteTheLook -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "queries": ["status:active"] } }'
-
