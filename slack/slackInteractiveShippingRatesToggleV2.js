@@ -53,6 +53,58 @@ const blocks = {
     }),
   },
 
+  profile_selector: {
+
+    intro: {
+      type: 'section',
+      block_id: 'profile_selector:intro',
+      text: {
+        type: 'mrkdwn',
+        text: 'Select a delivery profile:',
+      },
+    },
+
+    breadcrumbs: (selectedStore) => {
+      return {
+        type: 'rich_text',
+        block_id: 'profile_selector:breadcrumbs',
+        elements: [
+          {
+            type: 'rich_text_section',
+            elements: [
+              {
+                type: 'text',
+                text: `Home > ${ selectedStore.toUpperCase() }`,
+                style: {
+                  italic: true,
+                },
+              },
+            ],
+          },
+        ],
+      };
+    },
+
+    buttons: (store, profiles) => {
+      return profiles.map(profile => {
+        return {
+          type: 'actions',
+          elements: [
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: profile,
+              },
+              value: profile,
+              action_id: `${ COMMAND_NAME }:profile_select:${ store }:${ profile }`,
+            },
+          ],
+        };
+      });
+    },
+  },
+
   zone_selector: {
 
     intro: {
