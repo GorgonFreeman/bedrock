@@ -595,8 +595,11 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
 
       selectedStore = actionNodes?.[0];
       logDeep('selectedStore', selectedStore);
+      
+      selectedProfile = actionNodes?.[1];
+      logDeep('selectedProfile', selectedProfile);
 
-      selectedZone = actionNodes?.[1];
+      selectedZone = actionNodes?.[2];
       logDeep('selectedZone', selectedZone);
 
       regionalShippingRatesForZone = shippingRatesByStore
@@ -605,7 +608,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
         .filter(rate => rate.locationGroupZoneName === selectedZone);
       logDeep({ regionalShippingRatesForZone });
 
-      const selectedOptions = state.values[`rate_toggle:checkboxes:${ selectedStore }`]?.[`${ COMMAND_NAME }:rate_toggle:${ selectedStore }:${ selectedZone }`]?.selected_options;
+      const selectedOptions = state.values[`rate_toggle:checkboxes:${ selectedStore }:${ selectedProfile }:${ selectedZone }`]?.[`${ COMMAND_NAME }:rate_toggle:${ selectedStore }:${ selectedProfile }:${ selectedZone }`]?.selected_options;
       logDeep({ selectedOptions });
 
       // Fetch the toggled rates context from the list block
@@ -628,7 +631,8 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
         replace_original: 'true',
         blocks: [
           blocks.intro,
-          blocks.rate_toggle.checkboxes(selectedStore, selectedZone, regionalShippingRatesForZone),
+          blocks.rate_toggle.breadcrumbs(selectedStore, selectedProfile, selectedZone),
+          blocks.rate_toggle.checkboxes(selectedStore, selectedProfile, selectedZone, regionalShippingRatesForZone),
           blocks.divider,
           blocks.toggled_rates.list(ratesToggleStatus),
           blocks.divider,
