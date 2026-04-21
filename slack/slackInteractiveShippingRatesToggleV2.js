@@ -506,6 +506,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
   let selectedZone;
   let regionalShippingRates;
   let regionalShippingRatesForZone;
+  let disabledRates = [];
   let toggledRatesString = [];
   let ratesToggleStatus = [];
 
@@ -542,6 +543,74 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
   }
 
   switch (actionName) {
+
+    case 'disabled_rates':
+
+      switch (actionNodes?.[0]) {
+
+        case 'show_button':
+          
+          // Fetch the disabled rates
+          disabledRates = shippingRatesByStore.filter(rate => !rate.active);
+
+          ratesToggleStatus = getRatesToggleStatus();
+          logDeep({ ratesToggleStatus });
+
+          response = {
+            replace_original: 'true',
+            blocks: [
+              blocks.intro,
+              blocks.disabled_rates.checkboxes(disabledRates),
+              blocks.divider,
+              blocks.toggled_rates.list(ratesToggleStatus),
+              blocks.divider,
+              blocks.action_buttons({ home: true }),
+            ],
+          }
+          break;
+
+        case 'enable':
+
+          // Fetch the disabled rates
+          disabledRates = shippingRatesByStore.filter(rate => !rate.active);
+          
+          const selectedOptions = state.values[`disabled_rates:checkboxes`]?.[`${ COMMAND_NAME }:disabled_rates:enable`]?.selected_options;
+          logDeep({ selectedOptions });
+
+          // Fetch the toggled rates context from the list block
+          ratesToggleStatus = getRatesToggleStatus();
+          // logDeep({ ratesToggleStatus });
+
+          // Update the rates toggle status with the selected options
+          ratesToggleStatus = ratesToggleStatus.map(rate => {
+            if (!disabledRates.some(disabledRate => gidToId(disabledRate.id) === gidToId(rate.id))) {
+              return rate;
+            }
+            return {
+              ...rate,
+              enable: selectedOptions.some(option => option.value === gidToId(rate.id)),
+            }
+          });
+          logDeep({ ratesToggleStatus });
+
+          response = {
+            replace_original: 'true',
+            blocks: [
+              blocks.intro,
+              blocks.disabled_rates.checkboxes(disabledRates),
+              blocks.divider,
+              blocks.toggled_rates.list(ratesToggleStatus),
+              blocks.divider,
+              blocks.action_buttons({ home: true }),
+            ],
+          }
+          break;
+
+        default:
+          console.warn(`Unknown actionValue: ${ actionValue }`);
+          break;
+      }
+      break;
 
     case 'store_select':
 
