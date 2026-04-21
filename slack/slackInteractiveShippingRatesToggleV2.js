@@ -671,9 +671,10 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       const rateToggleCheckboxBlock = Object.keys(currentBlocksById).find(key => key.startsWith('rate_toggle:checkboxes'));
       if (rateToggleCheckboxBlock) {
 
-        const [selectedStore, selectedProfile] = rateToggleCheckboxBlock.split('rate_toggle:checkboxes:')[1].split(':');
+        const [selectedStore, selectedProfile, selectedZone] = rateToggleCheckboxBlock.split('rate_toggle:checkboxes:')[1].split(':');
         logDeep('selectedStore', selectedStore);
         logDeep('selectedProfile', selectedProfile);
+        logDeep('selectedZone', selectedZone);
 
         regionalShippingRates = shippingRatesByStore
           .filter(rate => rate.store === selectedStore)
