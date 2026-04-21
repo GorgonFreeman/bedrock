@@ -449,7 +449,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
   let ratesToggleStatus = [];
 
   const getRatesToggleStatus = () => {
-    // Fetch the toggled rates context from the list block
+    // Fetch the toggled rate id from the 6th column of the toggled list
     toggledRatesString =
       currentBlocksById['toggled_rates:list']?.text?.text?.split(TOGGLING_LIST_HEADER)?.[1]?.trim().split('\n')
       .map(rate => rate.trim());
