@@ -200,7 +200,7 @@ const shopifyStaleCompleteTheLookTag = async (credsPath, options = {}) => {
 
   const tagsResponse = await shopifyTagsAdd(tagCredsPath, parentIds, [tag], {
     queueRunOptions: {
-      interval: 20,
+      interval: 50,
     },
     ...(apiVersion && { apiVersion }),
   });
@@ -247,3 +247,4 @@ module.exports = {
 //
 // Scan US, tag AU — `custom.id` on US parents = AU numeric product id → GID on AU:
 // curl http://localhost:8000/shopifyStaleCompleteTheLookTag -H 'Content-Type: application/json' -d '{ "credsPath": "au", "options": { "scanCredsPath": "us" } }'
+// curl http://localhost:8000/shopifyStaleCompleteTheLookTag -H 'Content-Type: application/json' -d '{ "credsPath": "au", "options": { "scanCredsPath": "uk" } }'
