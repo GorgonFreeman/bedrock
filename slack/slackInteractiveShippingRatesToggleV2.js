@@ -286,7 +286,7 @@ const blocks = {
             return {
               text: {
                 type: 'plain_text',
-                text: rate.name,
+                text: `${ rate.name } | Store: ${ rate.store.toUpperCase() } | Profile: ${ rate.deliveryProfileName } | Zone: ${ rate.locationGroupZoneName } | ${ gidToId(rate.id) }`,
               },
               value: gidToId(rate.id),
             }
