@@ -1,6 +1,7 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/queries/products
 // Product inventory: https://shopify.dev/docs/api/admin-graphql/latest/objects/Product#fields
 
+const { HOSTED } = require("../constants");
 const { funcApi } = require("../utils");
 const { shopifyGetter } = require("../shopify/shopify.utils");
 const { shopifyProductsGet } = require("../shopify/shopifyProductsGet");
@@ -17,6 +18,7 @@ const defaultAttrs = `
     type
   }
 `;
+// Metafield type is list.product_reference: JSON array of product GIDs (Complete the Look picks).
 
 /** Inventory sold out for tracked products (nothing left to sell). Untracked products are not flagged. */
 const productIsInventorySoldOut = (p) => {
@@ -39,11 +41,19 @@ const payloadMaker = (credsPath, { attrs = defaultAttrs, ...options } = {}) => {
 };
 
 /**
- * Fetches products once, builds a gid map, then for each product with Complete the Look
- * (list.product_reference), lists referenced products that exist in the catalog and are
- * inventory sold out — so those GIDs can be removed from the metafield.
+ * Fetches products once, builds a gid map, then for each product whose Complete the Look
+ * metafield is set: that metafield is an **array** of product references (`list.product_reference`).
+ * We walk that array and list which referenced products are inventory sold out so those GIDs
+ * can be removed from the array.
  *
- * Success shape: `result.summary`, `result.parents` (grouped), `result.rows` (flat, one line per bad ref).
+ * Success `result` shape:
+ * - `summary` — `productsFetched` (catalog rows loaded), `parentsAffected`, `soldOutReferencesTotal`.
+ * - `parents` — **one entry per top-level product** (the product that owns the CTL metafield).
+ *   Each entry has `parent` (that product) and `soldOutReferences` (**array**: sold-out CTL picks,
+ *   **unique by referenced product GID** — duplicate GIDs in the metafield JSON are ignored).
+ * - `rows` — **one entry per sold-out referenced product** (denormalized). If a parent has three
+ *   bad refs, you get **three** rows with the same `parent*` fields and three different
+ *   `referencedProduct*` fields — singular names because each row describes **one** ref.
  *
  * @param {string} credsPath
  * @param {object} [options] — passed through to `shopifyProductsGet` except `attrs`
@@ -90,9 +100,12 @@ const shopifyStaleCompleteTheLook = async (credsPath, options = {}) => {
       continue;
     }
 
+    // Metafield array can list the same product GID more than once; process each ref once.
+    const uniqueRefGids = [...new Set(refGids)];
+
     const soldOutReferences = [];
 
-    for (const refGid of refGids) {
+    for (const refGid of uniqueRefGids) {
       const ref = byGid.get(refGid);
       if (!ref) {
         continue;
@@ -134,19 +147,32 @@ const shopifyStaleCompleteTheLook = async (credsPath, options = {}) => {
         parentHandle: p.parent.handle,
         parentTitle: p.parent.title,
         parentId: p.parent.id,
-        soldOutHandle: ref.handle,
-        soldOutTitle: ref.title,
-        soldOutId: ref.id,
+        referencedProductId: ref.id,
+        referencedProductHandle: ref.handle,
+        referencedProductTitle: ref.title,
       });
     }
+  }
+
+  const summary = {
+    productsFetched: products.length,
+    parentsAffected: parents.length,
+    soldOutReferencesTotal: rows.length,
+  };
+
+  if (!HOSTED) {
+    console.log(
+      `[shopifyStaleCompleteTheLook] productsFetched=${summary.productsFetched} parentsAffected=${summary.parentsAffected} soldOutReferencesTotal=${summary.soldOutReferencesTotal}`,
+    );
   }
 
   return {
     success: true,
     result: {
       summary: {
-        parentsAffected: parents.length,
-        soldOutReferencesTotal: rows.length,
+        parentsAffected: summary.parentsAffected,
+        soldOutReferencesTotal: summary.soldOutReferencesTotal,
+        productsFetched: summary.productsFetched,
       },
       parents,
       rows,
