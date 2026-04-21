@@ -556,6 +556,15 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           ratesToggleStatus = getRatesToggleStatus();
           logDeep({ ratesToggleStatus });
 
+          // Update the disabled rates with the toggled rates status
+          disabledRates = disabledRates.map(disabledRate => {
+            const toggleStatus = ratesToggleStatus.find(rateToggleStatus => gidToId(rateToggleStatus.id) === gidToId(disabledRate.id));
+            return {
+              ...disabledRate,
+              enable: toggleStatus?.enable ?? disabledRate.active,
+            }
+          });
+
           response = {
             replace_original: 'true',
             blocks: [
