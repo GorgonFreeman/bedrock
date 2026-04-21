@@ -282,7 +282,15 @@ const blocks = {
         },
         accessory: {
           type: 'checkboxes',
-          // All options are disabled so are not marked in initialOptions
+          initial_options: rates.filter(rate => rate.enable).map(rate => {
+            return {
+              text: {
+                type: 'plain_text',
+                text: rate.name,
+              },
+              value: gidToId(rate.id),
+            }
+          }),
           options: rates.map(rate => {
             return {
               text: {
