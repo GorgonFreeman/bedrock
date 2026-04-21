@@ -527,7 +527,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
     }
     return shippingRatesByStore.map(rate => {
       const rateString = toggledRatesString.find(rateString => rateString.split('|')[5]?.trim() === gidToId(rate.id));
-      logDeep({ rateString });
+      // logDeep({ rateString });
       if (!rateString) {
         return {
           ...rate,
@@ -553,8 +553,8 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           // Fetch the disabled rates
           disabledRates = shippingRatesByStore.filter(rate => !rate.active);
 
+          // Fetch the toggled rates context from the list block
           ratesToggleStatus = getRatesToggleStatus();
-          logDeep({ ratesToggleStatus });
 
           // Update the disabled rates with the toggled rates status
           disabledRates = disabledRates.map(disabledRate => {
@@ -584,11 +584,9 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           disabledRates = shippingRatesByStore.filter(rate => !rate.active);
           
           const selectedOptions = state.values[`disabled_rates:checkboxes`]?.[`${ COMMAND_NAME }:disabled_rates:enable`]?.selected_options;
-          logDeep({ selectedOptions });
 
           // Fetch the toggled rates context from the list block
           ratesToggleStatus = getRatesToggleStatus();
-          // logDeep({ ratesToggleStatus });
 
           // Update the disabled rates with the toggled rates status
           disabledRates = disabledRates.map(disabledRate => {
@@ -609,7 +607,6 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
               enable: selectedOptions.some(option => option.value === gidToId(rate.id)),
             }
           });
-          logDeep({ ratesToggleStatus });
 
           response = {
             replace_original: 'true',
@@ -633,18 +630,14 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
     case 'store_select':
 
       selectedStore = actionNodes?.[0];
-      logDeep('selectedStore', selectedStore);
-
       regionalShippingRates = shippingRatesByStore
         .filter(rate => rate.store === selectedStore);
-      logDeep({ regionalShippingRates });
 
+      // Fetch the regional shipping profiles
       const regionalShippingProfiles = Array.from(new Set(regionalShippingRates.map(rate => rate.deliveryProfileName)));
-      logDeep({ regionalShippingProfiles });
 
       // Fetch the toggled rates context from the list block
       ratesToggleStatus = getRatesToggleStatus();
-      logDeep({ ratesToggleStatus });
 
       response = {
         replace_original: 'true',
@@ -665,21 +658,18 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
     case 'profile_select':
 
       selectedStore = actionNodes?.[0];
-      logDeep('selectedStore', selectedStore);
-
       selectedProfile = actionNodes?.[1];
-      logDeep('selectedProfile', selectedProfile);
 
+      // Fetch the regional shipping rates for the profile
       regionalShippingRates = shippingRatesByStore
         .filter(rate => rate.store === selectedStore)
         .filter(rate => rate.deliveryProfileName === selectedProfile);
-      logDeep({ regionalShippingRates });
 
+      // Fetch the regional shipping zones
       const regionalShippingZones = Array.from(new Set(regionalShippingRates.map(rate => rate.locationGroupZoneName)));
-      logDeep({ regionalShippingZones });
 
+      // Fetch the toggled rates context from the list block
       ratesToggleStatus = getRatesToggleStatus();
-      logDeep({ ratesToggleStatus });
 
       response = {
         replace_original: 'true',
@@ -699,23 +689,17 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
     case 'zone_select':
 
       selectedStore = actionNodes?.[0];
-      logDeep('selectedStore', selectedStore);
-
       selectedProfile = actionNodes?.[1];
-      logDeep('selectedProfile', selectedProfile);
-
       selectedZone = actionNodes?.[2];
-      logDeep('selectedZone', selectedZone);
 
+      // Fetch the regional shipping rates for the zone
       regionalShippingRatesForZone = shippingRatesByStore
         .filter(rate => rate.store === selectedStore)
         .filter(rate => rate.deliveryProfileName === selectedProfile)
         .filter(rate => rate.locationGroupZoneName === selectedZone);
-      logDeep({ regionalShippingRatesForZone });
 
       // Fetch the toggled rates context from the list block
       ratesToggleStatus = getRatesToggleStatus();
-      logDeep({ ratesToggleStatus });
 
       // Update the regional shipping rates for the zone with the toggled rates status
       regionalShippingRatesForZone = regionalShippingRatesForZone.map(rate => {
@@ -725,7 +709,6 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           enable: toggleStatus?.enable ?? rate.active,
         }
       });
-      logDeep({ regionalShippingRatesForZone });
 
       response = {
         replace_original: 'true',
@@ -744,26 +727,19 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
     case 'rate_toggle':
 
       selectedStore = actionNodes?.[0];
-      logDeep('selectedStore', selectedStore);
-      
       selectedProfile = actionNodes?.[1];
-      logDeep('selectedProfile', selectedProfile);
-
       selectedZone = actionNodes?.[2];
-      logDeep('selectedZone', selectedZone);
 
+      // Fetch the regional shipping rates for the zone
       regionalShippingRatesForZone = shippingRatesByStore
         .filter(rate => rate.store === selectedStore)
         .filter(rate => rate.deliveryProfileName === selectedProfile)
         .filter(rate => rate.locationGroupZoneName === selectedZone);
-      logDeep({ regionalShippingRatesForZone });
 
       const selectedOptions = state.values[`rate_toggle:checkboxes:${ selectedStore }:${ selectedProfile }:${ selectedZone }`]?.[`${ COMMAND_NAME }:rate_toggle:${ selectedStore }:${ selectedProfile }:${ selectedZone }`]?.selected_options;
-      logDeep({ selectedOptions });
 
       // Fetch the toggled rates context from the list block
       ratesToggleStatus = getRatesToggleStatus();
-      logDeep({ ratesToggleStatus });
 
       // Update the toggled rates context with the selected options
       ratesToggleStatus = ratesToggleStatus.map(rate => {
@@ -775,7 +751,6 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           enable: selectedOptions.some(option => option.value === gidToId(rate.id)),
         }
       });
-      logDeep({ ratesToggleStatus });
 
       response = {
         replace_original: 'true',
@@ -796,7 +771,6 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
 
       // Fetch the toggled rates context from the list block
       ratesToggleStatus = getRatesToggleStatus();
-      logDeep({ ratesToggleStatus });
 
       response = {
         replace_original: 'true',
@@ -815,25 +789,22 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
 
     case 'go_back':
 
+      // Fetch the toggled rates context from the list block
       ratesToggleStatus = getRatesToggleStatus();
-      logDeep({ ratesToggleStatus });
 
       // Find the rate toggle checkbox block
       const rateToggleCheckboxBlock = Object.keys(currentBlocksById).find(key => key.startsWith('rate_toggle:checkboxes'));
       if (rateToggleCheckboxBlock) {
 
         const [selectedStore, selectedProfile, selectedZone] = rateToggleCheckboxBlock.split('rate_toggle:checkboxes:')[1].split(':');
-        logDeep('selectedStore', selectedStore);
-        logDeep('selectedProfile', selectedProfile);
-        logDeep('selectedZone', selectedZone);
 
+        // Fetch the regional shipping rates for the profile
         regionalShippingRates = shippingRatesByStore
           .filter(rate => rate.store === selectedStore)
           .filter(rate => rate.deliveryProfileName === selectedProfile);
-        logDeep({ regionalShippingRates });
 
+        // Fetch the regional shipping zones
         const regionalShippingZones = Array.from(new Set(regionalShippingRates.map(rate => rate.locationGroupZoneName)));
-        logDeep({ regionalShippingZones });
 
         // Respond with the zone selector step
         response = {
@@ -854,20 +825,18 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
 
       // Find the zone selector block
       const zoneSelectorBlock = Object.keys(currentBlocksById).find(key => key.startsWith('zone_selector:breadcrumbs'));
-      logDeep({ zoneSelectorBlock });
       if (zoneSelectorBlock) {
 
         const [selectedStore, selectedProfile] = zoneSelectorBlock.split('zone_selector:breadcrumbs:')[1].split(':');
-        logDeep('selectedStore', selectedStore);
-        logDeep('selectedProfile', selectedProfile);
         
+        // Fetch the regional shipping rates for the profile
         regionalShippingRates = shippingRatesByStore
           .filter(rate => rate.store === selectedStore);
-        logDeep({ regionalShippingRates });
 
+        // Fetch the regional shipping profiles
         const regionalShippingProfiles = Array.from(new Set(regionalShippingRates.map(rate => rate.deliveryProfileName)));
-        logDeep({ regionalShippingProfiles });
         
+        // Respond with the profile selector step
         response = {
           replace_original: 'true',
           blocks: [
@@ -903,11 +872,10 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
 
     case 'submit':
 
+      // Fetch the toggled rates context from the list block
       ratesToggleStatus = getRatesToggleStatus();
-      logDeep({ ratesToggleStatus });
 
       const ratesToToggle = ratesToggleStatus.filter(rate => rate.enable !== rate.active);
-      logDeep({ ratesToToggle });
 
       // If no rates to toggle, show an error and go back to the store selector
       if (ratesToToggle.length === 0) {
@@ -950,8 +918,10 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           enable: enableRate,
         } = rate;
         mode = enableRate ? 'enable' : 'disable';
+
+        // Send the toggle request to Shopify
         const shippingRateUpdateResponse = await shopifyShippingRatesToggle(credsPath, mode, { shippingRateId: gidToId(id) });
-        logDeep({ shippingRateUpdateResponse });
+        // logDeep({ shippingRateUpdateResponse });
         const { success: shippingRateUpdateSuccess, result: shippingRateUpdateResult, error: shippingRateUpdateError } = shippingRateUpdateResponse;
         if (!shippingRateUpdateSuccess) {
           results.push({
@@ -961,6 +931,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           });
           continue;
         }
+
         results.push({
           ...rate,
           success: true,
