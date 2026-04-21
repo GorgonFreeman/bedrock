@@ -246,6 +246,58 @@ const blocks = {
     };
   },
 
+  disabled_rates: {
+
+    intro: {
+      type: 'section',
+      block_id: 'disabled_rates:intro',
+      text: {
+        type: 'mrkdwn',
+        text: 'Disabled rates:',
+      },
+    },
+
+    show_button: {
+      type: 'actions',
+      elements: [
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Show disabled rates only',
+          },
+          value: 'show_disabled_rates_only',
+          action_id: `${ COMMAND_NAME }:disabled_rates:show_button`,
+        },
+      ],
+    },
+
+    checkboxes: (rates) => {
+      return {
+        type: 'section',
+        block_id: 'disabled_rates:checkboxes',
+        text: {
+          type: 'mrkdwn',
+          text: 'Select rates to enable:',
+        },
+        accessory: {
+          type: 'checkboxes',
+          // All options are disabled so are not marked in initialOptions
+          options: rates.map(rate => {
+            return {
+              text: {
+                type: 'plain_text',
+                text: `${ rate.name } | Store: ${ rate.store.toUpperCase() } | Profile: ${ rate.deliveryProfileName } | Zone: ${ rate.locationGroupZoneName } | ${ gidToId(rate.id) }`,
+              },
+              value: gidToId(rate.id),
+            };
+          }),
+          action_id: `${ COMMAND_NAME }:disabled_rates:enable`,
+        },
+      };
+    },
+  },
+
   action_buttons: ({
     goBack = false,
     home = false,
@@ -389,6 +441,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
 
     const initialBlocks = [
       blocks.intro,
+      blocks.disabled_rates.show_button,
       blocks.store_selector.intro,
       ...blocks.store_selector.buttons,
       blocks.divider,
@@ -654,6 +707,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
         replace_original: 'true',
         blocks: [
           blocks.intro,
+          blocks.disabled_rates.show_button,
           blocks.store_selector.intro,
           ...blocks.store_selector.buttons,
           blocks.divider,
@@ -741,6 +795,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
         replace_original: 'true',
         blocks: [
           blocks.intro,
+          blocks.disabled_rates.show_button,
           blocks.store_selector.intro,
           ...blocks.store_selector.buttons,
           blocks.divider,
