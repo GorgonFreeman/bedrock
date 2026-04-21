@@ -464,7 +464,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       });
     }
     return shippingRatesByStore.map(rate => {
-      const rateString = toggledRatesString.find(rateString => rateString.split('|')[4]?.trim() === gidToId(rate.id));
+      const rateString = toggledRatesString.find(rateString => rateString.split('|')[5]?.trim() === gidToId(rate.id));
       logDeep({ rateString });
       if (!rateString) {
         return {
