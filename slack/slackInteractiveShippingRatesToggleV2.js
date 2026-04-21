@@ -488,12 +488,11 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       logDeep('selectedStore', selectedStore);
 
       regionalShippingRates = shippingRatesByStore
-        .filter(rate => rate.store === selectedStore)
-        .filter(rate => rate.deliveryProfileName === DEFAULT_PROFILE_NAME);
+        .filter(rate => rate.store === selectedStore);
       logDeep({ regionalShippingRates });
 
-      const regionalShippingZones = Array.from(new Set(regionalShippingRates.map(rate => rate.locationGroupZoneName)));
-      logDeep({ regionalShippingZones });
+      const regionalShippingProfiles = Array.from(new Set(regionalShippingRates.map(rate => rate.deliveryProfileName)));
+      logDeep({ regionalShippingProfiles });
 
       // Fetch the toggled rates context from the list block
       ratesToggleStatus = getRatesToggleStatus();
@@ -503,9 +502,9 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
         replace_original: 'true',
         blocks: [
           blocks.intro,
-          blocks.zone_selector.breadcrumbs(selectedStore),
-          blocks.zone_selector.intro,
-          ...blocks.zone_selector.buttons(selectedStore, regionalShippingZones),
+          blocks.profile_selector.breadcrumbs(selectedStore),
+          blocks.profile_selector.intro,
+          ...blocks.profile_selector.buttons(selectedStore, regionalShippingProfiles),
           blocks.divider,
           blocks.toggled_rates.list(ratesToggleStatus),
           blocks.divider,
