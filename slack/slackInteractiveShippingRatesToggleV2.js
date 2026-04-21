@@ -700,6 +700,39 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
         break;
       }
 
+      // Find the zone selector block
+      const zoneSelectorBlock = Object.keys(currentBlocksById).find(key => key.startsWith('zone_selector:breadcrumbs'));
+      logDeep({ zoneSelectorBlock });
+      if (zoneSelectorBlock) {
+
+        const [selectedStore, selectedProfile] = zoneSelectorBlock.split('zone_selector:breadcrumbs:')[1].split(':');
+        logDeep('selectedStore', selectedStore);
+        logDeep('selectedProfile', selectedProfile);
+        
+        regionalShippingRates = shippingRatesByStore
+          .filter(rate => rate.store === selectedStore);
+        logDeep({ regionalShippingRates });
+
+        const regionalShippingProfiles = Array.from(new Set(regionalShippingRates.map(rate => rate.deliveryProfileName)));
+        logDeep({ regionalShippingProfiles });
+        
+        response = {
+          replace_original: 'true',
+          blocks: [
+            blocks.intro,
+            blocks.profile_selector.breadcrumbs(selectedStore),
+            blocks.profile_selector.intro,
+            ...blocks.profile_selector.buttons(selectedStore, regionalShippingProfiles),
+            blocks.divider,
+            blocks.toggled_rates.list(ratesToggleStatus),
+            blocks.divider,
+            blocks.action_buttons({ goBack: true }),
+          ],
+        };
+        break;
+      }
+
+
       // Otherwise, go back to first step
       response = {
         replace_original: 'true',
