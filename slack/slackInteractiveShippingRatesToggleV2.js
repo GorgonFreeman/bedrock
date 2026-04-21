@@ -442,6 +442,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
   let response;
 
   let selectedStore;
+  let selectedProfile;
   let selectedZone;
   let regionalShippingRates;
   let regionalShippingRatesForZone;
@@ -512,6 +513,35 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
         ],
       }
 
+      break;
+
+    case 'profile_select':
+
+      selectedStore = actionNodes?.[0];
+      logDeep('selectedStore', selectedStore);
+
+      selectedProfile = actionNodes?.[1];
+      logDeep('selectedProfile', selectedProfile);
+
+      regionalShippingRates = shippingRatesByStore
+        .filter(rate => rate.store === selectedStore)
+        .filter(rate => rate.deliveryProfileName === selectedProfile);
+      logDeep({ regionalShippingRates });
+
+      const regionalShippingZones = Array.from(new Set(regionalShippingRates.map(rate => rate.locationGroupZoneName)));
+      logDeep({ regionalShippingZones });
+
+      response = {
+        replace_original: 'true',
+        blocks: [
+          blocks.intro,
+          blocks.zone_selector.breadcrumbs(selectedStore, selectedProfile),
+          blocks.zone_selector.intro,
+          ...blocks.zone_selector.buttons(selectedStore, selectedProfile, regionalShippingZones),
+          blocks.divider,
+          blocks.action_buttons({ goBack: true, home: true }),
+        ],
+      };
       break;
 
     case 'zone_select':
