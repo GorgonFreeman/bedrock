@@ -119,7 +119,7 @@ const blocks = {
     breadcrumbs: (selectedStore, selectedProfile) => {
       return {
         type: 'rich_text',
-        block_id: 'zone_selector:breadcrumbs',
+        block_id: `zone_selector:breadcrumbs:${ selectedStore }:${ selectedProfile }`,
         elements: [
           {
             type: 'rich_text_section',
