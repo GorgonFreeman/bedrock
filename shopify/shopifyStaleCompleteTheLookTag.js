@@ -77,10 +77,11 @@ const buildRegionTag = (resolvedBase, region) => {
  * Runs the stale Complete the Look scan (optionally on **another** store), then tags matching
  * **parent** products on **`credsPath`** (canonical / base store — AU in your sync).
  *
- * - **`credsPath`**: where `tagsAdd` runs; `shopifyCredsPathDistill(credsPath).region` drives the
- *   `_region` suffix on the tag (e.g. `complete_the_look_review_au`).
+ * - **`credsPath`**: where `tagsAdd` runs.
  * - **`options.scanCredsPath`**: Admin store to scan (US, UK, …); defaults to `credsPath` when you
  *   only need one store.
+ * - Tag suffix region priority: use `shopifyCredsPathDistill(scanCredsPath).region` first, then
+ *   fallback to `shopifyCredsPathDistill(credsPath).region`.
  * - Cross-store: scan finds parents with sold-out CTL refs on the regional store; each parent’s
  *   **`custom.id`** is the **AU** numeric product id → `gid://shopify/Product/{id}` on `credsPath`.
  *
@@ -107,7 +108,9 @@ const shopifyStaleCompleteTheLookTag = async (credsPath, options = {}) => {
 
   const crossRegion = scanCredsPath !== tagCredsPath;
 
-  const { region } = shopifyCredsPathDistill(tagCredsPath);
+  const { region: scanRegion } = shopifyCredsPathDistill(scanCredsPath);
+  const { region: tagRegion } = shopifyCredsPathDistill(tagCredsPath);
+  const region = scanRegion || tagRegion;
 
   const tagBase = resolveTagBase(tagOption);
   const tag = buildRegionTag(tagBase, region);
