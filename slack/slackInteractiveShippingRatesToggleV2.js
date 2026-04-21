@@ -530,6 +530,9 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       const regionalShippingZones = Array.from(new Set(regionalShippingRates.map(rate => rate.locationGroupZoneName)));
       logDeep({ regionalShippingZones });
 
+      ratesToggleStatus = getRatesToggleStatus();
+      logDeep({ ratesToggleStatus });
+
       response = {
         replace_original: 'true',
         blocks: [
