@@ -160,7 +160,7 @@ const blocks = {
 
   rate_toggle: {
 
-    breadcrumbs: (selectedStore, selectedZone) => {
+    breadcrumbs: (selectedStore, selectedProfile, selectedZone) => {
       return {
         type: 'rich_text',
         block_id: 'rate_toggle:breadcrumbs',
@@ -170,7 +170,7 @@ const blocks = {
             elements: [
               {
                 type: 'text',
-                text: `Home > ${ selectedStore.toUpperCase() } > ${ selectedZone }`,
+                text: `Home > ${ selectedStore.toUpperCase() } > ${ selectedProfile } > ${ selectedZone }`,
                 style: {
                   italic: true,
                 },
@@ -181,10 +181,10 @@ const blocks = {
       };
     },
 
-    checkboxes: (selectedStore, selectedZone, rates) => {
+    checkboxes: (selectedStore, selectedProfile, selectedZone, rates) => {
       return {
         type: 'section',
-        block_id: `rate_toggle:checkboxes:${ selectedStore }`,
+        block_id: `rate_toggle:checkboxes:${ selectedStore }:${ selectedProfile }:${ selectedZone }`,
         text: {
           type: 'mrkdwn',
           text: 'Select rates to toggle:',
@@ -209,7 +209,7 @@ const blocks = {
               value: gidToId(rate.id),
             }
           }),
-          action_id: `${ COMMAND_NAME }:rate_toggle:${ selectedStore }:${ selectedZone }`,
+          action_id: `${ COMMAND_NAME }:rate_toggle:${ selectedStore }:${ selectedProfile }:${ selectedZone }`,
         },
       };
     },
@@ -228,7 +228,7 @@ const blocks = {
         text: {
           type: 'mrkdwn',
           text: `${ TOGGLING_LIST_HEADER }\n${ toggledRates.length > 0
-            ? toggledRates.map(rate => `${ rate.enable ? ENABLED_SYMBOL : DISABLED_SYMBOL } | ${ rate.name } | Store: ${ rate.store.toUpperCase() } | Zone: ${ rate.locationGroupZoneName } | ${ gidToId(rate.id) }`).join('\n')
+            ? toggledRates.map(rate => `${ rate.enable ? ENABLED_SYMBOL : DISABLED_SYMBOL } | ${ rate.name } | Store: ${ rate.store.toUpperCase() } | Profile: ${ rate.deliveryProfileName } | Zone: ${ rate.locationGroupZoneName } | ${ gidToId(rate.id) }`).join('\n')
             : 'None' }`,
         },
       }
@@ -551,12 +551,15 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
       selectedStore = actionNodes?.[0];
       logDeep('selectedStore', selectedStore);
 
-      selectedZone = actionNodes?.[1];
+      selectedProfile = actionNodes?.[1];
+      logDeep('selectedProfile', selectedProfile);
+
+      selectedZone = actionNodes?.[2];
       logDeep('selectedZone', selectedZone);
 
       regionalShippingRatesForZone = shippingRatesByStore
         .filter(rate => rate.store === selectedStore)
-        .filter(rate => rate.deliveryProfileName === DEFAULT_PROFILE_NAME)
+        .filter(rate => rate.deliveryProfileName === selectedProfile)
         .filter(rate => rate.locationGroupZoneName === selectedZone);
       logDeep({ regionalShippingRatesForZone });
 
@@ -578,8 +581,8 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
         replace_original: 'true',
         blocks: [
           blocks.intro,
-          blocks.rate_toggle.breadcrumbs(selectedStore, selectedZone),
-          blocks.rate_toggle.checkboxes(selectedStore, selectedZone, regionalShippingRatesForZone),
+          blocks.rate_toggle.breadcrumbs(selectedStore, selectedProfile, selectedZone),
+          blocks.rate_toggle.checkboxes(selectedStore, selectedProfile, selectedZone, regionalShippingRatesForZone),
           blocks.divider,
           blocks.toggled_rates.list(ratesToggleStatus),
           blocks.divider,
