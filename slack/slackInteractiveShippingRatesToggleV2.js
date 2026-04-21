@@ -3,7 +3,6 @@ const { REGIONS_WF } = require('../constants');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
 const { shopifyShippingRatesToggle } = require('../shopify/shopifyShippingRatesToggle');
 
-const DEFAULT_PROFILE_NAME = 'General profile';
 const TOGGLING_LIST_HEADER = 'Toggling:';
 const ENABLED_SYMBOL = ':white_check_mark:';
 const DISABLED_SYMBOL = ':x:';
@@ -604,7 +603,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
 
       regionalShippingRatesForZone = shippingRatesByStore
         .filter(rate => rate.store === selectedStore)
-        .filter(rate => rate.deliveryProfileName === DEFAULT_PROFILE_NAME)
+        .filter(rate => rate.deliveryProfileName === selectedProfile)
         .filter(rate => rate.locationGroupZoneName === selectedZone);
       logDeep({ regionalShippingRatesForZone });
 
@@ -678,7 +677,7 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
 
         regionalShippingRates = shippingRatesByStore
           .filter(rate => rate.store === selectedStore)
-          .filter(rate => rate.deliveryProfileName === DEFAULT_PROFILE_NAME);
+          .filter(rate => rate.deliveryProfileName === selectedProfile);
         logDeep({ regionalShippingRates });
 
         const regionalShippingZones = Array.from(new Set(regionalShippingRates.map(rate => rate.locationGroupZoneName)));
