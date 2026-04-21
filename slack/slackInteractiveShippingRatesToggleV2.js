@@ -539,6 +539,8 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
           blocks.zone_selector.intro,
           ...blocks.zone_selector.buttons(selectedStore, selectedProfile, regionalShippingZones),
           blocks.divider,
+          blocks.toggled_rates.list(ratesToggleStatus),
+          blocks.divider,
           blocks.action_buttons({ goBack: true, home: true }),
         ],
       };
