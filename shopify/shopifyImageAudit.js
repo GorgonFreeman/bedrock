@@ -6,6 +6,7 @@ const {
   arrayExhaustedCheck,
 } = require('../utils');
 const { shopifyGet } = require('../shopify/shopify.utils');
+const { shopifyTagsAdd } = require('../shopify/shopifyTagsAdd');
 const { REGIONS_WF } = require('../constants');
 
 const productAttrs = `
@@ -29,6 +30,8 @@ const productAttrs = `
 `;
 
 const HAMMING_THRESHOLD = 5;
+const TAG_BAD = 'media_check_bad';
+const TAG_GOOD = 'media_check_good';
 
 const logBad = (id) => console.log(`\x1b[31m[BAD]\x1b[0m -> ${ id }`);
 
@@ -107,6 +110,7 @@ const shopifyImageAudit = async (
     toCompare: [],
     toDownload: [],
     toClassify: [],
+    toTag: [],
     bad: [],
     good: [],
   };
@@ -117,6 +121,7 @@ const shopifyImageAudit = async (
     const regionResults = await Promise.all(credsPaths.map(async (credsPath) => {
       const response = await shopifyGet(credsPath, 'product', {
         attrs: productAttrs,
+        queries: [`-tag:${ TAG_GOOD }`, `-tag:${ TAG_BAD }`],
         ...(limit && { perPage: limit }),
         apiVersion,
       });
@@ -127,7 +132,7 @@ const shopifyImageAudit = async (
       }
 
       const products = response.result.filter(p => p.customId?.value);
-      console.log(`${ credsPath }: ${ products.length } products with custom.id`);
+      console.log(`${ credsPath }: ${ products.length } products with custom.id (excluding tagged)`);
       return { region: credsPath, products };
     }));
 
@@ -178,8 +183,9 @@ const shopifyImageAudit = async (
           title: stores[au].title,
           handle: stores[au].handle,
           stores: makeStoreSummary(stores),
-          mismatchDetails: `media count differs from au: ${ detail }`,
+          mismatchDetails: `media count differs from au: ${ Object.entries(mediaCounts).map(([r, c]) => `${ r }=${ c }`).join(', ') }`,
         });
+        piles.toTag.push({ gid: stores[au].id, tag: TAG_BAD });
         return { customId, mismatch: true };
       }
 
@@ -231,6 +237,7 @@ const shopifyImageAudit = async (
           stores: makeStoreSummary(stores),
           mismatchDetails: 'failed to download one or more images',
         });
+        piles.toTag.push({ gid: stores['au'].id, tag: TAG_BAD });
         return { customId, error: true };
       }
 
@@ -291,10 +298,12 @@ const shopifyImageAudit = async (
             `image ${ m.imageIndex }: au vs ${ m.differRegion } (hamming=${ m.hammingDistance })`
           ).join('; '),
         });
+        piles.toTag.push({ gid: stores[au].id, tag: TAG_BAD });
         return { customId, mismatch: true };
       }
 
       piles.good.push({ customId, title: stores[au].title, handle: stores[au].handle });
+      piles.toTag.push({ gid: stores[au].id, tag: TAG_GOOD });
       return { customId, mismatch: false };
     },
     arrayExhaustedCheck,
@@ -305,16 +314,32 @@ const shopifyImageAudit = async (
     },
   );
 
+  const tagProcessor = new Processor(
+    piles.toTag,
+    async (pile) => {
+      const { gid, tag } = pile.shift();
+      const response = await shopifyTagsAdd('au', gid, [tag], { apiVersion });
+      if (!response.success) {
+        console.error(`failed to tag ${ gid } with ${ tag }`, response.error);
+      }
+      return { gid, tag, success: response.success };
+    },
+    arrayExhaustedCheck,
+    { canFinish: false, logFlavourText: 'tag:' },
+  );
+
   countCheckProcessor.on('done', () => downloadProcessor.canFinish = true);
   downloadProcessor.on('done', () => hashCompareProcessor.canFinish = true);
+  hashCompareProcessor.on('done', () => tagProcessor.canFinish = true);
 
   await Promise.all([
     countCheckProcessor.run(),
     downloadProcessor.run(),
     hashCompareProcessor.run(),
+    tagProcessor.run(),
   ]);
 
-  console.log(`audit complete: ${ piles.bad.length } mismatches, ${ piles.good.length } in sync`);
+  console.log(`audit complete: ${ piles.bad.length } bad, ${ piles.good.length } good`);
 
   return {
     success: true,
