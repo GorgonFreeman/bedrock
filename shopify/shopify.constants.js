@@ -44,4 +44,10 @@ module.exports = {
     us: 'inv_hold_us',
     uk: 'inv_hold_uk',
   },
+  SWELL_VIP_TAGS: {
+    member: 'swell_vip_club member',
+    level1: 'swell_vip_level 1',
+    level2: 'swell_vip_level 2',
+    level3: 'swell_vip_level 3',
+  }
 };
