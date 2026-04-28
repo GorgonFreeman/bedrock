@@ -20,6 +20,7 @@ module.exports = {
   youtubeVideosGet: lazy(() => require('./youtube/youtubeVideosGet').youtubeVideosGetApi),
   yotpoCustomerAnniversaryGet: lazy(() => require('./yotpo/yotpoCustomerAnniversaryGet').yotpoCustomerAnniversaryGetApi),
   yotpoCustomerGet: lazy(() => require('./yotpo/yotpoCustomerGet').yotpoCustomerGetApi),
+  yotpoCustomerOptIn: lazy(() => require('./yotpo/yotpoCustomerOptIn').yotpoCustomerOptInApi),
   yotpoCustomerPointsAdjust: lazy(() => require('./yotpo/yotpoCustomerPointsAdjust').yotpoCustomerPointsAdjustApi),
   yotpoVipTiersGet: lazy(() => require('./yotpo/yotpoVipTiersGet').yotpoVipTiersGetApi),
   upstashGet: lazy(() => require('./upstash/upstash.utils').upstashGetApi),
