@@ -1,4 +1,4 @@
-https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/reference
+// https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/reference
 
 const { funcApi, logDeep } = require('../utils');
 const { snowflakeGet, snowflakeGetter } = require('../snowflake/snowflake.utils');
