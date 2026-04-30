@@ -1,31 +1,42 @@
-const { funcApi, logDeep } = require('../utils');
-const { snowflakeGetter } = require('../snowflake/snowflake.utils');
-const { MAX_PER_PAGE } = require('../logiwa/logiwa.constants');
+https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/reference
 
-const FUNC = async (
+const { funcApi, logDeep } = require('../utils');
+const { snowflakeGet, snowflakeGetter } = require('../snowflake/snowflake.utils');
+
+// Payload maker function
+const payloadMaker = (
   {
     credsPath,
-    apiVersion = 'v3.1',
+    apiVersion = 'v2',
 
-    page = 0,
-    perPage = MAX_PER_PAGE,
-
-    ...getterOptions
+    // params
+    ...params
   } = {},
 ) => {
 
-  const response = await logiwaGet(
-    `/Product/list/i/${ page }/s/${ perPage }`,
+  const params = {
+    // params
+  }
+
+  return [
+    `/api/${ apiVersion }/resourceName`,
     {
-      credsPath,
-      apiVersion,
-      // params,
-      ...getterOptions,
+      params
     },
-  );
-  logDeep(response);
+  ];
+}
+
+// Get function
+const FUNC = async (...args) => {
+  const response = await snowflakeGet(...payloadMaker(...args));
   return response;
 };
+
+// Getter function
+// const FUNCter = async (...args) => {
+//   const response = await snowflakeGetter(...payloadMaker(...args));
+//   return response;
+// };
 
 const FUNCApi = funcApi(FUNC, {
   argNames: ['options'],
@@ -38,4 +49,4 @@ module.exports = {
 };
 
 // curl localhost:8000/FUNC
-// curl localhost:8000/FUNC -H "Content-Type: application/json" -d '{ "options": { "limit": 10 } }'
+// curl localhost:8000/FUNC -H "Content-Type: application/json" -d '{ "options": {  } }'
