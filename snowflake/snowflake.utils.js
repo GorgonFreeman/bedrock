@@ -51,7 +51,7 @@ const snowflakeFactory = async(
 };
 
 const snowflakeClient = new CustomAxiosClient({
-  baseUrl,
+  baseUrl: snowflakeRequestSetup().baseUrl,
   preparer: snowflakeFactory,
 });
 
