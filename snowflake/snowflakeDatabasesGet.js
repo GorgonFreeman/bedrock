@@ -25,7 +25,7 @@ const payloadMaker = (
   }
 
   return [
-    `/api/${ apiVersion }/resourceName`,
+    `/api/${ apiVersion }/databases`,
     {
       params
     },
