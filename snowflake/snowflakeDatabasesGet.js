@@ -49,6 +49,7 @@ const snowflakeDatabasesGetApi = funcApi(snowflakeDatabasesGet, {
 
 module.exports = {
   snowflakeDatabasesGet,
+  snowflakeDatabasesGetter,
   snowflakeDatabasesGetApi,
 };
 
