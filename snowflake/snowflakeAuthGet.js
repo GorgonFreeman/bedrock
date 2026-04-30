@@ -13,6 +13,8 @@ const snowflakeAuthGet = async (
   const {
     BASE_URL,
     REFRESH_TOKEN,
+    CLIENT_ID,
+    CLIENT_SECRET,
   } = creds;
 
   if (!refreshToken) {
@@ -29,6 +31,10 @@ const snowflakeAuthGet = async (
 
   const client = new CustomAxiosClient({
     baseUrl: BASE_URL,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': `Basic ${ Buffer.from(`${ CLIENT_ID }:${ CLIENT_SECRET }`).toString('base64') }`,
+    },
   });
 
   const response = await client.fetch({
