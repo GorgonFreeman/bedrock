@@ -59,6 +59,9 @@ const snowflakeGetter = async (
   url,
   {
     credsPath,
+    apiVersion = 'v2',
+    params,
+    ...getterOptions
   } = {},
 ) => {
   return new Getter(
