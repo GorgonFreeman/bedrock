@@ -4,7 +4,7 @@ const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 
 const AUTH_TOKENS = new Map();
 
-const snowflakeRequestSetup = ({ credsPath } = {}) => {
+const snowflakeRequestSetup = ({ credsPath = 'default' } = {}) => {
   const creds = credsByPath(['snowflake', credsPath]);
 
   const {
