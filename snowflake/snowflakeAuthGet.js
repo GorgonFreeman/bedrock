@@ -54,14 +54,9 @@ const snowflakeAuthGet = async (
     };
   }
 
-  const body = {
-    grant_type: 'refresh_token',
-    refresh_token: refreshToken || REFRESH_TOKEN,
-  };
-
-  const client = new CustomAxiosClient({
+  const authClient = new CustomAxiosClient({
     baseUrl: BASE_URL,
-    headers: {
+    baseHeaders: {
       'Content-Type': 'application/x-www-form-urlencoded',
       'Authorization': `Basic ${ Buffer.from(`${ CLIENT_ID }:${ CLIENT_SECRET }`).toString('base64') }`,
     },
