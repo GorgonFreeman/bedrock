@@ -29,7 +29,7 @@ const snowflakeAuthGet = async (
   const creds = credsByPath(['snowflake', credsPath]);
   const {
     BASE_URL,
-    REFRESH_TOKEN,
+    AUTH_CODE,
     CLIENT_ID,
     CLIENT_SECRET,
   } = creds;
