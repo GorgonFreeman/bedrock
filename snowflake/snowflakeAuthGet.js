@@ -62,14 +62,6 @@ const snowflakeAuthGet = async (
     },
   });
 
-  const response = await client.fetch({
-    method: 'post',
-    url: '/oauth/token-request',
-    body,
-  });
-
-  logDeep(response);
-  return response;
 };
 
 const snowflakeAuthGetApi = async (req, res) => {
