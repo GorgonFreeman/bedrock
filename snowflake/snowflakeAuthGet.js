@@ -3,8 +3,8 @@
 /*
 * AUTH_CODE is generated from <base_url>/oauth/authorization, and log in to Snowflake, with redirect_uri 'localhost'
 * Use AUTH_CODE to get a new access token & a new refresh token
-* Refresh token expires in 90 days
-* Access token expires in 24 hours
+* Refresh token expires in 90 days (this is set in Snowflake Rest Integration)
+* Access token expires in 10 mins
 * Use grant_type 'authorization_code' to use the auth get a new access token & a new refresh token
 * Use grant_type 'refresh_token' to use the refresh token and get a new access token
 */
