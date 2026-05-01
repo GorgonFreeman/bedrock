@@ -20,6 +20,9 @@ const snowflakeAuthGet = async (
   } = {},
 ) => {
 
+  let accessToken;
+  let refreshToken;
+
   const accessTokenUpstashKey = `snowflake_access_token_${ credsPath?.join('.') || 'default' }`;
   const refreshTokenUpstashKey = `snowflake_refresh_token_${ credsPath?.join('.') || 'default' }`;
 
