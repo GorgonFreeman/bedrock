@@ -33,10 +33,24 @@ const snowflakeAuthGet = async (
     CLIENT_SECRET,
   } = creds;
 
-  if (!refreshToken) {
+  // Fetch access token from upstash first
+  const accessTokenResponse = await upstashGet(accessTokenUpstashKey);
+  if (!accessTokenResponse.success) {
     return {
       success: false,
-      error: ['No refresh token found in creds'],
+      error: accessTokenResponse.error,
+    }
+  }
+  accessToken = accessTokenResult;
+  // TODO: figure out how to get the access token expiry from the response
+
+  // Respond with access token if access token is found in upstash
+  if (accessToken) {
+    return {
+      success: true,
+      result: {
+        accessToken,
+      },
     };
   }
 
