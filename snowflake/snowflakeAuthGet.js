@@ -20,6 +20,9 @@ const snowflakeAuthGet = async (
   } = {},
 ) => {
 
+  const accessTokenUpstashKey = `snowflake_access_token_${ credsPath?.join('.') || 'default' }`;
+  const refreshTokenUpstashKey = `snowflake_refresh_token_${ credsPath?.join('.') || 'default' }`;
+
   const creds = credsByPath(['snowflake', credsPath]);
   const {
     BASE_URL,
