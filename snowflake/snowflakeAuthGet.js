@@ -16,7 +16,6 @@ const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 const snowflakeAuthGet = async (
   {
     credsPath,
-    refreshToken,
   } = {},
 ) => {
 
