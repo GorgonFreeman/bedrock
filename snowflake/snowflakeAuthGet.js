@@ -87,9 +87,13 @@ const snowflakeAuthGet = async (
 
     // If refresh token response is not successful, return error
     if (!refreshTokenResponse.success) {
+      // TODO: Figure out how to handle refresh token expiry automatically
       return {
         success: false,
-        error: refreshTokenResponse.error,
+        error: [
+          'The refresh token may have expired',
+          refreshTokenResponse.error,
+        ],
       }
     }
 
