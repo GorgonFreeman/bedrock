@@ -25,6 +25,7 @@ const snowflakeAuthGet = async (
   const accessTokenUpstashKey = `snowflake_access_token_${ credsPath?.join('.') || 'default' }`;
   const refreshTokenUpstashKey = `snowflake_refresh_token_${ credsPath?.join('.') || 'default' }`;
 
+  // Snowflake creds
   const creds = credsByPath(['snowflake', credsPath]);
   const {
     BASE_URL,
@@ -41,7 +42,7 @@ const snowflakeAuthGet = async (
       error: accessTokenResponse.error,
     }
   }
-  accessToken = accessTokenResult;
+  accessToken = accessTokenResponse.result;
   // TODO: figure out how to get the access token expiry from the response
 
   // Respond with access token if access token is found in upstash
@@ -62,6 +63,57 @@ const snowflakeAuthGet = async (
     },
   });
 
+  // If access token is not found in upstash, generate a new access token from the refresh token
+  // Fetch refresh token from upstash first
+  const refreshTokenResponse = await upstashGet(refreshTokenUpstashKey);
+  if (!refreshTokenResponse?.success) {
+    throw new Error(refreshTokenResponse);
+  }
+  refreshToken = refreshTokenResponse?.result;
+
+  // If refresh token is not found in upstash, generate a new access token and refresh token from the auth code
+  if (!refreshToken) {
+    const body = {
+      grant_type: 'authorization_code',
+      code: AUTH_CODE,
+      redirect_uri: 'https://localhost.com',
+    }
+
+    const refreshTokenResponse = await authClient.fetch({
+      method: 'post',
+      url: '/oauth/token-request',
+      body,
+    });
+
+    // If refresh token response is not successful, return error
+    if (!refreshTokenResponse.success) {
+      return {
+        success: false,
+        error: refreshTokenResponse.error,
+      }
+    }
+
+    // If refresh token response is successful, set the access token and refresh token in upstash
+    const {
+      access_token: accessToken,
+      expires_in: accessTokenExpiresIn,
+      refresh_token: refreshToken,
+      refresh_token_expires_in: refreshTokenExpiresIn,
+    } = refreshTokenResponse.result;
+    await upstashSet(refreshTokenUpstashKey, refreshToken, { ex: refreshTokenExpiresIn });
+    await upstashSet(accessTokenUpstashKey, accessToken, { ex: accessTokenExpiresIn });
+
+    // Respond with access token
+    return {
+      success: true,
+      result: {
+        accessToken,
+      },
+    };
+  }
+
+  // If refresh token is found, use refresh token to generate a new access token
+
 };
 
 const snowflakeAuthGetApi = async (req, res) => {
@@ -77,3 +129,6 @@ module.exports = {
   snowflakeAuthGet,
   snowflakeAuthGetApi,
 };
+
+// curl localhost:8000/snowflakeAuthGet
+// curl localhost:8000/snowflakeAuthGet -H "Content-Type: application/json" -d '{ "options": { "credsPath": "default" } }'
