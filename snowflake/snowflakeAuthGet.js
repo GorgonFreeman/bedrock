@@ -102,6 +102,7 @@ const snowflakeAuthGet = async (
     } = refreshTokenResponse.result;
     await upstashSet(refreshTokenUpstashKey, refreshToken, { ex: refreshTokenExpiresIn });
     await upstashSet(accessTokenUpstashKey, accessToken, { ex: accessTokenExpiresIn });
+    logDeep('Saved new access token and refresh token in upstash');
 
     // Respond with access token
     return {
@@ -113,6 +114,45 @@ const snowflakeAuthGet = async (
   }
 
   // If refresh token is found, use refresh token to generate a new access token
+  if (refreshToken) {
+    const body = {
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+    };
+
+    const accessTokenRefreshResponse = await authClient.fetch({
+      method: 'post',
+      url: '/oauth/token-request',
+      body,
+    });
+
+    if (!accessTokenRefreshResponse.success) {
+      return {
+        success: false,
+        error: accessTokenRefreshResponse.error,
+      }
+    }
+    
+    const {
+      access_token: accessToken,
+      expires_in: accessTokenExpiresIn,
+    } = accessTokenRefreshResponse.result;
+    await upstashSet(accessTokenUpstashKey, accessToken, { ex: accessTokenExpiresIn });
+    logDeep('Saved new access token in upstash');
+
+    // Respond with access token
+    return {
+      success: true,
+      result: {
+        accessToken,
+      },
+    };
+  }
+
+  return {
+    success: false,
+    error: ['Error generating access token'],
+  }
 
 };
 
