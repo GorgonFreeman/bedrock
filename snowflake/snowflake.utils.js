@@ -1,6 +1,5 @@
 const { CustomAxiosClient, credsByPath, Getter, getterAsGetFunction, logDeep, askQuestion } = require('../utils');
 const { snowflakeAuthGet } = require('../snowflake/snowflakeAuthGet');
-const { upstashGet, upstashSet } = require('../upstash/upstash.utils');
 
 const AUTH_TOKENS = new Map();
 
@@ -23,29 +22,15 @@ const snowflakeFactory = async(
 ) => {
   const { baseUrl } = snowflakeRequestSetup({ credsPath });
 
-  let authToken;
-  const upstashKey = `snowflake_token_${ credsPath?.join('.') || 'default' }`;
-
-  if (AUTH_TOKENS.has(credsPath)) {
-    authToken = AUTH_TOKENS.get(credsPath);
-    // console.log('Using auth token from map');
+  const authGetResponse = snowflakeAuthGet({ credsPath });
+  if (!authGetResponse?.success) {
+    throw new Error(authGetResponse);
   }
-
-  if (!authToken) {
-    const authResponse = await snowflakeAuthGet({ credsPath });
-    const { success: authResponseSuccess, result: authResponseResult } = authResponse;
-    if (!authResponseSuccess) {
-      throw new Error(authResponse);
-    }
-    const { access_token: authToken } = authResponseResult;
-    AUTH_TOKENS.set(credsPath, authToken);
-    upstashSet(upstashKey, authToken);
-    console.log('Using auth token from API');
-  }
+  const { accessToken } = authGetResponse?.result;
 
   return {
     baseUrl,
-    headers: { Authorization: `Bearer ${ authToken }` },
+    headers: { Authorization: `Bearer ${ accessToken }` },
   };
 
 };
