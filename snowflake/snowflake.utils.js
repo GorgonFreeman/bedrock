@@ -22,7 +22,7 @@ const snowflakeFactory = async(
 ) => {
   const { baseUrl } = snowflakeRequestSetup({ credsPath });
 
-  const authGetResponse = snowflakeAuthGet({ credsPath });
+  const authGetResponse = await snowflakeAuthGet({ credsPath });
   if (!authGetResponse?.success) {
     throw new Error(authGetResponse);
   }
