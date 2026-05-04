@@ -51,6 +51,7 @@ module.exports = {
   starshipitProductsDelete: lazy(() => require('./starshipit/starshipitProductsDelete').starshipitProductsDeleteApi),
   starshipitProductsGet: lazy(() => require('./starshipit/starshipitProductsGet').starshipitProductsGetApi),
   starshipitTrackingGet: lazy(() => require('./starshipit/starshipitTrackingGet').starshipitTrackingGetApi),
+  snowflakeApiIntegrationsGet: lazy(() => require('./snowflake/snowflakeApiIntegrationsGet').snowflakeApiIntegrationsGetApi),
   snowflakeAuthGet: lazy(() => require('./snowflake/snowflakeAuthGet').snowflakeAuthGetApi),
   snowflakeDatabasesGet: lazy(() => require('./snowflake/snowflakeDatabasesGet').snowflakeDatabasesGetApi),
   slackMessageDelete: lazy(() => require('./slack/slackMessageDelete').slackMessageDeleteApi),
