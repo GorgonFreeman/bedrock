@@ -29,7 +29,9 @@ const payloadMaker = (
   return [
     `/api/${ apiVersion }/databases`,
     {
-      params
+      credsPath,
+      apiVersion,
+      params,
     },
   ];
 }

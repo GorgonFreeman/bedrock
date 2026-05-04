@@ -26,7 +26,9 @@ const payloadMaker = (
   return [
     `/api/${ apiVersion }/resourceName`,
     {
-      params
+      credsPath,
+      apiVersion,
+      params,
     },
   ];
 }

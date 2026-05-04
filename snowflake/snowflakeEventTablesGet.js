@@ -32,7 +32,9 @@ const payloadMaker = (
   return [
     `/api/${ apiVersion }/databases/${ databaseName }/schemas/${ schemaName }/event-tables`,
     {
-      params
+      credsPath,
+      apiVersion,
+      params,
     },
   ];
 }
