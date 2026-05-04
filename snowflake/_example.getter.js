@@ -10,12 +10,17 @@ const payloadMaker = (
     apiVersion = 'v2',
 
     // params
-    ...params
+
+    // Used by pagination in snowflake.utils.js
+    showLimit, // items per page
+    fromName, // pagination cursor
   } = {},
 ) => {
 
   const params = {
     // params
+    ...(showLimit && { showLimit }),
+    ...(fromName && { fromName }),
   }
 
   return [
