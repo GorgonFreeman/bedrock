@@ -1,4 +1,4 @@
-// https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/reference
+// https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/user
 
 const { funcApi, logDeep } = require('../utils');
 const { snowflakeClient } = require('../snowflake/snowflake.utils');
@@ -15,7 +15,7 @@ const snowflakeUsersGet = async (
   const response = await snowflakeClient.fetch(
     {
       method: 'get',
-      url: `/api/${ apiVersion }/resourceName`,
+      url: `/api/${ apiVersion }/users`,
       params: {
         // params
       },
