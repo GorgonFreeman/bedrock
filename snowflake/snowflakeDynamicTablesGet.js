@@ -22,7 +22,6 @@ const payloadMaker = (
 ) => {
 
   const params = {
-    // params
     ...(like && { like }),
     ...(startsWith && { startsWith }),
     ...(history && { history }),
