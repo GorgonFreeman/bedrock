@@ -53,6 +53,7 @@ module.exports = {
   starshipitTrackingGet: lazy(() => require('./starshipit/starshipitTrackingGet').starshipitTrackingGetApi),
   snowflakeAuthGet: lazy(() => require('./snowflake/snowflakeAuthGet').snowflakeAuthGetApi),
   snowflakeDatabasesGet: lazy(() => require('./snowflake/snowflakeDatabasesGet').snowflakeDatabasesGetApi),
+  snowflakeDynamicTablesGet: lazy(() => require('./snowflake/snowflakeDynamicTablesGet').snowflakeDynamicTablesGetApi),
   snowflakeIntegrationsGet: lazy(() => require('./snowflake/snowflakeIntegrationsGet').snowflakeIntegrationsGetApi),
   snowflakeSchemasGet: lazy(() => require('./snowflake/snowflakeSchemasGet').snowflakeSchemasGetApi),
   snowflakeTablesGet: lazy(() => require('./snowflake/snowflakeTablesGet').snowflakeTablesGetApi),
