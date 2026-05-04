@@ -1,15 +1,19 @@
-// https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/reference
+// https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/reference/dynamic-table
 
 const { funcApi, logDeep } = require('../utils');
 const { snowflakeGet, snowflakeGetter } = require('../snowflake/snowflake.utils');
 
 // Payload maker function
 const payloadMaker = (
+  databaseName,
+  schemaName,
   {
     credsPath,
     apiVersion = 'v2',
 
-    // params
+    like,
+    startsWith,
+    history,
 
     // Used by pagination in snowflake.utils.js
     showLimit, // items per page
@@ -19,12 +23,15 @@ const payloadMaker = (
 
   const params = {
     // params
+    ...(like && { like }),
+    ...(startsWith && { startsWith }),
+    ...(history && { history }),
     ...(showLimit && { showLimit }),
     ...(fromName && { fromName }),
   }
 
   return [
-    `/api/${ apiVersion }/resourceName`,
+    `/api/${ apiVersion }/databases/${ databaseName }/schemas/${ schemaName }/dynamic-tables`,
     {
       params
     },
@@ -38,20 +45,21 @@ const snowflakeDynamicTablesGet = async (...args) => {
 };
 
 // Getter function
-// const snowflakeDynamicTablesGetter = async (...args) => {
-//   const response = await snowflakeGetter(...payloadMaker(...args));
-//   return response;
-// };
+const snowflakeDynamicTablesGetter = async (...args) => {
+  const response = await snowflakeGetter(...payloadMaker(...args));
+  return response;
+};
 
 const snowflakeDynamicTablesGetApi = funcApi(snowflakeDynamicTablesGet, {
-  argNames: ['options'],
+  argNames: ['databaseName', 'schemaName', 'options'],
   validatorsByArg: {},
 });
 
 module.exports = {
   snowflakeDynamicTablesGet,
+  snowflakeDynamicTablesGetter,
   snowflakeDynamicTablesGetApi,
 };
 
-// curl localhost:8000/snowflakeDynamicTablesGet
-// curl localhost:8000/snowflakeDynamicTablesGet -H "Content-Type: application/json" -d '{ "options": {  } }'
+// curl localhost:8000/snowflakeDynamicTablesGet -H "Content-Type: application/json" -d '{ "databaseName": "AU_PRODUCTS", "schemaName": "SHOPIFY" }'
+// curl localhost:8000/snowflakeDynamicTablesGet -H "Content-Type: application/json" -d '{ "databaseName": "AU_PRODUCTS", "schemaName": "SHOPIFY", "  options": {  } }'
