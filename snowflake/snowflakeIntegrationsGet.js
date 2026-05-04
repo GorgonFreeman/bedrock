@@ -27,7 +27,7 @@ const snowflakeIntegrationsGet = async (
       },
     },
   );
-  logDeep(response);
+  // logDeep(response);
   return response;
 };
 
