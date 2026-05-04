@@ -11,9 +11,11 @@ const payloadMaker = (
     
     like,
     startsWith,
-    showLimit,
-    fromName,
     history,
+
+    // Used by pagination in snowflake.utils.js
+    showLimit, // items per page
+    fromName, // pagination cursor
   } = {},
 ) => {
   const params = {
