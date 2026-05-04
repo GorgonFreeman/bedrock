@@ -53,25 +53,50 @@ const snowflakeGetter = async (
     {
       url,
       payload: {
-        method: 'get',
+        params: {
+          showLimit: 100, // Default show limit
+          ...params,
+        },
+
       },
-      paginator: async (customAxiosPayload, response, { url }) => {
-        const { success, result } = response;
-        if (!success) {
-          return [true, null];
+      paginator: async (customAxiosPayload, response) => {
+        // logDeep(customAxiosPayload, response);
+        // await askQuestion('paginator?');
+
+        // 1. Fetch limit from params
+        const { params } = customAxiosPayload;
+        const { showLimit } = params;
+
+        // 2. Complete pagination if there are less items than the limit
+        if (response.result.length < showLimit) {
+          return [true, customAxiosPayload];
         }
-        return [false, customAxiosPayload, { url }];
+
+        // 3. Determine last name of item in list
+        const lastName = response.result[response.result.length - 1].name;
+
+        // 4. Paginate to next page by name
+        return [false, { ...customAxiosPayload, params: { ...params, fromName: lastName } }];
       },
       digester: async (response) => {
+        // logDeep(response);
+        // await askQuestion('digester?');
+
+        // 1. Check success
         const { success, result } = response;
         if (!success) {
           return null;
         }
-        return result;
+
+        // 2. Compile items from result
+        const items = result;
+        return items;
       },
       client: snowflakeClient,
       clientArgs: {
-        context: { credsPath },
+        context: {
+          credsPath,
+        },
       },
       ...getterOptions,
     },
