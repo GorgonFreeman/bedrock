@@ -1,4 +1,4 @@
-// https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/reference/table
+// https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/reference
 
 const { funcApi, logDeep } = require('../utils');
 const { snowflakeGet, snowflakeGetter } = require('../snowflake/snowflake.utils');
@@ -32,26 +32,26 @@ const payloadMaker = (
 }
 
 // Get function
-const snowflakeTablesGet = async (...args) => {
+const snowflakeSchemasGet = async (...args) => {
   const response = await snowflakeGet(...payloadMaker(...args));
   return response;
 };
 
 // Getter function
-// const snowflakeTablesGetter = async (...args) => {
+// const snowflakeSchemasGetter = async (...args) => {
 //   const response = await snowflakeGetter(...payloadMaker(...args));
 //   return response;
 // };
 
-const snowflakeTablesGetApi = funcApi(snowflakeTablesGet, {
+const snowflakeSchemasGetApi = funcApi(snowflakeSchemasGet, {
   argNames: ['options'],
   validatorsByArg: {},
 });
 
 module.exports = {
-  snowflakeTablesGet,
-  snowflakeTablesGetApi,
+  snowflakeSchemasGet,
+  snowflakeSchemasGetApi,
 };
 
-// curl localhost:8000/snowflakeTablesGet
-// curl localhost:8000/snowflakeTablesGet -H "Content-Type: application/json" -d '{ "options": {  } }'
+// curl localhost:8000/snowflakeSchemasGet
+// curl localhost:8000/snowflakeSchemasGet -H "Content-Type: application/json" -d '{ "options": {  } }'
