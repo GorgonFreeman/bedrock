@@ -44,10 +44,10 @@ const snowflakeSchemasGet = async (...args) => {
 };
 
 // Getter function
-// const snowflakeSchemasGetter = async (...args) => {
-//   const response = await snowflakeGetter(...payloadMaker(...args));
-//   return response;
-// };
+const snowflakeSchemasGetter = async (...args) => {
+  const response = await snowflakeGetter(...payloadMaker(...args));
+  return response;
+};
 
 const snowflakeSchemasGetApi = funcApi(snowflakeSchemasGet, {
   argNames: ['databaseName', 'options'],
@@ -56,6 +56,7 @@ const snowflakeSchemasGetApi = funcApi(snowflakeSchemasGet, {
 
 module.exports = {
   snowflakeSchemasGet,
+  snowflakeSchemasGetter,
   snowflakeSchemasGetApi,
 };
 
