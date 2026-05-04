@@ -5,11 +5,14 @@ const { snowflakeGet, snowflakeGetter } = require('../snowflake/snowflake.utils'
 
 // Payload maker function
 const payloadMaker = (
+  databaseName,
   {
     credsPath,
     apiVersion = 'v2',
 
-    // params
+    like,
+    startsWith,
+    history,
 
     // Used by pagination in snowflake.utils.js
     showLimit, // items per page
@@ -19,12 +22,15 @@ const payloadMaker = (
 
   const params = {
     // params
+    ...(like && { like }),
+    ...(startsWith && { startsWith }),
+    ...(history && { history }),
     ...(showLimit && { showLimit }),
     ...(fromName && { fromName }),
   }
 
   return [
-    `/api/${ apiVersion }/resourceName`,
+    `/api/${ apiVersion }/databases/${ databaseName }/schemas`,
     {
       params
     },
@@ -44,7 +50,7 @@ const snowflakeSchemasGet = async (...args) => {
 // };
 
 const snowflakeSchemasGetApi = funcApi(snowflakeSchemasGet, {
-  argNames: ['options'],
+  argNames: ['databaseName', 'options'],
   validatorsByArg: {},
 });
 
@@ -53,5 +59,5 @@ module.exports = {
   snowflakeSchemasGetApi,
 };
 
-// curl localhost:8000/snowflakeSchemasGet
-// curl localhost:8000/snowflakeSchemasGet -H "Content-Type: application/json" -d '{ "options": {  } }'
+// curl localhost:8000/snowflakeSchemasGet -H "Content-Type: application/json" -d '{ "databaseName": "AU_PRODUCTS" }'
+// curl localhost:8000/snowflakeSchemasGet -H "Content-Type: application/json" -d '{ "databaseName": "AU_PRODUCTS", "options": {  } }'
