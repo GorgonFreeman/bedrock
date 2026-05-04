@@ -5,11 +5,15 @@ const { snowflakeGet, snowflakeGetter } = require('../snowflake/snowflake.utils'
 
 // Payload maker function
 const payloadMaker = (
+  databaseName,
+  schemaName,
   {
     credsPath,
     apiVersion = 'v2',
 
-    // params
+    like,
+    startsWith,
+    history,
 
     // Used by pagination in snowflake.utils.js
     showLimit, // items per page
@@ -19,12 +23,15 @@ const payloadMaker = (
 
   const params = {
     // params
+    ...(like && { like }),
+    ...(startsWith && { startsWith }),
+    ...(history && { history }),
     ...(showLimit && { showLimit }),
     ...(fromName && { fromName }),
   }
 
   return [
-    `/api/${ apiVersion }/resourceName`,
+    `/api/${ apiVersion }/databases/${ databaseName }/schemas/${ schemaName }/tables`,
     {
       params
     },
@@ -38,20 +45,21 @@ const snowflakeTablesGet = async (...args) => {
 };
 
 // Getter function
-// const snowflakeTablesGetter = async (...args) => {
-//   const response = await snowflakeGetter(...payloadMaker(...args));
-//   return response;
-// };
+const snowflakeTablesGetter = async (...args) => {
+  const response = await snowflakeGetter(...payloadMaker(...args));
+  return response;
+};
 
 const snowflakeTablesGetApi = funcApi(snowflakeTablesGet, {
-  argNames: ['options'],
+  argNames: ['databaseName', 'schemaName', 'options'],
   validatorsByArg: {},
 });
 
 module.exports = {
   snowflakeTablesGet,
+  snowflakeTablesGetter,
   snowflakeTablesGetApi,
 };
 
-// curl localhost:8000/snowflakeTablesGet
-// curl localhost:8000/snowflakeTablesGet -H "Content-Type: application/json" -d '{ "options": {  } }'
+// curl localhost:8000/snowflakeTablesGet -H "Content-Type: application/json" -d '{ "databaseName": "AU_PRODUCTS", "schemaName": "SHOPIFY" }'
+// curl localhost:8000/snowflakeTablesGet -H "Content-Type: application/json" -d '{ "databaseName": "AU_PRODUCTS", "schemaName": "SHOPIFY", "options": {  } }'
