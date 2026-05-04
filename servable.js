@@ -54,6 +54,7 @@ module.exports = {
   snowflakeIntegrationsGetApi: lazy(() => require('./snowflake/snowflakeApiIntegrationsGet').snowflakeApiIntegrationsGetApi),
   snowflakeAuthGet: lazy(() => require('./snowflake/snowflakeAuthGet').snowflakeAuthGetApi),
   snowflakeDatabasesGet: lazy(() => require('./snowflake/snowflakeDatabasesGet').snowflakeDatabasesGetApi),
+  snowflakeSchemasGet: lazy(() => require('./snowflake/snowflakeSchemasGet').snowflakeSchemasGetApi),
   snowflakeTablesGet: lazy(() => require('./snowflake/snowflakeTablesGet').snowflakeTablesGetApi),
   slackMessageDelete: lazy(() => require('./slack/slackMessageDelete').slackMessageDeleteApi),
   slackMessagePost: lazy(() => require('./slack/slackMessagePost').slackMessagePostApi),
