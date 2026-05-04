@@ -1,4 +1,4 @@
-// https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/reference
+// https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/reference/api-integration
 
 const { funcApi, logDeep } = require('../utils');
 const { snowflakeGet, snowflakeGetter } = require('../snowflake/snowflake.utils');
@@ -9,22 +9,20 @@ const payloadMaker = (
     credsPath,
     apiVersion = 'v2',
 
-    // params
+    like,
 
     // Used by pagination in snowflake.utils.js
-    showLimit, // items per page
-    fromName, // pagination cursor
+    // showLimit, // items per page
+    // fromName, // pagination cursor
   } = {},
 ) => {
 
   const params = {
-    // params
-    ...(showLimit && { showLimit }),
-    ...(fromName && { fromName }),
+    ...(like && { like }),
   }
 
   return [
-    `/api/${ apiVersion }/resourceName`,
+    `/api/${ apiVersion }/api-integrations`,
     {
       params
     },
