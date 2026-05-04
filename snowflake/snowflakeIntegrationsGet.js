@@ -16,7 +16,7 @@ const snowflakeIntegrationsGet = async (
 
   const response = await snowflakeClient.fetch(
     {
-      method: 'GET',
+      method: 'get',
       url: `/api/${ apiVersion }/api-integrations`,
       params: {
         ...(like && { like }),
