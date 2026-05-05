@@ -1,6 +1,94 @@
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, gidToId } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
+
+// define slack bot associated details
+const COMMAND_NAME = 'shipping_rates_disabled_report'; // slash command related to this script
+const SLACK_CHANNEL = 'foxtron_testing'
+
+const snoozeOptions = [
+  {
+    text: "Remind me tomorrow",
+    value: "remind_tomorrow",
+  },
+  {
+    text: "Remind me in 1 week",
+    value: "remind_1_week",
+  },
+  {
+    text: "Mute permanently",
+    value: "mute_permanently",
+  },
+]
+
+const blocks = {
+
+  intro: {
+    type: 'section',
+    block_id: 'intro',
+    text: {
+      type: 'mrkdwn',
+      text: 'Disabled Shipping Rates:',
+    },
+  },
+
+  divider: {
+    type: 'divider',
+  },
+
+  disabled_rate_row: (rate) => {
+    return {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `${ rate.name } | Store: ${ rate.store.toUpperCase() } | Profile: ${ rate.deliveryProfileName } | Zone: ${ rate.locationGroupZoneName }`,
+      },
+      accessory: {
+        type: 'static_select',
+        placeholder: {
+          type: 'plain_text',
+          text: 'Select an action',
+        },
+        initial_option: () => {
+          const defaultOption = snoozeOptions.find(option => option.value === 'remind_tomorrow');
+          return {
+            text: {
+              type: 'plain_text',
+              text: defaultOption.text,
+            },
+            value: defaultOption.value,
+          }
+        },
+        options: snoozeOptions.map(option => {
+          return {
+            text: {
+              type: 'plain_text',
+              text: option.text,
+            },
+            value: option.value,
+          };
+        }),
+        value: gidToId(rate.id),
+      },
+    };
+  },
+
+  buttons: {
+    type: 'actions',
+    elements: [
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Save reminders',
+        },
+        value: 'send_to_slack',
+        action_id: `${ COMMAND_NAME }:save_reminders`,
+      },
+    ],
+  }
+
+};
 
 const shopifyShippingRatesDisabledReport = async (
   {
