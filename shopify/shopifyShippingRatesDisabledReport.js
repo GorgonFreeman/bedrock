@@ -10,63 +10,61 @@ const shopifyShippingRatesDisabledReport = async (
 ) => {
 
   // 1. Fetch all shipping rates from all regions
-  const shippingRates = await (async () => {
-    const deliveryProfileAttrs = `id name profileLocationGroups {
-      locationGroup {
+  const deliveryProfileAttrs = `id name profileLocationGroups {
+    locationGroup {
+      id
+    }
+    locationGroupZones (first: 15) { edges { node {
+      zone {
         id
+        name
       }
-      locationGroupZones (first: 15) { edges { node {
-        zone {
-          id
-          name
-        }
-        methodDefinitions (first: 10) { edges { node {
-          id
-          name
-          active
-        } } }
+      methodDefinitions (first: 10) { edges { node {
+        id
+        name
+        active
       } } }
-    }`;
+    } } }
+  }`;
 
-    // Flatten the shipping rates by store
-    const flatForStore = (deliveryProfiles, store) => {
-      return deliveryProfiles.map(dp => {
-        const { id: deliveryProfileId, name: deliveryProfileName } = dp;
-        return dp.profileLocationGroups.map(plg => {
-          const { locationGroup } = plg;
-          const { id: locationGroupId } = locationGroup;
-          return plg.locationGroupZones.map(lgz => {
-            const { zone } = lgz;
-            const { id: locationGroupZoneId, name: locationGroupZoneName } = zone;
-            return lgz.methodDefinitions.map(methodDef => {
-              return {
-                ...methodDef,
-                store,
-                deliveryProfileId,
-                deliveryProfileName,
-                locationGroupId,
-                locationGroupZoneId,
-                locationGroupZoneName,
-              };
-            });
+  // Flatten the shipping rates by store
+  const flatForStore = (deliveryProfiles, store) => {
+    return deliveryProfiles.map(dp => {
+      const { id: deliveryProfileId, name: deliveryProfileName } = dp;
+      return dp.profileLocationGroups.map(plg => {
+        const { locationGroup } = plg;
+        const { id: locationGroupId } = locationGroup;
+        return plg.locationGroupZones.map(lgz => {
+          const { zone } = lgz;
+          const { id: locationGroupZoneId, name: locationGroupZoneName } = zone;
+          return lgz.methodDefinitions.map(methodDef => {
+            return {
+              ...methodDef,
+              store,
+              deliveryProfileId,
+              deliveryProfileName,
+              locationGroupId,
+              locationGroupZoneId,
+              locationGroupZoneName,
+            };
           });
         });
-      }).flat(3);
-    };
-  
-    // Fetch all shipping rates from all regions
-    const shippingRates = await Promise.all(
-      regions.map(async (store) => {
-        const deliveryProfilesResponse = await shopifyDeliveryProfilesGet(store, { attrs: deliveryProfileAttrs });
-        const { success: deliveryProfilesGetSuccess, result: deliveryProfiles } = deliveryProfilesResponse;
-        if (!deliveryProfilesGetSuccess || !deliveryProfiles?.length) {
-          return [];
-        }
-        return flatForStore(deliveryProfiles, store);
-      }),
-    );
-    return shippingRates.flat();
-  })();
+      });
+    }).flat(3);
+  };
+
+  // Fetch all shipping rates from all regions
+  const shippingRatesUnflattened = await Promise.all(
+    regions.map(async (store) => {
+      const deliveryProfilesResponse = await shopifyDeliveryProfilesGet(store, { attrs: deliveryProfileAttrs });
+      const { success: deliveryProfilesGetSuccess, result: deliveryProfiles } = deliveryProfilesResponse;
+      if (!deliveryProfilesGetSuccess || !deliveryProfiles?.length) {
+        return [];
+      }
+      return flatForStore(deliveryProfiles, store);
+    }),
+  );
+  shippingRates = shippingRatesUnflattened.flat();
   // logDeep({ shippingRates });
 
   // 2. Filter out the shipping rates that are disabled
