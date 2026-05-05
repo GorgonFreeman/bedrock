@@ -9,21 +9,7 @@ const slackInteractiveShippingRatesDisabledReport = async (req, res) => {
   
   // If no payload, this is an initiation, e.g. slash command - send the initial blocks
   if (!body?.payload) {
-
-    const initialBlocks = [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `I don't do anything yet :hugging_face:`,
-        },
-      },
-    ];
-
-    return respond(res, 200, {
-      response_type: 'in_channel',
-      blocks: initialBlocks,
-    });
+    // This is not a slash command, so we don't need to send any initial blocks
   }
 
   // Because we got to this point, we have a payload - handle as an interactive step
