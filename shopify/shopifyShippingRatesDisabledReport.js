@@ -67,7 +67,7 @@ const blocks = {
             value: option.value,
           };
         }),
-        value: gidToId(rate.id),
+        action_id: `${ COMMAND_NAME }:snooze_select:${ gidToId(rate.id) }`,
       },
     };
   },
