@@ -41,6 +41,7 @@ const blocks = {
   disabled_rate_row: (rate) => {
     return {
       type: 'section',
+      block_id: `disabled_rate_row:${ gidToId(rate.id) }`,
       text: {
         type: 'mrkdwn',
         text: `${ rate.name } | Store: ${ rate.store.toUpperCase() } | Profile: ${ rate.deliveryProfileName } | Zone: ${ rate.locationGroupZoneName }`,
