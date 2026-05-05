@@ -6,10 +6,6 @@ const shopifyShippingRatesDisabledReport = async (
   {
     regions = REGIONS_WF,
     apiVersion,
-
-    slackUsers = [
-      'D07JF1E0SD8', // Zwe
-    ],
   } = {},
 ) => {
 
