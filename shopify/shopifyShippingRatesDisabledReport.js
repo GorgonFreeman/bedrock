@@ -81,7 +81,7 @@ const blocks = {
           type: 'plain_text',
           text: 'Save reminders',
         },
-        value: 'send_to_slack',
+        value: 'save_reminders',
         action_id: `${ COMMAND_NAME }:save_reminders`,
       },
     ],
