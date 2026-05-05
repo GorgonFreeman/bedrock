@@ -168,9 +168,14 @@ const shopifyShippingRatesDisabledReport = async (
     blocks.buttons,
   ];
 
-  const slackMessagePostResponse = await slackMessagePost(SLACK_CHANNEL, {
-    blocks: initialBlocks,
-  });
+  const slackMessagePostResponse = await slackMessagePost(
+    {
+      channelName: SLACK_CHANNEL,
+    },
+    {
+      blocks: initialBlocks,
+    },
+  );
   // logDeep({ slackMessagePostResponse });
 
   return {
