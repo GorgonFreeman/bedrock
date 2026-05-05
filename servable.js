@@ -158,6 +158,7 @@ module.exports = {
   shopifyPublicationGet: lazy(() => require('./shopify/shopifyPublicationGet').shopifyPublicationGetApi),
   shopifyPublicationsGet: lazy(() => require('./shopify/shopifyPublicationsGet').shopifyPublicationsGetApi),
   shopifyShippingRateUpdate: lazy(() => require('./shopify/shopifyShippingRateUpdate').shopifyShippingRateUpdateApi),
+  shopifyShippingRatesDisabledReport: lazy(() => require('./shopify/shopifyShippingRatesDisabledReport').shopifyShippingRatesDisabledReportApi),
   shopifyShippingRatesToggle: lazy(() => require('./shopify/shopifyShippingRatesToggle').shopifyShippingRatesToggleApi),
   shopifyStagedUploadCreate: lazy(() => require('./shopify/shopifyStagedUploadCreate').shopifyStagedUploadCreateApi),
   shopifyStoreCreditAccountCredit: lazy(() => require('./shopify/shopifyStoreCreditAccountCredit').shopifyStoreCreditAccountCreditApi),
