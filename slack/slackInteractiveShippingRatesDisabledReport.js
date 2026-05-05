@@ -1,4 +1,4 @@
-const { respond, logDeep, customAxios, arrayToObj } = require('../utils');
+const { respond, logDeep, customAxios, arrayToObj, gidToId } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
 
@@ -108,10 +108,33 @@ const slackInteractiveShippingRatesDisabledReport = async (req, res) => {
 
   let response;
 
-  response = {
-    replace_original: 'true',
-    text: `I don't do anything yet :hugging_face:`,
-  };
+  switch (actionName) {
+
+    case 'snooze_select':
+
+      return;
+
+    case 'save_reminders':
+
+      const shippingRateRowObjects = Object.entries(state.values)
+        .filter(([blockId, block]) => blockId.startsWith(`disabled_rate_row:`))
+        .map(([blockId, block]) => {
+          const shippingRateId = gidToId(blockId.split(':')?.[1]) || '';
+          const selectedSnoozeOption = block?.[`${ COMMAND_NAME }:snooze_select:${ shippingRateId }`]?.selected_option?.value;
+          return {
+            id: shippingRateId,
+            snoozeOption: selectedSnoozeOption,
+          };
+        });
+
+      logDeep({ shippingRateRowObjects });
+
+      break;
+
+    default:
+      console.warn(`Unknown actionName: ${ actionName }`);
+      break;
+  }
 
   logDeep('response', response);
   return customAxios(responseUrl, {
