@@ -68,6 +68,8 @@ const shopifyShippingRatesDisabledReport = async (
   // logDeep({ shippingRates });
 
   // 2. Filter out the shipping rates that are disabled
+  const disabledShippingRates = shippingRates.filter(rate => !rate.active);
+  // logDeep({ disabledShippingRates });
 
   // 3. Report the disabled shipping rates to defined slack users/channels
 
