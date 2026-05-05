@@ -1,49 +1,24 @@
 const { funcApi, logDeep } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
-
-const defaultAttrs = `id`;
+const { REGIONS_WF } = require('../constants');
+const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
 
 const shopifyShippingRatesDisabledReport = async (
-  credsPath,
-  arg,
   {
+    regions = REGIONS_WF,
     apiVersion,
-    option,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
+  // 1. Fetch all shipping rates from all regions
 
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
-  };
+  // 2. Filter out the shipping rates that are disabled
 
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
-      apiVersion,
-    },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
+  // 3. Report the disabled shipping rates to defined slack users/channels
 
-  logDeep(response);
-  return response;
+  return {
+    success: true,
+    result: {},
+  }
 };
 
 const shopifyShippingRatesDisabledReportApi = funcApi(shopifyShippingRatesDisabledReport, {
