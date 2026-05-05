@@ -161,9 +161,25 @@ const shopifyShippingRatesDisabledReport = async (
 
   // 3. Report the disabled shipping rates to defined slack users/channels
 
+  const initialBlocks = [
+    blocks.intro,
+    blocks.divider,
+    ...disabledShippingRates.map(rate => blocks.disabled_rate_row(rate)),
+    blocks.divider,
+    blocks.buttons,
+  ];
+
+  const slackMessagePostResponse = await slackMessagePost(SLACK_CHANNEL, {
+    blocks: initialBlocks,
+  });
+  // logDeep({ slackMessagePostResponse });
+
   return {
     success: true,
-    result: {},
+    result: {
+      disabledShippingRates,
+      slackMessagePostResponse,
+    },
   }
 };
 
