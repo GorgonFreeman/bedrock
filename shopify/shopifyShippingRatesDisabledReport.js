@@ -30,7 +30,7 @@ const blocks = {
     block_id: 'intro',
     text: {
       type: 'mrkdwn',
-      text: 'Disabled Shipping Rates:',
+      text: '*Disabled Shipping Rates:*',
     },
   },
 
