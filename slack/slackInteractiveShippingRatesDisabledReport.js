@@ -36,13 +36,21 @@ const slackInteractiveShippingRatesDisabledReport = async (req, res) => {
     response_url: responseUrl,
     state, 
     actions, 
+    message,
   } = payload;
+
+  const {
+    blocks: currentBlocks,
+  } = message;
+  const currentBlocksById = arrayToObj(currentBlocks, { keyProp: 'block_id' });
 
   const action = actions?.[0];
   const { 
     action_id: actionId,
     value: actionValue,
   } = action;
+
+  const [commandName, actionName, ...actionNodes] = actionId.split(':');
 
   logDeep({
     responseUrl,
