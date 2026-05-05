@@ -21,6 +21,7 @@ const snoozeOptions = [
     value: "mute_permanently",
   },
 ]
+const defaultSnoozeOption = snoozeOptions.find(option => option.value === 'remind_tomorrow');
 
 const blocks = {
 
