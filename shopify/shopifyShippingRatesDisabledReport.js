@@ -51,15 +51,12 @@ const blocks = {
           type: 'plain_text',
           text: 'Select an action',
         },
-        initial_option: () => {
-          const defaultOption = snoozeOptions.find(option => option.value === 'remind_tomorrow');
-          return {
-            text: {
-              type: 'plain_text',
-              text: defaultOption.text,
-            },
-            value: defaultOption.value,
-          }
+        initial_option: {
+          text: {
+            type: 'plain_text',
+            text: defaultSnoozeOption.text,
+          },
+          value: defaultSnoozeOption.value,
         },
         options: snoozeOptions.map(option => {
           return {
