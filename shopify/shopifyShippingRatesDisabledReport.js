@@ -175,6 +175,10 @@ const shopifyShippingRatesDisabledReport = async (
     {
       blocks: initialBlocks,
     },
+    {
+      // Use the dev slack bot for testing
+      credsPath: 'slack.dev',
+    },
   );
   // logDeep({ slackMessagePostResponse });
 
