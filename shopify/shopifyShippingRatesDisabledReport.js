@@ -1,6 +1,7 @@
 const { funcApi, logDeep, gidToId } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
+const { slackMessagePost } = require('../slack/slackMessagePost');
 
 // define slack bot associated details
 const COMMAND_NAME = 'shipping_rates_disabled_report'; // slash command related to this script
