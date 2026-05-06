@@ -132,7 +132,25 @@ const slackInteractiveShippingRatesDisabledReport = async (req, res) => {
           };
         });
 
-      logDeep({ shippingRateRowObjects });
+      const metafieldAlertsObject = {};
+      for (const shippingRateRowObject of shippingRateRowObjects) {
+        const { id, snoozeOption } = shippingRateRowObject;
+        const nextAlertDate = () => {
+          switch (snoozeOption) {
+            case 'mute_permanently':
+              return null;
+            case 'remind_1_week':
+              return dateFromNow({ plus: days(7), dateOnly: true });
+            case 'remind_tomorrow':
+            default:
+              return dateFromNow({ plus: days(1), dateOnly: true });
+          }
+        };
+        metafieldAlertsObject[id] = {
+          nextAlertDate: nextAlertDate(),
+        };
+      }
+      // logDeep({ metafieldAlertsObject });
 
       break;
 
