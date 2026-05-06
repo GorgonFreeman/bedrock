@@ -1,6 +1,11 @@
-const { respond, logDeep, customAxios, arrayToObj, gidToId } = require('../utils');
+const { respond, logDeep, customAxios, arrayToObj, gidToId, dateFromNow, days } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
+const { shopifyMetafieldGet } = require('../shopify/shopifyMetafieldGet');
+const { shopifyMetafieldsSet } = require('../shopify/shopifyMetafieldsSet');
+
+const METAFIELD_KEY = 'shipping_rates';
+const METAFIELD_NAMESPACE = 'alerts';
 
 const COMMAND_NAME = 'shipping_rates_disabled_report'; // slash command
 
