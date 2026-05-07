@@ -167,7 +167,8 @@ const slackInteractiveShippingRatesDisabledReport = async (req, res) => {
         namespace: METAFIELD_NAMESPACE,
         key: METAFIELD_KEY,
       });
-      const metafieldAlertsObject = JSON.parse(alertsMetafieldResponse.result?.value || '{}');;
+      const metafieldAlertsObject = JSON.parse(alertsMetafieldResponse.result?.value || '{}');
+      const snoozedAlertsObject = {}; // Store the alerts snoozed on this instance
       for (const shippingRateRowObject of shippingRateRowObjects) {
         const { id, snoozeOption } = shippingRateRowObject;
         const nextAlertDate = () => {
@@ -182,6 +183,9 @@ const slackInteractiveShippingRatesDisabledReport = async (req, res) => {
           }
         };
         metafieldAlertsObject[id] = {
+          nextAlertDate: nextAlertDate(),
+        };
+        snoozedAlertsObject[id] = {
           nextAlertDate: nextAlertDate(),
         };
       }
@@ -201,7 +205,7 @@ const slackInteractiveShippingRatesDisabledReport = async (req, res) => {
         replace_original: 'true',
         blocks: [
           blocks.intro,
-          blocks.result(shippingRatesByStore, metafieldAlertsObject),
+          blocks.result(shippingRatesByStore, snoozedAlertsObject),
         ],
       };
 
