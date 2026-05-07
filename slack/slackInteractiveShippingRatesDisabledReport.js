@@ -161,7 +161,13 @@ const slackInteractiveShippingRatesDisabledReport = async (req, res) => {
           };
         });
 
-      const metafieldAlertsObject = {};
+      const alertsMetafieldResponse = await shopifyMetafieldGet(METAFIELD_DEFAULT_CREDS_PATH, {
+        resource: 'shop',
+        resourceId: 'shop',
+        namespace: METAFIELD_NAMESPACE,
+        key: METAFIELD_KEY,
+      });
+      const metafieldAlertsObject = JSON.parse(alertsMetafieldResponse.result?.value || '{}');;
       for (const shippingRateRowObject of shippingRateRowObjects) {
         const { id, snoozeOption } = shippingRateRowObject;
         const nextAlertDate = () => {
