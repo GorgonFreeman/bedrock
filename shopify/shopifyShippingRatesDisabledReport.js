@@ -45,13 +45,24 @@ const blocks = {
     type: 'divider',
   },
 
+  rate_group_header: (store, deliveryProfileName, locationGroupZoneName) => {
+    return {
+      type: 'section',
+      block_id: `rate_group_header:${ store }:${ deliveryProfileName }:${ locationGroupZoneName }`,
+      text: {
+        type: 'mrkdwn',
+        text: `*Store: ${ store.toUpperCase() } | Profile: ${ deliveryProfileName } | Zone: ${ locationGroupZoneName }*`,
+      },
+    };
+  },
+
   disabled_rate_row: (rate) => {
     return {
       type: 'section',
       block_id: `disabled_rate_row:${ gidToId(rate.id) }`,
       text: {
         type: 'mrkdwn',
-        text: `${ rate.name } | Store: ${ rate.store.toUpperCase() } | Profile: ${ rate.deliveryProfileName } | Zone: ${ rate.locationGroupZoneName }`,
+        text: `${ rate.name }`,
       },
       accessory: {
         type: 'static_select',
@@ -201,13 +212,26 @@ const shopifyShippingRatesDisabledReport = async (
 
   // 3. Report the disabled shipping rates to defined slack users/channels
 
+  // 3.1 Group the disabled shipping rates by store, delivery profile, and location group zone
+  const disabledShippingRatesByGroup = disabledShippingRates.reduce((acc, rate) => {
+    const { store, deliveryProfileName, locationGroupZoneName } = rate;
+    const groupKey = `${ store }:${ deliveryProfileName }:${ locationGroupZoneName }`;
+    acc[groupKey] = acc[groupKey] || [];
+    acc[groupKey].push(rate);
+    return acc;
+  }, {});
+
+  // 3.2 Build the initial blocks
   const initialBlocks = [
     blocks.intro,
     blocks.divider,
-    ...disabledShippingRates.map(rate => blocks.disabled_rate_row(rate)),
-    blocks.divider,
+    ...Object.entries(disabledShippingRatesByGroup).map(([groupKey, rates]) => [
+      blocks.rate_group_header(...groupKey.split(':')),
+      ...rates.map(rate => blocks.disabled_rate_row(rate)),
+      blocks.divider,
+    ]),
     blocks.buttons,
-  ];
+  ].flat();
 
   const slackMessagePostResponse = await slackMessagePost(
     {
