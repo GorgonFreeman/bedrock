@@ -22,15 +22,30 @@ const blocks = {
     },
   },
 
-  result: (shippingRates, metafieldAlertsObject) => {
+  result: (shippingRates, snoozedAlertsObject) => {
+
+    // Group the snoozed alerts by store, delivery profile, and location group zone
+    const groupedSnoozedAlertsObject = Object.entries(snoozedAlertsObject).reduce((acc, [id, alert]) => {
+      const shippingRate = shippingRates.find(rate => gidToId(rate.id) === id) || {};
+      const groupKey = `Store: ${ shippingRate.store.toUpperCase() } | Profile: ${ shippingRate.deliveryProfileName } | Zone: ${ shippingRate.locationGroupZoneName }`;
+      acc[groupKey] = acc[groupKey] || [];
+      acc[groupKey].push({
+        ...alert,
+        name: shippingRate.name,
+      });
+      return acc;
+    }, {});
+
     return {
       type: 'section',
       block_id: 'result',
       text: {
         type: 'mrkdwn',
-        text: `${ Object.entries(metafieldAlertsObject).map(([id, alert]) => {
-          const shippingRate = shippingRates.find(rate => gidToId(rate.id) === id) || {};
-          return `${ shippingRate.name } (${ shippingRate.store.toUpperCase() } | ${ shippingRate.locationGroupZoneName }) | Will remind again on: ${ alert.nextAlertDate }`;
+        text: `${ Object.entries(groupedSnoozedAlertsObject).map(([groupKey, alerts]) => {
+          return `*${ groupKey }*\n${ alerts.map(alert => {
+            const snoozeMessage = alert.nextAlertDate === 'muted_permanently' ? 'Muted permanently' : `Will remind again on: ${ alert.nextAlertDate }`;
+            return `- ${ alert.name } | ${ snoozeMessage }`;
+          }).join('\n') }`;
         }).join('\n') }`,
       },
     };
