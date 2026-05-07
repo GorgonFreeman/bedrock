@@ -6,8 +6,8 @@ const { shopifyMetafieldsSet } = require('../shopify/shopifyMetafieldsSet');
 
 const METAFIELD_DEFAULT_CREDS_PATH = 'au';
 const METAFIELD_SHOP_ID = 'gid://shopify/Shop/21971730504';
-const METAFIELD_KEY = 'shipping_rates';
-const METAFIELD_NAMESPACE = 'alerts';
+const METAFIELD_NAMESPACE = 'shipping_rates';
+const METAFIELD_KEY = 'alerts';
 
 const COMMAND_NAME = 'shipping_rates_disabled_report'; // slash command
 
