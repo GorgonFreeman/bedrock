@@ -30,7 +30,7 @@ const blocks = {
         type: 'mrkdwn',
         text: `${ Object.entries(metafieldAlertsObject).map(([id, alert]) => {
           const shippingRate = shippingRates.find(rate => gidToId(rate.id) === id) || {};
-          return `${ shippingRate.name } (${ shippingRate.store.toUpperCase() } | Zone: ${ shippingRate.locationGroupZoneName }) | Will remind again on: ${ alert.nextAlertDate }`;
+          return `${ shippingRate.name } (${ shippingRate.store.toUpperCase() } | ${ shippingRate.locationGroupZoneName }) | Will remind again on: ${ alert.nextAlertDate }`;
         }).join('\n') }`,
       },
     };
