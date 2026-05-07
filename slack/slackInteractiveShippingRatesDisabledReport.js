@@ -140,10 +140,10 @@ const slackInteractiveShippingRatesDisabledReport = async (req, res) => {
             case 'mute_permanently':
               return null;
             case 'remind_1_week':
-              return dateFromNow({ plus: days(7), dateOnly: true });
+              return dateFromNow({ plus: (days(7) + hours(11)), dateOnly: true });
             case 'remind_tomorrow':
             default:
-              return dateFromNow({ plus: days(1), dateOnly: true });
+              return dateFromNow({ plus: (days(1) + hours(11)), dateOnly: true });
           }
         };
         metafieldAlertsObject[id] = {
