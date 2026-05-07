@@ -1,9 +1,11 @@
-const { respond, logDeep, customAxios, arrayToObj, gidToId, dateFromNow, days } = require('../utils');
+const { respond, logDeep, customAxios, arrayToObj, gidToId, dateFromNow, days, hours } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
 const { shopifyMetafieldGet } = require('../shopify/shopifyMetafieldGet');
 const { shopifyMetafieldsSet } = require('../shopify/shopifyMetafieldsSet');
 
+const METAFIELD_DEFAULT_CREDS_PATH = 'au';
+const METAFIELD_SHOP_ID = 'gid://shopify/Shop/21971730504';
 const METAFIELD_KEY = 'shipping_rates';
 const METAFIELD_NAMESPACE = 'alerts';
 
@@ -178,6 +180,24 @@ const slackInteractiveShippingRatesDisabledReport = async (req, res) => {
         };
       }
       // logDeep({ metafieldAlertsObject });
+
+      const metafields = [{
+        ownerId: METAFIELD_SHOP_ID,
+        namespace: METAFIELD_NAMESPACE,
+        key: METAFIELD_KEY,
+        type: 'json',
+        value: JSON.stringify(metafieldAlertsObject),
+      }];
+      const metafieldsSetResponse = await shopifyMetafieldsSet(METAFIELD_DEFAULT_CREDS_PATH, metafields);
+      logDeep({ metafieldsSetResponse });
+
+      response = {
+        replace_original: 'true',
+        blocks: [
+          blocks.intro,
+          blocks.result(shippingRatesByStore, metafieldAlertsObject),
+        ],
+      };
 
       break;
 
