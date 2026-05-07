@@ -180,6 +180,10 @@ const shopifyShippingRatesDisabledReport = async (
       // Remind all rates with no next alert date set
       return !rate.active;
     }
+    // If alert is muted permanently, so don't remind
+    if (nextAlertDate === 'muted_permanently') {
+      return false;
+    }
     // If the next alert date is today or in the past, add the rate to reminder list
     return !rate.active && new Date(nextAlertDate) <= new Date(dateFromNow({ plus: hours(11), dateOnly: true }));
   });
