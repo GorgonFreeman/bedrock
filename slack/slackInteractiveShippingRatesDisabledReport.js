@@ -174,7 +174,7 @@ const slackInteractiveShippingRatesDisabledReport = async (req, res) => {
         const nextAlertDate = () => {
           switch (snoozeOption) {
             case 'mute_permanently':
-              return null;
+              return 'muted_permanently';
             case 'remind_1_week':
               return dateFromNow({ plus: (days(7) + hours(11)), dateOnly: true });
             case 'remind_tomorrow':
