@@ -184,6 +184,17 @@ const shopifyShippingRatesDisabledReport = async (
     return !rate.active && new Date(nextAlertDate) <= new Date(dateFromNow({ plus: hours(11), dateOnly: true }));
   });
 
+  // return early if there are no disabled shipping rates due to be reminded
+  if (!disabledShippingRates.length) {
+    return {
+      success: true,
+      result: {
+        disabledShippingRates,
+        slackMessagePostResponse: null,
+      },
+    };
+  }
+
   // 3. Report the disabled shipping rates to defined slack users/channels
 
   const initialBlocks = [
