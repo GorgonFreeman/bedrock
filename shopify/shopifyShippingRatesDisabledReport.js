@@ -1,7 +1,14 @@
-const { funcApi, logDeep, gidToId, askQuestion } = require('../utils');
+const { funcApi, logDeep, gidToId, askQuestion, dateFromNow, hours } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
+const { shopifyMetafieldGet } = require('../shopify/shopifyMetafieldGet');
 const { slackMessagePost } = require('../slack/slackMessagePost');
+
+// Define the metafield key and namespace for the disabled shipping rates snooze options
+const METAFIELD_DEFAULT_CREDS_PATH = 'au';
+const METAFIELD_SHOP_ID = 'gid://shopify/Shop/21971730504';
+const METAFIELD_NAMESPACE = 'shipping_rates';
+const METAFIELD_KEY = 'alerts';
 
 // define slack bot associated details
 const COMMAND_NAME = 'shipping_rates_disabled_report'; // slash command related to this script
@@ -156,8 +163,26 @@ const shopifyShippingRatesDisabledReport = async (
   // logDeep({ shippingRates });
 
   // 2. Filter out the shipping rates that are disabled
-  const disabledShippingRates = shippingRates.filter(rate => !rate.active);
-  // logDeep({ disabledShippingRates });
+
+  // 2.1 Fetch the alerts metafield
+  const alertsMetafieldResponse = await shopifyMetafieldGet(METAFIELD_DEFAULT_CREDS_PATH, {
+    resource: 'shop',
+    resourceId: 'shop',
+    namespace: METAFIELD_NAMESPACE,
+    key: METAFIELD_KEY,
+  });
+  const alertsMetafield = JSON.parse(alertsMetafieldResponse.result?.value || '{}');
+
+  // 2.2 Filter out the shipping rates that are disabled and are due to be reminded
+  const disabledShippingRates = shippingRates.filter(rate => {
+    const nextAlertDate = alertsMetafield[gidToId(rate.id)]?.nextAlertDate;
+    if (!nextAlertDate) {
+      // Remind all rates with no next alert date set
+      return !rate.active;
+    }
+    // If the next alert date is today or in the past, add the rate to reminder list
+    return !rate.active && new Date(nextAlertDate) <= new Date(dateFromNow({ plus: hours(11), dateOnly: true }));
+  });
 
   // 3. Report the disabled shipping rates to defined slack users/channels
 
