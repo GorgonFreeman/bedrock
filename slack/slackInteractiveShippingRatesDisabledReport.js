@@ -9,6 +9,33 @@ const METAFIELD_NAMESPACE = 'alerts';
 
 const COMMAND_NAME = 'shipping_rates_disabled_report'; // slash command
 
+const blocks = {
+
+  intro: {
+    type: 'section',
+    block_id: 'intro',
+    text: {
+      type: 'mrkdwn',
+      text: '*Disabled Shipping Rates:*',
+    },
+  },
+
+  result: (shippingRates, metafieldAlertsObject) => {
+    return {
+      type: 'section',
+      block_id: 'result',
+      text: {
+        type: 'mrkdwn',
+        text: `${ Object.entries(metafieldAlertsObject).map(([id, alert]) => {
+          const shippingRate = shippingRates.find(rate => gidToId(rate.id) === id) || {};
+          return `${ shippingRate.name } (${ shippingRate.store.toUpperCase() } | Zone: ${ shippingRate.locationGroupZoneName }) | Will remind again on: ${ alert.nextAlertDate }`;
+        }).join('\n') }`,
+      },
+    };
+  },
+
+}
+
 // Fetch a flattened lisst of shipping rates per store
 const deliveryProfilesGetFlatByStore = async () => {
   const deliveryProfileAttrs = `id name profileLocationGroups {
