@@ -28,8 +28,18 @@ const googlesheetsSpreadsheetSheetDelete = async (
 
   const sheetsClient = getGoogleSheetsClient({ credsPath });
 
-  const response = await sheetsClient.spreadsheets.get({
+  // Delete the sheet in a batch operation
+  const response = await sheetsClient.spreadsheets.batchUpdate({
     spreadsheetId,
+    resource: {
+      requests: [
+        {
+          deleteSheet: {
+            sheetId,
+          },
+        },
+      ],
+    },
   });
 
   return response;
@@ -48,5 +58,5 @@ module.exports = {
   googlesheetsSpreadsheetSheetDeleteApi,
 };
 
-// curl localhost:8000/googlesheetsSpreadsheetSheetDelete -H "Content-Type: application/json" -d '{ "spreadsheetIdentifier": { "spreadsheetId": "1RuI7MrZ0VPGBLd4EXRIfDy7DVdtcdDKKbA8C5UBJQTM" } }'
+// curl localhost:8000/googlesheetsSpreadsheetSheetDelete -H "Content-Type: application/json" -d '{ "spreadsheetIdentifier": { "spreadsheetId": "1RuI7MrZ0VPGBLd4EXRIfDy7DVdtcdDKKbA8C5UBJQTM" }, "sheetIdentifier": { "sheetName": "Fruits <3" } }'
 
