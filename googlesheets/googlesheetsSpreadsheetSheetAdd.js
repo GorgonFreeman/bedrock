@@ -37,7 +37,7 @@ const cleanUpOldSheets = async (
     }
   }
   const uniqueKeysArray = Array.from(uniqueKeys);
-  const cellsToAdd = uniqueKeysArray.length * objArray.length;
+  const cellsToAdd = uniqueKeysArray.length * ( objArray.length + 1 ); // +1 for the header row
 
   // Subtract the number of cells we're adding from the remaining cells available
   remainingCells -= cellsToAdd;
