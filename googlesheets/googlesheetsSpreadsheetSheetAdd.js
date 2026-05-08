@@ -8,9 +8,11 @@ const { googlesheetsSpreadsheetTrim } = require('../googlesheets/googlesheetsSpr
 
 const cleanUpOldSheets = async (
   spreadsheetId,
-  objArray,
   {
-    credsPath
+    objArray,
+  },
+  {
+    credsPath,
   } = {},
 ) => {
 
@@ -93,7 +95,7 @@ const googlesheetsSpreadsheetSheetAdd = async (
     };
   }
 
-  await cleanUpOldSheets(spreadsheetId, objArray, { credsPath });
+  await cleanUpOldSheets(spreadsheetId, { objArray }, { credsPath });
 
   sheetName = String(sheetName);
 
