@@ -8,6 +8,9 @@ const googlesheetsSpreadsheetSheetDelete = async (
     spreadsheetHandle,
   },
   {
+    sheetId,
+  },
+  {
     credsPath,
   } = {},
 ) => {
@@ -33,9 +36,10 @@ const googlesheetsSpreadsheetSheetDelete = async (
 };
 
 const googlesheetsSpreadsheetSheetDeleteApi = funcApi(googlesheetsSpreadsheetSheetDelete, {
-  argNames: ['spreadsheetIdentifier', 'options'],
+  argNames: ['spreadsheetIdentifier', 'sheetIdentifier', 'options'],
   validatorsByArg: {
     spreadsheetIdentifier: p => objHasAny(p, ['spreadsheetId', 'spreadsheetHandle']),
+    sheetIdentifier: p => objHasAny(p, ['sheetId']),
   },
 });
 
