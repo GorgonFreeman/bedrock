@@ -1,7 +1,39 @@
-const { funcApi, objHasAny } = require('../utils');
+const { funcApi, objHasAny, askQuestion, logDeep } = require('../utils');
+const { CELL_LIMIT } = require('../googlesheets/googlesheets.constants');
 const { getGoogleSheetsClient } = require('../googlesheets/googlesheets.utils');
 const { spreadsheetHandleToSpreadsheetId } = require('../bedrock_unlisted/mappings');
+const { googlesheetsSpreadsheetGet } = require('../googlesheets/googlesheetsSpreadsheetGet');
 const { googlesheetsSpreadsheetTrim } = require('../googlesheets/googlesheetsSpreadsheetTrim');
+
+const cleanUpOldSheets = async (
+  spreadsheetId,
+  objArray,
+  {
+    credsPath
+  } = {},
+) => {
+
+  // Fetch the spreadsheet with all sheets
+  const spreadsheetGetResponse = await googlesheetsSpreadsheetGet({ spreadsheetId }, { credsPath });
+  if (!spreadsheetGetResponse) {
+    console.log('Error getting spreadsheet, skipping cell limit check');
+    return;
+  }
+
+  const sheets = spreadsheetGetResponse?.data?.sheets;
+  if (!sheets && sheets.length === 0) {
+    console.log('No sheets found in spreadsheet, skipping cell limit check');
+    return;
+  }
+
+  // Initial remaining cells is the cell limit
+  let remainingCells = CELL_LIMIT;
+
+  // calculate how many cells we're adding from objArray
+  // loop over current sheets from newest to oldest
+  // start deleting the sheets when we hit the cell limit
+
+};
 
 const googlesheetsSpreadsheetSheetAdd = async (
   {
@@ -28,6 +60,8 @@ const googlesheetsSpreadsheetSheetAdd = async (
       errors: [`Couldn't get a spreadsheet ID from ${ spreadsheetHandle }`],
     };
   }
+
+  await cleanUpOldSheets(spreadsheetId, objArray, { credsPath });
 
   sheetName = String(sheetName);
 
