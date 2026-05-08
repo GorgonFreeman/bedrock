@@ -29,7 +29,18 @@ const cleanUpOldSheets = async (
   // Initial remaining cells is the cell limit
   let remainingCells = CELL_LIMIT;
 
-  // calculate how many cells we're adding from objArray
+  // Calculate how many cells we're adding from objArray
+  const uniqueKeys = new Set();
+  for (const obj of objArray) {
+    if (obj && typeof obj === 'object') {
+      Object.keys(obj).forEach(key => uniqueKeys.add(key));
+    }
+  }
+  const uniqueKeysArray = Array.from(uniqueKeys);
+  const cellsToAdd = uniqueKeysArray.length * objArray.length;
+  logDeep({ cellsToAdd });
+  await askQuestion();
+
   // loop over current sheets from newest to oldest
   // start deleting the sheets when we hit the cell limit
 
