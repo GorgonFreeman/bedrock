@@ -42,8 +42,28 @@ const cleanUpOldSheets = async (
   // Subtract the number of cells we're adding from the remaining cells available
   remainingCells -= cellsToAdd;
 
-  // loop over current sheets from newest to oldest
-  // start deleting the sheets when we hit the cell limit
+  // Loop over current sheets from newest to oldest
+  for (const sheet of sheets.reverse()) {
+    const {
+      sheetId,
+      title,
+      gridProperties,
+    } = sheet.properties;
+    const {
+      rowCount,
+      columnCount
+    } = gridProperties;
+    const cellCount = rowCount * columnCount;
+
+    // Subtract the number of cells in the sheet from the remaining cells available
+    remainingCells -= cellCount;
+    console.log(`Sheet ${ title } has ${ cellCount } cells, ${ remainingCells } cells remaining`);
+
+    if (remainingCells < 0) {
+      // We don't have enough cells remaining, so we need to delete all sheets starting from this one
+      console.log(`Deleting sheet ${ title } with ${ cellCount } cells, ${ remainingCells } cells remaining`);
+    }
+  }
 
 };
 
