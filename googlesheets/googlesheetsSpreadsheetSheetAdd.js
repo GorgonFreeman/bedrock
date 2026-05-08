@@ -38,8 +38,9 @@ const cleanUpOldSheets = async (
   }
   const uniqueKeysArray = Array.from(uniqueKeys);
   const cellsToAdd = uniqueKeysArray.length * objArray.length;
-  logDeep({ cellsToAdd });
-  await askQuestion();
+
+  // Subtract the number of cells we're adding from the remaining cells available
+  remainingCells -= cellsToAdd;
 
   // loop over current sheets from newest to oldest
   // start deleting the sheets when we hit the cell limit
