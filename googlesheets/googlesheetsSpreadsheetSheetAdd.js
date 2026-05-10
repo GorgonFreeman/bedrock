@@ -63,6 +63,7 @@ const cleanUpOldSheets = async (
 
     if (remainingCells < 0) {
       // We don't have enough cells remaining, so we will start deleting sheets from this one onwards
+      logDeep(`Deleting sheet ${ title }`);
       await googlesheetsSpreadsheetSheetDelete({ spreadsheetId }, { sheetId }, { credsPath });
     }
   }
