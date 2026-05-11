@@ -6,6 +6,7 @@ const { funcApi, logDeep } = require('../utils');
 const { asanaClient } = require('../asana/asana.utils');
 
 const asanaTaskCreate = async (
+  name,
   {
     credsPath,
     
@@ -14,7 +15,6 @@ const asanaTaskCreate = async (
     pretty,
     
     // body
-    name = "New Task", // optional, string
     projects = [ DEV_PROJECT_ID ], // required, array of project gids
     assignee = "me", // optional, string ("me", email or the gid of a user)
     notes, // optional, string (description of the task)
@@ -25,7 +25,7 @@ const asanaTaskCreate = async (
 ) => {
 
   const data = {
-    ...(name ? { name } : {}),
+    name,
     ...(projects.length > 0 ? { projects: projects } : {}),
     ...(assignee ? { assignee } : {}),
     ...(notes ? { notes } : {}),
@@ -55,7 +55,7 @@ const asanaTaskCreate = async (
 };
 
 const asanaTaskCreateApi = funcApi(asanaTaskCreate, {
-  argNames: ['options'],
+  argNames: ['name', 'options'],
 });
 
 module.exports = {
@@ -63,5 +63,5 @@ module.exports = {
   asanaTaskCreateApi,
 };
 
-// curl localhost:8000/asanaTaskCreate -H "Content-Type: application/json" -d '{ "options": { "name": "New Task", "projects": ["1208942389126559"] } }'
-// curl localhost:8000/asanaTaskCreate -H "Content-Type: application/json" -d '{ "options": { "name": "New Task", "projects": ["1208942389126559"], "assignee": "zwe@whitefoxboutique.com", "notes": "Do this, do that", "startOn": "2026-05-12", "dueOn": "2026-05-13" } }'
+// curl localhost:8000/asanaTaskCreate -H "Content-Type: application/json" -d '{ "name": "New Task", "options": { "projects": ["1208942389126559"] } }'
+// curl localhost:8000/asanaTaskCreate -H "Content-Type: application/json" -d '{ "name": "New Task", "options": { "projects": ["1208942389126559"], "assignee": "zwe@whitefoxboutique.com", "notes": "Do this, do that", "startOn": "2026-05-12", "dueOn": "2026-05-13" } }'
