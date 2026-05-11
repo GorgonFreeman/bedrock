@@ -82,6 +82,7 @@ const googlesheetsSpreadsheetSheetAdd = async (
     sheetName = Date.now(),
     credsPath,
     trim = true,
+    deleteOldSheets = false,
   } = {},
 ) => {
 
@@ -96,7 +97,9 @@ const googlesheetsSpreadsheetSheetAdd = async (
     };
   }
 
-  await cleanUpOldSheets(spreadsheetId, { objArray }, { credsPath });
+  if (deleteOldSheets) {
+    await cleanUpOldSheets(spreadsheetId, { objArray }, { credsPath });
+  }
 
   sheetName = String(sheetName);
 
