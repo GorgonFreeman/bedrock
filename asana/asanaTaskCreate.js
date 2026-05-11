@@ -18,6 +18,9 @@ const asanaTaskCreate = async (
     projects = [ DEV_PROJECT_ID ], // required, array of project gids
     assignee = "me", // optional, string ("me", email or the gid of a user)
     notes, // optional, string (description of the task)
+    followers = [], // optional, array of user gids, emails or just "me"
+    tags = [], // optional, array of tag gids
+    workspace, // optional, gid of a workspace
 
     startOn, // optional, date string (YYYY-MM-DD)
     dueOn, // optional, date string (YYYY-MM-DD)
@@ -31,6 +34,9 @@ const asanaTaskCreate = async (
     ...(notes ? { notes } : {}),
     ...(startOn ? { start_on: startOn } : {}),
     ...(dueOn ? { due_on: dueOn } : {}),
+    ...(followers.length > 0 ? { followers: followers } : {}),
+    ...(tags.length > 0 ? { tags: tags } : {}),
+    ...(workspace ? { workspace: workspace } : {}),
   };
 
   const params = {
