@@ -1,6 +1,6 @@
 const { respond, logDeep, customAxios } = require('../utils');
 
-const COMMAND_NAME = 'slash_command'; // slash command
+const COMMAND_NAME = 'asana_dev_task_create'; // slash command
 
 const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
   console.log('slackInteractiveAsanaDevTaskCreate');
