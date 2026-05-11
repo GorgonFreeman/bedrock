@@ -14,14 +14,23 @@ const asanaTaskCreate = async (
     pretty,
     
     // body
-    name = "New Task",
-    projects = [ DEV_PROJECT_ID ],
+    name = "New Task", // optional, string
+    projects = [ DEV_PROJECT_ID ], // required, array of project gids
+    assignee = "me", // optional, string ("me", email or the gid of a user)
+    notes, // optional, string (description of the task)
+
+    startOn, // optional, date string (YYYY-MM-DD)
+    dueOn, // optional, date string (YYYY-MM-DD)
   } = {},
 ) => {
 
   const data = {
     ...(name ? { name } : {}),
     ...(projects.length > 0 ? { projects: projects } : {}),
+    ...(assignee ? { assignee } : {}),
+    ...(notes ? { notes } : {}),
+    ...(startOn ? { start_on: startOn } : {}),
+    ...(dueOn ? { due_on: dueOn } : {}),
   };
 
   const params = {
@@ -55,3 +64,4 @@ module.exports = {
 };
 
 // curl localhost:8000/asanaTaskCreate -H "Content-Type: application/json" -d '{ "options": { "name": "New Task", "projects": ["1208942389126559"] } }'
+// curl localhost:8000/asanaTaskCreate -H "Content-Type: application/json" -d '{ "options": { "name": "New Task", "projects": ["1208942389126559"], "assignee": "zwe@whitefoxboutique.com", "notes": "Do this, do that", "startOn": "2026-05-12", "dueOn": "2026-05-13" } }'
