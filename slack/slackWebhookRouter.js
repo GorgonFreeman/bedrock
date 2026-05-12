@@ -1,5 +1,5 @@
 const { respond, logDeep } = require('../utils');
-const { TEAM_DOMAIN_TO_CREDSPATH } = require('../slack/slack.constants');
+const { TEAM_DOMAIN_TO_CREDSPATH, MESSAGE_ACTION_TYPES } = require('../slack/slack.constants');
 
 const commandNameToFunc = {
   'test': require('../slack/slackInteractiveTest'),
@@ -38,10 +38,15 @@ const slackWebhookRouterApi = async (req, res) => {
 
     credsPath = TEAM_DOMAIN_TO_CREDSPATH[teamDomain];
 
-    if (payload.type === 'message_action') {
+    // Message action type - get commandName from callback_id
+    if (MESSAGE_ACTION_TYPES.includes(payload.type)) {
       
-      // Message action - get commandName from callback_id
-      commandName = payload.callback_id;
+      if (payload.type === 'message_action') {
+        commandName = payload.callback_id;
+      } else {
+        commandName = payload.view.callback_id;
+      }
+
     } else {
 
       // Get commandName from action_id
