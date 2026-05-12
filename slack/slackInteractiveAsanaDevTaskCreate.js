@@ -1,4 +1,6 @@
 const { respond, logDeep, customAxios } = require('../utils');
+const { TEAM_DOMAIN_TO_CREDSPATH } = require('../slack/slack.constants');
+const { slackClient } = require('../slack/slack.utils');
 
 const COMMAND_NAME = 'asana_dev_task_create'; // slash command
 
@@ -51,23 +53,11 @@ const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
 
   const { body } = req;
   
-  // If no payload, this is an initiation, e.g. slash command - send the initial blocks
+  // message action - payload required
   if (!body?.payload) {
 
-    const initialBlocks = [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `I don't do anything yet :hugging_face:`,
-        },
-      },
-    ];
-
-    return respond(res, 200, {
-      response_type: 'in_channel',
-      blocks: initialBlocks,
-    });
+    console.warn(`Payload required for message action`);
+    return respond(res, 400, { error: `Payload required for message action` });
   }
 
   // Because we got to this point, we have a payload - handle as an interactive step
@@ -76,37 +66,53 @@ const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
   const payload = JSON.parse(body.payload);
   logDeep('payload', payload);
 
-  const { 
-    response_url: responseUrl,
-    state, 
-    actions, 
+  const {
+    trigger_id: triggerId,
+    type: payloadType,
+    team,
   } = payload;
 
-  const action = actions?.[0];
-  const { 
-    action_id: actionId,
-    value: actionValue,
-  } = action;
+  const { domain: teamDomain } = team;
+  // const credsPath = TEAM_DOMAIN_TO_CREDSPATH[teamDomain];
+  const credsPath = 'dev'; // temporarily hardcoded for testing
 
-  logDeep({
-    responseUrl,
-    state,
-    actionId,
-    actionValue,
-  });
+  // No actions in payload
+  if (!payload?.actions) {
 
-  let response;
+    switch(payloadType) {
 
-  response = {
-    replace_original: 'true',
-    text: `I don't do anything yet :hugging_face:`,
-  };
+      // this is a message action initiation - send the initial blocks in a modal
+      case 'message_action':
 
-  logDeep('response', response);
-  return customAxios(responseUrl, {
-    method: 'post',
-    body: response,
-  });
+        repsonse = await slackClient.fetch({
+          url: '/views.open',
+          method: 'post',
+          body: {
+            trigger_id: triggerId,
+            view: modal.initial,
+          },
+          context: {
+            credsPath,
+          },
+        });
+        break;
+
+      // this is a view submission - process the form data
+      case 'view_submission':
+
+        const {
+          name_input: nameInput,
+        } = payload.view.state.values;
+  
+        const taskName = nameInput[`${ COMMAND_NAME }:name_input`]?.value;
+  
+        console.log('taskName', taskName);
+        break;
+
+      default:
+        break;
+    }
+  }
 };
 
 module.exports = slackInteractiveAsanaDevTaskCreate;
