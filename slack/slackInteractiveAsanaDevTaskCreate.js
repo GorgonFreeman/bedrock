@@ -2,6 +2,50 @@ const { respond, logDeep, customAxios } = require('../utils');
 
 const COMMAND_NAME = 'asana_dev_task_create'; // slash command
 
+const blocks = {
+
+  name_input: {
+    type: 'input',
+    block_id: 'name_input',
+    label: {
+      type: 'plain_text',
+      text: 'Task name',
+    },
+    element: {
+      type: 'plain_text_input',
+      action_id: `${ COMMAND_NAME }:name_input`,
+      placeholder: {
+        type: 'plain_text',
+        text: 'Enter task name...',
+      },
+    },
+  },
+
+};
+
+const modal = {
+
+  initial: {
+    type: 'modal',
+    callback_id: COMMAND_NAME,
+    title: {
+      type: 'plain_text',
+      text: 'Create new task',
+    },
+    blocks: [
+      blocks.name_input,
+    ],
+    close: {
+      type: 'plain_text',
+      text: 'Close',
+    },
+    submit: {
+      type: 'plain_text',
+      text: 'Create Task',
+    },
+  }
+}
+
 const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
   console.log('slackInteractiveAsanaDevTaskCreate');
 
