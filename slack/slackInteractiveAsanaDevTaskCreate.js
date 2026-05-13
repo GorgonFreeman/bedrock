@@ -1,6 +1,6 @@
-const { respond, logDeep, customAxios } = require('../utils');
+const { respond, logDeep, customAxios, askQuestion } = require('../utils');
 const { TEAM_DOMAIN_TO_CREDSPATH } = require('../slack/slack.constants');
-const { DEV_PROJECT_ID, DEV_DEFAULT_SECTION_ID } = require('../asana/asana.constants');
+const { DEV_PROJECT_ID, DEV_DEFAULT_SECTION_ID, DEV_ASSIGNEE_EMAILS } = require('../asana/asana.constants');
 const { slackClient } = require('../slack/slack.utils');
 const { slackMessagePost } = require('../slack/slackMessagePost');
 const { asanaTaskCreate } = require('../asana/asanaTaskCreate');
@@ -24,6 +24,37 @@ const blocks = {
         type: 'plain_text',
         text: 'Enter task name...',
       },
+    },
+  },
+
+  assignee_select: {
+    type: 'section',
+    block_id: 'assignee_select',
+    text: {
+      type: 'mrkdwn',
+      text: 'Choose assignee:',
+    },
+    accessory: {
+      type: 'static_select',
+      placeholder: {
+        type: 'plain_text',
+        text: 'Choose assignee',
+      },
+      initial_option: {
+        text: {
+          type: 'plain_text',
+          text: Object.keys(DEV_ASSIGNEE_EMAILS)[0],
+        },
+        value: Object.values(DEV_ASSIGNEE_EMAILS)[0],
+      },
+      options: Object.entries(DEV_ASSIGNEE_EMAILS).map(([assignee, email]) => ({
+        text: {
+          type: 'plain_text',
+          text: assignee,
+        },
+        value: email,
+      })),
+      action_id: `${ COMMAND_NAME }:assignee_select`,
     },
   },
 
@@ -61,6 +92,7 @@ const modal = {
       },
       blocks: [
         blocks.name_input,
+        blocks.assignee_select,
         ...(errorMessage ? [ blocks.error_message(errorMessage) ] : []),
       ],
       private_metadata: JSON.stringify(metadataObject),
@@ -159,10 +191,12 @@ const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
   
         const taskName = nameInput[`${ COMMAND_NAME }:name_input`]?.value;
 
+        const assigneeEmail = payload.view.state.values.assignee_select[`${ COMMAND_NAME }:assignee_select`]?.selected_option?.value;
+
         // Create the dev task in Asana
         const asanaTaskCreateResult = await asanaTaskCreate(taskName, {
           projects: [ DEV_PROJECT_ID ],
-          assignee: 'john@whitefoxboutique.com',
+          assignee: assigneeEmail || 'me',
           notes: [
             `> ${ messageText }`,
             ``,
