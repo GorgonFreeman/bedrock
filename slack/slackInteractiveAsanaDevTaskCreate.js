@@ -88,7 +88,7 @@ const modal = {
       callback_id: COMMAND_NAME,
       title: {
         type: 'plain_text',
-        text: 'Create new task',
+        text: 'Create new dev task',
       },
       blocks: [
         blocks.name_input,
