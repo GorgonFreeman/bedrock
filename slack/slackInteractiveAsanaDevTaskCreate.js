@@ -1,6 +1,9 @@
 const { respond, logDeep, customAxios } = require('../utils');
 const { TEAM_DOMAIN_TO_CREDSPATH } = require('../slack/slack.constants');
+const { DEV_PROJECT_ID } = require('../asana/asana.constants');
 const { slackClient } = require('../slack/slack.utils');
+const { slackMessagePost } = require('../slack/slackMessagePost');
+const { asanaTaskCreate } = require('../asana/asanaTaskCreate');
 
 const COMMAND_NAME = 'asana_dev_task_create'; // slash command
 
@@ -23,11 +26,31 @@ const blocks = {
     },
   },
 
+  error_message: (errorMessage) => {
+    return {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `:warning: ${ errorMessage }`,
+      },
+    };
+  },
+
+  task_created: (userId, taskName, taskLink, taskDescription) => {
+    return {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `<@${ userId }> created a new task.\n\>*<${ taskLink }|${ taskName }>*\n${ taskDescription }`,
+      },
+    };
+  },
+
 };
 
 const modal = {
 
-  initial: (metadataObject) => {
+  initial: (metadataObject, { errorMessage } = {}) => {
     return {
       type: 'modal',
       callback_id: COMMAND_NAME,
@@ -37,6 +60,7 @@ const modal = {
       },
       blocks: [
         blocks.name_input,
+        ...(errorMessage ? [ blocks.error_message(errorMessage) ] : []),
       ],
       private_metadata: JSON.stringify(metadataObject),
       close: {
@@ -48,7 +72,8 @@ const modal = {
         text: 'Create Task',
       },
     };
-  }
+  },
+
 }
 
 const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
@@ -92,6 +117,7 @@ const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
         metadataObject = {
           messageText: payload?.message?.text,
           messageBlocks: payload?.message?.blocks,
+          messageId: payload?.message?.ts,
           channelId: payload?.channel?.id,
           channelName: payload?.channel?.name,
         };
@@ -119,18 +145,67 @@ const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
           messageBlocks,
           channelId,
           channelName,
+          messageId,
         } = metadataObject;
 
         const {
           name_input: nameInput,
         } = payload.view.state.values;
+
+        const {
+          id: userId,
+        } = payload.user;
   
         const taskName = nameInput[`${ COMMAND_NAME }:name_input`]?.value;
 
         // Create the dev task in Asana
+        const asanaTaskCreateResult = await asanaTaskCreate(taskName, {
+          projects: [ DEV_PROJECT_ID ],
+          assignee: 'zwe@whitefoxboutique.com',
+          notes: [
+            `> ${ messageText }`,
+            ``,
+            `Created from Slack:`,
+            `https://${ teamDomain }.slack.com/archives/${ channelId }/p${ messageId.replace('.', '') }`,
+          ].join('\n'),
+        });
+        
+        if (!asanaTaskCreateResult.success) {
+          return slackClient.fetch({
+            url: '/views.update',
+            method: 'post',
+            body: {
+              view: modal.initial(metadataObject, { errorMessage: asanaTaskCreateResult.error }),
+            },
+            context: {
+              credsPath,
+            },
+          });
+        }
+
+        const {
+          permalink_url: taskLink,
+        } = asanaTaskCreateResult.result;
 
         // Respond to the user with the task details in slack
+        const taskDescription = [
+          `> ${ messageText }`,
+          `>`,
+          `> Created from Slack:`,
+          `> https://${ teamDomain }.slack.com/archives/${ channelId }/p${ messageId.replace('.', '') }`,
+        ].join('\n');
 
+        return slackMessagePost(
+          {
+            channelId: channelId,
+          },
+          {
+            blocks: [ blocks.task_created(userId, taskName, taskLink, taskDescription) ],
+          },
+          {
+            credsPath,
+          },
+        );
         break;
 
       default:
