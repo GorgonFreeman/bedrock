@@ -1,29 +1,44 @@
-// https://developers.asana.com/reference/gettasks
+// https://developers.asana.com/reference/createattachmentforobject
 
 const { HOSTED } = require('../constants');
 const { funcApi, logDeep } = require('../utils');
-const { asanaGet } = require('../asana/asana.utils');
+const { asanaClient } = require('../asana/asana.utils');
 
 const asanaAttachmentAdd = async (
+  parentId,
+  imgName,
+  imgUrl,
   {
     credsPath,
 
-    offset,
-    perPage,
-
-    option,
+    // params
+    fields,
+    pretty,
   } = {},
 ) => {
 
   const params = {
-    ...offset !== undefined && { offset },
-    ...perPage !== undefined && { limit: perPage },
-    ...option !== undefined && { option },
+    ...(fields ? { opt_fields: fields } : {}),
+    ...(pretty ? { opt_pretty: pretty } : {}),
   };
 
-  const response = await asanaGet('/things', {
-    credsPath,
+  const data = {
+    resource_subtype: 'external',
+    parent: parentId,
+    name: imgName,
+    url: imgUrl,
+  };
+
+  const response = await asanaClient.fetch({
+    url: `/attachments`,
+    method: 'post',
     params,
+    body: {
+      data,
+    },
+    context: {
+      credsPath,
+    },
   });
   
   !HOSTED && logDeep(response);
@@ -31,10 +46,7 @@ const asanaAttachmentAdd = async (
 };
 
 const asanaAttachmentAddApi = funcApi(asanaAttachmentAdd, {
-  argNames: ['options'],
-  validatorsByArg: {
-    // arg: Boolean,
-  },
+  argNames: ['parentId', 'imgName', 'imgUrl', 'options'],
 });
 
 module.exports = {
@@ -42,4 +54,4 @@ module.exports = {
   asanaAttachmentAddApi,
 };
 
-// curl localhost:8000/asanaAttachmentAdd
+// curl localhost:8000/asanaAttachmentAdd -H "Content-Type: application/json" -d '{ "parentId": "1214691486664407", "imgName": "Image", "imgUrl": "https://slack-files.com/TAK738ZT9-F0B307C7MD5-c1b520094c" }'
