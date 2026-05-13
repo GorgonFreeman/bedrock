@@ -261,7 +261,7 @@ const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
 
         return slackMessagePost(
           {
-            channelId: channelId,
+            channelId: ['directmessage', 'privategroup'].includes(channelName) ? DEV_CHANNEL_ID : channelId,
           },
           {
             blocks: [ blocks.task_created(userId, taskName, taskLink, taskDescription) ],
