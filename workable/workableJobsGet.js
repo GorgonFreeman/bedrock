@@ -43,6 +43,8 @@ const workableJobsGet = async (
 
 const workableJobsGetApi = funcApi(workableJobsGet, {
   argNames: ['options'],
+  allowCrossOrigin: true,
+  allowMethods: ['GET', 'POST'],
 });
 
 module.exports = {

@@ -27,6 +27,8 @@ const workableJobGetApi = funcApi(workableJobGet, {
   validatorsByArg: {
     shortcode: Boolean,
   },
+  allowCrossOrigin: true,
+  allowMethods: ['GET', 'POST'],
 });
 
 module.exports = {
