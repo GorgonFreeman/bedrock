@@ -153,7 +153,7 @@ const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
           messageBlocks: payload?.message?.blocks,
           messageId: payload?.message?.ts,
           // Send to dev channel if direct message or private group
-          channelId: ['directmessage', 'privategroup'].includes(payload?.channel?.name) ? DEV_CHANNEL_ID : payload?.channel?.id,
+          channelId: payload?.channel?.id,
           channelName: payload?.channel?.name,
           ...(payload?.message?.files?.length > 0 && { messageFiles: payload?.message?.files.map(file => ({
               name: file.name,
