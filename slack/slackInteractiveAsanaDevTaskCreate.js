@@ -154,10 +154,11 @@ const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
           messageId: payload?.message?.ts,
           channelId: payload?.channel?.id,
           channelName: payload?.channel?.name,
-          messageFiles: payload?.message?.files.map(file => ({
-            name: file.name,
-            url: file.permalink,
-          })),
+          ...(payload?.message?.files?.length > 0 && { messageFiles: payload?.message?.files.map(file => ({
+              name: file.name,
+              url: file.permalink,
+            })),
+          }),
         };
 
         return slackClient.fetch({
@@ -184,8 +185,9 @@ const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
           channelId,
           channelName,
           messageId,
-          messageFiles,
         } = metadataObject;
+
+        const messageFiles = metadataObject?.messageFiles || [];
 
         const {
           name_input: nameInput,
