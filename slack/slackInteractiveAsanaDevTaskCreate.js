@@ -162,7 +162,7 @@ const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
         // Create the dev task in Asana
         const asanaTaskCreateResult = await asanaTaskCreate(taskName, {
           projects: [ DEV_PROJECT_ID ],
-          assignee: 'zwe@whitefoxboutique.com',
+          assignee: 'john@whitefoxboutique.com',
           notes: [
             `> ${ messageText }`,
             ``,
