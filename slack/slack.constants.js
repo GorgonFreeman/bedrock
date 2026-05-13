@@ -7,4 +7,5 @@ module.exports = {
     'view_submission',
     'view_closed',
   ],
+  DEV_CHANNEL_ID: 'C07NM89BMPW',
 };
