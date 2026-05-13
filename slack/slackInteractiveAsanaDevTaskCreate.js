@@ -1,9 +1,10 @@
 const { respond, logDeep, customAxios } = require('../utils');
 const { TEAM_DOMAIN_TO_CREDSPATH } = require('../slack/slack.constants');
-const { DEV_PROJECT_ID } = require('../asana/asana.constants');
+const { DEV_PROJECT_ID, DEV_DEFAULT_SECTION_ID } = require('../asana/asana.constants');
 const { slackClient } = require('../slack/slack.utils');
 const { slackMessagePost } = require('../slack/slackMessagePost');
 const { asanaTaskCreate } = require('../asana/asanaTaskCreate');
+const { asanaSectionAddTask } = require('../asana/asanaSectionAddTask');
 
 const COMMAND_NAME = 'asana_dev_task_create'; // slash command
 
@@ -41,7 +42,7 @@ const blocks = {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `<@${ userId }> created a new task.\n\>*<${ taskLink }|${ taskName }>*\n${ taskDescription }`,
+        text: `<@${ userId }> created a new dev task.\n\>*<${ taskLink }|${ taskName }>*\n${ taskDescription }`,
       },
     };
   },
@@ -184,8 +185,17 @@ const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
         }
 
         const {
+          gid: taskId,
           permalink_url: taskLink,
         } = asanaTaskCreateResult.result;
+
+        // Move task to Fresh In
+        const asanaTaskMoveResult = await asanaSectionAddTask(
+          {
+            sectionId: DEV_DEFAULT_SECTION_ID,
+          },
+          taskId,
+        );
 
         // Respond to the user with the task details in slack
         const taskDescription = [
