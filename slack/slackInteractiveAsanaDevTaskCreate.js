@@ -135,8 +135,7 @@ const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
   } = payload;
 
   const { domain: teamDomain } = team;
-  // const credsPath = TEAM_DOMAIN_TO_CREDSPATH[teamDomain];
-  const credsPath = 'dev'; // temporarily hardcoded for testing
+  const credsPath = TEAM_DOMAIN_TO_CREDSPATH[teamDomain];
 
   // No actions in payload
   if (!payload?.actions) {
