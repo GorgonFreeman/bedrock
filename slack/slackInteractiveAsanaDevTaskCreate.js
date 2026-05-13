@@ -5,6 +5,7 @@ const { slackClient } = require('../slack/slack.utils');
 const { slackMessagePost } = require('../slack/slackMessagePost');
 const { asanaTaskCreate } = require('../asana/asanaTaskCreate');
 const { asanaSectionAddTask } = require('../asana/asanaSectionAddTask');
+const { asanaAttachmentAdd } = require('../asana/asanaAttachmentAdd');
 
 const COMMAND_NAME = 'asana_dev_task_create'; // slash command
 
@@ -153,6 +154,10 @@ const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
           messageId: payload?.message?.ts,
           channelId: payload?.channel?.id,
           channelName: payload?.channel?.name,
+          messageFiles: payload?.message?.files.map(file => ({
+            name: file.name,
+            url: file.permalink,
+          })),
         };
 
         return slackClient.fetch({
@@ -179,6 +184,7 @@ const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
           channelId,
           channelName,
           messageId,
+          messageFiles,
         } = metadataObject;
 
         const {
@@ -222,6 +228,17 @@ const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
           gid: taskId,
           permalink_url: taskLink,
         } = asanaTaskCreateResult.result;
+
+        // If any image/files attached, add the attachment to the task
+        if (messageFiles.length > 0) {
+          for (const messageFile of messageFiles) {
+            await asanaAttachmentAdd(
+              taskId,
+              messageFile.name,
+              messageFile.url,
+            );
+          }
+        }
 
         // Move task to Fresh In
         const asanaTaskMoveResult = await asanaSectionAddTask(
