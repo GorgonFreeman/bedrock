@@ -1,5 +1,5 @@
 const { respond, logDeep, customAxios, askQuestion } = require('../utils');
-const { TEAM_DOMAIN_TO_CREDSPATH } = require('../slack/slack.constants');
+const { TEAM_DOMAIN_TO_CREDSPATH, DEV_CHANNEL_ID } = require('../slack/slack.constants');
 const { DEV_PROJECT_ID, DEV_DEFAULT_SECTION_ID, DEV_ASSIGNEE_EMAILS } = require('../asana/asana.constants');
 const { slackClient } = require('../slack/slack.utils');
 const { slackMessagePost } = require('../slack/slackMessagePost');
@@ -152,7 +152,8 @@ const slackInteractiveAsanaDevTaskCreate = async (req, res) => {
           messageText: payload?.message?.text,
           messageBlocks: payload?.message?.blocks,
           messageId: payload?.message?.ts,
-          channelId: payload?.channel?.id,
+          // Send to dev channel if direct message or private group
+          channelId: ['directmessage', 'privategroup'].includes(payload?.channel?.name) ? DEV_CHANNEL_ID : payload?.channel?.id,
           channelName: payload?.channel?.name,
           ...(payload?.message?.files?.length > 0 && { messageFiles: payload?.message?.files.map(file => ({
               name: file.name,
