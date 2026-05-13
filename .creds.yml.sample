@@ -139,3 +139,7 @@ stylearcade:
 asana:
   BASE_URL: https://app.asana.com/api/1.0
   PERSONAL_ACCESS_TOKEN: ______________  # Settings > Apps > Developer Console > Personal Access Tokens > Create Token
+
+workable:
+  BASE_URL: https://[subdomain].workable.com/spi/v3  # e.g. https://white-fox-boutique.workable.com/spi/v3
+  ACCESS_TOKEN: ______________________________  # Workable Settings > Integrations > API Access Token > Generate Token
