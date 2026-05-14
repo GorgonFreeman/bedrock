@@ -58,13 +58,24 @@ const getLoopReturnData = async (region, returnId) => {
   }
 
   const returnData = loopInfo.result;
-  const { return_credit_total: returnTotal, order_id } = returnData;
+  const { return_credit_total: returnCreditRaw, order_id } = returnData;
 
-  if (!returnTotal) return null;
+  const giftCardRaw = returnData.gift_card;
+  const giftCardNum =
+    giftCardRaw != null && giftCardRaw !== "" ? parseFloat(giftCardRaw) : NaN;
+  const returnCreditNum =
+    returnCreditRaw != null && returnCreditRaw !== "" ? parseFloat(returnCreditRaw) : NaN;
+
+  // Loop's return_credit_total is pre-bonus line/tax math; gift_card matches what was
+  // actually issued and should match Shopify gift card balance for store credit conversion.
+  const total =
+    Number.isFinite(giftCardNum) && giftCardNum > 0 ? giftCardNum : returnCreditNum;
+
+  if (!order_id || !Number.isFinite(total) || total <= 0) return null;
 
   return {
     ...returnData,
-    total: Number(returnTotal),
+    total,
     order_id,
   };
 };
