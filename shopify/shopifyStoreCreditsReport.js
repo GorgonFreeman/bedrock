@@ -1,7 +1,7 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/queries/storeCreditAccount
 
 const { REGIONS_WF } = require('../constants');
-const { funcApi, logDeep, gidToId, arrayToChunks, days, dateTimeFromNow } = require('../utils');
+const { funcApi, logDeep, gidToId, arrayToChunks, days, yearsish, dateTimeFromNow } = require('../utils');
 
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
 const { shopifyStoreCreditGetSingle } = require('../shopify/shopifyStoreCreditGet');
@@ -97,6 +97,7 @@ const flattenAccountToRows = ({
   customer,
   account,
   transactions,
+  since,
 }) => {
   const {
     id: customerGid,
@@ -115,7 +116,11 @@ const flattenAccountToRows = ({
   const accountBalance = toNumber(balance?.amount);
   const currency = balance?.currencyCode || null;
 
-  if (!transactions?.length) {
+  const filteredTransactions = since
+    ? (transactions || []).filter(tx => tx?.createdAt && new Date(tx.createdAt) >= since)
+    : transactions;
+
+  if (!filteredTransactions?.length) {
     return [{
       region,
       customerId,
@@ -138,7 +143,7 @@ const flattenAccountToRows = ({
     }];
   }
 
-  return transactions.map(tx => {
+  return filteredTransactions.map(tx => {
     const {
       __typename: txType,
       id: txGid,
@@ -361,6 +366,7 @@ const shopifyStoreCreditsReportForRegion = async (
     apiVersion,
     excludeStaff,
     expiringWithinDays,
+    since,
     pushToSheet,
     spreadsheetHandle,
     sheetsCredsPath,
@@ -438,6 +444,7 @@ const shopifyStoreCreditsReportForRegion = async (
         customer,
         account,
         transactions,
+        since,
       }));
     }
   }
@@ -492,12 +499,15 @@ const shopifyStoreCreditsReport = async (
     apiVersion,
     excludeStaff = false,
     expiringWithinDays = 30,
+    lookbackYears = 1,
     pushToSheet = true,
     spreadsheetHandle = 'store_credit',
     sheetsCredsPath,
     txFetchConcurrency = 10,
   } = {},
 ) => {
+
+  const since = lookbackYears ? new Date(Date.now() - yearsish(lookbackYears)) : null;
 
   const byRegion = {};
 
@@ -510,6 +520,7 @@ const shopifyStoreCreditsReport = async (
         apiVersion,
         excludeStaff,
         expiringWithinDays,
+        since,
         pushToSheet,
         spreadsheetHandle,
         sheetsCredsPath,
