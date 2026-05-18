@@ -1,13 +1,39 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/queries/storeCreditAccount
 
 const { REGIONS_WF } = require('../constants');
-const { funcApi, logDeep, gidToId, arrayToChunks, days, yearsish, dateTimeFromNow } = require('../utils');
+const { funcApi, logDeep, gidToId, days, yearsish, dateTimeFromNow, Operation, OperationQueue } = require('../utils');
 
 const { shopifyBulkOperationDo } = require('../shopify/shopifyBulkOperationDo');
 const { shopifyStoreCreditGetSingle } = require('../shopify/shopifyStoreCreditGet');
 const { googlesheetsSpreadsheetSheetAdd } = require('../googlesheets/googlesheetsSpreadsheetSheetAdd');
+const { googlesheetsSpreadsheetSheetAppend } = require('../googlesheets/googlesheetsSpreadsheetSheetAppend');
+const { googlesheetsSpreadsheetSheetGetData } = require('../googlesheets/googlesheetsSpreadsheetSheetGetData');
+const { spreadsheetHandleToSpreadsheetId } = require('../bedrock_unlisted/mappings');
 
 const STAFF_TAG = 'group:staff';
+
+// Column order for the ledger sheet — fixed so append rows always align with the header.
+const LEDGER_HEADERS = [
+  'region',
+  'customerId',
+  'email',
+  'isStaff',
+  'accountId',
+  'accountBalance',
+  'currency',
+  'txType',
+  'txId',
+  'txCreatedAt',
+  'txAmount',
+  'txCurrency',
+  'balanceAfter',
+  'event',
+  'expiresAt',
+  'remainingAmount',
+  'originType',
+  'originOrderTransactionId',
+  'linkedDebitOrCreditId',
+];
 
 // Bulk operations cap at 2 nested connections, so transactions are fetched per-account in a follow-up step.
 const bulkAccountsQuery = `
@@ -110,7 +136,6 @@ const flattenAccountToRows = ({
   } = account || {};
 
   const isStaff = (tags || []).includes(STAFF_TAG);
-
   const customerId = customerGid ? gidToId(customerGid) : null;
   const accountId = accountGid ? gidToId(accountGid) : null;
   const accountBalance = toNumber(balance?.amount);
@@ -130,6 +155,7 @@ const flattenAccountToRows = ({
       accountBalance,
       currency,
       txType: null,
+      txId: null,
       txCreatedAt: null,
       txAmount: null,
       txCurrency: null,
@@ -158,8 +184,8 @@ const flattenAccountToRows = ({
       creditTransaction,
     } = tx || {};
 
-    const originOrderTransactionId = origin?.__typename === 'OrderTransaction' && origin?.id 
-      ? gidToId(origin.id) 
+    const originOrderTransactionId = origin?.__typename === 'OrderTransaction' && origin?.id
+      ? gidToId(origin.id)
       : null;
 
     const linkedDebitOrCreditGid = debitTransaction?.id || creditTransaction?.id || null;
@@ -367,19 +393,25 @@ const shopifyStoreCreditsReportForRegion = async (
     excludeStaff,
     expiringWithinDays,
     since,
+    resumeBulkOperationId,
     pushToSheet,
     spreadsheetHandle,
     sheetsCredsPath,
-    txFetchConcurrency,
+    ledgerSheetName,
+    queueInterval,
   } = {},
 ) => {
 
-  // 1. Bulk-fetch every customer + their store credit accounts (2 nested connections = within bulk depth).
+  // 1. Bulk-fetch every customer + their store credit accounts.
+  //    Pass resumeBulkOperationId to skip re-running the bulk if it already completed.
   const bulkResponse = await shopifyBulkOperationDo(
     credsPath,
     'query',
     bulkAccountsQuery,
-    { apiVersion },
+    {
+      apiVersion,
+      resumeBulkOperationId,
+    },
   );
 
   if (!bulkResponse.success) {
@@ -388,7 +420,9 @@ const shopifyStoreCreditsReportForRegion = async (
 
   const customers = bulkResponse.result || [];
 
-  // 2. Build a flat list of (customer, account) pairs, optionally dropping staff.
+  // 2. Build a flat list of (customer, account) pairs.
+  //    Only accounts with a positive balance need transaction fetches.
+  //    Optionally drop staff customers entirely.
   const customerAccountPairs = [];
   for (const customer of customers) {
     const {
@@ -402,18 +436,68 @@ const shopifyStoreCreditsReportForRegion = async (
     }
 
     for (const account of StoreCreditAccounts) {
+      if (toNumber(account?.balance?.amount) <= 0) {
+        continue;
+      }
       customerAccountPairs.push({ customer, account });
     }
   }
 
-  // 3. Bulk depth is capped at 2 connections, so fetch transactions per-account here.
+  console.log(`shopifyStoreCreditsReport [${ credsPath }]: ${ customerAccountPairs.length } accounts with balance > 0`);
+
+  // 3. If pushing to sheet, create the ledger sheet with the header row now,
+  //    before the queue starts, so rows can be appended progressively.
+  //    Re-use an existing sheet name if one was passed in (resume scenario).
+  let resolvedLedgerSheetName = ledgerSheetName;
+  let spreadsheetId;
+  let alreadyProcessedAccountIds = new Set();
+
+  if (pushToSheet) {
+    spreadsheetId = spreadsheetHandleToSpreadsheetId[spreadsheetHandle];
+
+    if (!resolvedLedgerSheetName) {
+      resolvedLedgerSheetName = `${ credsPath }-ledger-${ sheetTimestamp() }`;
+
+      // Create the sheet with a header row only.
+      await googlesheetsSpreadsheetSheetAdd(
+        { spreadsheetId },
+        { objArray: [Object.fromEntries(LEDGER_HEADERS.map(h => [h, h]))] },
+        {
+          sheetName: resolvedLedgerSheetName,
+          credsPath: sheetsCredsPath,
+          trim: false,
+        },
+      );
+    } else {
+      // Resume: read back the sheet to find already-processed accountIds so we can skip them.
+      const existingDataResponse = await googlesheetsSpreadsheetSheetGetData(
+        { spreadsheetId },
+        { sheetName: resolvedLedgerSheetName },
+        { credsPath: sheetsCredsPath },
+      );
+
+      if (existingDataResponse?.success && existingDataResponse.result?.length) {
+        alreadyProcessedAccountIds = new Set(
+          existingDataResponse.result
+            .map(row => row.accountId)
+            .filter(Boolean),
+        );
+        console.log(`shopifyStoreCreditsReport [${ credsPath }]: resuming — skipping ${ alreadyProcessedAccountIds.size } already-processed accounts`);
+      }
+    }
+  }
+
+  // 4. OperationQueue — one Operation per account.
+  //    Each operation fetches transactions, flattens to rows, and appends to the sheet immediately.
   const ledger = [];
   const fetchErrors = [];
 
-  const chunks = arrayToChunks(customerAccountPairs, txFetchConcurrency);
-
-  for (const chunk of chunks) {
-    const chunkResponses = await Promise.all(chunk.map(async ({ customer, account }) => {
+  const operations = customerAccountPairs
+    .filter(({ account }) => {
+      const accountId = gidToId(account.id);
+      return !alreadyProcessedAccountIds.has(accountId);
+    })
+    .map(({ customer, account }) => new Operation(async () => {
       const accountId = gidToId(account.id);
 
       const txResponse = await shopifyStoreCreditGetSingle(
@@ -426,30 +510,43 @@ const shopifyStoreCreditsReportForRegion = async (
       );
 
       if (!txResponse.success) {
-        return { customer, account, error: txResponse.error || txResponse };
+        fetchErrors.push({ accountId, error: txResponse.error || txResponse });
+        return;
       }
 
-      const transactions = (txResponse.result?.transactions || []).map(t => t);
+      const transactions = txResponse.result?.transactions || [];
 
-      return { customer, account, transactions };
-    }));
-
-    for (const { customer, account, transactions, error } of chunkResponses) {
-      if (error) {
-        fetchErrors.push({ accountId: gidToId(account.id), error });
-        continue;
-      }
-      ledger.push(...flattenAccountToRows({
+      const rows = flattenAccountToRows({
         region: credsPath,
         customer,
         account,
         transactions,
         since,
-      }));
-    }
+      });
+
+      ledger.push(...rows);
+
+      if (pushToSheet && rows.length) {
+        await googlesheetsSpreadsheetSheetAppend(
+          { spreadsheetId },
+          { objArray: rows, headers: LEDGER_HEADERS },
+          {
+            sheetName: resolvedLedgerSheetName,
+            credsPath: sheetsCredsPath,
+          },
+        );
+      }
+    }));
+
+  if (operations.length) {
+    const queue = new OperationQueue(operations);
+    await queue.run({
+      interval: queueInterval,
+      verbose: true,
+    });
   }
 
-  // 4. Aggregate.
+  // 5. Build summary from accumulated ledger and write summary sheet.
   const summary = buildSummary(ledger, { expiringWithinDays });
 
   const regionResult = {
@@ -457,23 +554,14 @@ const shopifyStoreCreditsReportForRegion = async (
     ledger,
     summary,
     fetchErrors,
+    ...(resolvedLedgerSheetName ? { ledgerSheetName: resolvedLedgerSheetName } : {}),
   };
 
-  // 5. Optionally push to Google Sheets.
   if (pushToSheet) {
     const stamp = sheetTimestamp();
 
-    const ledgerSheetResponse = await googlesheetsSpreadsheetSheetAdd(
-      { spreadsheetHandle },
-      { objArray: ledger },
-      {
-        sheetName: `${ credsPath }-ledger-${ stamp }`,
-        credsPath: sheetsCredsPath,
-      },
-    );
-
     const summarySheetResponse = await googlesheetsSpreadsheetSheetAdd(
-      { spreadsheetHandle },
+      { spreadsheetId },
       { objArray: summaryToSheetRows(summary) },
       {
         sheetName: `${ credsPath }-summary-${ stamp }`,
@@ -482,7 +570,10 @@ const shopifyStoreCreditsReportForRegion = async (
     );
 
     regionResult.sheets = {
-      ledger: ledgerSheetResponse?.result,
+      ledger: {
+        sheetName: resolvedLedgerSheetName,
+        sheetUrl: `https://docs.google.com/spreadsheets/d/${ spreadsheetId }/edit`,
+      },
       summary: summarySheetResponse?.result,
     };
   }
@@ -500,10 +591,12 @@ const shopifyStoreCreditsReport = async (
     excludeStaff = false,
     expiringWithinDays = 30,
     lookbackYears = 1,
+    resumeBulkOperationId,
     pushToSheet = true,
     spreadsheetHandle = 'store_credit',
     sheetsCredsPath,
-    txFetchConcurrency = 10,
+    ledgerSheetName,
+    queueInterval = 200,
   } = {},
 ) => {
 
@@ -521,10 +614,12 @@ const shopifyStoreCreditsReport = async (
         excludeStaff,
         expiringWithinDays,
         since,
+        resumeBulkOperationId,
         pushToSheet,
         spreadsheetHandle,
         sheetsCredsPath,
-        txFetchConcurrency,
+        ledgerSheetName,
+        queueInterval,
       },
     );
 
@@ -562,5 +657,11 @@ module.exports = {
   shopifyStoreCreditsReportApi,
 };
 
-// curl localhost:8000/shopifyStoreCreditsReport -H "Content-Type: application/json" -d '{ "options": { "credsPaths": ["au"], "excludeStaff": false, "pushToSheet": true } }'
-// curl localhost:8000/shopifyStoreCreditsReport -H "Content-Type: application/json" -d '{ "options": { "excludeStaff": true, "expiringWithinDays": 14 } }'
+// Full run — all WF regions, last 12 months, push to store_credit sheet:
+// curl localhost:8000/shopifyStoreCreditsReport -H "Content-Type: application/json" -d '{ "options": { "pushToSheet": true } }'
+
+// Single region, exclude staff, expiring within 14 days:
+// curl localhost:8000/shopifyStoreCreditsReport -H "Content-Type: application/json" -d '{ "options": { "credsPaths": ["au"], "excludeStaff": true, "expiringWithinDays": 14 } }'
+
+// Resume a bulk op that already ran + resume partial ledger sheet:
+// curl localhost:8000/shopifyStoreCreditsReport -H "Content-Type: application/json" -d '{ "options": { "credsPaths": ["au"], "resumeBulkOperationId": "3527051673672", "ledgerSheetName": "au-ledger-20260518-1000" } }'

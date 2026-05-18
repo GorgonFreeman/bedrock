@@ -245,6 +245,7 @@ module.exports = {
   iwishStoreWishlistDataGet: lazy(() => require('./iwish/iwishStoreWishlistDataGet').iwishStoreWishlistDataGetApi),
   googlesheetsSpreadsheetGet: lazy(() => require('./googlesheets/googlesheetsSpreadsheetGet').googlesheetsSpreadsheetGetApi),
   googlesheetsSpreadsheetSheetAdd: lazy(() => require('./googlesheets/googlesheetsSpreadsheetSheetAdd').googlesheetsSpreadsheetSheetAddApi),
+  googlesheetsSpreadsheetSheetAppend: lazy(() => require('./googlesheets/googlesheetsSpreadsheetSheetAppend').googlesheetsSpreadsheetSheetAppendApi),
   googlesheetsSpreadsheetSheetGetData: lazy(() => require('./googlesheets/googlesheetsSpreadsheetSheetGetData').googlesheetsSpreadsheetSheetGetDataApi),
   googlesheetsSpreadsheetTrim: lazy(() => require('./googlesheets/googlesheetsSpreadsheetTrim').googlesheetsSpreadsheetTrimApi),
   googledriveFileDelete: lazy(() => require('./googledrive/googledriveFileDelete').googledriveFileDeleteApi),
