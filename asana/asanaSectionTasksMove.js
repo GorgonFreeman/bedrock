@@ -36,4 +36,4 @@ module.exports = {
   asanaSectionTasksMoveApi,
 };
 
-// curl localhost:8000/asanaSectionTasksMove -X POST -H "Content-Type: application/json" -d '{ "fromSectionIdentifier": { "sectionId": "..." }, "toSectionIdentifier": { "sectionName": "...", "projectIdentifier": { "projectHandle": "..." } } }'
+// curl localhost:8000/asanaSectionTasksMove -X POST -H "Content-Type: application/json" -d '{ "fromSectionIdentifier": { "fromSectionName": "UAT", "fromProjectIdentifier": { "projectHandle": "dev" } }, "toSectionIdentifier": { "toSectionName": "Done" } }'
