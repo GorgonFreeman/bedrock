@@ -3,6 +3,8 @@ const { askQuestion, capitaliseString } = require('../utils');
 const fs = require('fs').promises;
 const { exec, spawn } = require('child_process');
 
+const rootExampleJsPath = `${ __dirname }/../_example.js`;
+
 const excludedDirs = ['node_modules'];
 
 const gitCommitAll = (message) => {
@@ -110,18 +112,23 @@ const createNewFunction = async () => {
       
       let selectedFile;
       if (!templateIndex || templateIndex.trim() === '') {
-        // User pressed enter, use _example.js
+        // User pressed enter: prefer folder _example.js, else repo-root _example.js
         selectedFile = exampleFiles.find(file => file.displayName === '_example.js');
-        if (!selectedFile) {
-          console.error('No _example.js template found.');
-          return;
-        }
       } else {
         selectedFile = exampleFiles[templateIndex - 1];
       }
-      
+
       if (selectedFile) {
         selectedTemplate = selectedFile.fullPath;
+      } else if (!templateIndex || templateIndex.trim() === '') {
+        try {
+          await fs.access(rootExampleJsPath);
+          selectedTemplate = rootExampleJsPath;
+          console.log('\nUsing template: _example.js (repo root)');
+        } catch {
+          console.error('No _example.js template in this folder or at repo root.');
+          return;
+        }
       } else {
         console.error(`${ templateIndex } not a valid option.`);
         return;
