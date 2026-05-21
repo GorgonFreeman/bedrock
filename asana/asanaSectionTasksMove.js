@@ -20,7 +20,15 @@ const asanaSectionTasksMove = async (
     credsPath,
   } = {},
 ) => {
-  return true;
+
+  // Get tasks from section
+  // Return if failed
+  // Return if no tasks
+
+  // Move tasks to section
+  // Return if failed
+  
+  // return moveResponse;
 };
 
 const asanaSectionTasksMoveApi = funcApi(asanaSectionTasksMove, {
