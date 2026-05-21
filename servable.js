@@ -369,6 +369,7 @@ module.exports = {
   asanaProjectsGet: lazy(() => require('./asana/asanaProjectsGet').asanaProjectsGetApi),
   asanaSectionAddTask: lazy(() => require('./asana/asanaSectionAddTask').asanaSectionAddTaskApi),
   asanaSectionsGet: lazy(() => require('./asana/asanaSectionsGet').asanaSectionsGetApi),
+  asanaSectionTasksMove: lazy(() => require('./asana/asanaSectionTasksMove').asanaSectionTasksMoveApi),
   asanaTaskGet: lazy(() => require('./asana/asanaTaskGet').asanaTaskGetApi),
   asanaTaskUpdate: lazy(() => require('./asana/asanaTaskUpdate').asanaTaskUpdateApi),
   asanaTasksGet: lazy(() => require('./asana/asanaTasksGet').asanaTasksGetApi),
