@@ -5,6 +5,7 @@ const { funcApi, logDeep } = require('../utils');
 const { asanaGet } = require('../asana/asana.utils');
 const { asanaWorkspaceHandleToId } = require('../bedrock_unlisted/mappings');
 const { asanaProjectHandleToId } = require('../bedrock_unlisted/mappings');
+const { asanaSectionGetByName } = require('../asana/asanaSectionGetByName');
 
 const asanaTasksGet = async (
   metafilter, // The API method requires some of a subset of options to filtering to begin returning tasks.
@@ -89,7 +90,19 @@ const asanaTasksGet = async (
     if (id) {
       sectionId = id;
     } else {
-      // asanaSectionGet
+
+      const sectionResponse = await asanaSectionGetByName(name, sectionIdentifierProjectIdentifier, { credsPath });
+
+      const {
+        success: sectionSuccess,
+        result: section,
+      } = sectionResponse;
+
+      if (!sectionSuccess) {
+        return sectionResponse;
+      }
+
+      sectionId = section?.gid;
     }
   }
 
