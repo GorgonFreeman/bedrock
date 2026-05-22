@@ -27,6 +27,7 @@ const asanaSectionTasksMove = async (
   } = toSectionIdentifier;
 
   // Get tasks from section
+  const tasksResponse = await asanaTasksGet({ projectIdentifier: fromProjectIdentifier }, { section: fromSectionId, credsPath });
   // Return if failed
   // Return if no tasks
 
