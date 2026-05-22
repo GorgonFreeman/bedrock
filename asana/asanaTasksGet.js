@@ -15,7 +15,7 @@ const asanaTasksGet = async (
     tag,
     assignee,
     workspaceIdentifier,
-    section,
+    sectionIdentifier,
     completedSince,
     modifiedSince,
     fields,
@@ -39,6 +39,7 @@ const asanaTasksGet = async (
 
   let projectId;
   let workspaceId;
+  let sectionId;
 
   if (projectIdentifier) {
 
@@ -76,6 +77,22 @@ const asanaTasksGet = async (
     }
   }
 
+  if (sectionIdentifier) {
+
+    const {
+      sectionId: id,
+  
+      sectionName: name,
+      projectIdentifier: sectionIdentifierProjectIdentifier = projectIdentifier, // default to global project identifier
+    } = sectionIdentifier;
+
+    if (id) {
+      sectionId = id;
+    } else {
+      // asanaSectionGet
+    }
+  }
+
   fields = fields !== undefined && Array.isArray(fields) ? fields.join(',') : fields;
 
   const params = {
@@ -83,7 +100,7 @@ const asanaTasksGet = async (
     ...(tag !== undefined && { tag }),
     ...(assignee !== undefined && { assignee }),
     ...(workspaceId !== undefined && { workspace: workspaceId }),
-    ...(section !== undefined && { section }),
+    ...(sectionId !== undefined && { section: sectionId }),
     ...(completedSince !== undefined && { completed_since: completedSince }),
     ...(modifiedSince !== undefined && { modified_since: modifiedSince }),
     ...(fields !== undefined && { opt_fields: fields }),
