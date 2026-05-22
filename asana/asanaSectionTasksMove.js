@@ -7,22 +7,24 @@ const isValidSectionIdentifier = (p) => (p?.sectionName && p?.projectIdentifier)
 const isValidSectionIdentifierProjectOptional = (p) => p?.sectionName || p?.sectionId;
 
 const asanaSectionTasksMove = async (
-  {
-    fromSectionId,
-
-    fromSectionName,
-    fromProjectIdentifier,
-  },
-  {
-    toSectionId,
-
-    toSectionName,
-    toProjectIdentifier = fromProjectIdentifier, // if moving within the same project, no need to supply projectId a second time
-  },
+  fromSectionIdentifier,
+  toSectionIdentifier,
   {
     credsPath,
   } = {},
 ) => {
+
+  const {
+    sectionId: fromSectionId,
+    sectionName: fromSectionName,
+    projectIdentifier: fromProjectIdentifier,
+  } = fromSectionIdentifier;
+
+  const {
+    sectionId: toSectionId,
+    sectionName: toSectionName,
+    projectIdentifier: toProjectIdentifier,
+  } = toSectionIdentifier;
 
   // Get tasks from section
   // Return if failed
