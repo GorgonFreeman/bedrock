@@ -1,7 +1,7 @@
 const { asanaTasksGet } = require('./asanaTasksGet');
 const { asanaSectionAddTask } = require('./asanaSectionAddTask');
 
-const { funcApi } = require('../utils');
+const { funcApi, logDeep, askQuestion } = require('../utils');
 
 const isValidSectionIdentifier = (p) => (p?.sectionName && p?.projectIdentifier) || p?.sectionId;
 const isValidSectionIdentifierProjectOptional = (p) => p?.sectionName || p?.sectionId;
@@ -27,7 +27,10 @@ const asanaSectionTasksMove = async (
   } = toSectionIdentifier;
 
   // Get tasks from section
-  const tasksResponse = await asanaTasksGet({ projectIdentifier: fromProjectIdentifier }, { section: fromSectionId, credsPath });
+  const tasksResponse = await asanaTasksGet({ projectIdentifier: fromProjectIdentifier }, { sectionIdentifier: fromSectionIdentifier, credsPath });
+  logDeep(tasksResponse);
+  await askQuestion('?');
+
   // Return if failed
   // Return if no tasks
 
@@ -50,4 +53,4 @@ module.exports = {
   asanaSectionTasksMoveApi,
 };
 
-// curl localhost:8000/asanaSectionTasksMove -X POST -H "Content-Type: application/json" -d '{ "fromSectionIdentifier": { "fromSectionName": "UAT", "fromProjectIdentifier": { "projectHandle": "dev" } }, "toSectionIdentifier": { "toSectionName": "Done" } }'
+// curl localhost:8000/asanaSectionTasksMove -X POST -H "Content-Type: application/json" -d '{ "fromSectionIdentifier": { "sectionName": "UAT", "projectIdentifier": { "projectHandle": "dev" } }, "toSectionIdentifier": { "sectionName": "Done" } }'
