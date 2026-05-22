@@ -1,31 +1,50 @@
-// https://developers.asana.com/reference/getuser
-
-const { HOSTED } = require('../constants');
-const { funcApi, logDeep } = require('../utils');
-const { asanaClient } = require('../asana/asana.utils');
+const { funcApi } = require('../utils');
+const { asanaSectionsGet } = require('../asana/asanaSectionsGet');
 
 const asanaSectionGetByName = async (
-  thingId,
+  sectionName,
+  projectIdentifier,
   {
     credsPath,
   } = {},
 ) => {
 
-  const response = await asanaClient.fetch({
-    url: `/things/${ thingId }`,
-    context: {
+  const sectionsResponse = await asanaSectionsGet(
+    projectIdentifier, 
+    { 
       credsPath,
     },
-  });
-  
-  !HOSTED && logDeep(response);
-  return response;
+  );
+
+  const {
+    success: sectionsSuccess,
+    result: sections,
+  } = sectionsResponse;
+
+  if (!sectionsSuccess) {
+    return sectionsResponse;
+  }
+
+  const section = sections.find(section => section.name === sectionName);
+
+  if (!section) {
+    return {
+      success: false,
+      error: [`Section "${ sectionName }" not found in project`],
+    };
+  }
+
+  return {
+    success: true,
+    result: section,
+  };
 };
 
 const asanaSectionGetByNameApi = funcApi(asanaSectionGetByName, {
-  argNames: ['thingId', 'options'],
+  argNames: ['sectionName', 'projectIdentifier', 'options'],
   validatorsByArg: {
-    thingId: Boolean,
+    sectionName: Boolean,
+    projectIdentifier: Boolean,
   },
 });
 
@@ -34,4 +53,4 @@ module.exports = {
   asanaSectionGetByNameApi,
 };
 
-// curl localhost:8000/asanaSectionGetByName
+// curl localhost:8000/asanaSectionGetByName -X POST -H "Content-Type: application/json" -d '{"sectionName": "UAT", "projectIdentifier": { "projectHandle": "dev" } }'
