@@ -31,12 +31,14 @@ const asanaTasksGet = async (
     tag: metafilterTag,
     assignee: metafilterAssignee,
     workspaceIdentifier: metafilterWorkspaceIdentifier,
+    sectionIdentifier: metafilterSectionIdentifier,
   } = metafilter;
 
   projectIdentifier = projectIdentifier || metafilterProjectIdentifier;
   tag = tag || metafilterTag;
   assignee = assignee || metafilterAssignee;
   workspaceIdentifier = workspaceIdentifier || metafilterWorkspaceIdentifier;
+  sectionIdentifier = sectionIdentifier || metafilterSectionIdentifier;
 
   let projectId;
   let workspaceId;
@@ -134,7 +136,7 @@ const asanaTasksGet = async (
 const asanaTasksGetApi = funcApi(asanaTasksGet, {
   argNames: ['metafilter', 'options'],
   validatorsByArg: {
-    metafilter: p => p?.projectIdentifier || p?.tag || (p?.assignee && p?.workspaceIdentifier),
+    metafilter: p => p?.projectIdentifier || p?.tag || (p?.assignee && p?.workspaceIdentifier) || p?.sectionIdentifier,
   },
 });
 
@@ -144,3 +146,4 @@ module.exports = {
 };
 
 // curl localhost:8000/asanaTasksGet -H "Content-Type: application/json" -d '{ "metafilter": { "projectIdentifier": { "projectHandle": "dev" } } }'
+// curl localhost:8000/asanaTasksGet -H "Content-Type: application/json" -d '{ "metafilter": { "sectionIdentifier": { "sectionName": "UAT", "projectIdentifier": { "projectHandle": "dev" } } } }'
