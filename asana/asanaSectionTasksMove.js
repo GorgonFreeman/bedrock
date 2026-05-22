@@ -1,3 +1,6 @@
+const { asanaTasksGet } = require('./asanaTasksGet');
+const { asanaSectionAddTask } = require('./asanaSectionAddTask');
+
 const { funcApi } = require('../utils');
 
 const isValidSectionIdentifier = (p) => (p?.sectionName && p?.projectIdentifier) || p?.sectionId;
