@@ -1,7 +1,7 @@
 const { asanaTasksGet } = require('./asanaTasksGet');
 const { asanaSectionAddTask } = require('./asanaSectionAddTask');
 
-const { funcApi, logDeep, askQuestion } = require('../utils');
+const { funcApi } = require('../utils');
 
 const isValidSectionIdentifier = (p) => (p?.sectionName && p?.projectIdentifier) || p?.sectionId;
 const isValidSectionIdentifierProjectOptional = (p) => p?.sectionName || p?.sectionId;
@@ -14,30 +14,38 @@ const asanaSectionTasksMove = async (
   } = {},
 ) => {
 
-  const {
-    sectionId: fromSectionId,
-    sectionName: fromSectionName,
-    projectIdentifier: fromProjectIdentifier,
-  } = fromSectionIdentifier;
+  toSectionIdentifier.projectIdentifier = toSectionIdentifier.projectIdentifier || fromSectionIdentifier?.projectIdentifier;
+
+  const tasksResponse = await asanaTasksGet(
+    { sectionIdentifier: fromSectionIdentifier }, 
+    { credsPath },
+  );
 
   const {
-    sectionId: toSectionId,
-    sectionName: toSectionName,
-    projectIdentifier: toProjectIdentifier,
-  } = toSectionIdentifier;
+    success: tasksSuccess,
+    result: tasks,
+  } = tasksResponse;
 
-  // Get tasks from section
-  const tasksResponse = await asanaTasksGet({ projectIdentifier: fromProjectIdentifier }, { sectionIdentifier: fromSectionIdentifier, credsPath });
-  logDeep(tasksResponse);
-  await askQuestion('?');
+  if (!tasksSuccess) {
+    return tasksResponse;
+  }
 
-  // Return if failed
-  // Return if no tasks
+  const taskIds = (tasks ?? []).map(task => task.gid).filter(Boolean);
 
-  // Move tasks to section
-  // Return if failed
-  
-  // return moveResponse;
+  if (!taskIds.length) {
+    return {
+      success: false,
+      error: [`No tasks found in section`],
+    };
+  }
+
+  const moveResponse = await asanaSectionAddTask(
+    toSectionIdentifier, 
+    taskIds, 
+    { credsPath },
+  );
+
+  return moveResponse;
 };
 
 const asanaSectionTasksMoveApi = funcApi(asanaSectionTasksMove, {
