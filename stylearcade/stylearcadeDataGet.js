@@ -32,6 +32,7 @@ const stylearcadeDataGetter = async (...args) => {
 
 const stylearcadeDataGetApi = funcApi(stylearcadeDataGet, {
   argNames: ['options'],
+  allowCrossOrigin: true,
 });
 
 module.exports = {
