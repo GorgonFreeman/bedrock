@@ -1,19 +1,80 @@
-const { funcApi } = require('../utils');
+const puppeteer = require('puppeteer');
+
+const { HOSTED } = require('../constants');
+const { funcApi, askQuestion, logDeep, objHasAny } = require('../utils');
+const { resolveProjectId, resolveWorkspaceId } = require('../asana/asana.utils');
+
+const ASANA_USER_DATA_DIR = `${ __dirname }/.asana-puppeteer-profile`;
+
+const asanaProjectUrl = (
+  projectIdentifier,
+  workspaceIdentifier = { workspaceHandle: 'wf' },
+) => {
+  const projectId = resolveProjectId(projectIdentifier);
+  const workspaceId = resolveWorkspaceId(workspaceIdentifier);
+
+  if (!projectId || !workspaceId) {
+    return null;
+  }
+
+  return `https://app.asana.com/1/${ workspaceId }/project/${ projectId }`;
+};
 
 const asanaViewCreate = async (
   projectIdentifier,
   viewType,
   viewName,
   {
-    
+    workspaceIdentifier = { workspaceHandle: 'wf' },
+    interactive = true,
+    headless = false,
+    userDataDir = ASANA_USER_DATA_DIR,
   } = {},
 ) => {
 
-  return { 
+  if (HOSTED) {
+    return {
+      success: false,
+      error: ['Puppeteer view creation can only be done locally'],
+    };
+  }
+
+  const projectUrl = asanaProjectUrl(projectIdentifier, workspaceIdentifier);
+
+  if (!projectUrl) {
+    return {
+      success: false,
+      error: [`Couldn't get a project URL from projectIdentifier and workspaceIdentifier`],
+    };
+  }
+
+  const browser = await puppeteer.launch({
+    headless,
+    userDataDir,
+    defaultViewport: null,
+  });
+
+  const page = await browser.newPage();
+
+  await page.goto(projectUrl, {
+    waitUntil: 'networkidle2',
+  });
+
+  !HOSTED && logDeep('asanaViewCreate projectUrl', projectUrl);
+
+  if (interactive) {
+    await askQuestion(`Step 1: opened ${ projectUrl }. Press enter when ready for the next step...`);
+  }
+
+  return {
     success: true,
-    result: false, 
+    result: {
+      step: 'project_opened',
+      projectUrl,
+      viewType,
+      viewName,
+    },
   };
-  
 };
 
 const asanaViewCreateApi = funcApi(asanaViewCreate, {
@@ -24,7 +85,7 @@ const asanaViewCreateApi = funcApi(asanaViewCreate, {
     'options',
   ],
   validatorsByArg: {
-    projectIdentifier: Boolean,
+    projectIdentifier: p => objHasAny(p, ['projectId', 'projectHandle']),
     viewType: Boolean,
     viewName: Boolean,
   },
@@ -33,6 +94,7 @@ const asanaViewCreateApi = funcApi(asanaViewCreate, {
 module.exports = {
   asanaViewCreate,
   asanaViewCreateApi,
+  asanaProjectUrl,
 };
 
 // curl localhost:8000/asanaViewCreate -H "Content-Type: application/json" -d '{ "projectIdentifier": { "projectHandle": "dev" }, "viewType": "board", "viewName": "Freeze Ray Development" }'
