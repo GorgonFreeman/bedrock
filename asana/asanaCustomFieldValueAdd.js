@@ -3,9 +3,15 @@
 const { funcApi } = require('../utils');
 
 const asanaCustomFieldValueAdd = async (
-  arg,
+  // customFieldIdentifier
   {
-    option,
+    customFieldId,
+    customFieldName,
+  },
+  customFieldValue,
+  projectIdentifier,
+  {
+    credsPath,
   } = {},
 ) => {
 
@@ -17,7 +23,17 @@ const asanaCustomFieldValueAdd = async (
 };
 
 const asanaCustomFieldValueAddApi = funcApi(asanaCustomFieldValueAdd, {
-  argNames: ['arg', 'options'],
+  argNames: [
+    'customFieldIdentifier',
+    'customFieldValue',
+    'projectIdentifier',
+    'options',
+  ],
+  validatorsByArg: {
+    customFieldIdentifier: Boolean,
+    customFieldValue: Boolean,
+    projectIdentifier: Boolean,
+  },
 });
 
 module.exports = {
@@ -25,4 +41,4 @@ module.exports = {
   asanaCustomFieldValueAddApi,
 };
 
-// curl localhost:8000/asanaCustomFieldValueAdd -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/asanaCustomFieldValueAdd -H "Content-Type: application/json" -d '{ "customFieldIdentifier": { "customFieldName": "Epic" }, "customFieldValue": "Freeze Ray Development", "projectIdentifier": { "projectHandle": "dev" } }'
