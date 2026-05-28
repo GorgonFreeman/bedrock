@@ -333,6 +333,7 @@ module.exports = {
   bedrock_utilities_geoRedirect: lazy(() => require('./bedrock_utilities/bedrock_utilities_geoRedirect').bedrock_utilities_geoRedirectApi),
   bedrock_utilities_webhookForward: lazy(() => require('./bedrock_utilities/bedrock_utilities_webhookForward').bedrock_utilities_webhookForwardApi),
   bedrock_unlistedShopifyOrdersTagMultipleShipppingFulfillments: lazy(() => require('./bedrock_unlisted/bedrock_unlistedShopifyOrdersTagMultipleShipppingFulfillments').bedrock_unlistedShopifyOrdersTagMultipleShipppingFulfillmentsApi),
+  bedrock_unlisted_asanaEpicCreate: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_asanaEpicCreate').bedrock_unlisted_asanaEpicCreateApi),
   bedrock_unlisted_asanaSprintTurnover: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_asanaSprintTurnover').bedrock_unlisted_asanaSprintTurnoverApi),
   bedrock_unlisted_asanaUatTaskCreate: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_asanaUatTaskCreate').bedrock_unlisted_asanaUatTaskCreateApi),
   bedrock_unlisted_birthdayDiscountCodeGenerate: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_birthdayDiscountCodeGenerate').bedrock_unlisted_birthdayDiscountCodeGenerateApi),
