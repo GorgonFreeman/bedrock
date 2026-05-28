@@ -1,21 +1,33 @@
 const { funcApi } = require('../utils');
 
 const asanaViewCreate = async (
-  arg,
+  projectIdentifier,
+  viewType,
+  viewName,
   {
-    option,
+    
   } = {},
 ) => {
 
   return { 
-    arg, 
-    option,
+    success: true,
+    result: false, 
   };
   
 };
 
 const asanaViewCreateApi = funcApi(asanaViewCreate, {
-  argNames: ['arg', 'options'],
+  argNames: [
+    'projectIdentifier',
+    'viewType',
+    'viewName',
+    'options',
+  ],
+  validatorsByArg: {
+    projectIdentifier: Boolean,
+    viewType: Boolean,
+    viewName: Boolean,
+  },
 });
 
 module.exports = {
@@ -23,4 +35,4 @@ module.exports = {
   asanaViewCreateApi,
 };
 
-// curl localhost:8000/asanaViewCreate -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/asanaViewCreate -H "Content-Type: application/json" -d '{ "projectIdentifier": { "projectHandle": "dev" }, "viewType": "board", "viewName": "Freeze Ray Development" }'
