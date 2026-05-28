@@ -2,8 +2,7 @@
 
 const { HOSTED } = require('../constants');
 const { funcApi, logDeep, objHasAny } = require('../utils');
-const { asanaGet } = require('../asana/asana.utils');
-const { asanaProjectHandleToId } = require('../bedrock_unlisted/mappings');
+const { asanaGet, resolveProjectId } = require('../asana/asana.utils');
 
 const asanaSectionsGet = async (
   {
@@ -21,7 +20,7 @@ const asanaSectionsGet = async (
   } = {},
 ) => {
 
-  projectId = projectId || asanaProjectHandleToId[projectHandle];
+  projectId = resolveProjectId({ projectId, projectHandle });
   if (!projectId) {
     return {
       success: false,

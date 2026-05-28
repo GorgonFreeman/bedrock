@@ -2,9 +2,7 @@
 
 const { HOSTED } = require('../constants');
 const { funcApi, logDeep } = require('../utils');
-const { asanaGet } = require('../asana/asana.utils');
-const { asanaWorkspaceHandleToId } = require('../bedrock_unlisted/mappings');
-const { asanaProjectHandleToId } = require('../bedrock_unlisted/mappings');
+const { asanaGet, resolveProjectId, resolveWorkspaceId } = require('../asana/asana.utils');
 const { asanaSectionGetByName } = require('../asana/asanaSectionGetByName');
 
 const asanaTasksGet = async (
@@ -46,13 +44,7 @@ const asanaTasksGet = async (
 
   if (projectIdentifier) {
 
-    const { projectHandle: handle, projectId: id } = projectIdentifier;
-
-    if (id) {
-      projectId = id;
-    } else {
-      projectId = asanaProjectHandleToId[handle];
-    }
+    projectId = resolveProjectId(projectIdentifier);
     
     if (!projectId) {
       return {
@@ -64,13 +56,7 @@ const asanaTasksGet = async (
 
   if (workspaceIdentifier) {
 
-    const { workspaceHandle: handle, workspaceId: id } = workspaceIdentifier;
-
-    if (id) {
-      workspaceId = id;
-    } else {
-      workspaceId = asanaWorkspaceHandleToId[handle];
-    }
+    workspaceId = resolveWorkspaceId(workspaceIdentifier);
 
     if (!workspaceId) {
       return {

@@ -1,5 +1,6 @@
 const { CustomAxiosClient, credsByPath, askQuestion, logDeep, Getter, getterAsGetFunction, objIsOnlyProp } = require('../utils');
 const { MAX_PER_PAGE } = require('../asana/asana.constants');
+const { asanaProjectHandleToId, asanaWorkspaceHandleToId } = require('../bedrock_unlisted/mappings');
 
 const asanaRequestSetup = ({ credsPath } = {}) => {
   const creds = credsByPath(['asana', credsPath]);
@@ -116,8 +117,85 @@ const asanaGetter = async (
 
 const asanaGet = getterAsGetFunction(asanaGetter);
 
+const resolveProjectId = (projectIdentifier) => {
+  const { projectHandle, projectId } = projectIdentifier || {};
+  return projectId || asanaProjectHandleToId[projectHandle];
+};
+
+const resolveWorkspaceId = (workspaceIdentifier) => {
+  const { workspaceHandle, workspaceId } = workspaceIdentifier || {};
+  return workspaceId || asanaWorkspaceHandleToId[workspaceHandle];
+};
+
+const resolveCustomFieldId = async (
+  customFieldIdentifier,
+  projectIdentifier,
+  {
+    credsPath,
+  } = {},
+) => {
+  const { customFieldId, customFieldName } = customFieldIdentifier || {};
+
+  if (customFieldId) {
+    return {
+      success: true,
+      result: customFieldId,
+    };
+  }
+
+  if (!customFieldName) {
+    return {
+      success: false,
+      error: [`customFieldIdentifier requires customFieldId or customFieldName`],
+    };
+  }
+
+  const projectId = resolveProjectId(projectIdentifier);
+  if (!projectId) {
+    return {
+      success: false,
+      error: [`Couldn't get a project ID from projectIdentifier`],
+    };
+  }
+
+  const customFieldSettingsResponse = await asanaGet(`/projects/${ projectId }/custom_field_settings`, {
+    credsPath,
+    params: {
+      opt_fields: 'custom_field.name,custom_field.gid,custom_field.type',
+    },
+  });
+
+  const {
+    success: customFieldSettingsSuccess,
+    result: customFieldSettings,
+  } = customFieldSettingsResponse;
+
+  if (!customFieldSettingsSuccess) {
+    return customFieldSettingsResponse;
+  }
+
+  const customFieldSetting = customFieldSettings?.find(
+    setting => setting.custom_field?.name === customFieldName,
+  );
+
+  if (!customFieldSetting) {
+    return {
+      success: false,
+      error: [`Custom field "${ customFieldName }" not found in project`],
+    };
+  }
+
+  return {
+    success: true,
+    result: customFieldSetting.custom_field.gid,
+  };
+};
+
 module.exports = {
   asanaClient,
   asanaGetter,
   asanaGet,
+  resolveProjectId,
+  resolveWorkspaceId,
+  resolveCustomFieldId,
 };

@@ -2,8 +2,7 @@
 
 const { HOSTED } = require('../constants');
 const { funcApi, logDeep, objHasAny } = require('../utils');
-const { asanaGet } = require('../asana/asana.utils');
-const { asanaWorkspaceHandleToId } = require('../bedrock_unlisted/mappings');
+const { asanaGet, resolveWorkspaceId } = require('../asana/asana.utils');
 
 const asanaProjectsGet = async (
   {
@@ -23,9 +22,7 @@ const asanaProjectsGet = async (
   } = {},
 ) => {
 
-  if (workspaceHandle) {
-    workspaceId = asanaWorkspaceHandleToId[workspaceHandle];
-  }
+  workspaceId = resolveWorkspaceId({ workspaceHandle, workspaceId });
 
   if (!workspaceId) {
     return {
