@@ -2,7 +2,15 @@
 
 const { HOSTED } = require('../constants');
 const { funcApi, logDeep, objHasAny } = require('../utils');
-const { asanaClient, resolveCustomFieldId } = require('../asana/asana.utils');
+const { asanaClient, resolveCustomFieldId, resolveCustomFieldEnumOptionId } = require('../asana/asana.utils');
+
+const isDuplicateEnumOptionError = (response) => (
+  response?.error?.some?.(
+    error => error?.data?.errors?.some?.(
+      apiError => apiError.error === 'enum_option_duplicate_name',
+    ),
+  )
+);
 
 const asanaCustomFieldValueAdd = async (
   customFieldIdentifier,
@@ -50,9 +58,44 @@ const asanaCustomFieldValueAdd = async (
       credsPath,
     },
   });
+
+  if (response.success) {
+    !HOSTED && logDeep(response);
+    return response;
+  }
+
+  if (!isDuplicateEnumOptionError(response)) {
+    !HOSTED && logDeep(response);
+    return response;
+  }
+
+  const enumOptionIdResponse = await resolveCustomFieldEnumOptionId(
+    customFieldIdentifier,
+    customFieldValue,
+    projectIdentifier,
+    { credsPath },
+  );
+
+  if (!enumOptionIdResponse.success) {
+    return response;
+  }
+
+  const enableResponse = await asanaClient.fetch({
+    url: `/enum_options/${ enumOptionIdResponse.result }`,
+    method: 'put',
+    body: {
+      data: {
+        enabled: true,
+      },
+    },
+    params,
+    context: {
+      credsPath,
+    },
+  });
   
-  !HOSTED && logDeep(response);
-  return response;
+  !HOSTED && logDeep(enableResponse);
+  return enableResponse;
 };
 
 const asanaCustomFieldValueAddApi = funcApi(asanaCustomFieldValueAdd, {
