@@ -191,6 +191,57 @@ const resolveCustomFieldId = async (
   };
 };
 
+const resolveCustomFieldEnumOptionId = async (
+  customFieldIdentifier,
+  customFieldValue,
+  projectIdentifier,
+  {
+    credsPath,
+  } = {},
+) => {
+  const customFieldIdResponse = await resolveCustomFieldId(
+    customFieldIdentifier,
+    projectIdentifier,
+    { credsPath },
+  );
+
+  if (!customFieldIdResponse.success) {
+    return customFieldIdResponse;
+  }
+
+  const customFieldId = customFieldIdResponse.result;
+
+  const customFieldResponse = await asanaClient.fetch({
+    url: `/custom_fields/${ customFieldId }`,
+    params: {
+      opt_fields: 'enum_options.name,enum_options.gid,enum_options.enabled',
+    },
+    context: {
+      credsPath,
+    },
+  });
+
+  if (!customFieldResponse.success) {
+    return customFieldResponse;
+  }
+
+  const enumOption = customFieldResponse.result?.enum_options?.find(
+    option => option.name === customFieldValue,
+  );
+
+  if (!enumOption) {
+    return {
+      success: false,
+      error: [`Custom field value "${ customFieldValue }" not found`],
+    };
+  }
+
+  return {
+    success: true,
+    result: enumOption.gid,
+  };
+};
+
 module.exports = {
   asanaClient,
   asanaGetter,
@@ -198,4 +249,5 @@ module.exports = {
   resolveProjectId,
   resolveWorkspaceId,
   resolveCustomFieldId,
+  resolveCustomFieldEnumOptionId,
 };

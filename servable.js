@@ -367,6 +367,7 @@ module.exports = {
   bedrock_unlisted_slackErrorPost: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_slackErrorPost').bedrock_unlisted_slackErrorPostApi),
   bedrock_unlisted_uwfEntriesExporter: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_uwfEntriesExporter').bedrock_unlisted_uwfEntriesExporterApi),
   asanaCustomFieldValueAdd: lazy(() => require('./asana/asanaCustomFieldValueAdd').asanaCustomFieldValueAddApi),
+  asanaCustomFieldValueDelete: lazy(() => require('./asana/asanaCustomFieldValueDelete').asanaCustomFieldValueDeleteApi),
   asanaProjectStatusesGet: lazy(() => require('./asana/asanaProjectStatusesGet').asanaProjectStatusesGetApi),
   asanaProjectsGet: lazy(() => require('./asana/asanaProjectsGet').asanaProjectsGetApi),
   asanaSectionAddTask: lazy(() => require('./asana/asanaSectionAddTask').asanaSectionAddTaskApi),
