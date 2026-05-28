@@ -19,17 +19,30 @@ const respond = (res, status, data, { contentType = 'application/json' } = {}) =
   return res.writeHead(status, { 'Content-Type': contentType }).end(contentType === 'application/json' ? JSON.stringify(data) : data);
 };
 
-const askQuestion = (query) => {
+const askQuestion = (
+  query,
+  {
+    default: defaultValue,
+  } = {},
+) => {
+  const needsTerminal = defaultValue !== undefined;
+
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
-    terminal: false,
+    terminal: needsTerminal,
   });
 
-  return new Promise(resolve => rl.question(query, ans => {
-    rl.close();
-    resolve(ans);
-  }));
+  return new Promise(resolve => {
+    rl.question(query, answer => {
+      rl.close();
+      resolve(answer === '' && needsTerminal ? defaultValue : answer);
+    });
+
+    if (needsTerminal) {
+      rl.write(String(defaultValue));
+    }
+  });
 };
 
 // equivalent to customAxiosV3 in pebl
