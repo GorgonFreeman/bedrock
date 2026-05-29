@@ -4,7 +4,9 @@ const {
   asanaPuppeteerLocalOnly,
   asanaProjectUrl,
   asanaPuppeteerLaunch,
+  asanaViewIdFromUrl,
 } = require('../asana/asana.puppeteer.utils');
+const { asanaViewRename } = require('../asana/asanaViewRename');
 
 const asanaViewCreate = async (
   projectIdentifier,
@@ -100,15 +102,34 @@ const asanaViewCreate = async (
     await askQuestion(`Step 3: created ${ viewType } view at ${ viewUrl }. Press enter when ready for the next step...`);
   }
 
-  return { 
+  const viewId = asanaViewIdFromUrl(viewUrl);
+
+  if (interactive) {
+    await askQuestion(`Step 4: renaming view to "${ viewName }". Press enter when ready for the next step...`);
+  }
+
+  const renameResponse = await asanaViewRename(viewUrl, viewId, viewName, {
+    onPage: true,
+    page,
+  });
+
+  if (!renameResponse.success) {
+    return renameResponse;
+  }
+
+  !HOSTED && logDeep('asanaViewCreate renameResponse', renameResponse);
+
+  return {
     success: true,
     result: {
-      step: 'view_created',
+      step: 'view_created_and_renamed',
       projectUrl,
-      viewUrl,
+      viewUrl: renameResponse.result.viewUrl,
+      viewId: renameResponse.result.viewId,
       viewType,
       viewName,
       viewTypeInputValue,
+      tab: renameResponse.result.tab,
     },
   };
 };
@@ -132,4 +153,4 @@ module.exports = {
   asanaViewCreateApi,
 };
 
-// curl localhost:8000/asanaViewCreate -H "Content-Type: application/json" -d '{ "projectIdentifier": { "projectHandle": "dev" }, "viewType": "board", "viewName": "Freeze Ray Development" }'
+// curl localhost:8000/asanaViewCreate -H "Content-Type: application/json" -d '{ "projectIdentifier": { "projectHandle": "dev" }, "viewType": "board", "viewName": "Epic: Freeze Ray Development", "options": { "interactive": false } }'

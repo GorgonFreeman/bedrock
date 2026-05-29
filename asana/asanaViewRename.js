@@ -15,6 +15,8 @@ const asanaViewRename = async (
   viewIdentifier,
   viewName,
   {
+    onPage = false,
+    page,
     headless = false,
     userDataDir,
   } = {},
@@ -25,22 +27,35 @@ const asanaViewRename = async (
     return localOnlyResponse;
   }
 
-  const openResponse = await asanaPuppeteerOpen(viewUrl, {
-    headless,
-    userDataDir,
-  });
+  let browser;
+  let activePage = page;
 
-  if (!openResponse.success) {
-    return openResponse;
+  if (onPage) {
+    if (!page) {
+      return {
+        success: false,
+        error: ['onPage requires a page'],
+      };
+    }
+  } else {
+    const openResponse = await asanaPuppeteerOpen(viewUrl, {
+      headless,
+      userDataDir,
+    });
+
+    if (!openResponse.success) {
+      return openResponse;
+    }
+
+    browser = openResponse.browser;
+    activePage = openResponse.page;
   }
-
-  const { page, browser } = openResponse;
 
   try {
     !HOSTED && logDeep('asanaViewRename viewUrl', viewUrl);
     !HOSTED && logDeep('asanaViewRename viewIdentifier', viewIdentifier);
 
-    const tabResolveResponse = await asanaProjectViewTabResolve(page, viewIdentifier);
+    const tabResolveResponse = await asanaProjectViewTabResolve(activePage, viewIdentifier);
 
     if (!tabResolveResponse.success) {
       return tabResolveResponse;
@@ -48,18 +63,13 @@ const asanaViewRename = async (
 
     const { tab } = tabResolveResponse;
 
-    await asanaProjectViewTabClick(page, tab.index);
+    await asanaProjectViewTabClick(activePage, tab.index);
 
-    const viewUrlAfterClick = page.url();
-
-    !HOSTED && logDeep('asanaViewRename tab', tab);
-    !HOSTED && logDeep('asanaViewRename viewUrlAfterClick', viewUrlAfterClick);
-
-    await page.waitForSelector('[role="menu"]', {
+    await activePage.waitForSelector('[role="menu"]', {
       visible: true,
     });
 
-    const renameMenuItemClicked = await page.$$eval(
+    const renameMenuItemClicked = await activePage.$$eval(
       '[role="menuitem"]',
       menuItems => {
         const renameMenuItem = menuItems.find(menuItem => (
@@ -83,7 +93,7 @@ const asanaViewRename = async (
       };
     }
 
-    await page.waitForFunction(
+    await activePage.waitForFunction(
       () => {
         const activeElement = document.activeElement;
 
@@ -93,7 +103,7 @@ const asanaViewRename = async (
       { timeout: 10000 },
     );
 
-    await page.evaluate(() => {
+    await activePage.evaluate(() => {
       const activeElement = document.activeElement;
 
       if (activeElement?.tagName === 'INPUT') {
@@ -101,11 +111,11 @@ const asanaViewRename = async (
       }
     });
 
-    await page.keyboard.press('Backspace');
-    await page.keyboard.type(viewName);
-    await page.keyboard.press('Enter');
+    await activePage.keyboard.press('Backspace');
+    await activePage.keyboard.type(viewName);
+    await activePage.keyboard.press('Enter');
 
-    await page.waitForFunction(
+    await activePage.waitForFunction(
       (renameInputSelector, expectedViewName) => {
         const selectedTabTitle = document.querySelector(
           '[data-dd-action-name="project-view-tab"][aria-hidden="false"][aria-selected="true"] .ObjectTabNavigationBarItemWithMenu-bodyText',
@@ -119,7 +129,7 @@ const asanaViewRename = async (
       viewName,
     );
 
-    const viewUrlAfterRename = page.url();
+    const viewUrlAfterRename = activePage.url();
 
     !HOSTED && logDeep('asanaViewRename viewUrlAfterRename', viewUrlAfterRename);
 
@@ -138,7 +148,9 @@ const asanaViewRename = async (
       },
     };
   } finally {
-    await browser.close();
+    if (browser) {
+      await browser.close();
+    }
   }
 };
 
