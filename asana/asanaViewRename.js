@@ -55,12 +55,42 @@ const asanaViewRename = async (
   !HOSTED && logDeep('asanaViewRename tab', tab);
   !HOSTED && logDeep('asanaViewRename viewUrlAfterClick', viewUrlAfterClick);
 
-  // TODO: rename the selected view tab to viewName
+  await page.waitForSelector('[role="menu"]', {
+    visible: true,
+  });
+
+  const renameMenuItemClicked = await page.$$eval(
+    '[role="menuitem"]',
+    menuItems => {
+      const renameMenuItem = menuItems.find(menuItem => (
+        menuItem.querySelector('.MenuItemThemeablePresentation-main')?.textContent?.trim() === 'Rename'
+        || menuItem.textContent?.trim() === 'Rename'
+      ));
+
+      if (!renameMenuItem) {
+        return false;
+      }
+
+      renameMenuItem.click();
+      return true;
+    },
+  );
+
+  if (!renameMenuItemClicked) {
+    return {
+      success: false,
+      error: ['Rename menu item not found'],
+    };
+  }
+
+  !HOSTED && logDeep('asanaViewRename renameMenuItemClicked', renameMenuItemClicked);
+
+  // TODO: enter viewName in the rename input and confirm
 
   return {
     success: true,
     result: {
-      step: 'view_tab_selected',
+      step: 'rename_menu_item_clicked',
       projectUrl,
       viewUrl: viewUrlAfterClick,
       viewId: asanaViewIdFromUrl(viewUrlAfterClick),
