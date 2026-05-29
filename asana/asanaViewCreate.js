@@ -80,13 +80,46 @@ const asanaViewCreate = async (
     await askQuestion('Step 2: clicked Add tab (+). Press enter when ready for the next step...');
   }
 
+  const viewTypeDialogSelector = '.CustomTabNavigationBar-customTabCreationMenuDialog';
+  const viewTypeLower = viewType.toLowerCase();
+
+  await page.waitForSelector(viewTypeDialogSelector, {
+    visible: true,
+  });
+
+  const viewTypeInputValue = await page.$$eval(
+    `${ viewTypeDialogSelector } input[type="checkbox"]`,
+    (inputs, targetViewTypeLower) => (
+      inputs.find(input => input.value.toLowerCase() === targetViewTypeLower)?.value ?? null
+    ),
+    viewTypeLower,
+  );
+
+  if (!viewTypeInputValue) {
+    return {
+      success: false,
+      error: [`View type "${ viewType }" not found in tab picker`],
+    };
+  }
+
+  const viewTypeSelector = `${ viewTypeDialogSelector } input[type="checkbox"][value="${ viewTypeInputValue }"]`;
+
+  await page.click(viewTypeSelector);
+
+  !HOSTED && logDeep('asanaViewCreate viewTypeSelector', viewTypeSelector);
+
+  if (interactive) {
+    await askQuestion(`Step 3: selected ${ viewType } view. Press enter when ready for the next step...`);
+  }
+
   return { 
     success: true,
     result: {
-      step: 'add_tab_clicked',
+      step: 'view_type_selected',
       projectUrl,
       viewType,
       viewName,
+      viewTypeInputValue,
     },
   };
 };
