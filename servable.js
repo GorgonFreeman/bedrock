@@ -380,5 +380,7 @@ module.exports = {
   asanaTasksGet: lazy(() => require('./asana/asanaTasksGet').asanaTasksGetApi),
   asanaUserGet: lazy(() => require('./asana/asanaUserGet').asanaUserGetApi),
   asanaViewCreate: lazy(() => require('./asana/asanaViewCreate').asanaViewCreateApi),
+  asanaViewFilterApply: lazy(() => require('./asana/asanaViewFilterApply').asanaViewFilterApplyApi),
+  asanaViewRename: lazy(() => require('./asana/asanaViewRename').asanaViewRenameApi),
   asanaWorkspacesGet: lazy(() => require('./asana/asanaWorkspacesGet').asanaWorkspacesGetApi),
 };
