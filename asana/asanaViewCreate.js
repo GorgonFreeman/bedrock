@@ -66,10 +66,24 @@ const asanaViewCreate = async (
     await askQuestion(`Step 1: opened ${ projectUrl }. Press enter when ready for the next step...`);
   }
 
-  return {
+  const addTabSelector = '[aria-label="Add tab"]';
+
+  await page.waitForSelector(addTabSelector, {
+    visible: true,
+  });
+
+  await page.click(addTabSelector);
+
+  !HOSTED && logDeep('asanaViewCreate addTabSelector', addTabSelector);
+
+  if (interactive) {
+    await askQuestion('Step 2: clicked Add tab (+). Press enter when ready for the next step...');
+  }
+
+  return { 
     success: true,
     result: {
-      step: 'project_opened',
+      step: 'add_tab_clicked',
       projectUrl,
       viewType,
       viewName,
