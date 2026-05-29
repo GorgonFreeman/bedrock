@@ -47,6 +47,7 @@ const asanaPuppeteerLaunch = async ({
 };
 
 const ASANA_VIEW_TAB_SELECTOR = '[data-dd-action-name="project-view-tab"]';
+const ASANA_VISIBLE_VIEW_TAB_SELECTOR = `${ ASANA_VIEW_TAB_SELECTOR }[aria-hidden="false"]`;
 
 const asanaViewIdFromUrl = url => {
   const match = url.match(/\/project\/\d+\/\w+\/(\d+)/);
@@ -59,7 +60,9 @@ const asanaProjectUrlFromViewUrl = url => {
 };
 
 const asanaProjectViewTabsGet = async page => {
-  const tabCount = await page.$$eval(ASANA_VIEW_TAB_SELECTOR, tabs => tabs.length);
+  await page.waitForSelector(ASANA_VISIBLE_VIEW_TAB_SELECTOR);
+
+  const tabCount = await page.$$eval(ASANA_VISIBLE_VIEW_TAB_SELECTOR, tabs => tabs.length);
 
   if (!tabCount) {
     return [];
@@ -70,7 +73,7 @@ const asanaProjectViewTabsGet = async page => {
 
   for (let tabIndex = 0; tabIndex < tabCount; tabIndex++) {
     await page.$$eval(
-      ASANA_VIEW_TAB_SELECTOR,
+      ASANA_VISIBLE_VIEW_TAB_SELECTOR,
       (tabElements, index) => tabElements[index].click(),
       tabIndex,
     );
@@ -81,7 +84,7 @@ const asanaProjectViewTabsGet = async page => {
     );
 
     const tabInfo = await page.$$eval(
-      ASANA_VIEW_TAB_SELECTOR,
+      ASANA_VISIBLE_VIEW_TAB_SELECTOR,
       (tabElements, index) => {
         const tab = tabElements[index];
 
@@ -109,22 +112,55 @@ const asanaProjectViewTabsGet = async page => {
       waitUntil: 'networkidle2',
     });
 
-    await page.waitForSelector(ASANA_VIEW_TAB_SELECTOR, {
-      visible: true,
-    });
+    await page.waitForSelector(ASANA_VISIBLE_VIEW_TAB_SELECTOR);
   }
 
   return tabs;
 };
 
 const asanaProjectViewTabResolve = async (page, viewIdentifier) => {
-  await page.waitForSelector(ASANA_VIEW_TAB_SELECTOR, {
-    visible: true,
-  });
+  await page.waitForSelector(ASANA_VISIBLE_VIEW_TAB_SELECTOR);
 
-  const tabs = await asanaProjectViewTabsGet(page);
   const viewIdentifierString = String(viewIdentifier);
   const isViewId = /^\d+$/.test(viewIdentifierString);
+  const currentViewId = asanaViewIdFromUrl(page.url());
+
+  if (isViewId && currentViewId === viewIdentifierString) {
+    const selectedTab = await page.$$eval(
+      ASANA_VISIBLE_VIEW_TAB_SELECTOR,
+      tabs => {
+        const index = tabs.findIndex(tab => tab.getAttribute('aria-selected') === 'true');
+
+        if (index < 0) {
+          return null;
+        }
+
+        const tab = tabs[index];
+
+        return {
+          index,
+          title: (
+            tab.querySelector('.ObjectTabNavigationBarItemWithMenu-bodyText')?.textContent?.trim()
+            || tab.getAttribute('aria-label')
+            || ''
+          ),
+          isSelected: true,
+        };
+      },
+    );
+
+    if (selectedTab) {
+      return {
+        success: true,
+        tab: {
+          ...selectedTab,
+          viewId: currentViewId,
+        },
+      };
+    }
+  }
+
+  const tabs = await asanaProjectViewTabsGet(page);
 
   if (isViewId) {
     const matchingTabs = tabs.filter(tab => tab.viewId === viewIdentifierString);
@@ -172,7 +208,7 @@ const asanaProjectViewTabResolve = async (page, viewIdentifier) => {
 
 const asanaProjectViewTabClick = async (page, tabIndex) => {
   await page.$$eval(
-    ASANA_VIEW_TAB_SELECTOR,
+    ASANA_VISIBLE_VIEW_TAB_SELECTOR,
     (tabElements, index) => tabElements[index].click(),
     tabIndex,
   );
@@ -215,6 +251,7 @@ const asanaPuppeteerOpen = async (
 module.exports = {
   ASANA_USER_DATA_DIR,
   ASANA_VIEW_TAB_SELECTOR,
+  ASANA_VISIBLE_VIEW_TAB_SELECTOR,
   asanaPuppeteerLocalOnly,
   asanaProjectUrl,
   asanaViewIdFromUrl,
