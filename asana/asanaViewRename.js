@@ -3,10 +3,15 @@ const { funcApi, logDeep } = require('../utils');
 const {
   asanaPuppeteerLocalOnly,
   asanaPuppeteerOpen,
+  asanaProjectUrlFromViewUrl,
+  asanaProjectViewTabResolve,
+  asanaProjectViewTabClick,
+  asanaViewIdFromUrl,
 } = require('../asana/asana.puppeteer.utils');
 
 const asanaViewRename = async (
   viewUrl,
+  viewIdentifier,
   viewName,
   {
     headless = false,
@@ -19,7 +24,9 @@ const asanaViewRename = async (
     return localOnlyResponse;
   }
 
-  const openResponse = await asanaPuppeteerOpen(viewUrl, {
+  const projectUrl = asanaProjectUrlFromViewUrl(viewUrl) || viewUrl;
+
+  const openResponse = await asanaPuppeteerOpen(projectUrl, {
     headless,
     userDataDir,
   });
@@ -28,24 +35,47 @@ const asanaViewRename = async (
     return openResponse;
   }
 
-  !HOSTED && logDeep('asanaViewRename viewUrl', viewUrl);
+  const { page } = openResponse;
 
-  // TODO: rename the active view tab to viewName
+  !HOSTED && logDeep('asanaViewRename projectUrl', projectUrl);
+  !HOSTED && logDeep('asanaViewRename viewIdentifier', viewIdentifier);
+
+  const tabResolveResponse = await asanaProjectViewTabResolve(page, viewIdentifier);
+
+  if (!tabResolveResponse.success) {
+    return tabResolveResponse;
+  }
+
+  const { tab } = tabResolveResponse;
+
+  await asanaProjectViewTabClick(page, tab.index);
+
+  const viewUrlAfterClick = page.url();
+
+  !HOSTED && logDeep('asanaViewRename tab', tab);
+  !HOSTED && logDeep('asanaViewRename viewUrlAfterClick', viewUrlAfterClick);
+
+  // TODO: rename the selected view tab to viewName
 
   return {
     success: true,
     result: {
-      step: 'view_rename_pending',
-      viewUrl,
+      step: 'view_tab_selected',
+      projectUrl,
+      viewUrl: viewUrlAfterClick,
+      viewId: asanaViewIdFromUrl(viewUrlAfterClick),
+      viewIdentifier,
       viewName,
+      tab,
     },
   };
 };
 
 const asanaViewRenameApi = funcApi(asanaViewRename, {
-  argNames: ['viewUrl', 'viewName', 'options'],
+  argNames: ['viewUrl', 'viewIdentifier', 'viewName', 'options'],
   validatorsByArg: {
     viewUrl: Boolean,
+    viewIdentifier: Boolean,
     viewName: Boolean,
   },
 });
@@ -55,4 +85,5 @@ module.exports = {
   asanaViewRenameApi,
 };
 
-// curl localhost:8000/asanaViewRename -H "Content-Type: application/json" -d '{ "viewUrl": "https://app.asana.com/1/764221262452024/project/1208942389126559/board/1215241286725636", "viewName": "Epic: Freeze Ray Development" }'
+// curl localhost:8000/asanaViewRename -H "Content-Type: application/json" -d '{ "viewUrl": "https://app.asana.com/1/764221262452024/project/1208942389126559/board/1215241286725636", "viewIdentifier": "1215241286725636", "viewName": "Epic: Freeze Ray Development" }'
+// curl localhost:8000/asanaViewRename -H "Content-Type: application/json" -d '{ "viewUrl": "https://app.asana.com/1/764221262452024/project/1208942389126559/board/1215241286725636", "viewIdentifier": "Board", "viewName": "Epic: Freeze Ray Development" }'
