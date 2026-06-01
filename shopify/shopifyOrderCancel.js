@@ -1,6 +1,6 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/ordercancel
 
-const { funcApi, customNullish, actionMultipleOrSingle } = require('../utils');
+const { funcApi, customNullish, actionMultipleOrSingle, askQuestion } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `job { id done }`;
@@ -20,6 +20,8 @@ const shopifyOrderCancelSingle = async (
 
   } = {},
 ) => {
+
+  await askQuestion(`Cancel order ${ orderId }?`);
 
   const response = await shopifyMutationDo(
     credsPath,
