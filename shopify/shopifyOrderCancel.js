@@ -76,4 +76,4 @@ module.exports = {
   shopifyOrderCancelApi,
 };
 
-// curl http://localhost:8000/shopifyOrderCancel -H 'Content-Type: application/json' -d '{ "credsPath": "us", "orderId": "1797615550524" }'
+// curl http://localhost:8000/shopifyOrderCancel -H 'Content-Type: application/json' -d '{ "credsPath": "us", "orderId": "1797615550524", "options": { "restock": false } }'
