@@ -4,7 +4,6 @@ const {
   asanaPuppeteerLocalOnly,
   asanaProjectUrl,
   asanaPuppeteerLaunch,
-  asanaViewIdFromUrl,
 } = require('../asana/asana.puppeteer.utils');
 const { asanaViewRename } = require('../asana/asanaViewRename');
 
@@ -116,7 +115,6 @@ const asanaViewCreate = async (
     );
 
     const viewUrl = page.url();
-    const viewId = asanaViewIdFromUrl(viewUrl);
 
     !HOSTED && logDeep('asanaViewCreate viewUrl', viewUrl);
 
@@ -133,10 +131,14 @@ const asanaViewCreate = async (
       await askQuestion(`Step 4: renaming view to "${ viewName }". Press enter when ready for the next step...`);
     }
 
-    const renameResponse = await asanaViewRename(viewUrl, viewId, viewName, {
-      onPage: true,
-      page,
-    });
+    const renameResponse = await asanaViewRename(
+      { viewUrl },
+      viewName,
+      {
+        onPage: true,
+        page,
+      },
+    );
 
     if (!renameResponse.success) {
       return renameResponse;
@@ -183,4 +185,13 @@ module.exports = {
   asanaViewCreateApi,
 };
 
-// curl localhost:8000/asanaViewCreate -H "Content-Type: application/json" -d '{ "projectIdentifier": { "projectHandle": "dev" }, "viewType": "board", "viewName": "Epic: Freeze Ray Development", "options": { "interactive": false } }'
+/*
+curl localhost:8000/asanaViewCreate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "projectIdentifier": { "projectHandle": "dev" },
+    "viewType": "board",
+    "viewName": "Epic: Freeze Ray Development",
+    "options": { "interactive": false }
+  }'
+*/
