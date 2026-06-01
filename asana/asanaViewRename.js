@@ -75,6 +75,14 @@ const resolveViewIdentifier = viewIdentifier => {
 };
 
 const asanaProjectViewSelectedTabGet = async page => {
+  const selectedTabSelector = `${ ASANA_VISIBLE_VIEW_TAB_SELECTOR }[aria-selected="true"]`;
+
+  await page.waitForFunction(
+    selector => document.querySelector(selector),
+    { timeout: 30000 },
+    selectedTabSelector,
+  );
+
   const tab = await page.$$eval(
     ASANA_VISIBLE_VIEW_TAB_SELECTOR,
     tabs => {
@@ -218,6 +226,12 @@ const asanaViewRename = async (
       tab = tabResolveResponse.tab;
 
       await asanaProjectViewTabClick(activePage, tab.index);
+
+      await activePage.$$eval(
+        ASANA_VISIBLE_VIEW_TAB_SELECTOR,
+        (tabs, index) => tabs[index]?.click(),
+        tab.index,
+      );
     }
 
     await activePage.waitForFunction(
@@ -288,6 +302,8 @@ const asanaViewRename = async (
       name,
     );
 
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
     const viewUrlAfterRename = activePage.url();
 
     !HOSTED && logDeep('asanaViewRename viewUrlAfterRename', viewUrlAfterRename);
@@ -309,6 +325,7 @@ const asanaViewRename = async (
   } finally {
     if (browser) {
       await browser.close();
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
 };

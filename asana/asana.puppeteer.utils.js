@@ -69,9 +69,10 @@ const asanaProjectViewTabSelectWait = async (page, tabIndex) => {
   await page.waitForFunction(
     index => {
       const tabs = [...document.querySelectorAll('[data-dd-action-name="project-view-tab"][aria-hidden="false"]')];
-      const tab = tabs[index];
+      const selectedTabs = tabs.filter(tab => tab.getAttribute('aria-selected') === 'true');
 
-      return tab?.getAttribute('aria-selected') === 'true'
+      return selectedTabs.length === 1
+        && tabs[index]?.getAttribute('aria-selected') === 'true'
         && /\/project\/\d+\/\w+\/\d+/.test(window.location.pathname);
     },
     { timeout: 30000 },
