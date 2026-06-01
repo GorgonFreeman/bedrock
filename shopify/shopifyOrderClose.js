@@ -3,7 +3,7 @@
 const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `cancelledAt`;
+const defaultAttrs = `name id createdAt customer { email } cancelledAt`;
 
 const shopifyOrderCloseSingle = async (
   credsPath,
@@ -54,7 +54,7 @@ const shopifyOrderClose = async (
       ...(queueRunOptions ? { queueRunOptions } : {}),
     },
   );
-  logDeep(response);
+  // logDeep(response);
   return response;
 };
 

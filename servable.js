@@ -349,6 +349,7 @@ module.exports = {
   bedrock_unlisted_pangolinOrdersSweep: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_pangolinOrdersSweep').bedrock_unlisted_pangolinOrdersSweepApi),
   bedrock_unlisted_shopifyArchiveOldOrders: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_shopifyArchiveOldOrders').bedrock_unlisted_shopifyArchiveOldOrdersApi),
   bedrock_unlisted_shopifyBf25ApologyCodesDeduplicate: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_shopifyBf25ApologyCodesDeduplicate').bedrock_unlisted_shopifyBf25ApologyCodesDeduplicateApi),
+  bedrock_unlisted_shopifyCleanseCommitted: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_shopifyCleanseCommitted').bedrock_unlisted_shopifyCleanseCommittedApi),
   bedrock_unlisted_shopifyCustomersAddressPopulateSweep: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_shopifyCustomersAddressPopulateSweep').bedrock_unlisted_shopifyCustomersAddressPopulateSweepApi),
   bedrock_unlisted_shopifyCustomersAuditYotpoBirthdays: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_shopifyCustomersAuditYotpoBirthdays').bedrock_unlisted_shopifyCustomersAuditYotpoBirthdaysApi),
   bedrock_unlisted_shopifyCustomersNoteCleanse: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_shopifyCustomersNoteCleanse').bedrock_unlisted_shopifyCustomersNoteCleanseApi),
