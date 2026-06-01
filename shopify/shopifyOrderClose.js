@@ -1,11 +1,11 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/orderClose
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, actionMultipleOrSingle } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `cancelledAt`;
 
-const shopifyOrderClose = async (
+const shopifyOrderCloseSingle = async (
   credsPath,
   orderId,
   {
@@ -30,6 +30,30 @@ const shopifyOrderClose = async (
       apiVersion,
     },
   );
+
+  return response;
+};
+
+const shopifyOrderClose = async (
+  credsPath,
+  orderId,
+  {
+    apiVersion,
+    returnAttrs = defaultAttrs,
+    queueRunOptions,
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    orderId,
+    shopifyOrderCloseSingle,
+    (orderId) => ({
+      args: [credsPath, orderId],
+      options: { apiVersion, returnAttrs },
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
   logDeep(response);
   return response;
 };
@@ -38,7 +62,12 @@ const shopifyOrderCloseApi = funcApi(shopifyOrderClose, {
   argNames: ['credsPath', 'orderId', 'options'],
   validatorsByArg: {
     credsPath: Boolean,
-    orderId: Boolean,
+    orderId: (p) => {
+      if (Array.isArray(p)) {
+        return p.length > 0 && p.every(Boolean);
+      }
+      return Boolean(p);
+    },
   },
 });
 
