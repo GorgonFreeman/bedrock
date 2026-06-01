@@ -1,13 +1,13 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/orderClose
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `cancelledAt`;
 
 const shopifyOrderClose = async (
   credsPath,
-  pageInput,
+  orderId,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
@@ -16,14 +16,16 @@ const shopifyOrderClose = async (
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'orderClose',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      input: {
+        type: 'OrderCloseInput!',
+        value: {
+          id: `gid://shopify/Order/${ orderId }`,
+        },
       },
     },
-    `page { ${ returnAttrs } }`,
+    `order { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -33,7 +35,11 @@ const shopifyOrderClose = async (
 };
 
 const shopifyOrderCloseApi = funcApi(shopifyOrderClose, {
-  argNames: ['credsPath', 'pageInput', 'options'],
+  argNames: ['credsPath', 'orderId', 'options'],
+  validatorsByArg: {
+    credsPath: Boolean,
+    orderId: Boolean,
+  },
 });
 
 module.exports = {
@@ -41,4 +47,4 @@ module.exports = {
   shopifyOrderCloseApi,
 };
 
-// curl http://localhost:8000/shopifyOrderClose -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyOrderClose -H 'Content-Type: application/json' -d '{ "credsPath": "au", "orderId": "1234567890" }'
