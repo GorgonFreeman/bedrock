@@ -1,6 +1,6 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/ordercancel
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, customNullish } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id name createdAt customer { email } cancelledAt`;
@@ -37,17 +37,21 @@ const shopifyOrderCancel = async (
         type: 'OrderCancelReason!',
         value: reason,
       },
-      refundMethod: {
-        type: 'OrderCancelRefundMethodInput!',
-        value: refundMethod,
+      ...!customNullish(refundMethod) && {
+        refundMethod: {
+          type: 'OrderCancelRefundMethodInput!',
+          value: refundMethod,
+        },
       },
       restock: {
         type: 'Boolean!',
         value: restock,
       },
-      staffNote: {
-        type: 'String!',
-        value: staffNote,
+      ...!customNullish(staffNote) && {
+        staffNote: {
+          type: 'String!',
+          value: staffNote,
+        },
       },
     },
     `order { ${ returnAttrs } }`,
