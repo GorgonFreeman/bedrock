@@ -331,30 +331,30 @@ curl localhost:8000/asanaViewRename \
   -H "Content-Type: application/json" \
   -d '{
     "viewIdentifier": {
-      "viewUrl": "https://app.asana.com/1/764221262452024/project/1208942389126559/board/1215241286725636"
+      "viewUrl": "https://app.asana.com/1/764221262452024/project/1208942389126559/board/1215269395794915"
     },
-    "name": "Epic: Freeze Ray Development"
+    "name": "I wanna be"
   }'
 
 curl localhost:8000/asanaViewRename \
   -H "Content-Type: application/json" \
   -d '{
     "viewIdentifier": {
-      "projectIdentifier": { "projectHandle": "dev" },
       "workspaceIdentifier": { "workspaceHandle": "wf" },
-      "viewId": "1215241286725636"
+      "projectIdentifier": { "projectHandle": "dev" },
+      "viewId": "1215269395794915"
     },
-    "name": "Epic: Freeze Ray Development"
+    "name": "in the room"
   }'
 
 curl localhost:8000/asanaViewRename \
   -H "Content-Type: application/json" \
   -d '{
     "viewIdentifier": {
-      "projectIdentifier": { "projectHandle": "dev" },
       "workspaceIdentifier": { "workspaceHandle": "wf" },
-      "viewName": "Board"
+      "projectIdentifier": { "projectHandle": "dev" },
+      "viewName": "in the room"
     },
-    "name": "Epic: Freeze Ray Development"
+    "name": "where it happens"
   }'
 */
