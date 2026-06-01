@@ -5,6 +5,8 @@ const {
   asanaPuppeteerOpen,
 } = require('../asana/asana.puppeteer.utils');
 
+const ASANA_FILTER_DIALOG_SELECTOR = '.MultiSortFilterDialog';
+
 const isValidFilters = filters => (
   Boolean(filters?.customFieldName)
   && Boolean(filters?.customFieldValue)
@@ -12,16 +14,20 @@ const isValidFilters = filters => (
 
 const asanaViewFilterTrainButtonClick = async page => {
   await page.waitForFunction(
-    () => [...document.querySelectorAll('.FilterTrain-textButton')].some(filterButton => (
-      filterButton.textContent.trim() === 'Filter'
-    )),
+    () => [...document.querySelectorAll('.FilterTrain-textButton')].some(filterButton => {
+      const text = filterButton.textContent.trim();
+
+      return text === 'Filter' || text.startsWith('Filters:');
+    }),
     { timeout: 30000 },
   );
 
   await page.evaluate(() => {
-    const filterButton = [...document.querySelectorAll('.FilterTrain-textButton')].find(el => (
-      el.textContent.trim() === 'Filter'
-    ));
+    const filterButton = [...document.querySelectorAll('.FilterTrain-textButton')].find(el => {
+      const text = el.textContent.trim();
+
+      return text === 'Filter' || text.startsWith('Filters:');
+    });
 
     filterButton?.click();
   });
@@ -44,7 +50,22 @@ const asanaViewFilterAddFilterButtonClick = async page => {
   });
 };
 
+const asanaViewFilterCustomFieldRowExists = async (page, customFieldName) => (
+  page.evaluate(fieldName => (
+    [...document.querySelectorAll('.MultiFilterMenuContents--innerRow')].some(row => (
+      row.textContent.trim().startsWith(fieldName)
+    ))
+  ), customFieldName)
+);
+
 const asanaViewFilterCustomFieldMenuItemClick = async (page, customFieldName) => {
+  await page.waitForFunction(
+    () => [...document.querySelectorAll('[role="menuitem"]')].some(menuItem => (
+      menuItem.querySelector('.AddFilterMenuItem-labelContainer')
+    )),
+    { timeout: 10000 },
+  );
+
   await page.waitForFunction(
     fieldName => [...document.querySelectorAll('[role="menuitem"]')].some(menuItem => (
       menuItem.querySelector('.AddFilterMenuItem-labelContainer')?.textContent?.trim() === fieldName
@@ -64,6 +85,7 @@ const asanaViewFilterCustomFieldMenuItemClick = async (page, customFieldName) =>
       return false;
     }
 
+    menuItem.scrollIntoView({ block: 'nearest' });
     menuItem.click();
     return true;
   }, customFieldName);
@@ -75,25 +97,52 @@ const asanaViewFilterCustomFieldMenuItemClick = async (page, customFieldName) =>
     };
   }
 
+  await page.waitForFunction(
+    () => Boolean(document.querySelector('.MultiFilterMenuContents--innerRow')),
+    { timeout: 10000 },
+  );
+
   return { success: true };
 };
 
 const asanaViewFilterCustomFieldValuePickerClick = async (page, customFieldName) => {
   await page.waitForFunction(
-    fieldName => Boolean(document.querySelector(`[role="button"][aria-label^="${ fieldName }"]`)),
+    fieldName => {
+      const dialog = document.querySelector('.MultiSortFilterDialog');
+
+      return Boolean(
+        dialog?.querySelector('#CustomPropertyEnumOptionsMultiPickerInput')
+        || dialog?.querySelector(`[role="button"][aria-label^="${ fieldName }"]`)
+        || dialog?.querySelector('.MultiPickerInput-option--empty'),
+      );
+    },
     { timeout: 10000 },
     customFieldName,
   );
 
-  await page.evaluate(fieldName => {
-    document.querySelector(`[role="button"][aria-label^="${ fieldName }"]`)?.click();
-  }, customFieldName);
+  const pickerSelectors = [
+    `${ ASANA_FILTER_DIALOG_SELECTOR } #CustomPropertyEnumOptionsMultiPickerInput`,
+    `${ ASANA_FILTER_DIALOG_SELECTOR } [role="button"][aria-label^="${ customFieldName }"]`,
+    `${ ASANA_FILTER_DIALOG_SELECTOR } .MultiPickerInput-option--empty`,
+  ];
+
+  for (const pickerSelector of pickerSelectors) {
+    const picker = await page.$(pickerSelector);
+
+    if (picker) {
+      await picker.click();
+      return;
+    }
+  }
+
+  throw new Error(`Custom field value picker not found for ${ customFieldName }`);
 };
 
 const asanaViewFilterCustomFieldValueOptionClick = async (page, customFieldValue) => {
   await page.waitForFunction(
     value => [...document.querySelectorAll('[role="option"]')].some(option => (
       option.textContent.trim() === value
+      && getComputedStyle(option).visibility !== 'hidden'
     )),
     { timeout: 10000 },
     customFieldValue,
@@ -102,6 +151,7 @@ const asanaViewFilterCustomFieldValueOptionClick = async (page, customFieldValue
   const optionClicked = await page.evaluate(value => {
     const option = [...document.querySelectorAll('[role="option"]')].find(el => (
       el.textContent.trim() === value
+      && getComputedStyle(el).visibility !== 'hidden'
     ));
 
     if (!option) {
@@ -236,16 +286,34 @@ const asanaViewFilterApply = async (
     !HOSTED && logDeep('asanaViewFilterApply viewUrl', viewUrl);
     !HOSTED && logDeep('asanaViewFilterApply filters', filters);
 
-    await asanaViewFilterTrainButtonClick(activePage);
-    await asanaViewFilterAddFilterButtonClick(activePage);
+    await activePage.waitForFunction(
+      () => Boolean(document.querySelector('.ProjectBoardPageToolbar')),
+      { timeout: 30000 },
+    );
 
-    const customFieldMenuItemResponse = await asanaViewFilterCustomFieldMenuItemClick(
+    await asanaViewFilterTrainButtonClick(activePage);
+
+    const customFieldRowExists = await asanaViewFilterCustomFieldRowExists(
       activePage,
       customFieldName,
     );
 
-    if (!customFieldMenuItemResponse.success) {
-      return customFieldMenuItemResponse;
+    if (!customFieldRowExists) {
+      await asanaViewFilterAddFilterButtonClick(activePage);
+
+      const customFieldMenuItemResponse = await asanaViewFilterCustomFieldMenuItemClick(
+        activePage,
+        customFieldName,
+      );
+
+      if (!customFieldMenuItemResponse.success) {
+        return customFieldMenuItemResponse;
+      }
+    } else {
+      await activePage.waitForFunction(
+        () => Boolean(document.querySelector('.MultiFilterMenuContents--innerRow')),
+        { timeout: 10000 },
+      );
     }
 
     await asanaViewFilterCustomFieldValuePickerClick(activePage, customFieldName);
