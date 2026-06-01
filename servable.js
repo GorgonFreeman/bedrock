@@ -119,6 +119,7 @@ module.exports = {
   shopifyMetaobjectGet: lazy(() => require('./shopify/shopifyMetaobjectGet').shopifyMetaobjectGetApi),
   shopifyMetaobjectsGet: lazy(() => require('./shopify/shopifyMetaobjectsGet').shopifyMetaobjectsGetApi),
   shopifyMetaobjectsPropagate: lazy(() => require('./shopify/shopifyMetaobjectsPropagate').shopifyMetaobjectsPropagateApi),
+  shopifyOrderClose: lazy(() => require('./shopify/shopifyOrderClose').shopifyOrderCloseApi),
   shopifyOrderFulfill: lazy(() => require('./shopify/shopifyOrderFulfill').shopifyOrderFulfillApi),
   shopifyOrderFulfillmentRequestReview: lazy(() => require('./shopify/shopifyOrderFulfillmentRequestReview').shopifyOrderFulfillmentRequestReviewApi),
   shopifyOrderGet: lazy(() => require('./shopify/shopifyOrderGet').shopifyOrderGetApi),
