@@ -3,7 +3,7 @@
 const { funcApi, logDeep, customNullish } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id name createdAt customer { email } cancelledAt`;
+const defaultAttrs = `job { id done }`;
 
 const shopifyOrderCancel = async (
   credsPath,
@@ -54,7 +54,7 @@ const shopifyOrderCancel = async (
         },
       },
     },
-    `order { ${ returnAttrs } }`,
+    returnAttrs,
     { 
       apiVersion,
     },
