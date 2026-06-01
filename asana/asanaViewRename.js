@@ -6,6 +6,7 @@ const {
   asanaProjectViewTabResolve,
   asanaProjectViewTabClick,
   asanaViewIdFromUrl,
+  ASANA_VISIBLE_VIEW_TAB_SELECTOR,
 } = require('../asana/asana.puppeteer.utils');
 
 const ASANA_VIEW_RENAME_INPUT_SELECTOR = '.ObjectTabNavigationBarItemWithMenu-nameInput';
@@ -55,19 +56,65 @@ const asanaViewRename = async (
     !HOSTED && logDeep('asanaViewRename viewUrl', viewUrl);
     !HOSTED && logDeep('asanaViewRename viewIdentifier', viewIdentifier);
 
-    const tabResolveResponse = await asanaProjectViewTabResolve(activePage, viewIdentifier);
+    let tab;
 
-    if (!tabResolveResponse.success) {
-      return tabResolveResponse;
+    if (onPage) {
+      tab = await activePage.$$eval(
+        ASANA_VISIBLE_VIEW_TAB_SELECTOR,
+        tabs => {
+          const index = tabs.findIndex(tabElement => tabElement.getAttribute('aria-selected') === 'true');
+
+          if (index < 0) {
+            return null;
+          }
+
+          const tabElement = tabs[index];
+
+          return {
+            index,
+            title: (
+              tabElement.querySelector('.ObjectTabNavigationBarItemWithMenu-bodyText')?.textContent?.trim()
+              || tabElement.getAttribute('aria-label')
+              || ''
+            ),
+            isSelected: true,
+          };
+        },
+      );
+
+      if (!tab) {
+        return {
+          success: false,
+          error: ['Selected view tab not found'],
+        };
+      }
+
+      tab.viewId = asanaViewIdFromUrl(activePage.url());
+
+      await activePage.$$eval(
+        ASANA_VISIBLE_VIEW_TAB_SELECTOR,
+        (tabs, index) => tabs[index]?.click(),
+        tab.index,
+      );
+    } else {
+      const tabResolveResponse = await asanaProjectViewTabResolve(activePage, viewIdentifier);
+
+      if (!tabResolveResponse.success) {
+        return tabResolveResponse;
+      }
+
+      tab = tabResolveResponse.tab;
+
+      await asanaProjectViewTabClick(activePage, tab.index);
     }
 
-    const { tab } = tabResolveResponse;
-
-    await asanaProjectViewTabClick(activePage, tab.index);
-
-    await activePage.waitForSelector('[role="menu"]', {
-      visible: true,
-    });
+    await activePage.waitForFunction(
+      () => [...document.querySelectorAll('[role="menuitem"]')].some(menuItem => (
+        menuItem.querySelector('.MenuItemThemeablePresentation-main')?.textContent?.trim() === 'Rename'
+        || menuItem.textContent?.trim() === 'Rename'
+      )),
+      { timeout: 10000 },
+    );
 
     const renameMenuItemClicked = await activePage.$$eval(
       '[role="menuitem"]',

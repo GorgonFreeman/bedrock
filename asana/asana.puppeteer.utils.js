@@ -59,6 +59,26 @@ const asanaProjectUrlFromViewUrl = url => {
   return match ? match[1] : null;
 };
 
+const asanaProjectViewTabSelectWait = async (page, tabIndex) => {
+  await page.$$eval(
+    ASANA_VISIBLE_VIEW_TAB_SELECTOR,
+    (tabElements, index) => tabElements[index].click(),
+    tabIndex,
+  );
+
+  await page.waitForFunction(
+    index => {
+      const tabs = [...document.querySelectorAll('[data-dd-action-name="project-view-tab"][aria-hidden="false"]')];
+      const tab = tabs[index];
+
+      return tab?.getAttribute('aria-selected') === 'true'
+        && /\/project\/\d+\/\w+\/\d+/.test(window.location.pathname);
+    },
+    { timeout: 30000 },
+    tabIndex,
+  );
+};
+
 const asanaProjectViewTabsGet = async page => {
   await page.waitForSelector(ASANA_VISIBLE_VIEW_TAB_SELECTOR);
 
@@ -72,16 +92,7 @@ const asanaProjectViewTabsGet = async page => {
   const tabs = [];
 
   for (let tabIndex = 0; tabIndex < tabCount; tabIndex++) {
-    await page.$$eval(
-      ASANA_VISIBLE_VIEW_TAB_SELECTOR,
-      (tabElements, index) => tabElements[index].click(),
-      tabIndex,
-    );
-
-    await page.waitForFunction(
-      () => /\/project\/\d+\/\w+\/\d+/.test(window.location.pathname),
-      { timeout: 30000 },
-    );
+    await asanaProjectViewTabSelectWait(page, tabIndex);
 
     const tabInfo = await page.$$eval(
       ASANA_VISIBLE_VIEW_TAB_SELECTOR,
@@ -118,6 +129,36 @@ const asanaProjectViewTabsGet = async page => {
   return tabs;
 };
 
+const asanaProjectViewSelectedTabGet = async page => {
+  await page.waitForFunction(
+    () => document.querySelector(`${ ASANA_VISIBLE_VIEW_TAB_SELECTOR }[aria-selected="true"]`),
+    { timeout: 30000 },
+  );
+
+  return page.$$eval(
+    ASANA_VISIBLE_VIEW_TAB_SELECTOR,
+    tabs => {
+      const index = tabs.findIndex(tab => tab.getAttribute('aria-selected') === 'true');
+
+      if (index < 0) {
+        return null;
+      }
+
+      const tab = tabs[index];
+
+      return {
+        index,
+        title: (
+          tab.querySelector('.ObjectTabNavigationBarItemWithMenu-bodyText')?.textContent?.trim()
+          || tab.getAttribute('aria-label')
+          || ''
+        ),
+        isSelected: true,
+      };
+    },
+  );
+};
+
 const asanaProjectViewTabResolve = async (page, viewIdentifier) => {
   await page.waitForSelector(ASANA_VISIBLE_VIEW_TAB_SELECTOR);
 
@@ -126,38 +167,22 @@ const asanaProjectViewTabResolve = async (page, viewIdentifier) => {
   const currentViewId = asanaViewIdFromUrl(page.url());
 
   if (isViewId && currentViewId === viewIdentifierString) {
-    const selectedTab = await page.$$eval(
-      ASANA_VISIBLE_VIEW_TAB_SELECTOR,
-      tabs => {
-        const index = tabs.findIndex(tab => tab.getAttribute('aria-selected') === 'true');
+    const selectedTab = await asanaProjectViewSelectedTabGet(page);
 
-        if (index < 0) {
-          return null;
-        }
-
-        const tab = tabs[index];
-
-        return {
-          index,
-          title: (
-            tab.querySelector('.ObjectTabNavigationBarItemWithMenu-bodyText')?.textContent?.trim()
-            || tab.getAttribute('aria-label')
-            || ''
-          ),
-          isSelected: true,
-        };
-      },
-    );
-
-    if (selectedTab) {
+    if (!selectedTab) {
       return {
-        success: true,
-        tab: {
-          ...selectedTab,
-          viewId: currentViewId,
-        },
+        success: false,
+        error: [`View tab for ID "${ viewIdentifierString }" is not selected`],
       };
     }
+
+    return {
+      success: true,
+      tab: {
+        ...selectedTab,
+        viewId: currentViewId,
+      },
+    };
   }
 
   const tabs = await asanaProjectViewTabsGet(page);
@@ -207,16 +232,7 @@ const asanaProjectViewTabResolve = async (page, viewIdentifier) => {
 };
 
 const asanaProjectViewTabClick = async (page, tabIndex) => {
-  await page.$$eval(
-    ASANA_VISIBLE_VIEW_TAB_SELECTOR,
-    (tabElements, index) => tabElements[index].click(),
-    tabIndex,
-  );
-
-  await page.waitForFunction(
-    () => /\/project\/\d+\/\w+\/\d+/.test(window.location.pathname),
-    { timeout: 30000 },
-  );
+  await asanaProjectViewTabSelectWait(page, tabIndex);
 };
 
 const asanaPuppeteerOpen = async (
@@ -257,6 +273,7 @@ module.exports = {
   asanaViewIdFromUrl,
   asanaProjectUrlFromViewUrl,
   asanaProjectViewTabsGet,
+  asanaProjectViewSelectedTabGet,
   asanaProjectViewTabResolve,
   asanaProjectViewTabClick,
   asanaPuppeteerLaunch,
