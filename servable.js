@@ -128,6 +128,7 @@ module.exports = {
   shopifyOrderCancel: lazy(() => require('./shopify/shopifyOrderCancel').shopifyOrderCancelApi),
   shopifyOrderClose: lazy(() => require('./shopify/shopifyOrderClose').shopifyOrderCloseApi),
   shopifyOrderFulfill: lazy(() => require('./shopify/shopifyOrderFulfill').shopifyOrderFulfillApi),
+  shopifyOrderFulfillmentOrdersCancel: lazy(() => require('./shopify/shopifyOrderFulfillmentOrdersCancel').shopifyOrderFulfillmentOrdersCancelApi),
   shopifyOrderFulfillmentRequestReview: lazy(() => require('./shopify/shopifyOrderFulfillmentRequestReview').shopifyOrderFulfillmentRequestReviewApi),
   shopifyOrderGet: lazy(() => require('./shopify/shopifyOrderGet').shopifyOrderGetApi),
   shopifyOrderReRequest: lazy(() => require('./shopify/shopifyOrderReRequest').shopifyOrderReRequestApi),
