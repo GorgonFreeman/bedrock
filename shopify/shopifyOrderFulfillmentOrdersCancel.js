@@ -1,44 +1,139 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/fulfillmentOrderCancel
 
-const { funcApi, logDeep } = require('../utils');
-const { shopifyMutationDo } = require('../shopify/shopify.utils');
+const { funcApi, gidToId, logDeep, askQuestion, actionMultipleOrSingle } = require('../utils');
+const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
+const { shopifyFuflillmentOrderCancel } = require('../shopify/shopifyFuflillmentOrderCancel');
 
-const defaultAttrs = `id title handle`;
+const FULFILLMENT_ORDERS_FETCHED = 50;
 
-const shopifyOrderFulfillmentOrdersCancel = async (
+const EXCLUDED_STATUSES = ['CANCELLED', 'CLOSED'];
+
+const defaultReturnAttrs = `fulfillmentOrder { status requestStatus } replacementFulfillmentOrder { status requestStatus }`;
+
+const fulfillmentOrdersAttrs = `
+  id
+  status
+  requestStatus
+`;
+
+const orderAttrs = `
+  id
+  fulfillmentOrders (first: ${ FULFILLMENT_ORDERS_FETCHED }) {
+    edges {
+      node {
+        ${ fulfillmentOrdersAttrs }
+      }
+    }
+  }
+`;
+
+const shopifyOrderFulfillmentOrdersCancelSingle = async (
   credsPath,
-  pageInput,
+  orderId,
   {
     apiVersion,
-    returnAttrs = defaultAttrs,
+    returnAttrs = defaultReturnAttrs,
   } = {},
 ) => {
 
-  const response = await shopifyMutationDo(
+  const orderResponse = await shopifyOrderGet(
     credsPath,
-    'pageCreate',
+    { orderId },
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
-      },
-    },
-    `page { ${ returnAttrs } }`,
-    { 
       apiVersion,
+      attrs: orderAttrs,
     },
   );
-  logDeep(response);
+
+  const { success: orderSuccess, result: order } = orderResponse;
+
+  if (!orderSuccess) {
+    return orderResponse;
+  }
+
+  const { fulfillmentOrders } = order;
+
+  if (fulfillmentOrders.length >= FULFILLMENT_ORDERS_FETCHED) {
+    return {
+      success: false,
+      errors: [`Order could have more than one page of fulfillment orders. Please check manually.`],
+    };
+  }
+
+  const fulfillmentOrdersToCancel = fulfillmentOrders.filter(
+    fo => !EXCLUDED_STATUSES.includes(fo.status),
+  );
+
+  if (!fulfillmentOrdersToCancel.length) {
+    return {
+      success: true,
+      result: [],
+      code: 204,
+    };
+  }
+
+  const fulfillmentOrderIds = fulfillmentOrdersToCancel.map(fo => gidToId(fo.id));
+
+  logDeep(`Cancelling fulfillment orders for ${ credsPath }:${ orderId }`, {
+    fulfillmentOrdersToCancel: fulfillmentOrdersToCancel.map(fo => ({
+      id: gidToId(fo.id),
+      status: fo.status,
+      requestStatus: fo.requestStatus,
+    })),
+  });
+  await askQuestion('?');
+
+  const cancelResponse = await shopifyFuflillmentOrderCancel(
+    credsPath,
+    fulfillmentOrderIds,
+    {
+      apiVersion,
+      returnAttrs,
+    },
+  );
+
+  return cancelResponse;
+};
+
+const shopifyOrderFulfillmentOrdersCancel = async (
+  credsPath,
+  orderId,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    orderId,
+    shopifyOrderFulfillmentOrdersCancelSingle,
+    (orderId) => ({
+      args: [credsPath, orderId],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
   return response;
 };
 
 const shopifyOrderFulfillmentOrdersCancelApi = funcApi(shopifyOrderFulfillmentOrdersCancel, {
-  argNames: ['credsPath', 'pageInput', 'options'],
+  argNames: ['credsPath', 'orderId', 'options'],
+  validatorsByArg: {
+    credsPath: Boolean,
+    orderId: (p) => {
+      if (Array.isArray(p)) {
+        return p.length > 0 && p.every(Boolean);
+      }
+      return Boolean(p);
+    },
+  },
 });
 
 module.exports = {
   shopifyOrderFulfillmentOrdersCancel,
+  shopifyOrderFulfillmentOrdersCancelSingle,
   shopifyOrderFulfillmentOrdersCancelApi,
 };
 
-// curl http://localhost:8000/shopifyOrderFulfillmentOrdersCancel -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyOrderFulfillmentOrdersCancel -H 'Content-Type: application/json' -d '{ "credsPath": "au", "orderId": "1234567890" }'
