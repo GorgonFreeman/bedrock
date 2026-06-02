@@ -1,11 +1,11 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/fulfillmentCancel
 
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, actionMultipleOrSingle } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id status`;
 
-const shopifyFulfillmentCancel = async (
+const shopifyFulfillmentCancelSingle = async (
   credsPath,
   fulfillmentId,
   {
@@ -28,7 +28,28 @@ const shopifyFulfillmentCancel = async (
       apiVersion,
     },
   );
-  logDeep(response);
+  return response;
+};
+
+const shopifyFulfillmentCancel = async (
+  credsPath,
+  fulfillmentId,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    fulfillmentId,
+    shopifyFulfillmentCancelSingle,
+    (fulfillmentId) => ({
+      args: [credsPath, fulfillmentId],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
   return response;
 };
 
@@ -36,12 +57,18 @@ const shopifyFulfillmentCancelApi = funcApi(shopifyFulfillmentCancel, {
   argNames: ['credsPath', 'fulfillmentId', 'options'],
   validatorsByArg: {
     credsPath: Boolean,
-    fulfillmentId: Boolean,
+    fulfillmentId: (p) => {
+      if (Array.isArray(p)) {
+        return p.length > 0 && p.every(Boolean);
+      }
+      return Boolean(p);
+    },
   },
 });
 
 module.exports = {
   shopifyFulfillmentCancel,
+  shopifyFulfillmentCancelSingle,
   shopifyFulfillmentCancelApi,
 };
 
