@@ -95,6 +95,7 @@ module.exports = {
   shopifyFileUpload: lazy(() => require('./shopify/shopifyFileUpload').shopifyFileUploadApi),
   shopifyFilesUploadFromFolder: lazy(() => require('./shopify/shopifyFilesUploadFromFolder').shopifyFilesUploadFromFolderApi),
   shopifyFuflillmentOrderCancel: lazy(() => require('./shopify/shopifyFuflillmentOrderCancel').shopifyFuflillmentOrderCancelApi),
+  shopifyFulfillmentCancel: lazy(() => require('./shopify/shopifyFulfillmentCancel').shopifyFulfillmentCancelApi),
   shopifyFulfillmentOrderFulfill: lazy(() => require('./shopify/shopifyFulfillmentOrderFulfill').shopifyFulfillmentOrderFulfillApi),
   shopifyFulfillmentOrderSubmitCancellationRequest: lazy(() => require('./shopify/shopifyFulfillmentOrderSubmitCancellationRequest').shopifyFulfillmentOrderSubmitCancellationRequestApi),
   shopifyFulfillmentOrderSubmitFulfillmentRequest: lazy(() => require('./shopify/shopifyFulfillmentOrderSubmitFulfillmentRequest').shopifyFulfillmentOrderSubmitFulfillmentRequestApi),
