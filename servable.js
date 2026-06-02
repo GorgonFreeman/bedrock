@@ -354,6 +354,7 @@ module.exports = {
   bedrock_unlisted_giveawayFormProcess: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_giveawayFormProcess').bedrock_unlisted_giveawayFormProcessApi),
   bedrock_unlisted_identifyIncorrectFulfillmentsByDuplicateTracking: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_identifyIncorrectFulfillmentsByDuplicateTracking').bedrock_unlisted_identifyIncorrectFulfillmentsByDuplicateTrackingApi),
   bedrock_unlisted_logiwaProductsWithoutDimensionsGet: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_logiwaProductsWithoutDimensionsGet').bedrock_unlisted_logiwaProductsWithoutDimensionsGetApi),
+  bedrock_unlisted_orderCancelTroubleshot: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_orderCancelTroubleshot').bedrock_unlisted_orderCancelTroubleshotApi),
   bedrock_unlisted_pangolinOrdersSweep: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_pangolinOrdersSweep').bedrock_unlisted_pangolinOrdersSweepApi),
   bedrock_unlisted_shopifyArchiveOldOrders: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_shopifyArchiveOldOrders').bedrock_unlisted_shopifyArchiveOldOrdersApi),
   bedrock_unlisted_shopifyBf25ApologyCodesDeduplicate: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_shopifyBf25ApologyCodesDeduplicate').bedrock_unlisted_shopifyBf25ApologyCodesDeduplicateApi),
