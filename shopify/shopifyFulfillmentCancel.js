@@ -1,13 +1,13 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/fulfillmentCancel
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `id status`;
 
 const shopifyFulfillmentCancel = async (
   credsPath,
-  pageInput,
+  fulfillmentId,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
@@ -16,14 +16,14 @@ const shopifyFulfillmentCancel = async (
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'fulfillmentCancel',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      id: {
+        type: 'ID!',
+        value: `gid://shopify/Fulfillment/${ fulfillmentId }`,
       },
     },
-    `page { ${ returnAttrs } }`,
+    `fulfillment { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -33,7 +33,11 @@ const shopifyFulfillmentCancel = async (
 };
 
 const shopifyFulfillmentCancelApi = funcApi(shopifyFulfillmentCancel, {
-  argNames: ['credsPath', 'pageInput', 'options'],
+  argNames: ['credsPath', 'fulfillmentId', 'options'],
+  validatorsByArg: {
+    credsPath: Boolean,
+    fulfillmentId: Boolean,
+  },
 });
 
 module.exports = {
@@ -41,4 +45,4 @@ module.exports = {
   shopifyFulfillmentCancelApi,
 };
 
-// curl http://localhost:8000/shopifyFulfillmentCancel -H 'Content-Type: application/json' -d '{ "credsPath": "au", "pageInput": { "title": "Batarang Blueprints", "body": "<strong>Good page!</strong>" }, "options": { "returnAttrs": "id" } }'
+// curl http://localhost:8000/shopifyFulfillmentCancel -H 'Content-Type: application/json' -d '{ "credsPath": "au", "fulfillmentId": "1234567890" }'
