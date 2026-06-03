@@ -104,6 +104,7 @@ module.exports = {
   shopifyGiftCardDeactivate: lazy(() => require('./shopify/shopifyGiftCardDeactivate').shopifyGiftCardDeactivateApi),
   shopifyGiftCardDisable: lazy(() => require('./shopify/shopifyGiftCardDisable').shopifyGiftCardDisableApi),
   shopifyGiftCardGet: lazy(() => require('./shopify/shopifyGiftCardGet').shopifyGiftCardGetApi),
+  shopifyGiftCardsCreateBatches: lazy(() => require('./shopify/shopifyGiftCardsCreateBatches').shopifyGiftCardsCreateBatchesApi),
   shopifyGiftCardsGet: lazy(() => require('./shopify/shopifyGiftCardsGet').shopifyGiftCardsGetApi),
   shopifyGraphqlSend: lazy(() => require('./shopify/shopifyGraphqlSend').shopifyGraphqlSendApi),
   shopifyInventoryItemUpdate: lazy(() => require('./shopify/shopifyInventoryItemUpdate').shopifyInventoryItemUpdateApi),
