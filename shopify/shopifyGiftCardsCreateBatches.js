@@ -66,3 +66,4 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyGiftCardsCreateBatches -H "Content-Type: application/json" -d '{ "credsPath": "au", "batchPayload": { "denominationDecimal": 0.05, "quantity": 1 } }'
+// curl localhost:8000/shopifyGiftCardsCreateBatches -H "Content-Type: application/json" -d '{ "credsPath": "au", "batchPayload": [{ "denominationDecimal": 0.05, "quantity": 1 }, { "denominationDecimal": 0.04, "quantity": 2 }] }'
