@@ -2020,6 +2020,14 @@ const objIsOnlyProp = (obj, prop) => {
   return keys.length === 1 && keys[0] === prop;
 };
 
+const countObjectsByValue = (objArr, prop) => {
+  return objArr.reduce((acc, obj) => {
+    const value = obj[prop];
+    acc[value] = (acc[value] || 0) + 1;
+    return acc;
+  }, {});
+};
+
 module.exports = {
 
   // Really core
@@ -2087,6 +2095,7 @@ module.exports = {
   camelToReadable,
   standardErrorIs,
   objIsOnlyProp,
+  countObjectsByValue,
   
   // Classes
   CustomAxiosClient,
