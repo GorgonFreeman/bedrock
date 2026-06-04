@@ -56,7 +56,7 @@ const shopifyGiftCardsCreateBatchesApi = funcApi(shopifyGiftCardsCreateBatches, 
   ],
   validatorsByArg: {
     credsPath: Boolean,
-    batchPayload: p => objHasAll(p, ['denominationDecimal', 'quantity']),
+    batchPayload: p => Array.isArray(p) ? p.every(item => objHasAll(item, ['denominationDecimal', 'quantity'])) : objHasAll(p, ['denominationDecimal', 'quantity']),
   },
 });
 
