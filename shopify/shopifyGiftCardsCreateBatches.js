@@ -38,12 +38,10 @@ const shopifyGiftCardsCreateBatches = async (
   batchPayload,
   options = {},
 ) => {
-  const { quantity } = batchPayload;
-
   return actionMultipleOrSingle(
-    Array.from({ length: quantity }),
+    batchPayload,
     shopifyGiftCardsCreateBatchesSingle,
-    () => ({
+    (batchPayload) => ({
       args: [credsPath, batchPayload],
       options,
     }),
