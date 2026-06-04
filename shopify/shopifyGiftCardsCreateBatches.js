@@ -5,49 +5,31 @@ const defaultAttrs = `id`;
 
 const shopifyGiftCardsCreateBatches = async (
   credsPath,
-  arg,
+  {
+    denominationCents,
+    quantity,
+    giftCardCreateOptions = {},
+  },
   {
     apiVersion,
-    option,
   } = {},
 ) => {
 
-  const query = `
-    query GetProduct($id: ID!) {
-      product(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
-
-  const variables = {
-    id: `gid://shopify/Product/${ arg }`,
+  return {
+    success: true,
   };
-
-  const response = await shopifyClient.fetch({
-    method: 'post',
-    body: { query, variables },
-    context: {
-      credsPath,
-      apiVersion,
-    },
-    interpreter: async (response) => {
-      // console.log(response);
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.product,
-        } : {},
-      };
-    },
-  });
-
-  logDeep(response);
-  return response;
 };
 
 const shopifyGiftCardsCreateBatchesApi = funcApi(shopifyGiftCardsCreateBatches, {
-  argNames: ['credsPath', 'arg', 'options'],
+  argNames: [
+    'credsPath', 
+    'giftCardPayload', 
+    'options', 
+  ],
+  validatorsByArg: {
+    credsPath: Boolean,
+    giftCardPayload: Boolean,
+  },
 });
 
 module.exports = {
@@ -55,4 +37,4 @@ module.exports = {
   shopifyGiftCardsCreateBatchesApi,
 };
 
-// curl localhost:8000/shopifyGiftCardsCreateBatches -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyGiftCardsCreateBatches -H "Content-Type: application/json" -d '{ "credsPath": "auth", "giftCardPayload": { "denominationCents": 1000, "quantity": 1 } }'
