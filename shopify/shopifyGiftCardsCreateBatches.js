@@ -1,7 +1,7 @@
-const { funcApi, actionMultipleOrSingle } = require('../utils');
-const { shopifyClient } = require('../shopify/shopify.utils');
+const { funcApi, actionMultipleOrSingle, objHasAll } = require('../utils');
+const { shopifyGiftCardCreate } = require('../shopify/shopifyGiftCardCreate');
 
-const defaultAttrs = `id`;
+const defaultAttrs = `initialValue { amount }`;
 
 const shopifyGiftCardsCreateBatchesSingle = async (
   credsPath,
@@ -15,23 +15,36 @@ const shopifyGiftCardsCreateBatchesSingle = async (
   } = {},
 ) => {
 
-  return {
-    success: true,
-  };
+  giftCardCreateOptions.returnAttrs = giftCardCreateOptions?.returnAttrs || defaultAttrs;
+
+  const createResponse = await shopifyGiftCardCreate(
+    credsPath, 
+    [...Array(quantity).fill(denominationDecimal)], 
+    {
+      ...giftCardCreateOptions,
+      apiVersion,
+    },
+  );
+
+  if (!createResponse.success) {
+    return createResponse;
+  }
+
+  return createResponse;
 };
 
 const shopifyGiftCardsCreateBatches = async (
   credsPath,
-  giftCardPayload,
+  batchPayload,
   options = {},
 ) => {
-  const { quantity } = giftCardPayload;
+  const { quantity } = batchPayload;
 
   return actionMultipleOrSingle(
     Array.from({ length: quantity }),
     shopifyGiftCardsCreateBatchesSingle,
     () => ({
-      args: [credsPath, giftCardPayload],
+      args: [credsPath, batchPayload],
       options,
     }),
   );
@@ -40,12 +53,12 @@ const shopifyGiftCardsCreateBatches = async (
 const shopifyGiftCardsCreateBatchesApi = funcApi(shopifyGiftCardsCreateBatches, {
   argNames: [
     'credsPath', 
-    'giftCardPayload', 
+    'batchPayload', 
     'options', 
   ],
   validatorsByArg: {
     credsPath: Boolean,
-    giftCardPayload: Boolean,
+    batchPayload: p => objHasAll(p, ['denominationDecimal', 'quantity']),
   },
 });
 
@@ -54,4 +67,4 @@ module.exports = {
   shopifyGiftCardsCreateBatchesApi,
 };
 
-// curl localhost:8000/shopifyGiftCardsCreateBatches -H "Content-Type: application/json" -d '{ "credsPath": "auth", "giftCardPayload": { "denominationDecimal": 1000, "quantity": 1 } }'
+// curl localhost:8000/shopifyGiftCardsCreateBatches -H "Content-Type: application/json" -d '{ "credsPath": "au", "batchPayload": { "denominationDecimal": 0.05, "quantity": 1 } }'
