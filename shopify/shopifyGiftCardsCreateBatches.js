@@ -6,7 +6,7 @@ const defaultAttrs = `id`;
 const shopifyGiftCardsCreateBatchesSingle = async (
   credsPath,
   {
-    denominationCents,
+    denominationDecimal,
     quantity,
     giftCardCreateOptions = {},
   },
@@ -54,4 +54,4 @@ module.exports = {
   shopifyGiftCardsCreateBatchesApi,
 };
 
-// curl localhost:8000/shopifyGiftCardsCreateBatches -H "Content-Type: application/json" -d '{ "credsPath": "auth", "giftCardPayload": { "denominationCents": 1000, "quantity": 1 } }'
+// curl localhost:8000/shopifyGiftCardsCreateBatches -H "Content-Type: application/json" -d '{ "credsPath": "auth", "giftCardPayload": { "denominationDecimal": 1000, "quantity": 1 } }'
