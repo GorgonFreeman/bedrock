@@ -2020,9 +2020,30 @@ const objIsOnlyProp = (obj, prop) => {
   return keys.length === 1 && keys[0] === prop;
 };
 
-const countObjectsByValue = (objArr, prop) => {
+const propPathToNodes = (propPath) => {
+  let nodes = Array.isArray(propPath)
+    ? propPath.map(node => {
+      try {
+        return node.split('.');
+      } catch (err) {
+        return null;
+      }
+    })
+    : propPath.split('.');
+  return nodes.flat().filter(n => n);
+};
+
+const valueAtPropPath = (obj, propPath) => {
+  let value = obj;
+  for (const node of propPathToNodes(propPath)) {
+    value = value?.[node];
+  }
+  return value;
+};
+
+const countObjectsByValue = (objArr, propPath) => {
   return objArr.reduce((acc, obj) => {
-    const value = obj[prop];
+    const value = valueAtPropPath(obj, propPath);
     acc[value] = (acc[value] || 0) + 1;
     return acc;
   }, {});
