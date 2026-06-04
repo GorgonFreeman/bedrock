@@ -1,9 +1,9 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/things
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/fulfillmentOrders
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyGet, shopifyGetter } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
+const defaultAttrs = `id status requestStatus orderName`;
 
 const payloadMaker = (
   credsPath,
@@ -14,7 +14,7 @@ const payloadMaker = (
 ) => {
   return [
     credsPath, 
-    'thing',
+    'fulfillmentOrder',
     { 
       attrs, 
       ...options,
