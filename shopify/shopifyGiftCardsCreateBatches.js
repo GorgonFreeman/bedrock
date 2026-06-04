@@ -1,9 +1,9 @@
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, actionMultipleOrSingle } = require('../utils');
 const { shopifyClient } = require('../shopify/shopify.utils');
 
 const defaultAttrs = `id`;
 
-const shopifyGiftCardsCreateBatches = async (
+const shopifyGiftCardsCreateBatchesSingle = async (
   credsPath,
   {
     denominationCents,
@@ -18,6 +18,23 @@ const shopifyGiftCardsCreateBatches = async (
   return {
     success: true,
   };
+};
+
+const shopifyGiftCardsCreateBatches = async (
+  credsPath,
+  giftCardPayload,
+  options = {},
+) => {
+  const { quantity } = giftCardPayload;
+
+  return actionMultipleOrSingle(
+    Array.from({ length: quantity }),
+    shopifyGiftCardsCreateBatchesSingle,
+    () => ({
+      args: [credsPath, giftCardPayload],
+      options,
+    }),
+  );
 };
 
 const shopifyGiftCardsCreateBatchesApi = funcApi(shopifyGiftCardsCreateBatches, {
