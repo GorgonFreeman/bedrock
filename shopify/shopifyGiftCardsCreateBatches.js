@@ -1,4 +1,4 @@
-const { funcApi, actionMultipleOrSingle, objHasAll } = require('../utils');
+const { funcApi, actionMultipleOrSingle, objHasAll, countObjectsByValue } = require('../utils');
 const { shopifyGiftCardCreate } = require('../shopify/shopifyGiftCardCreate');
 
 const defaultAttrs = `initialValue { amount }`;
@@ -38,7 +38,7 @@ const shopifyGiftCardsCreateBatches = async (
   batchPayload,
   options = {},
 ) => {
-  return actionMultipleOrSingle(
+  const response = await actionMultipleOrSingle(
     batchPayload,
     shopifyGiftCardsCreateBatchesSingle,
     (batchPayload) => ({
@@ -46,6 +46,20 @@ const shopifyGiftCardsCreateBatches = async (
       options,
     }),
   );
+
+  if (!response.result) {
+    return response;
+  }
+
+  const metadata = {
+    // How many gift cards were created of each denomination
+    createdCounts: countObjectsByValue(response.result.flat(), 'giftCard.initialValue.amount'),
+  };
+
+  return {
+    ...response,
+    metadata,
+  };
 };
 
 const shopifyGiftCardsCreateBatchesApi = funcApi(shopifyGiftCardsCreateBatches, {
