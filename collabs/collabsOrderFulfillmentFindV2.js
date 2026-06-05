@@ -74,6 +74,15 @@ const collabsOrderFulfillmentFindV2 = async (
     shopifyOrder = shopifyOrderResult;
   }
 
+  const { 
+    id: shopifyOrderGid,
+    name: shopifyOrderName,
+    displayFulfillmentStatus,
+    fulfillments,
+    lineItems,
+  } = shopifyOrder;
+  const shopifyOrderId = gidToId(shopifyOrderGid);
+
   return { 
     success: true,
     result: shopifyOrder,
