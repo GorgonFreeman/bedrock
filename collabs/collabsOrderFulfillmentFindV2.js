@@ -43,7 +43,7 @@ const collabsOrderFulfillmentFindV2 = async (
 ) => {
 
   if (![
-    REGIONS_LOGIWA,
+    REGIONS_BLECKMANN,
   ].some(regionList => regionList.includes(store))) {
     return { 
       success: false, 
