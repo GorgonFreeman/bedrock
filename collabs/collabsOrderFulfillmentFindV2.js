@@ -1,9 +1,14 @@
 const { funcApi } = require('../utils');
 
 const collabsOrderFulfillmentFindV2 = async (
-  arg,
+  store,
   {
-    option,
+    orderIdentifier,
+    orderData,
+  },
+  {
+    interactive = false,
+    autofulfill = false,
   } = {},
 ) => {
 
@@ -15,7 +20,11 @@ const collabsOrderFulfillmentFindV2 = async (
 };
 
 const collabsOrderFulfillmentFindV2Api = funcApi(collabsOrderFulfillmentFindV2, {
-  argNames: ['arg', 'options'],
+  argNames: ['store', 'shopifyOrderPayload', 'options'],
+  validatorsByArg: {
+    store: Boolean,
+    shopifyOrderPayload: Boolean,
+  },
 });
 
 module.exports = {
@@ -23,4 +32,4 @@ module.exports = {
   collabsOrderFulfillmentFindV2Api,
 };
 
-// curl localhost:8000/collabsOrderFulfillmentFindV2 -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/collabsOrderFulfillmentFindV2 -H "Content-Type: application/json" -d '{ "store": "uk", "shopifyOrderPayload": { "orderId": "12345678" } }'
