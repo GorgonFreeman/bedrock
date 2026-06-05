@@ -5,7 +5,7 @@ const {
   REGIONS_PVX,
 } = require('../constants');
 
-const { funcApi, customNullish } = require('../utils');
+const { funcApi, customNullish, gidToId } = require('../utils');
 
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 
@@ -96,6 +96,18 @@ const collabsOrderFulfillmentFindV2 = async (
     };
   }
 
+  let fulfillmentData;
+
+  if (!fulfillmentData) {
+    return {
+      success: true,
+      code: 204,
+      result: {
+        message: 'Order is not fulfilled',
+      },
+    }
+  }
+
   return { 
     success: true,
     result: shopifyOrder,
@@ -116,4 +128,4 @@ module.exports = {
   collabsOrderFulfillmentFindV2Api,
 };
 
-// curl localhost:8000/collabsOrderFulfillmentFindV2 -H "Content-Type: application/json" -d '{ "store": "uk", "shopifyOrderPayload": { "orderId": "12345678" } }'
+// curl localhost:8000/collabsOrderFulfillmentFindV2 -H "Content-Type: application/json" -d '{ "store": "uk", "shopifyOrderPayload": { "orderIdentifier": { "orderId": "9671147290997" } } }'
