@@ -29,6 +29,14 @@ const SHOPIFY_ORDER_ATTRS = `
       }
     }
   }
+  fulfillmentOrders(first: 250) {
+    edges {
+      node {
+        id
+        requestStatus
+      }
+    }
+  }
 `;
 
 const collabsOrderFulfillmentFindV2 = async (
@@ -75,6 +83,8 @@ const collabsOrderFulfillmentFindV2 = async (
     shopifyOrder = shopifyOrderResult;
   }
 
+  logDeep(shopifyOrder);
+
   const { 
     id: shopifyOrderGid,
     name: shopifyOrderName,
@@ -83,14 +93,6 @@ const collabsOrderFulfillmentFindV2 = async (
     lineItems,
   } = shopifyOrder;
   const shopifyOrderId = gidToId(shopifyOrderGid);
-
-  logDeep({
-    shopifyOrderId,
-    shopifyOrderName,
-    displayFulfillmentStatus,
-    fulfillments,
-    lineItems,
-  });
 
   if ([
     shopifyOrderId,
