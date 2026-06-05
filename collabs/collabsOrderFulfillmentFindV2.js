@@ -5,9 +5,10 @@ const {
   REGIONS_PVX,
 } = require('../constants');
 
-const { funcApi, customNullish, gidToId } = require('../utils');
+const { funcApi, customNullish, gidToId, logDeep } = require('../utils');
 
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
+const { bleckmannParcelsGet } = require('../bleckmann/bleckmannParcelsGet');
 
 const SHOPIFY_ORDER_ATTRS = `
   id
@@ -83,12 +84,20 @@ const collabsOrderFulfillmentFindV2 = async (
   } = shopifyOrder;
   const shopifyOrderId = gidToId(shopifyOrderGid);
 
+  logDeep({
+    shopifyOrderId,
+    shopifyOrderName,
+    displayFulfillmentStatus,
+    fulfillments,
+    lineItems,
+  });
+
   if ([
     shopifyOrderId,
     shopifyOrderName,
     displayFulfillmentStatus,
-    // fulfillments,
-    // lineItems,
+    fulfillments,
+    lineItems,
   ].some(i => customNullish(i))) {
     return {
       success: false, 
@@ -97,6 +106,30 @@ const collabsOrderFulfillmentFindV2 = async (
   }
 
   let fulfillmentData;
+
+  if (REGIONS_BLECKMANN.includes(store)) {
+
+    logDeep(fulfillments);
+
+    for (const fulfillmentOrder of fulfillments) {
+      const { trackingInfo } = fulfillmentOrder;
+      if (!trackingInfo?.length) {
+        continue;
+      }
+      for (const trackingInfoItem of trackingInfo) {
+        const { number } = trackingInfoItem;
+        if (!number) {
+          continue;
+        }
+        fulfillmentData = number;
+      }
+    }
+
+  } else if (REGIONS_LOGIWA.includes(store)) {
+
+  } else if (REGIONS_PVX.includes(store)) {
+
+  }
 
   if (!fulfillmentData) {
     return {
