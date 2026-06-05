@@ -5,7 +5,7 @@ const {
   REGIONS_PVX,
 } = require('../constants');
 
-const { funcApi, customNullish, gidToId, logDeep } = require('../utils');
+const { funcApi, customNullish, gidToId, logDeep, askQuestion } = require('../utils');
 
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { bleckmannParcelsGet } = require('../bleckmann/bleckmannParcelsGet');
@@ -34,6 +34,7 @@ const SHOPIFY_ORDER_ATTRS = `
       node {
         id
         requestStatus
+        status
       }
     }
   }
@@ -91,6 +92,7 @@ const collabsOrderFulfillmentFindV2 = async (
     displayFulfillmentStatus,
     fulfillments,
     lineItems,
+    fulfillmentOrders,
   } = shopifyOrder;
   const shopifyOrderId = gidToId(shopifyOrderGid);
 
@@ -98,8 +100,6 @@ const collabsOrderFulfillmentFindV2 = async (
     shopifyOrderId,
     shopifyOrderName,
     displayFulfillmentStatus,
-    fulfillments,
-    lineItems,
   ].some(i => customNullish(i))) {
     return {
       success: false, 
@@ -109,22 +109,53 @@ const collabsOrderFulfillmentFindV2 = async (
 
   let fulfillmentData;
 
+  const FULFILLMENT_ORDER_CLOSED_STATUSES = [
+    'CANCELLED',
+    'CLOSED',
+  ];
+
   if (REGIONS_BLECKMANN.includes(store)) {
 
-    logDeep(fulfillments);
+    if (!fulfillmentOrders?.length) {
+      return {
+        success: false, 
+        error: ['Order data incomplete'],
+      };
+    }
 
-    for (const fulfillmentOrder of fulfillments) {
-      const { trackingInfo } = fulfillmentOrder;
-      if (!trackingInfo?.length) {
-        continue;
+    logDeep(fulfillmentOrders);
+  
+    const openFulfillmentOrders = fulfillmentOrders.filter(fulfillmentOrder => !FULFILLMENT_ORDER_CLOSED_STATUSES.includes(fulfillmentOrder.status));
+
+    if (!openFulfillmentOrders?.length) {
+      return {
+        success: false,
+        error: ['Order has no open fulfillment orders'],
+      };
+    }
+
+    for (const fulfillmentOrder of openFulfillmentOrders) {
+
+      logDeep(fulfillmentOrder);
+
+      const { id: fulfillmentOrderGid } = fulfillmentOrder;
+      const fulfillmentOrderId = gidToId(fulfillmentOrderGid);
+      
+      const bleckmannParcelsResponse = await bleckmannParcelsGet({ pickticketId: fulfillmentOrderId }, { includeDetails: true });
+      const { success: bleckmannParcelsSuccess, result: bleckmannParcels } = bleckmannParcelsResponse;
+      if (!bleckmannParcelsSuccess) {
+        return bleckmannParcelsResponse;
       }
-      for (const trackingInfoItem of trackingInfo) {
-        const { number } = trackingInfoItem;
-        if (!number) {
-          continue;
-        }
-        fulfillmentData = number;
+
+      if (!bleckmannParcels?.length) {
+        return {
+          success: false,
+          error: ['Order has no parcels'],
+        };
       }
+
+      logDeep(bleckmannParcels);
+      await askQuestion('?');
     }
 
   } else if (REGIONS_LOGIWA.includes(store)) {
