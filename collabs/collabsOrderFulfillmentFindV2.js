@@ -29,8 +29,7 @@ const collabsOrderFulfillmentFindV2 = async (
   }
 
   return { 
-    arg, 
-    option,
+    success: true,
   };
   
 };
