@@ -5,7 +5,7 @@ const {
   REGIONS_PVX,
 } = require('../constants');
 
-const { funcApi } = require('../utils');
+const { funcApi, customNullish } = require('../utils');
 
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 
@@ -82,6 +82,19 @@ const collabsOrderFulfillmentFindV2 = async (
     lineItems,
   } = shopifyOrder;
   const shopifyOrderId = gidToId(shopifyOrderGid);
+
+  if ([
+    shopifyOrderId,
+    shopifyOrderName,
+    displayFulfillmentStatus,
+    // fulfillments,
+    // lineItems,
+  ].some(i => customNullish(i))) {
+    return {
+      success: false, 
+      error: ['Order data incomplete'],
+    };
+  }
 
   return { 
     success: true,
