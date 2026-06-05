@@ -1,3 +1,10 @@
+const {
+  HOSTED,
+  REGIONS_LOGIWA,
+  REGIONS_BLECKMANN,
+  REGIONS_PVX,
+} = require('../constants');
+
 const { funcApi } = require('../utils');
 
 const collabsOrderFulfillmentFindV2 = async (
@@ -11,6 +18,15 @@ const collabsOrderFulfillmentFindV2 = async (
     autofulfill = false,
   } = {},
 ) => {
+
+  if (![
+    REGIONS_LOGIWA,
+  ].some(regionList => regionList.includes(store))) {
+    return { 
+      success: false, 
+      error: [`No platforms supported for store ${ store }`],
+    };
+  }
 
   return { 
     arg, 
