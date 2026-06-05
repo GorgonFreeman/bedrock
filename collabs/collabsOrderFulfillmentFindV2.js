@@ -7,6 +7,29 @@ const {
 
 const { funcApi } = require('../utils');
 
+const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
+
+const SHOPIFY_ORDER_ATTRS = `
+  id
+  name
+  displayFulfillmentStatus
+  fulfillments(first: 250) {
+    trackingInfo(first: 250) {
+      number
+    }
+    status
+  }
+  lineItems(first: 250) {
+    edges {
+      node {
+        id
+        sku
+        unfulfilledQuantity
+      }
+    }
+  }
+`;
+
 const collabsOrderFulfillmentFindV2 = async (
   store,
   {
@@ -28,8 +51,32 @@ const collabsOrderFulfillmentFindV2 = async (
     };
   }
 
+  let shopifyOrder;
+
+  if (orderData) {
+    shopifyOrder = orderData;
+  }
+
+  if (!shopifyOrder) {
+    const shopifyOrderResponse = await shopifyOrderGet(
+      store, 
+      orderIdentifier,
+      {
+        attrs: SHOPIFY_ORDER_ATTRS,
+      },
+    );
+
+    const { success: shopifyOrderSuccess, result: shopifyOrderResult } = shopifyOrderResponse;
+    if (!shopifyOrderSuccess) {
+      return shopifyOrderResponse;
+    }
+
+    shopifyOrder = shopifyOrderResult;
+  }
+
   return { 
     success: true,
+    result: shopifyOrder,
   };
   
 };
