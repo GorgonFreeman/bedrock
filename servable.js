@@ -134,6 +134,7 @@ module.exports = {
   shopifyOrderFulfillmentRequestReview: lazy(() => require('./shopify/shopifyOrderFulfillmentRequestReview').shopifyOrderFulfillmentRequestReviewApi),
   shopifyOrderGet: lazy(() => require('./shopify/shopifyOrderGet').shopifyOrderGetApi),
   shopifyOrderReRequest: lazy(() => require('./shopify/shopifyOrderReRequest').shopifyOrderReRequestApi),
+  shopifyOrderUnfulfilledItemsRemove: lazy(() => require('./shopify/shopifyOrderUnfulfilledItemsRemove').shopifyOrderUnfulfilledItemsRemoveApi),
   shopifyOrdersGet: lazy(() => require('./shopify/shopifyOrdersGet').shopifyOrdersGetApi),
   shopifyPageCreate: lazy(() => require('./shopify/shopifyPageCreate').shopifyPageCreateApi),
   shopifyPageDelete: lazy(() => require('./shopify/shopifyPageDelete').shopifyPageDeleteApi),
