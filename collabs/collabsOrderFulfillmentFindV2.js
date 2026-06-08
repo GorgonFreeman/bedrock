@@ -133,7 +133,7 @@ const collabsOrderFulfillmentFindV2 = async (
         error: ['Order has no open fulfillment orders'],
       };
     }
-
+    
     for (const fulfillmentOrder of openFulfillmentOrders) {
 
       logDeep(fulfillmentOrder);
@@ -147,15 +147,12 @@ const collabsOrderFulfillmentFindV2 = async (
         return bleckmannParcelsResponse;
       }
 
-      if (!bleckmannParcels?.length) {
-        return {
-          success: false,
-          error: ['Order has no parcels'],
-        };
-      }
-
       logDeep(bleckmannParcels);
       await askQuestion('?');
+
+      if (!bleckmannParcels?.length) {
+        continue;
+      }
     }
 
   } else if (REGIONS_LOGIWA.includes(store)) {
