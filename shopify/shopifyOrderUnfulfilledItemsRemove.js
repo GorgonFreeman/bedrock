@@ -1,6 +1,6 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/ordereditsetquantity
 
-const { funcApi, actionMultipleOrSingle } = require('../utils');
+const { funcApi, actionMultipleOrSingle, gidToId } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 
@@ -55,7 +55,8 @@ const shopifyOrderUnfulfilledItemsRemoveSingle = async (
     return orderResponse;
   }
 
-  const { lineItems } = order;
+  const { id: orderGid, lineItems } = order;
+  const orderId = gidToId(orderGid);
 
   if (lineItems.length >= LINE_ITEMS_FETCH_LIMIT) {
     return {
@@ -221,4 +222,4 @@ module.exports = {
   shopifyOrderUnfulfilledItemsRemoveApi,
 };
 
-// curl localhost:8000/shopifyOrderUnfulfilledItemsRemove -H "Content-Type: application/json" -d '{ "credsPath": "au", "arg": "6979774283848" }'
+// curl localhost:8000/shopifyOrderUnfulfilledItemsRemove -H "Content-Type: application/json" -d '{ "credsPath": "uk", "orderIdentifier": { "orderName": "UK1319504" } }'
