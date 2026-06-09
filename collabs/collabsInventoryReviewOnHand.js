@@ -94,6 +94,7 @@ const collabsInventoryReviewOnHand = async (
       inventoryLevels,
     } = inventoryItem;
     const inventoryItemId = gidToId(inventoryItemGid);
+    // TODO: Handle unactivated inventory - this will show as a missing inventory level at that location. Default to 0 and support activation.
     const inventoryLevel = inventoryLevels.find(level => level.location.id === `gid://shopify/Location/${ locationId }`);
     const quantity = inventoryLevel.quantities.find(quantity => quantity.name === 'on_hand').quantity;
     inventoryReviewObj[sku] = {
@@ -111,7 +112,8 @@ const collabsInventoryReviewOnHand = async (
         error: [`No PVX site found for ${ store }`],
       };
     }
-
+    
+    // TODO: Consider fetching only >0 On Hand inventory and setting 0 for the rest
     const pvxInventoryResponse = await peoplevoxReportGet(
       'Item inventory summary', 
       {
