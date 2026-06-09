@@ -1,10 +1,16 @@
-const { HOSTED } = require('../constants');
-const { funcApi, gidToId, logDeep } = require('../utils');
+const { 
+  HOSTED,
+  REGIONS_PVX, 
+} = require('../constants');
+const { funcApi, gidToId, logDeep, arrayToObj } = require('../utils');
 
 const { bedrock_unlisted_slackErrorPost } = require('../bedrock_unlisted/bedrock_unlisted_slackErrorPost');
 
 const { shopifyLocationGetMain } = require('../shopify/shopifyLocationGetMain');
 const { shopifyInventoryItemsGet } = require('../shopify/shopifyInventoryItemsGet');
+
+const { shopifyRegionToPvxSite } = require('../mappings');
+const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
 const collabsInventoryReviewOnHand = async (
   store,
@@ -12,6 +18,13 @@ const collabsInventoryReviewOnHand = async (
     locationId,
   } = {},
 ) => {
+
+  if (!REGIONS_PVX.includes(store)) {
+    return {
+      success: false,
+      errors: [`${ store } not supported`],
+    };
+  }
 
   if (!locationId) {
     console.log(`${ store }: Using main location`);
@@ -61,6 +74,7 @@ const collabsInventoryReviewOnHand = async (
         } 
       }
     `,
+    limit: 100,
   });
 
   const {
@@ -72,6 +86,7 @@ const collabsInventoryReviewOnHand = async (
   }
 
   const inventoryReviewObj = {};
+  let wmsInventoryObj;
 
   for (const inventoryItem of inventoryItems) {
     const { 
@@ -86,6 +101,40 @@ const collabsInventoryReviewOnHand = async (
       shopifyOnHand: quantity,
       shopifyInventoryItemId: inventoryItemId,
     };
+  }
+
+  if (REGIONS_PVX.includes(store)) {
+    const pvxSite = shopifyRegionToPvxSite(store);
+
+    if (!pvxSite) {
+      return {
+        success: false,
+        error: [`No PVX site found for ${ store }`],
+      };
+    }
+
+    const pvxInventoryResponse = await peoplevoxReportGet(
+      'Item inventory summary', 
+      {
+        searchClause: `([Site reference].Equals("${ pvxSite }"))`, 
+        columns: ['Item code', 'On hand'], 
+      },
+    );
+
+    const {
+      success: pvxReportSuccess,
+      result: pvxInventory,
+    } = pvxInventoryResponse;
+    if (!pvxReportSuccess) {
+      return pvxInventoryResponse;
+    }
+
+    wmsInventoryObj = arrayToObj(pvxInventory, { keyProp: 'Item code', keepOnlyValueProp: 'On hand' });
+  }
+
+  for (const [sku, wmsOnHandQuantity] of Object.entries(wmsInventoryObj)) {
+    inventoryReviewObj[sku] = inventoryReviewObj[sku] || {};
+    inventoryReviewObj[sku].wmsOnHand = wmsOnHandQuantity;
   }
 
   !HOSTED && logDeep('inventoryReviewObj', inventoryReviewObj);
