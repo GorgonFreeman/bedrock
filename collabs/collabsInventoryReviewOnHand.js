@@ -97,8 +97,10 @@ const collabsInventoryReviewOnHand = async (
   !HOSTED && logDeep('inventoryReviewObj', inventoryReviewObj);
   
   return { 
-    store, 
-    locationId,
+    success: true,
+    result: {
+      inventoryReviewObj,
+    },
   };
   
 };
