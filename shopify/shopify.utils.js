@@ -147,6 +147,8 @@ const shopifyGetter = async (
     includeLegacy,
     // https://shopify.dev/docs/api/admin-graphql/latest/queries/metaobjects
     type,
+    // https://shopify.dev/docs/api/admin-graphql/latest/queries/inventoryItems
+    sku,
     
     // Helpers
     resources, // for when plural of the resource isn't `${ resource }s`
@@ -181,6 +183,7 @@ const shopifyGetter = async (
     ...includeClosed ? ['$includeClosed: Boolean,'] : [],
     ...includeLegacy ? ['$includeLegacy: Boolean,'] : [],
     ...type ? [`$type: ${ argumentTypeOverrides['type'] || 'String!' },`] : [],
+    ...sku ? [`$sku: String,`] : [],
   ].join('\n');
 
   const queryVariableDeclaration = [
@@ -201,6 +204,7 @@ const shopifyGetter = async (
     ...includeClosed ? ['includeClosed: $includeClosed'] : [],
     ...includeLegacy ? ['includeLegacy: $includeLegacy'] : [],
     ...type ? ['type: $type'] : [],
+    ...sku ? ['sku: $sku'] : [],
   ].join('\n');
 
   const query = `
@@ -241,6 +245,7 @@ const shopifyGetter = async (
     ...includeClosed && { includeClosed },
     ...includeLegacy && { includeLegacy },
     ...type && { type },
+    ...sku && { sku },
   };
 
   const getter = new Getter({

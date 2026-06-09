@@ -42,6 +42,7 @@ const payloadMaker = (
 
 const shopifyInventoryItemsGet = async (...args) => {
   const response = await shopifyGet(...payloadMaker(...args));
+  logDeep(response);
   return response;
 };
 
@@ -64,3 +65,4 @@ module.exports = {
 };
 
 // curl localhost:8000/shopifyInventoryItemsGet -H "Content-Type: application/json" -d '{ "credsPath": "au", "options": { "limit": 2 } }'
+// curl localhost:8000/shopifyInventoryItemsGet -H "Content-Type: application/json" -d "{ \"credsPath\": \"au\", \"options\": { \"queries\": [\"(sku:'2HRDARK-One Size') OR (sku:'BMedium-One Size')\"] } }"
