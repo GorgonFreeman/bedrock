@@ -1,21 +1,26 @@
 const { funcApi } = require('../utils');
 
 const collabsInventoryReviewOnHand = async (
-  arg,
+  store,
   {
     option,
   } = {},
 ) => {
 
   return { 
-    arg, 
+    store, 
     option,
   };
   
 };
 
 const collabsInventoryReviewOnHandApi = funcApi(collabsInventoryReviewOnHand, {
-  argNames: ['arg', 'options'],
+  argNames: ['store', 'options'],
+  validatorsByArg: {
+    store: Boolean,
+  },
+  requireHostedApiKey: true,
+  errorReporter: bedrock_unlisted_slackErrorPost,
 });
 
 module.exports = {
@@ -23,4 +28,4 @@ module.exports = {
   collabsInventoryReviewOnHandApi,
 };
 
-// curl localhost:8000/collabsInventoryReviewOnHand -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/collabsInventoryReviewOnHand -H "Content-Type: application/json" -d '{ "store": "au" }'
