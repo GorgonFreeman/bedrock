@@ -319,6 +319,7 @@ module.exports = {
   collabsGiftCardToStoreCredit: lazy(() => require('./collabs/collabsGiftCardToStoreCredit').collabsGiftCardToStoreCreditApi),
   collabsGiftCardToStoreCreditUk: lazy(() => require('./collabs/collabsGiftCardToStoreCreditUk').collabsGiftCardToStoreCreditUkApi),
   collabsInventoryReview: lazy(() => require('./collabs/collabsInventoryReview').collabsInventoryReviewApi),
+  collabsInventoryReviewOnHand: lazy(() => require('./collabs/collabsInventoryReviewOnHand').collabsInventoryReviewOnHandApi),
   collabsInventorySync: lazy(() => require('./collabs/collabsInventorySync').collabsInventorySyncApi),
   collabsOrderFulfillmentFind: lazy(() => require('./collabs/collabsOrderFulfillmentFind').collabsOrderFulfillmentFindApi),
   collabsOrderFulfillmentFindV2: lazy(() => require('./collabs/collabsOrderFulfillmentFindV2').collabsOrderFulfillmentFindV2Api),
