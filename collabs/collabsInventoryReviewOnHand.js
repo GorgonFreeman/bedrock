@@ -1,15 +1,49 @@
-const { funcApi } = require('../utils');
+const { funcApi, gidToId } = require('../utils');
+
+const { shopifyLocationGetMain } = require('../shopify/shopifyLocationGetMain');
 
 const collabsInventoryReviewOnHand = async (
   store,
   {
-    option,
+    locationId,
   } = {},
 ) => {
 
+  const mainLocationResponse = await shopifyLocationGetMain(store);
+  const { success: mainLocationSuccess, result: mainLocation } = mainLocationResponse;
+  if (!mainLocationSuccess) {
+    return mainLocationResponse;
+  }
+
+  if (!locationId) {
+    console.log(`${ store }: Using main location`);
+
+    const locationResponse = await shopifyLocationGetMain(store);
+
+    const { 
+      success: locationSuccess, 
+      result: location, 
+    } = locationResponse;
+    if (!locationSuccess) {
+      return locationResponse;
+    }
+
+    if (!location) {
+      return {
+        success: false,
+        errors: ['No location found'],
+      };
+    }
+
+    const { id: locationGid } = location;
+    locationId = gidToId(locationGid);
+  }
+
+  !HOSTED && logDeep('locationId', locationId);
+
   return { 
     store, 
-    option,
+    locationId,
   };
   
 };
