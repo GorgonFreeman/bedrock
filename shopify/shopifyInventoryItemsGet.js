@@ -1,9 +1,27 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/queries/things
+// https://shopify.dev/docs/api/admin-graphql/latest/queries/inventoryItems
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyGet, shopifyGetter } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id`;
+const defaultAttrs = `
+  sku
+  inventoryLevels(first: 50) {
+    edges {
+      node {
+        location {
+          id
+          name
+        }
+        quantities(names: [
+          "available",
+          "on_hand",
+        ]) {
+          name
+          quantity
+        } 
+      } 
+    } 
+  }`;
 
 const payloadMaker = (
   credsPath,
@@ -14,7 +32,7 @@ const payloadMaker = (
 ) => {
   return [
     credsPath, 
-    'thing',
+    'inventoryItem',
     { 
       attrs, 
       ...options,
