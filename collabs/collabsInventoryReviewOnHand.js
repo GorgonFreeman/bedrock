@@ -13,12 +13,6 @@ const collabsInventoryReviewOnHand = async (
   } = {},
 ) => {
 
-  const mainLocationResponse = await shopifyLocationGetMain(store);
-  const { success: mainLocationSuccess, result: mainLocation } = mainLocationResponse;
-  if (!mainLocationSuccess) {
-    return mainLocationResponse;
-  }
-
   if (!locationId) {
     console.log(`${ store }: Using main location`);
 
