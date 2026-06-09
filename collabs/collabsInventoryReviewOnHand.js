@@ -69,12 +69,11 @@ const collabsInventoryReviewOnHand = async (
             ]) {
               name
               quantity
-            } 
-          } 
-        } 
+            }
+          }
+        }
       }
     `,
-    limit: 100,
   });
 
   const {
