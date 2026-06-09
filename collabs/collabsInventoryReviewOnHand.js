@@ -134,7 +134,7 @@ const collabsInventoryReviewOnHand = async (
 
   for (const [sku, wmsOnHandQuantity] of Object.entries(wmsInventoryObj)) {
     inventoryReviewObj[sku] = inventoryReviewObj[sku] || {};
-    inventoryReviewObj[sku].wmsOnHand = wmsOnHandQuantity;
+    inventoryReviewObj[sku].wmsOnHand = parseInt(wmsOnHandQuantity);
   }
 
   !HOSTED && logDeep('inventoryReviewObj', inventoryReviewObj);
