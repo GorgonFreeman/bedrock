@@ -109,6 +109,7 @@ module.exports = {
   shopifyGiftCardsGet: lazy(() => require('./shopify/shopifyGiftCardsGet').shopifyGiftCardsGetApi),
   shopifyGraphqlSend: lazy(() => require('./shopify/shopifyGraphqlSend').shopifyGraphqlSendApi),
   shopifyInventoryItemUpdate: lazy(() => require('./shopify/shopifyInventoryItemUpdate').shopifyInventoryItemUpdateApi),
+  shopifyInventoryItemsGet: lazy(() => require('./shopify/shopifyInventoryItemsGet').shopifyInventoryItemsGetApi),
   shopifyInventoryQuantitiesSet: lazy(() => require('./shopify/shopifyInventoryQuantitiesSet').shopifyInventoryQuantitiesSetApi),
   shopifyLocationGetMain: lazy(() => require('./shopify/shopifyLocationGetMain').shopifyLocationGetMainApi),
   shopifyLocationsGet: lazy(() => require('./shopify/shopifyLocationsGet').shopifyLocationsGetApi),
