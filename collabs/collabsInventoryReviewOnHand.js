@@ -159,8 +159,8 @@ const collabsInventoryReviewOnHand = async (
       wmsOnHand,
     } = inventoryReviewItem;
 
-    const shopifyQtyNormalised = Math.max(shopifyOnHand, 0);
-    const wmsQtyNormalised = Math.max(wmsOnHand, 0);
+    const shopifyQtyNormalised = Math.max(shopifyOnHand, 0) || 0;
+    const wmsQtyNormalised = Math.max(wmsOnHand, 0) || 0;
 
     const diff = shopifyQtyNormalised - wmsQtyNormalised;
     const absDiff = Math.abs(diff);
