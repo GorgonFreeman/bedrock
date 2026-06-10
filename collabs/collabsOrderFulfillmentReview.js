@@ -1,26 +1,70 @@
-const { funcApi } = require('../utils');
+const { funcApi, logDeep, days, dateTimeFromNow } = require('../utils');
+const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
+
+const attrs = `
+  id
+  name
+  createdAt
+`;
 
 const collabsOrderFulfillmentReview = async (
-  arg,
+  store,
   {
-    option,
+    olderThanDays = 7,
   } = {},
 ) => {
 
-  // Get all orders older than 7 days that are not fulfilled.
-  // Try it and add more queries as needed.
-  // Exclude 'fulfillment_review_exclude' tagged orders.
-  // Report to foxtron_mission_control
+  const createdBefore = dateTimeFromNow({ minus: days(olderThanDays), dateOnly: true });
 
-  return { 
-    arg, 
-    option,
+  const ordersResponse = await shopifyOrdersGet(
+    store,
+    {
+      queries: [
+        'created_at:>2025-09-30',
+        `created_at:<${ createdBefore }`,
+        '-fulfillment_status:fulfilled',
+        'status:open',
+        'delivery_method:shipping',
+        'tag_not:fulfillment_review_exclude',
+      ],
+      attrs,
+      sortKey: 'CREATED_AT',
+      reverse: false,
+    },
+  );
+
+  if (!ordersResponse?.success) {
+    return ordersResponse;
+  }
+
+  const staleOrders = ordersResponse.result || [];
+
+  const response = {
+    success: true,
+    result: {
+      metadata: {
+        staleCount: staleOrders.length,
+        createdBefore,
+      },
+      samples: {
+        stale: staleOrders.slice(0, 10),
+      },
+      piles: {
+        staleOrders,
+      },
+    },
   };
-  
+
+  logDeep('response', response);
+  return response;
+
 };
 
 const collabsOrderFulfillmentReviewApi = funcApi(collabsOrderFulfillmentReview, {
-  argNames: ['arg', 'options'],
+  argNames: ['store', 'options'],
+  validatorsByArg: {
+    store: Boolean,
+  },
 });
 
 module.exports = {
@@ -28,4 +72,5 @@ module.exports = {
   collabsOrderFulfillmentReviewApi,
 };
 
-// curl localhost:8000/collabsOrderFulfillmentReview -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/collabsOrderFulfillmentReview -H "Content-Type: application/json" -d '{ "store": "au" }'
+// curl localhost:8000/collabsOrderFulfillmentReview -H "Content-Type: application/json" -d '{ "store": "uk", "options": { "olderThanDays": 30 } }'
