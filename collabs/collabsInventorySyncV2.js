@@ -1,17 +1,18 @@
 const {
   HOSTED,
 } = require('../constants');
-const { funcApi, logDeep, askQuestion, objToArray, arrayToObj, objHasAll } = require('../utils');
+const { funcApi, logDeep, askQuestion, objToArray, arrayToObj, objHasAll, objHasAny } = require('../utils');
 
 const { collabsInventoryReviewOnHand, collabsInventoryReviewCalculateDiffs } = require('../collabs/collabsInventoryReviewOnHand');
 const { shopifyInventoryQuantitiesSet } = require('../shopify/shopifyInventoryQuantitiesSet');
+const { googlesheetsSpreadsheetSheetGetData } = require('../googlesheets/googlesheetsSpreadsheetSheetGetData');
 
 const collabsInventorySyncV2 = async (
   store,
   {
     reviewInputs, // Supply review inputs for the function to run the review first,
     reviewOutputArray, // or supply review output from a previous run.
-    spreadsheetIdentifier, // Review output from a sheet
+    importFromSheetPayload, // Review output from a sheet
   },
   {
     mode = 'full', // Valid values: full, safe, overs
@@ -25,6 +26,31 @@ const collabsInventorySyncV2 = async (
       return reviewResponse;
     }
     reviewOutputArray = reviewResult.array;
+  } else if (importFromSheetPayload) {
+
+    const {
+      spreadsheetIdentifier,
+      sheetIdentifier,
+    } = importFromSheetPayload;
+
+    const sheetDataResponse = await googlesheetsSpreadsheetSheetGetData(
+      spreadsheetIdentifier,
+      sheetIdentifier,
+    );
+
+    const { success: sheetDataSuccess, result: sheetData } = sheetDataResponse;
+    if (!sheetDataSuccess) {
+      return sheetDataResponse;
+    }
+
+    reviewOutputArray = sheetData;
+  }
+
+  if (!reviewOutputArray) {
+    return {
+      success: false,
+      error: ['reviewInputs, reviewOutputArray, or spreadsheetIdentifier is required'],
+    };
   }
 
   const hasExpectedKeys = reviewOutputArray.every(item => {
@@ -143,10 +169,10 @@ curl localhost:8000/collabsInventorySyncV2 \
     "reviewPayload": {
       "reviewOutputArray": [
         {
-          "sku": "X-Y-1",
+          "sku": "FSBOM03-BLK-M",
           "shopifyOnHand": 39,
-          "shopifyInventoryItemId": "12345678",
-          "shopifyLocationId": "12345678",
+          "shopifyInventoryItemId": "32555575181384",
+          "shopifyLocationId": "27005222984",
           "wmsOnHand": 41
         }
       ]
