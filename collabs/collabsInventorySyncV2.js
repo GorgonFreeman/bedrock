@@ -193,4 +193,15 @@ curl localhost:8000/collabsInventorySyncV2 \
       "mode": "safe"
     }
   }'
+
+curl localhost:8000/collabsInventorySyncV2 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "store": "au",
+    "reviewPayload": {
+      "reviewInputs": {
+        "skus": ["EXDAL358-5-XXS", "EXDAL356-2-XS/S", "EXDAL357-5-S"]
+      }
+    }
+  }'
 */
