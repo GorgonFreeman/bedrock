@@ -12,6 +12,8 @@ const { shopifyInventoryItemsGet } = require('../shopify/shopifyInventoryItemsGe
 const { shopifyRegionToPvxSite } = require('../mappings');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
+const { googlesheetsSpreadsheetSheetAdd } = require('../googlesheets/googlesheetsSpreadsheetSheetAdd');
+
 const SAMPLE_SIZE = 5;
 
 const collabsInventoryReviewCalculateDiffs = (inventoryDataObj, { minReportableDiff = 0, allowSafeBelowDiff = true } = {}) => {
@@ -64,6 +66,7 @@ const collabsInventoryReviewOnHand = async (
     locationId,
     minReportableDiff = 0,
     allowSafeBelowDiff = true,
+    uploadSpreadsheetIdentifier,
   } = {},
 ) => {
 
@@ -226,6 +229,18 @@ const collabsInventoryReviewOnHand = async (
   };
   logDeep('samples', samples);
 
+  let uploadResponse;
+
+  if (uploadSpreadsheetIdentifier) {
+    uploadResponse = await googlesheetsSpreadsheetSheetAdd(
+      uploadSpreadsheetIdentifier,
+      { objArray: inventoryReviewArray },
+      {
+        sheetName: `${ store } ${ Date.now() }`,
+      },
+    );
+  }
+
   return {
     success: true,
     result: {
@@ -233,6 +248,7 @@ const collabsInventoryReviewOnHand = async (
       array: inventoryReviewArray,
       metadata,
       samples,
+      ...(uploadResponse ? { uploadResponse } : {}),
     },
   };
   
