@@ -92,4 +92,33 @@ module.exports = {
   collabsInventorySyncV2Api,
 };
 
-// curl localhost:8000/collabsInventorySyncV2 -H "Content-Type: application/json" -d '{ "store": "au", "reviewPayload": { "reviewInputs": { "minReportableDiff": 90, "allowSafeBelowDiff": false } } }'
+/* 
+curl localhost:8000/collabsInventorySyncV2 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "store": "au",
+    "reviewPayload": {
+      "reviewInputs": {
+        "minReportableDiff": 90,
+        "allowSafeBelowDiff": false
+      }
+    }
+  }'
+
+curl localhost:8000/collabsInventorySyncV2 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "store": "au",
+    "reviewPayload": {
+      "reviewOutputArray": [
+        {
+          "sku": "X-Y-1",
+          "shopifyOnHand": 39,
+          "shopifyInventoryItemId": "12345678",
+          "shopifyLocationId": "12345678",
+          "wmsOnHand": 41
+        }
+      ]
+    }
+  }'
+*/
