@@ -280,3 +280,6 @@ module.exports = {
 
 // Review specific SKUs only (e.g. from shopifyProductsGet with queries: ["offstage"])
 // curl localhost:8000/collabsInventoryReviewOnHand -H "Content-Type: application/json" -d '{ "store": "au", "options": { "skus": ["EXDAL358-5-XXS", "EXDAL356-2-XS/S", "EXDAL357-5-S"] } }'
+
+// Upload review output to a spreadsheet
+// curl localhost:8100/collabsInventoryReviewOnHand -H "Content-Type: application/json" -d '{ "store": "au", "options": { "uploadSpreadsheetIdentifier": { "spreadsheetHandle": "foxtron_stock_check" } } }'
