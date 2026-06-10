@@ -68,6 +68,8 @@ const collabsInventoryReviewOnHand = async (
     allowSafeBelowDiff = true,
     uploadSpreadsheetIdentifier,
     skus,
+    // TODO: Take collection, tag etc. with alternate fetch node
+    // TODO: Try bulk operation for fetching
   } = {},
 ) => {
 
