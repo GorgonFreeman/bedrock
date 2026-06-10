@@ -178,4 +178,19 @@ curl localhost:8000/collabsInventorySyncV2 \
       ]
     }
   }'
+
+curl localhost:8000/collabsInventorySyncV2 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "store": "au",
+    "reviewPayload": {
+      "importFromSheetPayload": {
+        "spreadsheetIdentifier": { "spreadsheetHandle": "foxtron_stock_check" },
+        "sheetIdentifier": { "sheetName": "au 1781072168145" }
+      }
+    },
+    "options": {
+      "mode": "safe"
+    }
+  }'
 */
