@@ -1,9 +1,9 @@
 const {
   HOSTED,
 } = require('../constants');
-const { funcApi, logDeep, askQuestion } = require('../utils');
+const { funcApi, logDeep, askQuestion, objToArray, arrayToObj, objHasAll } = require('../utils');
 
-const { collabsInventoryReviewOnHand } = require('../collabs/collabsInventoryReviewOnHand');
+const { collabsInventoryReviewOnHand, collabsInventoryReviewCalculateDiffs } = require('../collabs/collabsInventoryReviewOnHand');
 const { shopifyInventoryQuantitiesSet } = require('../shopify/shopifyInventoryQuantitiesSet');
 
 const collabsInventorySyncV2 = async (
@@ -25,6 +25,37 @@ const collabsInventorySyncV2 = async (
       return reviewResponse;
     }
     reviewOutputArray = reviewResult.array;
+  }
+
+  const hasExpectedKeys = reviewOutputArray.every(item => {
+    return objHasAll(item, [
+      'sku',
+      'shopifyOnHand',
+      'shopifyInventoryItemId',
+      'shopifyLocationId',
+      'wmsOnHand',
+    ]);
+  });
+
+  if (!hasExpectedKeys) {
+    return {
+      success: false,
+      error: ['Review output array is missing expected keys'],
+    };
+  }
+
+  const needsCalculation = reviewOutputArray.every(item => {
+    return !objHasAll(item, [
+      'safeToImport', 
+      'oversellRisk',
+    ]);
+  });
+
+  if (needsCalculation) {
+    console.log('needs calculation');
+    const inventoryDataObj = arrayToObj(reviewOutputArray, { keyProp: 'sku' });
+    const inventoryReviewObj = collabsInventoryReviewCalculateDiffs(inventoryDataObj);
+    reviewOutputArray = objToArray(inventoryReviewObj, { keyProp: 'sku', spread: true });
   }
 
   logDeep(reviewOutputArray);

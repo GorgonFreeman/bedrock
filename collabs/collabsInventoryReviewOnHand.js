@@ -2,7 +2,7 @@ const {
   HOSTED,
   REGIONS_PVX, 
 } = require('../constants');
-const { funcApi, gidToId, logDeep, arrayToObj, arraySortByProp, Timer } = require('../utils');
+const { funcApi, gidToId, logDeep, arrayToObj, arraySortByProp, Timer, objToArray } = require('../utils');
 
 const { bedrock_unlisted_slackErrorPost } = require('../bedrock_unlisted/bedrock_unlisted_slackErrorPost');
 
@@ -14,7 +14,7 @@ const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
 const SAMPLE_SIZE = 5;
 
-const collabsInventoryReviewCalculateDiffs = (inventoryDataObj) => {
+const collabsInventoryReviewCalculateDiffs = (inventoryDataObj, { minReportableDiff = 0, allowSafeBelowDiff = true } = {}) => {
   let inventoryReviewObj = {};
 
   for (const [sku, inventoryDataItem] of Object.entries(inventoryDataObj)) {
@@ -196,15 +196,10 @@ const collabsInventoryReviewOnHand = async (
 
   !HOSTED && logDeep('inventoryDataObj', inventoryDataObj);
 
-  const inventoryReviewObj = collabsInventoryReviewCalculateDiffs(inventoryDataObj);
+  const inventoryReviewObj = collabsInventoryReviewCalculateDiffs(inventoryDataObj, { minReportableDiff, allowSafeBelowDiff });
   !HOSTED && logDeep('inventoryReviewObj', inventoryReviewObj);
 
-  let inventoryReviewArray = Object.entries(inventoryReviewObj).map(([sku, value]) => {
-    return {
-      sku,
-      ...value,
-    };
-  });
+  let inventoryReviewArray = objToArray(inventoryReviewObj, { keyProp: 'sku', spread: true });
 
   // Sort biggest to smallest diff
   inventoryReviewArray = arraySortByProp(inventoryReviewArray, 'absDiff', { descending: true });

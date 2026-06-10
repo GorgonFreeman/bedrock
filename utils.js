@@ -1719,10 +1719,21 @@ const parseBoolean = (value) => {
   return (value == 'false') != Boolean(value);
 };
 
-const objToArray = (obj, { keyProp = 'key', valueProp = 'value' } = {}) => {
+const objToArray = (
+  obj, 
+  { 
+    keyProp = 'key', 
+    valueProp = 'value', 
+    spread = false,
+  } = {},
+) => {
   return Object.entries(obj).map(([key, value]) => ({
     [keyProp]: key,
-    [valueProp]: value,
+    ...spread ? {
+      ...value,
+    } : {
+      [valueProp]: value,
+    },
   }));
 };
 
