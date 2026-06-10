@@ -141,7 +141,11 @@ const collabsInventoryReviewOnHand = async (
   }
 
   for (const [sku, wmsOnHandQuantity] of Object.entries(wmsInventoryObj)) {
-    inventoryDataObj[sku] = inventoryDataObj[sku] || {};
+    // skip items not in Shopify
+    if (!inventoryDataObj[sku]) {
+      console.warn(`${ store }: ${ sku } not in Shopify, ${ wmsOnHandQuantity } on hand`);
+      continue;
+    }
     inventoryDataObj[sku].wmsOnHand = parseInt(wmsOnHandQuantity);
   }
 
