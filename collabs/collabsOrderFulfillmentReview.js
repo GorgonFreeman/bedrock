@@ -45,6 +45,7 @@ const collabsOrderFulfillmentReview = async (
       metadata: {
         staleCount: staleOrders.length,
         createdBefore,
+        olderThanDays,
       },
       samples: {
         stale: staleOrders.slice(0, 10),
