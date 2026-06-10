@@ -67,6 +67,7 @@ const collabsInventoryReviewOnHand = async (
     minReportableDiff = 0,
     allowSafeBelowDiff = true,
     uploadSpreadsheetIdentifier,
+    skus, // TODO: Support providing a list of skus
   } = {},
 ) => {
 
