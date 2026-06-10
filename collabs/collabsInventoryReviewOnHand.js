@@ -16,6 +16,7 @@ const collabsInventoryReviewOnHand = async (
   store,
   {
     locationId,
+    minReportableDiff = 0,
   } = {},
 ) => {
 
@@ -84,7 +85,7 @@ const collabsInventoryReviewOnHand = async (
     return inventoryItemsResponse;
   }
 
-  const inventoryReviewObj = {};
+  const inventoryDataObj = {};
   let wmsInventoryObj;
 
   for (const inventoryItem of inventoryItems) {
@@ -97,9 +98,10 @@ const collabsInventoryReviewOnHand = async (
     // TODO: Handle unactivated inventory - this will show as a missing inventory level at that location. Default to 0 and support activation.
     const inventoryLevel = inventoryLevels.find(level => level.location.id === `gid://shopify/Location/${ locationId }`);
     const quantity = inventoryLevel.quantities.find(quantity => quantity.name === 'on_hand').quantity;
-    inventoryReviewObj[sku] = {
+    inventoryDataObj[sku] = {
       shopifyOnHand: quantity,
       shopifyInventoryItemId: inventoryItemId,
+      shopifyLocationId: locationId,
     };
   }
 
@@ -126,6 +128,7 @@ const collabsInventoryReviewOnHand = async (
       success: pvxReportSuccess,
       result: pvxInventory,
     } = pvxInventoryResponse;
+
     if (!pvxReportSuccess) {
       return pvxInventoryResponse;
     }
@@ -134,8 +137,47 @@ const collabsInventoryReviewOnHand = async (
   }
 
   for (const [sku, wmsOnHandQuantity] of Object.entries(wmsInventoryObj)) {
-    inventoryReviewObj[sku] = inventoryReviewObj[sku] || {};
-    inventoryReviewObj[sku].wmsOnHand = parseInt(wmsOnHandQuantity);
+    inventoryDataObj[sku] = inventoryDataObj[sku] || {};
+    inventoryDataObj[sku].wmsOnHand = parseInt(wmsOnHandQuantity);
+  }
+
+  !HOSTED && logDeep('inventoryDataObj', inventoryDataObj);
+
+  let inventoryReviewObj = {};
+
+  for (const [sku, inventoryReviewItem] of Object.entries(inventoryDataObj)) {
+    const {
+      shopifyOnHand,
+      wmsOnHand,
+    } = inventoryReviewItem;
+
+    const shopifyQtyNormalised = Math.max(shopifyOnHand, 0);
+    const wmsQtyNormalised = Math.max(wmsOnHand, 0);
+
+    const diff = shopifyQtyNormalised - wmsQtyNormalised;
+    const absDiff = Math.abs(diff);
+
+    const oversellRisk = diff > 0;
+    const safeToImport = oversellRisk || shopifyQtyNormalised === 0;
+    
+    // If same as WMS, skip
+    if (!(absDiff > 0)) {
+      continue;
+    }
+
+    // Always report safe-to-import diffs, even if less than min diff.
+    if (!safeToImport && absDiff < minReportableDiff) {
+      continue;
+    }
+
+    inventoryReviewObj[sku] = {
+      ...inventoryDataObj[sku],
+      shopifyOnHand: shopifyQtyNormalised,
+      wmsOnHand: wmsQtyNormalised,
+      oversellRisk,
+      absDiff,
+      safeToImport,
+    };
   }
 
   !HOSTED && logDeep('inventoryReviewObj', inventoryReviewObj);
