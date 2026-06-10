@@ -358,6 +358,7 @@ module.exports = {
   bedrock_unlisted_bootsDiscountCodeReserve: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_bootsDiscountCodeReserve').bedrock_unlisted_bootsDiscountCodeReserveApi),
   bedrock_unlisted_bootsFormProcess: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_bootsFormProcess').bedrock_unlisted_bootsFormProcessApi),
   bedrock_unlisted_collabsOrderFulfillmentRequestReviewAndReport: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_collabsOrderFulfillmentRequestReviewAndReport').bedrock_unlisted_collabsOrderFulfillmentRequestReviewAndReportApi),
+  bedrock_unlisted_collabsOrderFulfillmentReviewAndReport: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_collabsOrderFulfillmentReviewAndReport').bedrock_unlisted_collabsOrderFulfillmentReviewAndReportApi),
   bedrock_unlisted_collabsOrderSyncReviewAndReport: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_collabsOrderSyncReviewAndReport').bedrock_unlisted_collabsOrderSyncReviewAndReportApi),
   bedrock_unlisted_giveawayFormProcess: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_giveawayFormProcess').bedrock_unlisted_giveawayFormProcessApi),
   bedrock_unlisted_identifyIncorrectFulfillmentsByDuplicateTracking: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_identifyIncorrectFulfillmentsByDuplicateTracking').bedrock_unlisted_identifyIncorrectFulfillmentsByDuplicateTrackingApi),
