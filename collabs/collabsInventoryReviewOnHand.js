@@ -67,7 +67,7 @@ const collabsInventoryReviewOnHand = async (
     minReportableDiff = 0,
     allowSafeBelowDiff = true,
     uploadSpreadsheetIdentifier,
-    skus, // TODO: Support providing a list of skus
+    skus,
   } = {},
 ) => {
 
@@ -107,6 +107,12 @@ const collabsInventoryReviewOnHand = async (
   !HOSTED && logDeep('locationId', locationId);
 
   const inventoryItemsResponse = await shopifyInventoryItemsGet(store, {
+    ...(
+      skus 
+      ? { queries: [
+        skus.map(sku => `(sku:'${ sku }')`).join(' OR ')] 
+      } : {}
+    ),
     attrs: `
       id
       sku
@@ -271,3 +277,6 @@ module.exports = {
 };
 
 // curl localhost:8000/collabsInventoryReviewOnHand -H "Content-Type: application/json" -d '{ "store": "au" }'
+
+// Review specific SKUs only (e.g. from shopifyProductsGet with queries: ["offstage"])
+// curl localhost:8000/collabsInventoryReviewOnHand -H "Content-Type: application/json" -d '{ "store": "au", "options": { "skus": ["EXDAL358-5-XXS", "EXDAL356-2-XS/S", "EXDAL357-5-S"] } }'
