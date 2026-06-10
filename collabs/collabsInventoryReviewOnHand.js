@@ -14,6 +14,50 @@ const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
 
 const SAMPLE_SIZE = 5;
 
+const collabsInventoryReviewCalculateDiffs = (inventoryDataObj) => {
+  let inventoryReviewObj = {};
+
+  for (const [sku, inventoryDataItem] of Object.entries(inventoryDataObj)) {
+    const {
+      shopifyOnHand,
+      wmsOnHand,
+    } = inventoryDataItem;
+
+    const shopifyQtyNormalised = Math.max(shopifyOnHand, 0) || 0;
+    const wmsQtyNormalised = Math.max(wmsOnHand, 0) || 0;
+
+    const diff = shopifyQtyNormalised - wmsQtyNormalised;
+    const absDiff = Math.abs(diff);
+
+    const oversellRisk = diff > 0;
+    const safeToImport = oversellRisk || shopifyQtyNormalised === 0;
+    
+    // If same as WMS, skip
+    if (!(absDiff > 0)) {
+      continue;
+    }
+
+    // Always report safe-to-import diffs, even if less than min diff.
+    if (absDiff < minReportableDiff) {
+      const safelyIncluded = allowSafeBelowDiff && safeToImport;
+      if (!safelyIncluded) {
+        continue;
+      }
+    }
+
+    inventoryReviewObj[sku] = {
+      ...inventoryDataObj[sku],
+      shopifyOnHand: shopifyQtyNormalised,
+      wmsOnHand: wmsQtyNormalised,
+      oversellRisk,
+      absDiff,
+      safeToImport,
+    };
+  }
+
+  return inventoryReviewObj;
+};
+
 const collabsInventoryReviewOnHand = async (
   store,
   {
@@ -152,46 +196,7 @@ const collabsInventoryReviewOnHand = async (
 
   !HOSTED && logDeep('inventoryDataObj', inventoryDataObj);
 
-  let inventoryReviewObj = {};
-
-  for (const [sku, inventoryReviewItem] of Object.entries(inventoryDataObj)) {
-    const {
-      shopifyOnHand,
-      wmsOnHand,
-    } = inventoryReviewItem;
-
-    const shopifyQtyNormalised = Math.max(shopifyOnHand, 0) || 0;
-    const wmsQtyNormalised = Math.max(wmsOnHand, 0) || 0;
-
-    const diff = shopifyQtyNormalised - wmsQtyNormalised;
-    const absDiff = Math.abs(diff);
-
-    const oversellRisk = diff > 0;
-    const safeToImport = oversellRisk || shopifyQtyNormalised === 0;
-    
-    // If same as WMS, skip
-    if (!(absDiff > 0)) {
-      continue;
-    }
-
-    // Always report safe-to-import diffs, even if less than min diff.
-    if (absDiff < minReportableDiff) {
-      const safelyIncluded = allowSafeBelowDiff && safeToImport;
-      if (!safelyIncluded) {
-        continue;
-      }
-    }
-
-    inventoryReviewObj[sku] = {
-      ...inventoryDataObj[sku],
-      shopifyOnHand: shopifyQtyNormalised,
-      wmsOnHand: wmsQtyNormalised,
-      oversellRisk,
-      absDiff,
-      safeToImport,
-    };
-  }
-
+  const inventoryReviewObj = collabsInventoryReviewCalculateDiffs(inventoryDataObj);
   !HOSTED && logDeep('inventoryReviewObj', inventoryReviewObj);
 
   let inventoryReviewArray = Object.entries(inventoryReviewObj).map(([sku, value]) => {
@@ -250,6 +255,7 @@ const collabsInventoryReviewOnHandApi = funcApi(collabsInventoryReviewOnHand, {
 module.exports = {
   collabsInventoryReviewOnHand,
   collabsInventoryReviewOnHandApi,
+  collabsInventoryReviewCalculateDiffs,
 };
 
 // curl localhost:8000/collabsInventoryReviewOnHand -H "Content-Type: application/json" -d '{ "store": "au" }'
