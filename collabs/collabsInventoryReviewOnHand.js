@@ -2,7 +2,7 @@ const {
   HOSTED,
   REGIONS_PVX, 
 } = require('../constants');
-const { funcApi, gidToId, logDeep, arrayToObj } = require('../utils');
+const { funcApi, gidToId, logDeep, arrayToObj, arraySortByProp, Timer } = require('../utils');
 
 const { bedrock_unlisted_slackErrorPost } = require('../bedrock_unlisted/bedrock_unlisted_slackErrorPost');
 
@@ -11,6 +11,8 @@ const { shopifyInventoryItemsGet } = require('../shopify/shopifyInventoryItemsGe
 
 const { shopifyRegionToPvxSite } = require('../mappings');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
+
+const SAMPLE_SIZE = 5;
 
 const collabsInventoryReviewOnHand = async (
   store,
@@ -26,6 +28,8 @@ const collabsInventoryReviewOnHand = async (
       errors: [`${ store } not supported`],
     };
   }
+
+  const timer = new Timer();
 
   if (!locationId) {
     console.log(`${ store }: Using main location`);
@@ -181,11 +185,46 @@ const collabsInventoryReviewOnHand = async (
   }
 
   !HOSTED && logDeep('inventoryReviewObj', inventoryReviewObj);
-  
-  return { 
+
+  let inventoryReviewArray = Object.entries(inventoryReviewObj).map(([sku, value]) => {
+    return {
+      sku,
+      ...value,
+    };
+  });
+
+  // Sort biggest to smallest diff
+  inventoryReviewArray = arraySortByProp(inventoryReviewArray, 'absDiff', { descending: true });
+  const biggestDiffSample = inventoryReviewArray.slice(0, SAMPLE_SIZE);
+  const biggestDiff = biggestDiffSample?.[0]?.absDiff;
+
+  // Sort to put oversell risk at the top (more in Shopify than WMS)
+  inventoryReviewArray = arraySortByProp(inventoryReviewArray, 'oversellRisk', { descending: true });
+  const oversellRiskSample = inventoryReviewArray.slice(0, SAMPLE_SIZE).filter(i => i?.oversellRisk);
+  const biggestOversellRisk = oversellRiskSample?.[0]?.absDiff;
+
+  const metadata = {
+    count: inventoryReviewArray.length,
+    biggestDiff,
+    oversellRiskCount: inventoryReviewArray.filter(item => item.oversellRisk).length,
+    biggestOversellRisk,
+    timeTaken: timer.getTime({ readable: true }),
+  };
+  logDeep('metadata', metadata);
+
+  const samples = {
+    biggestDiff: biggestDiffSample,
+    oversellRisk: oversellRiskSample,
+  };
+  logDeep('samples', samples);
+
+  return {
     success: true,
     result: {
-      inventoryReviewObj,
+      object: inventoryReviewObj,
+      array: inventoryReviewArray,
+      metadata,
+      samples,
     },
   };
   
