@@ -19,6 +19,7 @@ const collabsInventoryReviewOnHand = async (
   {
     locationId,
     minReportableDiff = 0,
+    allowSafeBelowDiff = true,
   } = {},
 ) => {
 
@@ -174,8 +175,11 @@ const collabsInventoryReviewOnHand = async (
     }
 
     // Always report safe-to-import diffs, even if less than min diff.
-    if (!safeToImport && absDiff < minReportableDiff) {
-      continue;
+    if (absDiff < minReportableDiff) {
+      const safelyIncluded = allowSafeBelowDiff && safeToImport;
+      if (!safelyIncluded) {
+        continue;
+      }
     }
 
     inventoryReviewObj[sku] = {
