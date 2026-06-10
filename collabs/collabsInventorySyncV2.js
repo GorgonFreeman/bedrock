@@ -92,4 +92,4 @@ module.exports = {
   collabsInventorySyncV2Api,
 };
 
-// curl localhost:8000/collabsInventorySyncV2 -H "Content-Type: application/json" -d '{ "store": "au", "reviewPayload": { "reviewInputs": { "minReportableDiff": 20 } } }'
+// curl localhost:8000/collabsInventorySyncV2 -H "Content-Type: application/json" -d '{ "store": "au", "reviewPayload": { "reviewInputs": { "minReportableDiff": 90, "allowSafeBelowDiff": false } } }'
