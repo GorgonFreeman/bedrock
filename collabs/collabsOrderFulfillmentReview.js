@@ -7,6 +7,11 @@ const collabsOrderFulfillmentReview = async (
   } = {},
 ) => {
 
+  // Get all orders older than 7 days that are not fulfilled.
+  // Try it and add more queries as needed.
+  // Exclude 'fulfillment_review_exclude' tagged orders.
+  // Report to foxtron_mission_control
+
   return { 
     arg, 
     option,
