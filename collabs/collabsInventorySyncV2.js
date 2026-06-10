@@ -1,21 +1,35 @@
 const { funcApi } = require('../utils');
 
+const { collabsInventoryReviewOnHand } = require('../collabs/collabsInventoryReviewOnHand');
+
 const collabsInventorySyncV2 = async (
-  arg,
+  store,
   {
-    option,
+    reviewInputs, // Supply review inputs for the function to run the review first,
+    reviewOutput, // or supply review output from a previous run.
+    spreadsheetIdentifier, // Review output from a sheet
   } = {},
 ) => {
 
+  
+
   return { 
-    arg, 
-    option,
+    success: true,
+    result: {
+      store,
+      reviewInputs,
+      reviewOutput,
+      spreadsheetIdentifier,
+    },
   };
   
 };
 
 const collabsInventorySyncV2Api = funcApi(collabsInventorySyncV2, {
-  argNames: ['arg', 'options'],
+  argNames: [
+    'reviewPayload', 
+    'options',
+  ],
 });
 
 module.exports = {
@@ -23,4 +37,4 @@ module.exports = {
   collabsInventorySyncV2Api,
 };
 
-// curl localhost:8000/collabsInventorySyncV2 -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/collabsInventorySyncV2 -H "Content-Type: application/json" -d '{ "reviewPayload": { "reviewInputs": { "minReportableDiff": 20 } } }'
