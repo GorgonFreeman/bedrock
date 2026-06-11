@@ -56,6 +56,7 @@ module.exports = {
   starshipitProductsDelete: lazy(() => require('./starshipit/starshipitProductsDelete').starshipitProductsDeleteApi),
   starshipitProductsGet: lazy(() => require('./starshipit/starshipitProductsGet').starshipitProductsGetApi),
   starshipitTrackingGet: lazy(() => require('./starshipit/starshipitTrackingGet').starshipitTrackingGetApi),
+  starshipitWebhookTrackingEventHandle: lazy(() => require('./starshipit/starshipitWebhookTrackingEventHandle').starshipitWebhookTrackingEventHandleApi),
   slackMessageDelete: lazy(() => require('./slack/slackMessageDelete').slackMessageDeleteApi),
   slackMessagePost: lazy(() => require('./slack/slackMessagePost').slackMessagePostApi),
   slackMessagePostEphemeral: lazy(() => require('./slack/slackMessagePostEphemeral').slackMessagePostEphemeralApi),
