@@ -1,4 +1,6 @@
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, credsByPath, verifyHmacWebhookRequest } = require('../utils');
+
+const { WEBHOOK_SECRET } = credsByPath(['starshipit']);
 
 const starshipitWebhookTrackingEventHandle = async (req) => {
 
@@ -14,6 +16,13 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
 
 const starshipitWebhookTrackingEventHandleApi = funcApi(starshipitWebhookTrackingEventHandle, {
   passThroughReq: true,
+  requestVerifiers: [
+    async (req, res) => verifyHmacWebhookRequest({
+      secret: WEBHOOK_SECRET,
+      signature: req.headers['x-starshipit-signature'],
+      rawBody: req.rawBody,
+    }, res),
+  ],
 });
 
 module.exports = {
@@ -21,12 +30,15 @@ module.exports = {
   starshipitWebhookTrackingEventHandleApi,
 };
 
+// Set starshipit.WEBHOOK_SECRET in CREDS to match the secret in Starshipit webhook settings.
+
 /* Event sample
 {
   headers: {
     host: '1xxx1-11-111-111-111.ngrok-free.app',
     'content-length': '270',
     'content-type': 'application/json',
+    'x-starshipit-signature': 'abc123...',
     expect: '100-continue',
     'x-forwarded-for': '11.11.11.11',
     'x-forwarded-host': '1xxx1-11-111-111-111.ngrok-free.app',

@@ -1670,6 +1670,41 @@ const checkHostedApiKey = async (req, res) => {
   return true;
 };
 
+const hmacSha256HexSignatureIsValid = ({ rawBody, signature, secret }) => {
+  if (!(rawBody && signature && secret)) {
+    return false;
+  }
+
+  const payload = Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(rawBody, 'utf8');
+  const computed = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+  const signatureBuffer = Buffer.from(signature, 'utf8');
+  const computedBuffer = Buffer.from(computed, 'utf8');
+
+  if (signatureBuffer.length !== computedBuffer.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(signatureBuffer, computedBuffer);
+};
+
+const verifyHmacWebhookRequest = async ({ secret, signature, rawBody }, res) => {
+
+  if (!secret) {
+    throw new Error('verifyHmacWebhookRequest: webhook secret not configured');
+  }
+
+  if (!rawBody) {
+    throw new Error('verifyHmacWebhookRequest: rawBody missing from request');
+  }
+
+  if (!signature || !hmacSha256HexSignatureIsValid({ rawBody, signature, secret })) {
+    respond(res, 401, { success: false, error: ['Invalid webhook signature'] });
+    return false;
+  }
+
+  return true;
+};
+
 const verifyHashSecuredRequest = async (req, res) => {
 
   if (!HOSTED) {
@@ -2113,6 +2148,8 @@ module.exports = {
   interactiveChooseOption,
   interactiveChooseMultiple,
   standardRequestVerifiers,
+  hmacSha256HexSignatureIsValid,
+  verifyHmacWebhookRequest,
   parseBoolean,
   objToArray,
   arrayToObj,
