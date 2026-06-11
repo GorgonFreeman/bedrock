@@ -15,7 +15,10 @@ const starshipitRequestVerifiers = {
   verifyStarshipitWebhookRequest,
 };
 
-const starshipitOrderReferenceToShopifyStore = (orderReference) => {
+const starshipitOrderReferenceToShopifyStore = (orderReference, carrierName) => {
+  if (carrierName?.toLowerCase().includes('baddest')) {
+    return 'baddest';
+  }
   if (orderReference?.startsWith('AUS')) {
     return 'au';
   }

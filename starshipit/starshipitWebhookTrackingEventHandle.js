@@ -33,7 +33,7 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
     return { success: false, error: ['tracking_number missing'] };
   }
 
-  const shopifyStore = starshipitOrderReferenceToShopifyStore(orderReference);
+  const shopifyStore = starshipitOrderReferenceToShopifyStore(orderReference, carrierName);
   const trackingUrl = carrierName && starshipitTrackingNumberToUrl(carrierName, trackingNumber);
 
   return shopifyOrderFulfill(
