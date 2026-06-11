@@ -1,40 +1,19 @@
 const { funcApi, logDeep } = require('../utils');
-const { starshipitClient } = require('../starshipit/starshipit.utils');
 
-const starshipitWebhookTrackingEventHandle = async (
-  credsPath,
-  arg,
-) => {
+const starshipitWebhookTrackingEventHandle = async (req) => {
 
-  const response = await starshipitClient.fetch({
-    url: '/things',
-    params: {
-      arg_value: arg,
-    },
-    context: {
-      credsPath,
-    },
-    interpreter: (response) => {
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.arg_value,
-        } : {},
-      };
-    },
-  });
+  logDeep(req);
 
-  logDeep(response);
-  return response;
+  return { 
+    success: true,
+  };
 };
 
 const starshipitWebhookTrackingEventHandleApi = funcApi(starshipitWebhookTrackingEventHandle, {
-  argNames: ['credsPath', 'arg', 'options'],
+  passThroughReq: true,
 });
 
 module.exports = {
   starshipitWebhookTrackingEventHandle,
   starshipitWebhookTrackingEventHandleApi,
 };
-
-// curl localhost:8000/starshipitWebhookTrackingEventHandle -H "Content-Type: application/json" -d '{ "credsPath": "wf", "arg": "408418809" }' 
