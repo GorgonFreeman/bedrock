@@ -27,10 +27,7 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
     tracking_status: trackingStatus,
   } = body;
 
-  console.log('starshipitWebhookTrackingEventHandle', {
-    receivedAt: dateTimeFromNow(),
-    orderReference,
-  });
+  console.log(dateTimeFromNow(), orderReference);
 
   if (!orderNumber || !orderReference) {
     !HOSTED && console.log('Missing required fields');
