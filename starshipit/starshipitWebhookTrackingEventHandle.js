@@ -1,6 +1,8 @@
 const { funcApi, logDeep } = require('../utils');
 const { starshipitRequestVerifiers } = require('../starshipit/starshipit.utils');
 
+const { STARSHIPIT_CREDS_PATH } = process.env;
+
 const starshipitWebhookTrackingEventHandle = async (req) => {
 
   logDeep({
@@ -16,7 +18,7 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
 const starshipitWebhookTrackingEventHandleApi = funcApi(starshipitWebhookTrackingEventHandle, {
   passThroughReq: true,
   requestVerifiers: [
-    starshipitRequestVerifiers.verifyStarshipitWebhookRequest,
+    starshipitRequestVerifiers.verifyStarshipitWebhookRequest(STARSHIPIT_CREDS_PATH),
   ],
 });
 
@@ -25,7 +27,7 @@ module.exports = {
   starshipitWebhookTrackingEventHandleApi,
 };
 
-// Set starshipit.WEBHOOK_SECRET in CREDS to match the secret in Starshipit webhook settings.
+// Set STARSHIPIT_CREDS_PATH env var and matching WEBHOOK_SECRET in CREDS for that account.
 
 /* Event sample
 {
