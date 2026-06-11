@@ -19,7 +19,7 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
     tracking_number: trackingNumber,
   } = req.body;
 
-  if (!orderNumber || !orderReference || !trackingNumber || !carrierName) {
+  if (!orderNumber || !orderReference) {
     return { success: false, error: ['Missing required fields'] };
   }
 
@@ -34,7 +34,7 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
         countryCode: 'AU',
       },
       trackingInfo: {
-        number: trackingNumber,
+        ...trackingNumber && { number: trackingNumber },
         ...carrierName && { company: carrierName },
       },
     },
