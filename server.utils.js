@@ -73,17 +73,22 @@ const parseMultipartFormData = (req, { useRawBody } = {}) => {
 
 const parseCommonRequests = (req) => {
   return new Promise((resolve, reject) => {
-    let body = '';
+    const chunks = [];
 
     const { headers } = req;
     const { 'content-type': contentType } = headers;
 
     req.on('data', chunk => {
-      body += chunk.toString();
+      chunks.push(chunk);
     });
 
     req.on('end', async () => {
       try {
+        const rawBody = Buffer.concat(chunks);
+        req.rawBody = rawBody;
+
+        let body = rawBody.toString('utf8');
+
         if (contentType === 'application/json') {
           // Only parse JSON if body is not empty
           body = body.trim() ? JSON.parse(body) : {};
@@ -117,7 +122,7 @@ const getRequestBody = async (req) => {
   const { 'content-type': contentType } = headers;
 
   if (!contentType) {
-    return body;
+    return parseCommonRequests(req);
   }
 
   if (contentType.includes('multipart/form-data')) {
