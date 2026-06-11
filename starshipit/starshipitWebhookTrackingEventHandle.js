@@ -19,6 +19,10 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
     tracking_number: trackingNumber,
   } = req.body;
 
+  if (!orderNumber || !orderReference || !trackingNumber || !carrierName) {
+    return { success: false, error: ['Missing required fields'] };
+  }
+
   const shopifyStore = starshipitOrderReferenceToShopifyStore(orderReference);
 
   return shopifyOrderFulfill(
