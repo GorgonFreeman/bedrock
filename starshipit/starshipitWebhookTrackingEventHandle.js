@@ -1,7 +1,7 @@
 const { HOSTED } = require('../constants');
 const { funcApi, logDeep } = require('../utils');
-const { starshipitRequestVerifiers, starshipitOrderReferenceToShopifyStore } = require('../starshipit/starshipit.utils');
-const { starshipitTrackingNumberToUrl } = require('../bedrock_unlisted/mappings');
+const { starshipitRequestVerifiers } = require('../starshipit/starshipit.utils');
+const { starshipitOrderReferenceToShopifyStore, starshipitTrackingNumberToUrl } = require('../bedrock_unlisted/mappings');
 const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
 
 const { STARSHIPIT_CREDS_PATH } = process.env;

@@ -15,16 +15,6 @@ const starshipitRequestVerifiers = {
   verifyStarshipitWebhookRequest,
 };
 
-const starshipitOrderReferenceToShopifyStore = (orderReference, carrierName) => {
-  if (carrierName?.toLowerCase().includes('baddest')) {
-    return 'baddest';
-  }
-  if (orderReference?.startsWith('AUS')) {
-    return 'au';
-  }
-  return 'baddest';
-};
-
 const starshipitRequestSetup = ({ credsPath } = {}) => {
 
   const creds = credsByPath(['starshipit', credsPath]);
@@ -154,5 +144,4 @@ module.exports = {
   starshipitGetter,
   starshipitGet,
   starshipitRequestVerifiers,
-  starshipitOrderReferenceToShopifyStore,
 };
