@@ -40,6 +40,7 @@ starshipit:
   acc:
     API_KEY: __________________________
     SUB_KEY: __________________________
+    WEBHOOK_SECRET: ___________________
 
 peoplevox:
   CLIENT_ID: __________________________
