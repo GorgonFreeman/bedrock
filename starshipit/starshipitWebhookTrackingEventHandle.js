@@ -1,7 +1,8 @@
 const { HOSTED } = require('../constants');
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, dateTimeFromNow } = require('../utils');
 const { starshipitRequestVerifiers } = require('../starshipit/starshipit.utils');
 const { starshipitOrderReferenceToShopifyStore, starshipitTrackingNumberToUrl } = require('../bedrock_unlisted/mappings');
+const { bedrock_unlisted_slackErrorPost } = require('../bedrock_unlisted/bedrock_unlisted_slackErrorPost');
 const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
 
 const { STARSHIPIT_CREDS_PATH } = process.env;
@@ -25,6 +26,11 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
     tracking_number: trackingNumber,
     tracking_status: trackingStatus,
   } = body;
+
+  console.log('starshipitWebhookTrackingEventHandle', {
+    receivedAt: dateTimeFromNow(),
+    orderReference,
+  });
 
   if (!orderNumber || !orderReference) {
     !HOSTED && console.log('Missing required fields');
@@ -69,6 +75,8 @@ const starshipitWebhookTrackingEventHandleApi = funcApi(starshipitWebhookTrackin
   requestVerifiers: [
     starshipitRequestVerifiers.verifyStarshipitWebhookRequest(STARSHIPIT_CREDS_PATH),
   ],
+  errorReporter: bedrock_unlisted_slackErrorPost,
+  errorReporterPayload: { options: { logFlavourText: 'starshipitWebhookTrackingEventHandle' } },
 });
 
 module.exports = {
