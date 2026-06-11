@@ -1,5 +1,17 @@
 const { MAX_PER_PAGE } = require('../starshipit/starshipit.constants');
-const { credsByPath, CustomAxiosClient, Getter, askQuestion, logDeep, getterAsGetFunction } = require('../utils');
+const { credsByPath, CustomAxiosClient, Getter, askQuestion, logDeep, getterAsGetFunction, verifyHmacWebhookRequest } = require('../utils');
+
+const { WEBHOOK_SECRET } = credsByPath(['starshipit']);
+
+const verifyStarshipitWebhookRequest = async (req, res) => verifyHmacWebhookRequest({
+  secret: WEBHOOK_SECRET,
+  signature: req.headers['x-starshipit-signature'],
+  rawBody: req.rawBody,
+}, res);
+
+const starshipitRequestVerifiers = {
+  verifyStarshipitWebhookRequest,
+};
 
 const starshipitRequestSetup = ({ credsPath } = {}) => {
 
@@ -129,4 +141,5 @@ module.exports = {
   starshipitClient,
   starshipitGetter,
   starshipitGet,
+  starshipitRequestVerifiers,
 };

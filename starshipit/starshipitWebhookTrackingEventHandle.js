@@ -1,6 +1,5 @@
-const { funcApi, logDeep, credsByPath, verifyHmacWebhookRequest } = require('../utils');
-
-const { WEBHOOK_SECRET } = credsByPath(['starshipit']);
+const { funcApi, logDeep } = require('../utils');
+const { starshipitRequestVerifiers } = require('../starshipit/starshipit.utils');
 
 const starshipitWebhookTrackingEventHandle = async (req) => {
 
@@ -17,11 +16,7 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
 const starshipitWebhookTrackingEventHandleApi = funcApi(starshipitWebhookTrackingEventHandle, {
   passThroughReq: true,
   requestVerifiers: [
-    async (req, res) => verifyHmacWebhookRequest({
-      secret: WEBHOOK_SECRET,
-      signature: req.headers['x-starshipit-signature'],
-      rawBody: req.rawBody,
-    }, res),
+    starshipitRequestVerifiers.verifyStarshipitWebhookRequest,
   ],
 });
 
