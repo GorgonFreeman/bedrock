@@ -74,6 +74,9 @@ const starshipitWebhookTrackingEventHandleApi = funcApi(starshipitWebhookTrackin
   ],
   errorReporter: bedrock_unlisted_slackErrorPost,
   errorReporterPayload: { options: { logFlavourText: 'starshipitWebhookTrackingEventHandle' } },
+  errorFilters: [
+    error => error !== 'No fulfillment orders found',
+  ],
 });
 
 module.exports = {
