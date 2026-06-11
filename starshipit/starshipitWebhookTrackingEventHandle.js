@@ -22,21 +22,24 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
   } = req.body;
 
   if (!orderNumber || !orderReference) {
+    !HOSTED && console.log('Missing required fields');
     return { success: false, error: ['Missing required fields'] };
   }
 
   if (trackingStatus !== 'Dispatched') {
+    !HOSTED && console.log('Will fulfill on Dispatch');
     return { success: true, message: 'Will fulfill on Dispatch' };
   }
 
   if (!trackingNumber) {
+    !HOSTED && console.log('tracking_number missing');
     return { success: false, error: ['tracking_number missing'] };
   }
 
   const shopifyStore = starshipitOrderReferenceToShopifyStore(orderReference, carrierName);
   const trackingUrl = carrierName && starshipitTrackingNumberToUrl(carrierName, trackingNumber);
 
-  return shopifyOrderFulfill(
+  const response = await shopifyOrderFulfill(
     shopifyStore,
     { orderId: orderNumber },
     {
@@ -51,6 +54,9 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
       },
     },
   );
+
+  !HOSTED && logDeep(response);
+  return response;
 };
 
 const starshipitWebhookTrackingEventHandleApi = funcApi(starshipitWebhookTrackingEventHandle, {
