@@ -2,7 +2,10 @@ const { funcApi, logDeep } = require('../utils');
 
 const starshipitWebhookTrackingEventHandle = async (req) => {
 
-  logDeep(req);
+  logDeep({
+    headers: req.headers,
+    body: req.body,
+  });
 
   return { 
     success: true,
