@@ -1,18 +1,40 @@
+const { HOSTED } = require('../constants');
 const { funcApi, logDeep } = require('../utils');
-const { starshipitRequestVerifiers } = require('../starshipit/starshipit.utils');
+const { starshipitRequestVerifiers, starshipitOrderReferenceToShopifyStore } = require('../starshipit/starshipit.utils');
+const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
 
 const { STARSHIPIT_CREDS_PATH } = process.env;
 
 const starshipitWebhookTrackingEventHandle = async (req) => {
 
-  logDeep({
+  !HOSTED && logDeep({
     headers: req.headers,
     body: req.body,
   });
 
-  return { 
-    success: true,
-  };
+  const {
+    order_number: orderNumber,
+    order_reference: orderReference,
+    carrier_name: carrierName,
+    tracking_number: trackingNumber,
+  } = req.body;
+
+  const shopifyStore = starshipitOrderReferenceToShopifyStore(orderReference);
+
+  return shopifyOrderFulfill(
+    shopifyStore,
+    { orderId: orderNumber },
+    {
+      notifyCustomer: true,
+      originAddress: {
+        countryCode: 'AU',
+      },
+      trackingInfo: {
+        number: trackingNumber,
+        ...carrierName && { company: carrierName },
+      },
+    },
+  );
 };
 
 const starshipitWebhookTrackingEventHandleApi = funcApi(starshipitWebhookTrackingEventHandle, {
@@ -44,7 +66,7 @@ module.exports = {
   },
   body: {
     order_number: '12345678',
-    order_reference: 'REF123456',
+    order_reference: 'AUS123456',
     carrier_name: 'DHL Express',
     carrier_service: 'P1',
     shipment_date: '2026-06-10T12:03:42.1543701Z',
