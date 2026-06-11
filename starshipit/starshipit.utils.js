@@ -4,10 +4,18 @@ const { credsByPath, CustomAxiosClient, Getter, askQuestion, logDeep, getterAsGe
 const verifyStarshipitWebhookRequest = (credsPath) => async (req, res) => {
   const { WEBHOOK_SECRET } = credsByPath(['starshipit', credsPath]);
 
+  const { metadata = {} } = req.body || {};
+  const { headers: forwardedHeaders = {}, rawBody: forwardedRawBody } = metadata;
+
+  const signature = forwardedHeaders['x-starshipit-signature'] || req.headers['x-starshipit-signature'];
+  const rawBody = forwardedRawBody
+    ? Buffer.from(forwardedRawBody, 'utf8')
+    : req.rawBody;
+
   return verifyHmacWebhookRequest({
     secret: WEBHOOK_SECRET,
-    signature: req.headers['x-starshipit-signature'],
-    rawBody: req.rawBody,
+    signature,
+    rawBody,
   }, res);
 };
 

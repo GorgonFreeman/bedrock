@@ -10,7 +10,8 @@ const bedrock_utilities_webhookForward = async (req) => {
   const { 
     headers = {}, 
     body = {}, 
-    query = {}, 
+    query = {},
+    rawBody,
   } = req;
 
   let forwardUrl;
@@ -62,6 +63,9 @@ const bedrock_utilities_webhookForward = async (req) => {
     body: {
       metadata: {
         headers,
+        ...rawBody && {
+          rawBody: Buffer.isBuffer(rawBody) ? rawBody.toString('utf8') : rawBody,
+        },
       },
       ...body,
     },

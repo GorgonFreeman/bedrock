@@ -14,12 +14,17 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
   });
 
   const {
+    metadata = {},
+    ...body
+  } = req.body;
+
+  const {
     order_number: orderNumber,
     order_reference: orderReference,
     carrier_name: carrierName,
     tracking_number: trackingNumber,
     tracking_status: trackingStatus,
-  } = req.body;
+  } = body;
 
   if (!orderNumber || !orderReference) {
     !HOSTED && console.log('Missing required fields');
