@@ -1,6 +1,7 @@
 const { HOSTED } = require('../constants');
 const { funcApi, logDeep } = require('../utils');
 const { starshipitRequestVerifiers, starshipitOrderReferenceToShopifyStore } = require('../starshipit/starshipit.utils');
+const { starshipitTrackingNumberToUrl } = require('../bedrock_unlisted/mappings');
 const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
 
 const { STARSHIPIT_CREDS_PATH } = process.env;
@@ -17,13 +18,23 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
     order_reference: orderReference,
     carrier_name: carrierName,
     tracking_number: trackingNumber,
+    tracking_status: trackingStatus,
   } = req.body;
 
   if (!orderNumber || !orderReference) {
     return { success: false, error: ['Missing required fields'] };
   }
 
+  if (trackingStatus !== 'Dispatched') {
+    return { success: true, message: 'Will fulfill on Dispatch' };
+  }
+
+  if (!trackingNumber) {
+    return { success: false, error: ['tracking_number missing'] };
+  }
+
   const shopifyStore = starshipitOrderReferenceToShopifyStore(orderReference);
+  const trackingUrl = carrierName && starshipitTrackingNumberToUrl(carrierName, trackingNumber);
 
   return shopifyOrderFulfill(
     shopifyStore,
@@ -34,8 +45,9 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
         countryCode: 'AU',
       },
       trackingInfo: {
-        ...trackingNumber && { number: trackingNumber },
+        number: trackingNumber,
         ...carrierName && { company: carrierName },
+        ...trackingUrl && { url: trackingUrl },
       },
     },
   );
