@@ -1,9 +1,25 @@
 const { HOSTED } = require('../constants');
-const { funcApi, logDeep, dateTimeFromNow } = require('../utils');
+const { funcApi, logDeep, dateTimeFromNow, gidToId } = require('../utils');
 const { starshipitRequestVerifiers } = require('../starshipit/starshipit.utils');
 const { starshipitOrderReferenceToShopifyStore, starshipitTrackingNumberToUrl } = require('../bedrock_unlisted/mappings');
 const { bedrock_unlisted_slackErrorPost } = require('../bedrock_unlisted/bedrock_unlisted_slackErrorPost');
 const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
+const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
+const { shopifyMetafieldsSet } = require('../shopify/shopifyMetafieldsSet');
+const { shopifyFulfillmentTrackingInfoUpdate } = require('../shopify/shopifyFulfillmentTrackingInfoUpdate');
+
+const INITIAL_FULFILLMENT_METAFIELD = {
+  namespace: 'fulfillment',
+  key: 'initial',
+};
+
+const DISPATCHED_ORDER_ATTRS = `
+  id
+  displayFulfillmentStatus
+  mfInitialFulfillment: metafield(namespace: "${ INITIAL_FULFILLMENT_METAFIELD.namespace }", key: "${ INITIAL_FULFILLMENT_METAFIELD.key }") {
+    value
+  }
+`;
 
 const { STARSHIPIT_CREDS_PATH } = process.env;
 
@@ -40,8 +56,27 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
     countryCode: 'AU',
   };
 
+  const getTrackingInfo = () => {
+    const trackingUrl = carrierName && starshipitTrackingNumberToUrl(carrierName, trackingNumber);
+
+    return {
+      number: trackingNumber,
+      ...carrierName && { company: carrierName },
+      ...trackingUrl && { url: trackingUrl },
+    };
+  };
+
+  const storeInitialFulfillmentMetafield = async (fulfillmentId) => {
+    return shopifyMetafieldsSet(shopifyStore, [{
+      ownerId: `gid://shopify/Order/${ orderNumber }`,
+      namespace: INITIAL_FULFILLMENT_METAFIELD.namespace,
+      key: INITIAL_FULFILLMENT_METAFIELD.key,
+      type: 'single_line_text_field',
+      value: String(fulfillmentId),
+    }]);
+  };
+
   if (trackingStatus.toLowerCase() === 'printed') {
-    // Fulfill, but with no tracking info
     const response = await shopifyOrderFulfill(
       shopifyStore,
       { orderId: orderNumber },
@@ -51,40 +86,65 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
       },
     );
 
+    if (!response.success) {
+      return response;
+    }
+
+    const fulfillmentId = gidToId(response.result?.fulfillment?.id);
+    if (fulfillmentId) {
+      const metafieldResponse = await storeInitialFulfillmentMetafield(fulfillmentId);
+      if (!metafieldResponse.success) {
+        return metafieldResponse;
+      }
+    }
+
     return response;
   }
 
   if (trackingStatus.toLowerCase() === 'dispatched') {
-    // Try fulfilling with tracking, notifying customer. 
-
-    const trackingUrl = carrierName && starshipitTrackingNumberToUrl(carrierName, trackingNumber);
-
-    const fulfillOptions = {
-      notifyCustomer: true,
-      originAddress,
-      trackingInfo: {
-        number: trackingNumber,
-        ...carrierName && { company: carrierName },
-        ...trackingUrl && { url: trackingUrl },
-      },
-    };
-
-    const tryFulfillResponse = await shopifyOrderFulfill(
+    const orderResponse = await shopifyOrderGet(
       shopifyStore,
       { orderId: orderNumber },
-      fulfillOptions,
+      { attrs: DISPATCHED_ORDER_ATTRS },
     );
 
-    if (tryFulfillResponse.success) {
-      return tryFulfillResponse;
+    if (!orderResponse.success) {
+      return orderResponse;
     }
 
-    // If no fulfillment found, try fetching fulfillments, and if finding one with no tracking, update the tracking and notify customer.
-    const { error: tryFulfillError } = tryFulfillResponse;
-    if (tryFulfillError?.includes('No fulfillment orders found')) {
-      // Get desired fulfillment, update it, and send notification
-      
+    const {
+      displayFulfillmentStatus,
+      mfInitialFulfillment,
+    } = orderResponse.result;
+
+    const trackingInfo = getTrackingInfo();
+    const initialFulfillmentId = mfInitialFulfillment?.value;
+
+    if (initialFulfillmentId) {
+      return shopifyFulfillmentTrackingInfoUpdate(
+        shopifyStore,
+        initialFulfillmentId,
+        trackingInfo,
+        { notifyCustomer: true },
+      );
     }
+
+    if (displayFulfillmentStatus !== 'FULFILLED') {
+      return shopifyOrderFulfill(
+        shopifyStore,
+        { orderId: orderNumber },
+        {
+          notifyCustomer: true,
+          originAddress,
+          trackingInfo,
+        },
+      );
+    }
+
+    return {
+      success: true,
+      message: 'Order already fulfilled, no initial fulfillment metafield to update',
+    };
   }
 
   console.warn(`Not syncing status ${ trackingStatus }`);
