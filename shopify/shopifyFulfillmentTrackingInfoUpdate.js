@@ -1,29 +1,44 @@
-// https://shopify.dev/docs/api/admin-graphql/latest/mutations/pageCreate
+// https://shopify.dev/docs/api/admin-graphql/latest/mutations/fulfillmentTrackingInfoUpdate
 
 const { funcApi, logDeep } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 
-const defaultAttrs = `id title handle`;
+const defaultAttrs = `
+  id
+  status
+  trackingInfo {
+    company
+    number
+    url
+  }
+`;
 
 const shopifyFulfillmentTrackingInfoUpdate = async (
   credsPath,
-  pageInput,
+  fulfillmentId,
+  trackingInfoPayload,
   {
     apiVersion,
     returnAttrs = defaultAttrs,
+    notifyCustomer = false,
   } = {},
 ) => {
 
   const response = await shopifyMutationDo(
     credsPath,
-    'pageCreate',
+    'fulfillmentTrackingInfoUpdate',
     {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
+      fulfillmentId: {
+        type: 'ID!',
+        value: `gid://shopify/Fulfillment/${ fulfillmentId }`,
       },
+      trackingInfoInput: {
+        type: 'FulfillmentTrackingInput!',
+        value: trackingInfoPayload,
+      },
+      ...notifyCustomer && { notifyCustomer },
     },
-    `page { ${ returnAttrs } }`,
+    `fulfillment { ${ returnAttrs } }`,
     { 
       apiVersion,
     },
@@ -33,7 +48,17 @@ const shopifyFulfillmentTrackingInfoUpdate = async (
 };
 
 const shopifyFulfillmentTrackingInfoUpdateApi = funcApi(shopifyFulfillmentTrackingInfoUpdate, {
-  argNames: ['credsPath', 'pageInput', 'options'],
+  argNames: [
+    'credsPath', 
+    'fulfillmentId', 
+    'trackingInfoPayload', 
+    'options',
+  ],
+  validatorsByArg: {
+    credsPath: Boolean,
+    fulfillmentId: Boolean,
+    trackingInfoPayload: Boolean,
+  },
 });
 
 module.exports = {
