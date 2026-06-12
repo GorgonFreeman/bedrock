@@ -101,6 +101,7 @@ module.exports = {
   shopifyFulfillmentOrderSubmitCancellationRequest: lazy(() => require('./shopify/shopifyFulfillmentOrderSubmitCancellationRequest').shopifyFulfillmentOrderSubmitCancellationRequestApi),
   shopifyFulfillmentOrderSubmitFulfillmentRequest: lazy(() => require('./shopify/shopifyFulfillmentOrderSubmitFulfillmentRequest').shopifyFulfillmentOrderSubmitFulfillmentRequestApi),
   shopifyFulfillmentOrdersGet: lazy(() => require('./shopify/shopifyFulfillmentOrdersGet').shopifyFulfillmentOrdersGetApi),
+  shopifyFulfillmentTrackingInfoUpdate: lazy(() => require('./shopify/shopifyFulfillmentTrackingInfoUpdate').shopifyFulfillmentTrackingInfoUpdateApi),
   shopifyGetSingle: lazy(() => require('./shopify/shopifyGetSingle').shopifyGetSingleApi),
   shopifyGiftCardCreate: lazy(() => require('./shopify/shopifyGiftCardCreate').shopifyGiftCardCreateApi),
   shopifyGiftCardDeactivate: lazy(() => require('./shopify/shopifyGiftCardDeactivate').shopifyGiftCardDeactivateApi),
