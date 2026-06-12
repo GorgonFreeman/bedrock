@@ -34,37 +34,61 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
     return { success: false, error: ['Missing required fields'] };
   }
 
-  if (trackingStatus !== 'Dispatched') {
-    !HOSTED && console.log('Will fulfill on Dispatch');
-    return { success: true, message: 'Will fulfill on Dispatch' };
-  }
-
-  if (!trackingNumber) {
-    console.error('tracking_number missing', { orderNumber, orderReference, trackingNumber, trackingStatus, carrierName });
-    return { success: false, error: ['tracking_number missing'] };
-  }
-
   const shopifyStore = starshipitOrderReferenceToShopifyStore(orderReference, carrierName);
-  const trackingUrl = carrierName && starshipitTrackingNumberToUrl(carrierName, trackingNumber);
+  
+  const originAddress = {
+    countryCode: 'AU',
+  };
 
-  const response = await shopifyOrderFulfill(
-    shopifyStore,
-    { orderId: orderNumber },
-    {
-      notifyCustomer: true,
-      originAddress: {
-        countryCode: 'AU',
+  if (trackingStatus.toLowerCase() === 'printed') {
+    // Fulfill, but with no tracking info
+    const response = await shopifyOrderFulfill(
+      shopifyStore,
+      { orderId: orderNumber },
+      { 
+        notifyCustomer: false,
+        originAddress,
       },
+    );
+
+    return response;
+  }
+
+  if (trackingStatus.toLowerCase() === 'dispatched') {
+    // Try fulfilling with tracking, notifying customer. 
+
+    const trackingUrl = carrierName && starshipitTrackingNumberToUrl(carrierName, trackingNumber);
+
+    const fulfillOptions = {
+      notifyCustomer: true,
+      originAddress,
       trackingInfo: {
         number: trackingNumber,
         ...carrierName && { company: carrierName },
         ...trackingUrl && { url: trackingUrl },
       },
-    },
-  );
+    };
 
-  !HOSTED && logDeep(response);
-  return response;
+    const tryFulfillResponse = await shopifyOrderFulfill(
+      shopifyStore,
+      { orderId: orderNumber },
+      fulfillOptions,
+    );
+
+    if (tryFulfillResponse.success) {
+      return tryFulfillResponse;
+    }
+
+    // If no fulfillment found, try fetching fulfillments, and if finding one with no tracking, update the tracking and notify customer.
+    const { error: tryFulfillError } = tryFulfillResponse;
+    if (tryFulfillError?.includes('No fulfillment orders found')) {
+      // Get desired fulfillment, update it, and send notification
+      
+    }
+  }
+
+  console.warn(`Not syncing status ${ trackingStatus }`);
+  return { success: true, message: `Not syncing status ${ trackingStatus }` };
 };
 
 const starshipitWebhookTrackingEventHandleApi = funcApi(starshipitWebhookTrackingEventHandle, {
