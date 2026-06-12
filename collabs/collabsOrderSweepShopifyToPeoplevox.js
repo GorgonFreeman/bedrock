@@ -1,21 +1,21 @@
 const { funcApi } = require('../utils');
 
 const collabsOrderSweepShopifyToPeoplevox = async (
-  arg,
+  shopifyStore,
   {
-    option,
+    peoplevoxCredsPath,
   } = {},
 ) => {
 
   return { 
-    arg, 
-    option,
+    success: true,
+    shopifyStore, 
   };
   
 };
 
 const collabsOrderSweepShopifyToPeoplevoxApi = funcApi(collabsOrderSweepShopifyToPeoplevox, {
-  argNames: ['arg', 'options'],
+  argNames: ['shopifyStore', 'options'],
 });
 
 module.exports = {
@@ -23,4 +23,4 @@ module.exports = {
   collabsOrderSweepShopifyToPeoplevoxApi,
 };
 
-// curl localhost:8000/collabsOrderSweepShopifyToPeoplevox -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/collabsOrderSweepShopifyToPeoplevox -H "Content-Type: application/json" -d '{ "shopifyStore": "au" }'
