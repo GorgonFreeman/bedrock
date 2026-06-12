@@ -326,7 +326,6 @@ module.exports = {
   collabsOrderFulfillmentFind: lazy(() => require('./collabs/collabsOrderFulfillmentFind').collabsOrderFulfillmentFindApi),
   collabsOrderFulfillmentFindV2: lazy(() => require('./collabs/collabsOrderFulfillmentFindV2').collabsOrderFulfillmentFindV2Api),
   collabsOrderFulfillmentReview: lazy(() => require('./collabs/collabsOrderFulfillmentReview').collabsOrderFulfillmentReviewApi),
-  collabsOrderSweepShopifyToPeoplevox: lazy(() => require('./collabs/collabsOrderSweepShopifyToPeoplevox').collabsOrderSweepShopifyToPeoplevoxApi),
   collabsOrderSyncCheck: lazy(() => require('./collabs/collabsOrderSyncCheck').collabsOrderSyncCheckApi),
   collabsOrderSyncMark: lazy(() => require('./collabs/collabsOrderSyncMark').collabsOrderSyncMarkApi),
   collabsOrderSyncReview: lazy(() => require('./collabs/collabsOrderSyncReview').collabsOrderSyncReviewApi),
