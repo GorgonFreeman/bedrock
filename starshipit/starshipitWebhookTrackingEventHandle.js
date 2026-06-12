@@ -30,7 +30,7 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
   console.log(dateTimeFromNow(), orderReference);
 
   if (!orderNumber || !orderReference) {
-    !HOSTED && console.log('Missing required fields');
+    console.error('Missing required fields', body);
     return { success: false, error: ['Missing required fields'] };
   }
 
@@ -40,7 +40,7 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
   }
 
   if (!trackingNumber) {
-    !HOSTED && console.log('tracking_number missing');
+    console.error('tracking_number missing', { orderNumber, orderReference, trackingNumber, trackingStatus, carrierName });
     return { success: false, error: ['tracking_number missing'] };
   }
 
