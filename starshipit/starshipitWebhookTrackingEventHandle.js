@@ -51,7 +51,8 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
   }
 
   let shopifyStore;
-
+ 
+  // TODO: Get metafield at this time and avoid a second fetch
   for (const store of REGIONS_STARSHIPIT) {
     const orderResponse = await shopifyOrderGet(
       store,
