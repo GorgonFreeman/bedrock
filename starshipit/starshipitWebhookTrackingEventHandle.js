@@ -1,7 +1,7 @@
-const { HOSTED } = require('../constants');
+const { HOSTED, REGIONS_STARSHIPIT } = require('../constants');
 const { funcApi, logDeep, dateTimeFromNow, gidToId } = require('../utils');
 const { starshipitRequestVerifiers } = require('../starshipit/starshipit.utils');
-const { starshipitOrderReferenceToShopifyStore, starshipitTrackingNumberToUrl } = require('../bedrock_unlisted/mappings');
+const { starshipitTrackingNumberToUrl } = require('../bedrock_unlisted/mappings');
 const { bedrock_unlisted_slackErrorPost } = require('../bedrock_unlisted/bedrock_unlisted_slackErrorPost');
 const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
@@ -50,8 +50,25 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
     return { success: false, error: ['Missing required fields'] };
   }
 
-  const shopifyStore = starshipitOrderReferenceToShopifyStore(orderReference, carrierName);
-  
+  let shopifyStore;
+
+  for (const store of REGIONS_STARSHIPIT) {
+    const orderResponse = await shopifyOrderGet(
+      store,
+      { orderId: orderNumber },
+      { attrs: 'id' },
+    );
+
+    if (orderResponse.success && orderResponse.result?.id) {
+      shopifyStore = store;
+      break;
+    }
+  }
+
+  if (!shopifyStore) {
+    return { success: false, error: ['Order not found on any store'] };
+  }
+
   const originAddress = {
     countryCode: 'AU',
   };
