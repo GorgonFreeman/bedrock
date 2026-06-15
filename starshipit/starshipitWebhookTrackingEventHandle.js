@@ -47,7 +47,7 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
 
   if (!orderNumber || !orderReference) {
     console.error('Missing required fields', body);
-    return { success: false, error: ['Missing required fields'] };
+    return { success: false, error: [`Missing required fields: ${ JSON.stringify({ orderNumber, orderReference }) }`] };
   }
 
   let shopifyStore;
@@ -67,7 +67,7 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
   }
 
   if (!shopifyStore) {
-    return { success: false, error: ['Order not found on any store'] };
+    return { success: false, error: [`Order not found on any store: ${ JSON.stringify({ orderNumber, orderReference }) }`] };
   }
 
   const originAddress = {
