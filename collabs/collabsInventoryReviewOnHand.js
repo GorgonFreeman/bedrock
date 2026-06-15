@@ -1,3 +1,5 @@
+const { exec } = require('child_process');
+
 const { 
   HOSTED,
   REGIONS_PVX, 
@@ -248,6 +250,11 @@ const collabsInventoryReviewOnHand = async (
         sheetName: `${ store } ${ Date.now() }`,
       },
     );
+
+    if (!HOSTED && uploadResponse?.success) {
+      const { sheetUrl } = uploadResponse.result || {};
+      sheetUrl && exec(`open '${ sheetUrl }'`);
+    }
   }
 
   return {
