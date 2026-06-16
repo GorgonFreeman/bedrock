@@ -317,4 +317,4 @@ module.exports = {
 };
 
 // curl localhost:8000/collabsOrderFulfillmentFindV2 -H "Content-Type: application/json" -d '{ "store": "uk", "shopifyOrderPayload": { "orderIdentifier": { "orderId": "9671147290997" } } }'
-// curl localhost:8000/collabsOrderFulfillmentFindV2 -H "Content-Type: application/json" -d '{ "store": "au", "shopifyOrderPayload": { "orderIdentifier": { "orderName": "#AUS6371722" } } }'
+// curl localhost:8000/collabsOrderFulfillmentFindV2 -H "Content-Type: application/json" -d '{ "store": "au", "shopifyOrderPayload": { "orderIdentifier": { "orderName": "#AUS6371722" } }, "options": { "autofulfill": true } }'
