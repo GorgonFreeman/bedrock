@@ -36,7 +36,12 @@ const shopifyFulfillmentTrackingInfoUpdate = async (
         type: 'FulfillmentTrackingInput!',
         value: trackingInfoPayload,
       },
-      ...notifyCustomer && { notifyCustomer },
+      ...notifyCustomer && {
+        notifyCustomer: {
+          type: 'Boolean',
+          value: notifyCustomer,
+        },
+      },
     },
     `fulfillment { ${ returnAttrs } }`,
     { 
