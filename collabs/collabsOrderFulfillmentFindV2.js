@@ -7,7 +7,10 @@ const {
 
 const { funcApi, customNullish, gidToId, logDeep, askQuestion } = require('../utils');
 
-const { shopifyRegionToStarshipitAccount } = require('../mappings');
+const { 
+  shopifyRegionToStarshipitAccount,
+  shopifyStoreToOriginAddress,
+} = require('../mappings');
 
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { shopifyOrderFulfill } = require('../shopify/shopifyOrderFulfill');
@@ -137,6 +140,8 @@ const collabsOrderFulfillmentFindV2 = async (
   }
 
   let fulfillmentData;
+
+  const originAddress = shopifyStoreToOriginAddress(store);
 
   const FULFILLMENT_ORDER_CLOSED_STATUSES = [
     'CANCELLED',
