@@ -66,6 +66,7 @@ const collabsOrderFulfillmentFindV2 = async (
   {
     interactive = false,
     autofulfill = false,
+    notifyCustomer = false,
   } = {},
 ) => {
 
