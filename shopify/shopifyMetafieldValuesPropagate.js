@@ -5,7 +5,7 @@ const SUBKEY = 'metafields_sweep';
 
 const { HOSTED } = require('../constants');
 
-const { funcApi, logDeep, askQuestion, arrayStandardResponse, MultiDex } = require('../utils');
+const { funcApi, logDeep, askQuestion, arrayStandardResponse, MultiDex, gidToId } = require('../utils');
 
 const { bedrock_unlisted_slackErrorPost } = require('../bedrock_unlisted/bedrock_unlisted_slackErrorPost');
 
@@ -37,31 +37,13 @@ const metafieldIsEmpty = async (value, type) => {
   return value === null;
 };
 
-const shopifyMetafieldValuesPropagate = async (
-  fromStore,
-  toStores,
-  resource,
-  metafieldPaths,
-  {
-    apiVersion,
-    resources,
-    onlyWriteIfEmpty = false, // if the destination metafield has content, don't overwrite it. This allows divergence after the initial sync.
-  } = {},
-) => {
+const buildBulkResourceQuery = (resources, metafieldPaths, commonIdProp, resourceQueries) => {
+  const queryClause = resourceQueries?.length
+    ? `(query: "${ resourceQueries.join(' AND ') }")`
+    : '';
 
-  resources = resources || `${ resource }s`;
-
-  const commonIdProp = resourceToCommonIdProp[resource];
-  if (!commonIdProp) {
-    return {
-      success: false,
-      error: [`Resource "${ resource }" does not have a common ID property`],
-    };
-  }
-  
-  // TODO: Consider querying metafields as resources, instead of as attributes
-  const query = `{
-    ${ resources } {
+  return `{
+    ${ resources }${ queryClause } {
       edges {
         node {
           id
@@ -78,6 +60,35 @@ const shopifyMetafieldValuesPropagate = async (
       }
     }
   }`;
+};
+
+const shopifyMetafieldValuesPropagate = async (
+  fromStore,
+  toStores,
+  resource,
+  metafieldPaths,
+  {
+    apiVersion,
+    resources,
+    resourceQueries,
+    onlyWriteIfEmpty = false, // if the destination metafield has content, don't overwrite it. This allows divergence after the initial sync.
+  } = {},
+) => {
+
+  resources = resources || `${ resource }s`;
+
+  const commonIdProp = resourceToCommonIdProp[resource];
+  if (!commonIdProp) {
+    return {
+      success: false,
+      error: [`Resource "${ resource }" does not have a common ID property`],
+    };
+  }
+  
+  // TODO: Consider querying metafields as resources, instead of as attributes
+  // resourceQueries only filters the fromStore fetch — destination stores need unfiltered bulk data for handle/sku matching.
+  const fromStoreQuery = buildBulkResourceQuery(resources, metafieldPaths, commonIdProp, resourceQueries);
+  const toStoreQuery = buildBulkResourceQuery(resources, metafieldPaths, commonIdProp);
 
   // const storeToBulkOpId = {
   //   au: '3608468160584',
@@ -92,7 +103,7 @@ const shopifyMetafieldValuesPropagate = async (
     shopifyBulkOperationDo(
       `${ fromStore }.${ SUBKEY }`,
       'query',
-      query,
+      fromStoreQuery,
       {
         apiVersion,
         // resumeBulkOperationId: storeToBulkOpId[fromStore],
@@ -102,7 +113,7 @@ const shopifyMetafieldValuesPropagate = async (
       return shopifyBulkOperationDo(
         `${ toStore }.${ SUBKEY }`,
         'query',
-        query,
+        toStoreQuery,
         {
           apiVersion,
           // resumeBulkOperationId: storeToBulkOpId[toStore],
