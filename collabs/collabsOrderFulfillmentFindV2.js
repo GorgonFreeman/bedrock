@@ -217,6 +217,12 @@ const collabsOrderFulfillmentFindV2 = async (
     */
 
     // return tracking info if not actioning
+    if (!autofulfill) {
+      return {
+        success: true,
+        result: trackingResult,
+      };
+    }
 
     if (!trackingNumber) {
       // If no tracking, fulfill without info
