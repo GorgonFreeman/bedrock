@@ -2,13 +2,14 @@ const {
   HOSTED,
   REGIONS_LOGIWA,
   REGIONS_BLECKMANN,
-  REGIONS_PVX,
+  REGIONS_STARSHIPIT,
 } = require('../constants');
 
 const { funcApi, customNullish, gidToId, logDeep, askQuestion } = require('../utils');
 
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { bleckmannParcelsGet } = require('../bleckmann/bleckmannParcelsGet');
+const { starshipitTrackingGet } = require('../starshipit/starshipitTrackingGet');
 
 const SHOPIFY_ORDER_ATTRS = `
   id
@@ -54,6 +55,7 @@ const collabsOrderFulfillmentFindV2 = async (
 
   if (![
     REGIONS_BLECKMANN,
+    REGIONS_STARSHIPIT,
   ].some(regionList => regionList.includes(store))) {
     return { 
       success: false, 
@@ -157,8 +159,10 @@ const collabsOrderFulfillmentFindV2 = async (
 
   } else if (REGIONS_LOGIWA.includes(store)) {
 
-  } else if (REGIONS_PVX.includes(store)) {
-
+  } else if (REGIONS_STARSHIPIT.includes(store)) {
+    const starshipitTrackingResponse = await starshipitTrackingGet(store, { orderNumber: shopifyOrderId });
+    logDeep(starshipitTrackingResponse);
+    await askQuestion('?');
   }
 
   if (!fulfillmentData) {
@@ -192,3 +196,4 @@ module.exports = {
 };
 
 // curl localhost:8000/collabsOrderFulfillmentFindV2 -H "Content-Type: application/json" -d '{ "store": "uk", "shopifyOrderPayload": { "orderIdentifier": { "orderId": "9671147290997" } } }'
+// curl localhost:8000/collabsOrderFulfillmentFindV2 -H "Content-Type: application/json" -d '{ "store": "au", "shopifyOrderPayload": { "orderIdentifier": { "orderName": "#AUS6371722" } } }'
