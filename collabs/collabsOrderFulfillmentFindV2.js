@@ -186,6 +186,46 @@ const collabsOrderFulfillmentFindV2 = async (
     const starshipitTrackingResponse = await starshipitTrackingGet(starshipitAccount, { orderNumber: shopifyOrderId });
     logDeep(starshipitTrackingResponse);
     await askQuestion('?');
+
+    const { 
+      success: trackingSuccess, 
+      result: trackingResult, 
+    } = starshipitTrackingResponse;
+
+    if (!trackingSuccess || !trackingResult) {
+      return starshipitTrackingResponse;
+    }
+
+    const { 
+      order_status: orderStatus, 
+      carrier_name: carrierName,
+      tracking_number: trackingNumber,
+      tracking_url: trackingUrl,
+    } = trackingResult;
+
+    // if orderStatus too early, return
+    /*
+    if (orderStatus.toLowerCase() !== 'dispatched') {
+      return {
+        success: true,
+        code: 204,
+        result: {
+          message: `Order is not dispatched`,
+        },
+      }
+    }
+    */
+
+    // return tracking info if not actioning
+
+    if (!trackingNumber) {
+      // If no tracking, fulfill without info
+    }
+
+    // If fulfillment.initial metafield set, add tracking to the mentioned fulfillment order
+
+    // Otherwise, fulfill the order
+    
   }
 
   if (!fulfillmentData) {
