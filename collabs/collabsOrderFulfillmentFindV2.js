@@ -7,6 +7,8 @@ const {
 
 const { funcApi, customNullish, gidToId, logDeep, askQuestion } = require('../utils');
 
+const { shopifyRegionToStarshipitAccount } = require('../mappings');
+
 const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { bleckmannParcelsGet } = require('../bleckmann/bleckmannParcelsGet');
 const { starshipitTrackingGet } = require('../starshipit/starshipitTrackingGet');
@@ -15,6 +17,9 @@ const SHOPIFY_ORDER_ATTRS = `
   id
   name
   displayFulfillmentStatus
+  shippingLine {
+    title
+  }
   fulfillments(first: 250) {
     trackingInfo(first: 250) {
       number
@@ -95,8 +100,17 @@ const collabsOrderFulfillmentFindV2 = async (
     fulfillments,
     lineItems,
     fulfillmentOrders,
+    shippingLine,
   } = shopifyOrder;
   const shopifyOrderId = gidToId(shopifyOrderGid);
+  const shippingMethod = shippingLine?.title;
+
+  if (!shippingMethod) {
+    return {
+      success: false,
+      error: [`Order doesn't require shipping`],
+    };
+  }
 
   if ([
     shopifyOrderId,
@@ -160,7 +174,16 @@ const collabsOrderFulfillmentFindV2 = async (
   } else if (REGIONS_LOGIWA.includes(store)) {
 
   } else if (REGIONS_STARSHIPIT.includes(store)) {
-    const starshipitTrackingResponse = await starshipitTrackingGet(store, { orderNumber: shopifyOrderId });
+    const starshipitAccount = shopifyRegionToStarshipitAccount(store, shippingMethod);
+
+    if (!starshipitAccount) {
+      return {
+        success: false,
+        error: [`No Starshipit account found for ${ store }:${ shippingMethod }`],
+      };
+    }
+
+    const starshipitTrackingResponse = await starshipitTrackingGet(starshipitAccount, { orderNumber: shopifyOrderId });
     logDeep(starshipitTrackingResponse);
     await askQuestion('?');
   }
