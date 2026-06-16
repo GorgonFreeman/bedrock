@@ -13,12 +13,20 @@ const { shopifyOrderGet } = require('../shopify/shopifyOrderGet');
 const { bleckmannParcelsGet } = require('../bleckmann/bleckmannParcelsGet');
 const { starshipitTrackingGet } = require('../starshipit/starshipitTrackingGet');
 
+const INITIAL_FULFILLMENT_METAFIELD = {
+  namespace: 'fulfillment',
+  key: 'initial',
+};
+
 const SHOPIFY_ORDER_ATTRS = `
   id
   name
   displayFulfillmentStatus
   shippingLine {
     title
+  }
+  mfInitialFulfillment: metafield(namespace: "${ INITIAL_FULFILLMENT_METAFIELD.namespace }", key: "${ INITIAL_FULFILLMENT_METAFIELD.key }") {
+    value
   }
   fulfillments(first: 250) {
     trackingInfo(first: 250) {
@@ -101,6 +109,7 @@ const collabsOrderFulfillmentFindV2 = async (
     lineItems,
     fulfillmentOrders,
     shippingLine,
+    mfInitialFulfillment,
   } = shopifyOrder;
   const shopifyOrderId = gidToId(shopifyOrderGid);
   const shippingMethod = shippingLine?.title;
