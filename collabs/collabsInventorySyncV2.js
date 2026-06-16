@@ -150,14 +150,14 @@ module.exports = {
 };
 
 /* 
-curl localhost:8000/collabsInventorySyncV2 \
+curl localhost:8100/collabsInventorySyncV2 \
   -H "Content-Type: application/json" \
   -d '{
     "store": "au",
     "reviewPayload": {
       "reviewInputs": {
-        "minReportableDiff": 90,
-        "allowSafeBelowDiff": false
+        "minReportableDiff": 3,
+        "allowSafeBelowDiff": true
       }
     }
   }'
