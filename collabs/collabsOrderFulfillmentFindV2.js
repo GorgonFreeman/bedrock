@@ -243,12 +243,12 @@ const collabsOrderFulfillmentFindV2 = async (
       };
     }
 
-    // If fulfillment.initial metafield set, and tracking number available, add tracking to the mentioned fulfillment order
-    if (initialFulfillmentId && trackingNumber) {
-
-      const trackingUrlCalculated = trackingUrl
+    const trackingUrlCalculated = trackingUrl
         ? trackingUrl 
         : carrierName && starshipitTrackingNumberToUrl(carrierName, trackingNumber);
+
+    // If fulfillment.initial metafield set, and tracking number available, add tracking to the mentioned fulfillment order
+    if (initialFulfillmentId && trackingNumber) {
 
       const fulfillmentUpdateResponse = await shopifyFulfillmentTrackingInfoUpdate(
         store, 
@@ -265,13 +265,22 @@ const collabsOrderFulfillmentFindV2 = async (
       return fulfillmentUpdateResponse;
     }
 
-    if (!trackingNumber) {
-      // If no tracking, fulfill without info
-    }
+    // Fulfill the order with available info
+    const fulfillResponse = await shopifyOrderFulfill(
+      store, 
+      shopifyOrderId, 
+      {
+        notifyCustomer,
+        originAddress,
+        trackingInfo: {
+          ...trackingNumber && { number: trackingNumber },
+          ...trackingUrlCalculated && { url: trackingUrlCalculated },
+          ...carrierName && { company: carrierName },
+        },
+      },
+    );
 
-    // If fulfillment.initial metafield set, add tracking to the mentioned fulfillment order
-
-    // Otherwise, fulfill the order
+    return fulfillResponse;
     
   }
 
