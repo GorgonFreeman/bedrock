@@ -120,6 +120,7 @@ const collabsOrderFulfillmentFindV2 = async (
   } = shopifyOrder;
   const shopifyOrderId = gidToId(shopifyOrderGid);
   const shippingMethod = shippingLine?.title;
+  const initialFulfillmentId = mfInitialFulfillment?.value;
 
   if (!shippingMethod) {
     return {
@@ -240,6 +241,28 @@ const collabsOrderFulfillmentFindV2 = async (
         success: true,
         result: trackingResult,
       };
+    }
+
+    // If fulfillment.initial metafield set, and tracking number available, add tracking to the mentioned fulfillment order
+    if (initialFulfillmentId && trackingNumber) {
+
+      const trackingUrlCalculated = trackingUrl
+        ? trackingUrl 
+        : carrierName && starshipitTrackingNumberToUrl(carrierName, trackingNumber);
+
+      const fulfillmentUpdateResponse = await shopifyFulfillmentTrackingInfoUpdate(
+        store, 
+        initialFulfillmentId, 
+        {
+          number: trackingNumber,
+          ...trackingUrlCalculated && { url: trackingUrlCalculated },
+          ...carrierName && { company: carrierName },
+        },
+        {
+          notifyCustomer,
+        },
+      );
+      return fulfillmentUpdateResponse;
     }
 
     if (!trackingNumber) {
