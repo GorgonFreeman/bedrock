@@ -119,7 +119,7 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
     return response;
   }
 
-  if (trackingStatus.toLowerCase() === 'dispatched') {
+  if (trackingStatus.toLowerCase() === 'manifested') {
     const orderResponse = await shopifyOrderGet(
       shopifyStore,
       { orderId: orderNumber },
