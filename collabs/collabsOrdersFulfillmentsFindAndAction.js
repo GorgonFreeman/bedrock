@@ -49,4 +49,4 @@ module.exports = {
   collabsOrdersFulfillmentsFindAndActionApi,
 };
 
-// curl localhost:8000/collabsOrdersFulfillmentsFindAndAction -H "Content-Type: application/json" -d '{ "store": "au" }'
+// curl localhost:8000/collabsOrdersFulfillmentsFindAndAction -H "Content-Type: application/json" -d '{ "store": "au", "options": { "orderQueries": ["delivery_status:no_status", "processed_at:past_quarter", "delivery_method:shipping", "status:open"] } }'
