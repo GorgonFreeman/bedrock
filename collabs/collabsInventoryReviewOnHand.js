@@ -8,6 +8,8 @@ const { funcApi, gidToId, logDeep, askQuestion, arrayToObj, arraySortByProp, Tim
 
 const { bedrock_unlisted_slackErrorPost } = require('../bedrock_unlisted/bedrock_unlisted_slackErrorPost');
 
+const { shopifyStoreToInventoryExcludedProductQueries } = require('../bedrock_unlisted/mappings');
+
 const { shopifyLocationGetMain } = require('../shopify/shopifyLocationGetMain');
 const { shopifyInventoryItemsGet } = require('../shopify/shopifyInventoryItemsGet');
 const { shopifyProductsGet } = require('../shopify/shopifyProductsGet');
@@ -111,12 +113,10 @@ const collabsInventoryReviewOnHand = async (
 
   !HOSTED && logDeep('locationId', locationId);
 
-  const invHoldTag = `inv_hold_${ store }`;
+  const inventoryExcludedProductQueries = shopifyStoreToInventoryExcludedProductQueries(store);
 
   const invHoldProductsResponse = await shopifyProductsGet(store, {
-    queries: [
-      `tag:'${ invHoldTag }'`,
-    ],
+    queries: inventoryExcludedProductQueries,
     attrs: `
       id
       variants (first: 100) {
