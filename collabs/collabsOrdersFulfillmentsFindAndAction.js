@@ -2,6 +2,11 @@ const { funcApi, credsByPath, logDeep, askQuestion } = require('../utils');
 
 const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
 
+const { 
+  requiredAttrs,
+  collabsOrderFulfillmentFindV2,
+} = require('../collabs/collabsOrderFulfillmentFindV2');
+
 const collabsOrdersFulfillmentsFindAndAction = async (
   store,
   {
@@ -18,6 +23,7 @@ const collabsOrdersFulfillmentsFindAndAction = async (
   // Get all orders in Shopify that are not completely fulfilled, or, without tracking
   const ordersResponse = await shopifyOrdersGet(store, {
     ...orderGetOptions,
+    attrs: requiredAttrs,
   });
 
   const { success: ordersSuccess, result: orders } = ordersResponse;
