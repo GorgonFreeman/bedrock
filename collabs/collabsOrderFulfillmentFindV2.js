@@ -238,6 +238,7 @@ const collabsOrderFulfillmentFindV2Single = async (
       'in transit', 
       'attempted delivery',
       'out for delivery',
+      'intercom or doorbell fault',
     ];
 
     if (!shippedStatuses.includes(trackingStatus.toLowerCase())) {
