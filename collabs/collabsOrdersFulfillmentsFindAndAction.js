@@ -1,11 +1,26 @@
-const { funcApi } = require('../utils');
+const { funcApi, credsByPath } = require('../utils');
 
 const collabsOrdersFulfillmentsFindAndAction = async (
   store,
   {
     orderQueries,
+    savedSearchId,
   } = {},
 ) => {
+
+  if (!orderQueries && !savedSearchId) {
+    const creds = credsByPath(`shopify.${ store }`);
+
+    const { TRACKING_CHECK_VIEW_ID: trackingCheckViewId } = creds[store];
+    if (!trackingCheckViewId) {
+      return {
+        success: false,
+        error: [`Tracking check view ID not found for store ${ store } - please set in .creds.yml`],
+      };
+    }
+
+    savedSearchId = trackingCheckViewId;
+  }
 
   // Get all orders in Shopify that are not completely fulfilled, or, without tracking
   // For each order, run collabsOrderFulfillmentFindV2 with autofulfill true
