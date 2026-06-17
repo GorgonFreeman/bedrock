@@ -137,6 +137,15 @@ const collabsInventoryReviewOnHand = async (
     return invHoldProductsResponse;
   }
 
+  const productsWithTooManyVariants = invHoldProducts.filter(product => product.variants?.length === 100);
+  if (productsWithTooManyVariants.length) {
+    const productIds = productsWithTooManyVariants.map(product => gidToId(product.id)).join(', ');
+    return {
+      success: false,
+      error: [`Product(s) have more than 100 variants (${ productIds }) - adjust the function`],
+    };
+  }
+
   const invHoldSkus = invHoldProducts.flatMap(product => (
     product.variants?.map(variant => variant.sku).filter(Boolean) || []
   ));
