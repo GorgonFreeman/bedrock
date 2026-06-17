@@ -314,6 +314,7 @@ const collabsOrderFulfillmentFindV2Api = funcApi(collabsOrderFulfillmentFindV2, 
 module.exports = {
   collabsOrderFulfillmentFindV2,
   collabsOrderFulfillmentFindV2Api,
+  requiredAttrs: SHOPIFY_ORDER_ATTRS,
 };
 
 // curl localhost:8000/collabsOrderFulfillmentFindV2 -H "Content-Type: application/json" -d '{ "store": "uk", "shopifyOrderPayload": { "orderIdentifier": { "orderId": "9671147290997" } } }'
