@@ -12,7 +12,6 @@ shopify:
       - discountable
       - sale
       - no-returns
-    TRACKING_CHECK_VIEW_ID: ___________
 
 pipe17:
   BASE_URL: https://api-v3.pipe17.com/api/v3

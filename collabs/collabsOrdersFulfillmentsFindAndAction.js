@@ -10,19 +10,6 @@ const collabsOrdersFulfillmentsFindAndAction = async (
   } = {},
 ) => {
 
-  if (!orderQueries && !savedSearchId) {
-    const creds = credsByPath(['shopify', store]);
-    const { TRACKING_CHECK_VIEW_ID: trackingCheckViewId } = creds;
-    if (!trackingCheckViewId) {
-      return {
-        success: false,
-        error: [`Tracking check view ID not found for store ${ store } - please set in .creds.yml`],
-      };
-    }
-
-    savedSearchId = trackingCheckViewId;
-  }
-
   const orderGetOptions = {
     ...savedSearchId ? { savedSearchId } : {},
     ...!savedSearchId && orderQueries ? { queries: orderQueries } : {},
