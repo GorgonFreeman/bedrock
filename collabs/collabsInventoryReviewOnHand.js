@@ -4,12 +4,13 @@ const {
   HOSTED,
   REGIONS_PVX, 
 } = require('../constants');
-const { funcApi, gidToId, logDeep, arrayToObj, arraySortByProp, Timer, objToArray } = require('../utils');
+const { funcApi, gidToId, logDeep, askQuestion, arrayToObj, arraySortByProp, Timer, objToArray } = require('../utils');
 
 const { bedrock_unlisted_slackErrorPost } = require('../bedrock_unlisted/bedrock_unlisted_slackErrorPost');
 
 const { shopifyLocationGetMain } = require('../shopify/shopifyLocationGetMain');
 const { shopifyInventoryItemsGet } = require('../shopify/shopifyInventoryItemsGet');
+const { shopifyProductsGet } = require('../shopify/shopifyProductsGet');
 
 const { shopifyRegionToPvxSite } = require('../mappings');
 const { peoplevoxReportGet } = require('../peoplevox/peoplevoxReportGet');
@@ -109,6 +110,39 @@ const collabsInventoryReviewOnHand = async (
   }
 
   !HOSTED && logDeep('locationId', locationId);
+
+  const invHoldTag = `inv_hold_${ store }`;
+
+  const invHoldProductsResponse = await shopifyProductsGet(store, {
+    queries: [
+      `tag:'${ invHoldTag }'`,
+    ],
+    attrs: `
+      id
+      variants (first: 100) {
+        edges {
+          node {
+            sku
+          }
+        }
+      }
+    `,
+  });
+
+  const {
+    success: invHoldProductsSuccess,
+    result: invHoldProducts,
+  } = invHoldProductsResponse;
+  if (!invHoldProductsSuccess) {
+    return invHoldProductsResponse;
+  }
+
+  const invHoldSkus = invHoldProducts.flatMap(product => (
+    product.variants?.map(variant => variant.sku).filter(Boolean) || []
+  ));
+
+  !HOSTED && logDeep('invHoldSkus', invHoldSkus);
+  !HOSTED && await askQuestion('?');
 
   const inventoryItemsResponse = await shopifyInventoryItemsGet(store, {
     ...(
