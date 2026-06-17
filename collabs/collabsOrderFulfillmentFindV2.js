@@ -223,6 +223,7 @@ const collabsOrderFulfillmentFindV2Single = async (
       tracking_number: trackingNumber,
       tracking_url: trackingUrl,
       tracking_status: trackingStatus,
+      tracking_events: trackingEvents,
     } = trackingResult;
 
     // if too early, return
@@ -240,26 +241,15 @@ const collabsOrderFulfillmentFindV2Single = async (
       'out for delivery',
       'intercom or doorbell fault',
     ];
-
-    if (!shippedStatuses.includes(trackingStatus.toLowerCase())) {
-      
-      if (!unshippedStatuses.includes(trackingStatus.toLowerCase())) {
-        // if (!HOSTED) {
-        //   logDeep({ trackingStatus, trackingResult });
-        //   await askQuestion('?');
-        // }
-
-        return {
-          success: false,
-          error: [`Unknown tracking_status: ${ trackingStatus }`],
-        }
-      }
-
+    
+    // Consider the order shipped if any past event matches a shipped status
+    const hasBeenShipped = trackingEvents?.some(event => shippedStatuses.includes(event.status.toLowerCase()));
+    if (!hasBeenShipped) {
       return {
         success: true,
         code: 204,
         result: {
-          message: `Order is not dispatched yet: ${ trackingStatus }`,
+          message: `Order is not shipped yet: ${ trackingStatus }`,
         },
       };
     }
