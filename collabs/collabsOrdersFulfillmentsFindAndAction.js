@@ -1,21 +1,26 @@
 const { funcApi } = require('../utils');
 
 const collabsOrdersFulfillmentsFindAndAction = async (
-  arg,
+  store,
   {
-    option,
+    orderQueries,
   } = {},
 ) => {
 
+  // Get all orders in Shopify that are not completely fulfilled, or, without tracking
+  // For each order, run collabsOrderFulfillmentFindV2 with autofulfill true
+
   return { 
-    arg, 
-    option,
+    success: true,
   };
   
 };
 
 const collabsOrdersFulfillmentsFindAndActionApi = funcApi(collabsOrdersFulfillmentsFindAndAction, {
-  argNames: ['arg', 'options'],
+  argNames: [
+    'store', 
+    'options',
+  ],
 });
 
 module.exports = {
