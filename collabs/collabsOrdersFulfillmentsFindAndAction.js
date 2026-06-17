@@ -34,12 +34,14 @@ const collabsOrdersFulfillmentsFindAndAction = async (
   });
 
   const { success: ordersSuccess, result: orders } = ordersResponse;
+
   if (!ordersSuccess) {
     return ordersResponse;
   }
 
   logDeep(orders);
   await askQuestion('?');
+
   // For each order, run collabsOrderFulfillmentFindV2 with autofulfill true
 
   return { 
