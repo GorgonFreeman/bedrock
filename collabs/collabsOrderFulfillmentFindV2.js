@@ -5,7 +5,7 @@ const {
   REGIONS_STARSHIPIT,
 } = require('../constants');
 
-const { funcApi, customNullish, gidToId, logDeep, askQuestion } = require('../utils');
+const { funcApi, customNullish, gidToId, logDeep, askQuestion, actionMultipleOrSingle } = require('../utils');
 
 const { 
   shopifyRegionToStarshipitAccount,
@@ -62,7 +62,7 @@ const SHOPIFY_ORDER_ATTRS = `
   }
 `;
 
-const collabsOrderFulfillmentFindV2 = async (
+const collabsOrderFulfillmentFindV2Single = async (
   store,
   {
     orderIdentifier,
@@ -303,6 +303,29 @@ const collabsOrderFulfillmentFindV2 = async (
   
 };
 
+const collabsOrderFulfillmentFindV2 = async (
+  store,
+  shopifyOrderPayload,
+  {
+    queueRunOptions,
+    ...options
+  } = {},
+) => {
+  const response = await actionMultipleOrSingle(
+    shopifyOrderPayload,
+    collabsOrderFulfillmentFindV2Single,
+    (shopifyOrderPayload) => ({
+      args: [store, shopifyOrderPayload],
+      options,
+    }),
+    {
+      ...(queueRunOptions ? { queueRunOptions } : {}),
+    },
+  );
+
+  return response;
+};
+
 const collabsOrderFulfillmentFindV2Api = funcApi(collabsOrderFulfillmentFindV2, {
   argNames: ['store', 'shopifyOrderPayload', 'options'],
   validatorsByArg: {
@@ -313,9 +336,11 @@ const collabsOrderFulfillmentFindV2Api = funcApi(collabsOrderFulfillmentFindV2, 
 
 module.exports = {
   collabsOrderFulfillmentFindV2,
+  collabsOrderFulfillmentFindV2Single,
   collabsOrderFulfillmentFindV2Api,
   requiredAttrs: SHOPIFY_ORDER_ATTRS,
 };
 
 // curl localhost:8000/collabsOrderFulfillmentFindV2 -H "Content-Type: application/json" -d '{ "store": "uk", "shopifyOrderPayload": { "orderIdentifier": { "orderId": "9671147290997" } } }'
 // curl localhost:8000/collabsOrderFulfillmentFindV2 -H "Content-Type: application/json" -d '{ "store": "au", "shopifyOrderPayload": { "orderIdentifier": { "orderName": "#AUS6371722" } }, "options": { "autofulfill": true } }'
+// curl localhost:8000/collabsOrderFulfillmentFindV2 -H "Content-Type: application/json" -d '{ "store": "au", "shopifyOrderPayload": [{ "orderIdentifier": { "orderId": "7015155466312" } }, { "orderIdentifier": { "orderName": "#AUS5492283" } }], "options": { "autofulfill": true } }'
