@@ -205,8 +205,8 @@ const collabsOrderFulfillmentFindV2Single = async (
     }
 
     const starshipitTrackingResponse = await starshipitTrackingGet(starshipitAccount, { orderNumber: shopifyOrderId });
-    logDeep(starshipitTrackingResponse);
-    await askQuestion('?');
+    // logDeep(starshipitTrackingResponse);
+    // await askQuestion('?');
 
     const { 
       success: trackingSuccess, 
@@ -222,20 +222,46 @@ const collabsOrderFulfillmentFindV2Single = async (
       carrier_name: carrierName,
       tracking_number: trackingNumber,
       tracking_url: trackingUrl,
+      tracking_status: trackingStatus,
     } = trackingResult;
 
-    // if orderStatus too early, return
-    /*
-    if (orderStatus.toLowerCase() !== 'dispatched') {
+    // if too early, return
+
+    const unshippedStatuses = [
+      'printed',
+      'manifested',
+    ];
+
+    const shippedStatuses = [
+      'delivered',
+      'awaiting collection',
+      'in transit', 
+      'attempted delivery',
+      'out for delivery',
+    ];
+
+    if (!shippedStatuses.includes(trackingStatus.toLowerCase())) {
+      
+      if (!unshippedStatuses.includes(trackingStatus.toLowerCase())) {
+        if (!HOSTED) {
+          logDeep({ trackingStatus, trackingResult });
+          await askQuestion('?');
+        }
+
+        return {
+          success: false,
+          error: [`Unknown tracking_status: ${ trackingStatus }`],
+        }
+      }
+
       return {
         success: true,
         code: 204,
         result: {
-          message: `Order is not dispatched`,
+          message: `Order is not dispatched yet: ${ trackingStatus }`,
         },
-      }
+      };
     }
-    */
 
     // return tracking info if not actioning
     if (!autofulfill) {
