@@ -17,14 +17,16 @@ const collabsOrdersFulfillmentsFindAndAction = async (
       return {
         success: false,
         error: [`Tracking check view ID not found for store ${ store } - please set in .creds.yml`],
-      };    }
+      };
+    }
 
     savedSearchId = trackingCheckViewId;
   }
 
   const orderGetOptions = {
     ...savedSearchId ? { savedSearchId } : {},
-    ...!savedSearchId && orderQueries ? { queries: orderQueries } : {},  };
+    ...!savedSearchId && orderQueries ? { queries: orderQueries } : {},
+  };
 
   // Get all orders in Shopify that are not completely fulfilled, or, without tracking
   const ordersResponse = await shopifyOrdersGet(store, {
@@ -32,14 +34,12 @@ const collabsOrdersFulfillmentsFindAndAction = async (
   });
 
   const { success: ordersSuccess, result: orders } = ordersResponse;
-
   if (!ordersSuccess) {
     return ordersResponse;
   }
 
   logDeep(orders);
   await askQuestion('?');
-
   // For each order, run collabsOrderFulfillmentFindV2 with autofulfill true
 
   return { 
