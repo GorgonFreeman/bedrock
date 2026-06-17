@@ -1,4 +1,4 @@
-const { funcApi, credsByPath } = require('../utils');
+const { funcApi, credsByPath, logDeep, askQuestion } = require('../utils');
 
 const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
 
@@ -11,23 +11,20 @@ const collabsOrdersFulfillmentsFindAndAction = async (
 ) => {
 
   if (!orderQueries && !savedSearchId) {
-    const creds = credsByPath(`shopify.${ store }`);
-
-    const { TRACKING_CHECK_VIEW_ID: trackingCheckViewId } = creds[store];
+    const creds = credsByPath(['shopify', store]);
+    const { TRACKING_CHECK_VIEW_ID: trackingCheckViewId } = creds;
     if (!trackingCheckViewId) {
       return {
         success: false,
         error: [`Tracking check view ID not found for store ${ store } - please set in .creds.yml`],
-      };
-    }
+      };    }
 
     savedSearchId = trackingCheckViewId;
   }
 
   const orderGetOptions = {
     ...savedSearchId ? { savedSearchId } : {},
-    ...!savedSearchId && orderQueries ? { queries: orderQueries } : {},
-  };
+    ...!savedSearchId && orderQueries ? { queries: orderQueries } : {},  };
 
   // Get all orders in Shopify that are not completely fulfilled, or, without tracking
   const ordersResponse = await shopifyOrdersGet(store, {
