@@ -150,8 +150,7 @@ const collabsInventoryReviewOnHand = async (
     product.variants?.map(variant => variant.sku).filter(Boolean) || []
   ));
 
-  !HOSTED && logDeep('invHoldSkus', invHoldSkus);
-  !HOSTED && await askQuestion('?');
+  const invHoldSkusSet = new Set(invHoldSkus);
 
   const inventoryItemsResponse = await shopifyInventoryItemsGet(store, {
     ...(
@@ -200,6 +199,12 @@ const collabsInventoryReviewOnHand = async (
       sku,
       inventoryLevels,
     } = inventoryItem;
+
+    // Skip inv_hold products
+    if (invHoldSkusSet.has(sku)) {
+      continue;
+    }
+
     const inventoryItemId = gidToId(inventoryItemGid);
     // TODO: Handle unactivated inventory - this will show as a missing inventory level at that location. Default to 0 and support activation.
     const inventoryLevel = inventoryLevels.find(level => level.location.id === `gid://shopify/Location/${ locationId }`);
