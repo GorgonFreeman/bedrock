@@ -244,10 +244,10 @@ const collabsOrderFulfillmentFindV2Single = async (
     if (!shippedStatuses.includes(trackingStatus.toLowerCase())) {
       
       if (!unshippedStatuses.includes(trackingStatus.toLowerCase())) {
-        if (!HOSTED) {
-          logDeep({ trackingStatus, trackingResult });
-          await askQuestion('?');
-        }
+        // if (!HOSTED) {
+        //   logDeep({ trackingStatus, trackingResult });
+        //   await askQuestion('?');
+        // }
 
         return {
           success: false,

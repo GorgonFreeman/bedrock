@@ -33,9 +33,6 @@ const collabsOrdersFulfillmentsFindAndAction = async (
     return ordersResponse;
   }
 
-  logDeep(orders);
-  await askQuestion('?');
-
   // For each order, run collabsOrderFulfillmentFindV2 with autofulfill true
   const response = await collabsOrderFulfillmentFindV2(
     store, 
