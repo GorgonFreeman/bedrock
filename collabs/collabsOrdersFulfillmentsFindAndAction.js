@@ -12,6 +12,7 @@ const collabsOrdersFulfillmentsFindAndAction = async (
   {
     orderQueries,
     savedSearchId,
+    notifyCustomer,
   } = {},
 ) => {
 
@@ -36,11 +37,16 @@ const collabsOrdersFulfillmentsFindAndAction = async (
   await askQuestion('?');
 
   // For each order, run collabsOrderFulfillmentFindV2 with autofulfill true
+  const response = await collabsOrderFulfillmentFindV2(
+    store, 
+    orders.map(order => ({ orderData: order })),
+    {
+      autofulfill: true,
+      notifyCustomer,
+    },
+  );
 
-  return { 
-    success: true,
-  };
-  
+  return response;
 };
 
 const collabsOrdersFulfillmentsFindAndActionApi = funcApi(collabsOrdersFulfillmentsFindAndAction, {
