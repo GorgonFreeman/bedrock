@@ -60,4 +60,4 @@ module.exports = {
   collabsOrdersFulfillmentsFindAndActionApi,
 };
 
-// curl localhost:8000/collabsOrdersFulfillmentsFindAndAction -H "Content-Type: application/json" -d '{ "arg": "1234" }'
+// curl localhost:8000/collabsOrdersFulfillmentsFindAndAction -H "Content-Type: application/json" -d '{ "store": "au" }'
