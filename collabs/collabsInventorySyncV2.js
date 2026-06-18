@@ -123,8 +123,8 @@ const collabsInventorySyncV2 = async (
     });
   }
   
-  !HOSTED && logDeep('shopifyInventoryQuantitiesSetPayloads', shopifyInventoryQuantitiesSetPayloads);
-  !HOSTED && await askQuestion('?');
+  // !HOSTED && logDeep('shopifyInventoryQuantitiesSetPayloads', shopifyInventoryQuantitiesSetPayloads);
+  // !HOSTED && await askQuestion('?');
 
   const shopifyInventoryQuantitiesSetResponse = await shopifyInventoryQuantitiesSet(
     store,
