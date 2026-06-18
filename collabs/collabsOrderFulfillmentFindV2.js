@@ -126,8 +126,10 @@ const collabsOrderFulfillmentFindV2Single = async (
 
   if (!shippingMethod) {
     return {
-      success: false,
-      error: [`Order doesn't require shipping`],
+      success: true,
+      result: {
+        message: `Order doesn't require shipping`,
+      },
     };
   }
 
