@@ -1,4 +1,4 @@
-const { funcApi, credsByPath, logDeep, askQuestion } = require('../utils');
+const { funcApi, credsByPath, logDeep, askQuestion, dateTimeFromNow, days } = require('../utils');
 
 const { shopifyOrdersGet } = require('../shopify/shopifyOrdersGet');
 
@@ -11,10 +11,20 @@ const collabsOrdersFulfillmentsFindAndAction = async (
   store,
   {
     orderQueries,
+    sinceDays,
+    untilDays,
     savedSearchId,
     notifyCustomer,
   } = {},
 ) => {
+
+  if (orderQueries || sinceDays || untilDays) {
+    orderQueries = [
+      ...orderQueries || [],
+      ...sinceDays ? [`processed_at:>${ dateTimeFromNow({ minus: days(sinceDays), dateOnly: true })}`] : [],
+      ...untilDays ? [`processed_at:<${ dateTimeFromNow({ minus: days(untilDays), dateOnly: true })}`] : [],
+    ];
+  }
 
   const orderGetOptions = {
     ...savedSearchId ? { savedSearchId } : {},
