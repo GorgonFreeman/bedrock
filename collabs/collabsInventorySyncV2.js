@@ -78,13 +78,13 @@ const collabsInventorySyncV2 = async (
   });
 
   if (needsCalculation) {
-    console.log('needs calculation');
+    !HOSTED && console.log('needsCalculation', needsCalculation);
     const inventoryDataObj = arrayToObj(reviewOutputArray, { keyProp: 'sku' });
     const inventoryReviewObj = collabsInventoryReviewCalculateDiffs(inventoryDataObj);
     reviewOutputArray = objToArray(inventoryReviewObj, { keyProp: 'sku', spread: true });
   }
 
-  logDeep(reviewOutputArray);
+  !HOSTED && logDeep(reviewOutputArray);
 
   const shopifyInventoryQuantitiesSetPayloads = [];
 
