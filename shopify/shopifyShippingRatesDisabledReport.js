@@ -13,7 +13,7 @@ const METAFIELD_KEY = 'alerts';
 
 // define slack bot associated details
 const COMMAND_NAME = 'shipping_rates_disabled_report'; // slash command related to this script
-const SLACK_CHANNEL = 'foxtron_testing'
+const SLACK_CHANNEL = 'alerts_shipping';
 
 const snoozeOptions = [
   {
