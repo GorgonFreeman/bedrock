@@ -6,7 +6,7 @@ const { credsByPath, CustomAxiosClient, stripEdgesAndNodes, Getter, capitaliseSt
 
 const shopifyRequestSetup = ({ 
   credsPath,
-  apiVersion = '2025-10', 
+  apiVersion = '2026-04', 
 } = {}) => {
   // returns { baseUrl, headers }
   
