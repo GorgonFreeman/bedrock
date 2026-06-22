@@ -1,4 +1,4 @@
-const { funcApi, logDeep, gidToId, askQuestion, dateFromNow, hours } = require('../utils');
+const { funcApi, logDeep, gidToId, askQuestion, dateFromNow, hours, credsByPath } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
 const { shopifyMetafieldGet } = require('../shopify/shopifyMetafieldGet');
@@ -6,7 +6,8 @@ const { slackMessagePost } = require('../slack/slackMessagePost');
 
 // Define the metafield key and namespace for the disabled shipping rates snooze options
 const METAFIELD_DEFAULT_CREDS_PATH = 'au';
-const METAFIELD_SHOP_ID = 'gid://shopify/Shop/21971730504';
+const metafieldCreds = credsByPath(['shopify', METAFIELD_DEFAULT_CREDS_PATH]);
+const { SHOP_ID: METAFIELD_SHOP_ID } = metafieldCreds;
 const METAFIELD_NAMESPACE = 'shipping_rates';
 const METAFIELD_KEY = 'alerts';
 
