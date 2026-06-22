@@ -84,13 +84,13 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
     };
   };
 
-  const storeInitialFulfillmentMetafield = async (fulfillmentId) => {
+  const setInitialFulfillmentMetafield = async (value) => {
     return shopifyMetafieldsSet(shopifyStore, [{
       ownerId: `gid://shopify/Order/${ orderNumber }`,
       namespace: INITIAL_FULFILLMENT_METAFIELD.namespace,
       key: INITIAL_FULFILLMENT_METAFIELD.key,
       type: 'single_line_text_field',
-      value: String(fulfillmentId),
+      value: String(value),
     }]);
   };
 
@@ -110,7 +110,7 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
 
     const fulfillmentId = gidToId(response.result?.fulfillment?.id);
     if (fulfillmentId) {
-      const metafieldResponse = await storeInitialFulfillmentMetafield(fulfillmentId);
+      const metafieldResponse = await setInitialFulfillmentMetafield(fulfillmentId);
       if (!metafieldResponse.success) {
         return metafieldResponse;
       }
@@ -139,12 +139,32 @@ const starshipitWebhookTrackingEventHandle = async (req) => {
     const initialFulfillmentId = mfInitialFulfillment?.value;
 
     if (initialFulfillmentId) {
-      return shopifyFulfillmentTrackingInfoUpdate(
+
+      const actionedSubstring = 'actioned:';
+
+      if (initialFulfillmentId.includes(actionedSubstring)) {
+        return {
+          success: true,
+          result: {
+            message: 'Initial fulfillment metafield is already actioned, skipping',
+          },
+        };
+      }
+
+      const trackingUpdateResponse = await shopifyFulfillmentTrackingInfoUpdate(
         shopifyStore,
         initialFulfillmentId,
         trackingInfo,
         { notifyCustomer: true },
       );
+
+      if (!trackingUpdateResponse.success) {
+        return trackingUpdateResponse;
+      }
+
+      await setInitialFulfillmentMetafield(`${ actionedSubstring }${ trackingStatus }`);
+      
+      return trackingUpdateResponse;
     }
 
     if (displayFulfillmentStatus !== 'FULFILLED') {
