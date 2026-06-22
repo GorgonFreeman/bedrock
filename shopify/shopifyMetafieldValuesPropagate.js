@@ -295,7 +295,7 @@ const shopifyMetafieldValuesPropagate = async (
                 const { success: toProductGetSuccess, result: toProductResult } = toProductResponse;
                 
                 if (!toProductGetSuccess) {
-                  return toProductGetSuccess;
+                  return toProductResponse;
                 }
 
                 const toProduct = toProductResult?.product || toProductResult;
