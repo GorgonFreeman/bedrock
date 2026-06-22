@@ -69,4 +69,4 @@ module.exports = {
 };
 
 // curl localhost:8000/collabsOrdersFulfillmentsFindAndAction -H "Content-Type: application/json" -d '{ "store": "au", "options": { "sinceDays": 7, "untilDays": 1, "notifyCustomer": false, "orderQueries": ["delivery_status:no_status", "delivery_method:shipping", "status:open", "fulfillment_status:unshipped"] } }'
-// curl localhost:8100/collabsOrdersFulfillmentsFindAndAction -H "Content-Type: application/json" -d '{ "store": "au", "options": { "sinceDays": 7, "untilDays": 1, "notifyCustomer": false, "orderQueries": ["delivery_status:no_status", "delivery_method:shipping", "status:open", "fulfillment_status:shipped", "tag_not:'\''sales-order:staff'\''"] } }'
+// curl localhost:8100/collabsOrdersFulfillmentsFindAndAction -H "Content-Type: application/json" -d '{ "store": "au", "options": { "sinceDays": 7, "untilDays": 1, "notifyCustomer": false, "orderQueries": ["delivery_status:no_status", "delivery_method:shipping", "fulfillment_status:shipped", "tag_not:'\''sales-order:staff'\''"] } }'
