@@ -68,5 +68,5 @@ module.exports = {
   collabsOrdersFulfillmentsFindAndActionApi,
 };
 
-// curl localhost:8000/collabsOrdersFulfillmentsFindAndAction -H "Content-Type: application/json" -d '{ "store": "au", "options": { "orderQueries": ["delivery_status:no_status", "processed_at:past_quarter", "delivery_method:shipping", "status:open"] } }'
-// curl localhost:8100/collabsOrdersFulfillmentsFindAndAction -H "Content-Type: application/json" -d '{ "store": "au", "options": { "orderQueries": ["delivery_status:no_status", "fulfillment_status:shipped", "processed_at:past_month", "delivery_method:shipping", "tag_not:'\''sales-order:staff'\''"], "notifyCustomer": false } }'
+// curl localhost:8000/collabsOrdersFulfillmentsFindAndAction -H "Content-Type: application/json" -d '{ "store": "au", "options": { "sinceDays": 7, "untilDays": 1, "notifyCustomer": false, "orderQueries": ["delivery_status:no_status", "delivery_method:shipping", "status:open", "fulfillment_status:unshipped"] } }'
+// curl localhost:8100/collabsOrdersFulfillmentsFindAndAction -H "Content-Type: application/json" -d '{ "store": "au", "options": { "sinceDays": 7, "untilDays": 1, "notifyCustomer": false, "orderQueries": ["delivery_status:no_status", "delivery_method:shipping", "status:open", "fulfillment_status:shipped", "tag_not:'\''sales-order:staff'\''"] } }'
