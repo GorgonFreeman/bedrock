@@ -360,6 +360,7 @@ module.exports = {
   bedrock_unlisted_asanaSprintTurnover: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_asanaSprintTurnover').bedrock_unlisted_asanaSprintTurnoverApi),
   bedrock_unlisted_asanaUatTaskCreate: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_asanaUatTaskCreate').bedrock_unlisted_asanaUatTaskCreateApi),
   bedrock_unlisted_birthdayDiscountCodeGenerate: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_birthdayDiscountCodeGenerate').bedrock_unlisted_birthdayDiscountCodeGenerateApi),
+  bedrock_unlisted_bleckmannOrdersExport: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_bleckmannOrdersExport').bedrock_unlisted_bleckmannOrdersExportApi),
   bedrock_unlisted_bootsDiscountCodeMarkUsed: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_bootsDiscountCodeMarkUsed').bedrock_unlisted_bootsDiscountCodeMarkUsedApi),
   bedrock_unlisted_bootsDiscountCodeReserve: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_bootsDiscountCodeReserve').bedrock_unlisted_bootsDiscountCodeReserveApi),
   bedrock_unlisted_bootsFormProcess: lazy(() => require('./bedrock_unlisted/bedrock_unlisted_bootsFormProcess').bedrock_unlisted_bootsFormProcessApi),
