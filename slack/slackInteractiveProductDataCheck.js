@@ -1,10 +1,16 @@
 const { respond, logDeep, customAxios } = require('../utils');
+const { SLACK_CHANNELS_DEV } = require('../bedrock_unlisted/constants');
+const { slackCommandRestrictToChannels } = require('../slack/slack.utils');
 const { collabsProductDataCheck } = require('../collabs/collabsProductDataCheck');
 const { shopifyProductsGet } = require('../shopify/shopifyProductsGet');
 
 const DEFAULT_REGION = 'au';
 
 const COMMAND_NAME = 'product_data_check'; // slash command
+const ALLOWED_CHANNELS = [
+  `foxtron_${ COMMAND_NAME }`,
+  ...SLACK_CHANNELS_DEV,
+];
 
 const blocks = {
   intro: {
@@ -125,6 +131,10 @@ const slackInteractiveProductDataCheck = async (req, res) => {
 
   if (commandText) {
 
+    if (!slackCommandRestrictToChannels(req, res, ALLOWED_CHANNELS)) {
+      return;
+    }
+
     const {
       response_url: responseUrl,
       user_id: userId,
@@ -182,6 +192,10 @@ const slackInteractiveProductDataCheck = async (req, res) => {
   
   // If no payload, this is an initiation, e.g. slash command - send the initial blocks
   if (!body?.payload) {
+
+    if (!slackCommandRestrictToChannels(req, res, ALLOWED_CHANNELS)) {
+      return;
+    }
 
     const initialBlocks = [
       blocks.intro,
