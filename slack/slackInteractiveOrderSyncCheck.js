@@ -1,9 +1,15 @@
 const { HOSTED } = require('../constants');
 const { respond, logDeep, customAxios, askQuestion, arrayToObj, camelToReadable } = require('../utils');
 const { REGIONS_WF } = require('../constants');
+const { SLACK_CHANNELS_DEV } = require('../bedrock_unlisted/constants');
+const { slackCommandRestrictToChannels } = require('../slack/slack.utils');
 const { collabsOrderSyncCheck } = require('../collabs/collabsOrderSyncCheck');
 
 const COMMAND_NAME = 'order_sync_check'; // slash command
+const ALLOWED_CHANNELS = [
+  `foxtron_${ COMMAND_NAME }`,
+  ...SLACK_CHANNELS_DEV,
+];
 
 const blocks = {
   intro: {
@@ -99,6 +105,10 @@ const slackInteractiveOrderSyncCheck = async (req, res) => {
   
   // If no payload, this is an initiation, e.g. slash command - send the initial blocks
   if (!body?.payload) {
+
+    if (!slackCommandRestrictToChannels(req, res, ALLOWED_CHANNELS)) {
+      return;
+    }
 
     const initialBlocks = [
       blocks.confirm,
