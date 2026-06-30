@@ -1,6 +1,7 @@
 const { respond, logDeep, customAxios, gidToId, arrayToObj } = require('../utils');
 const { SLACK_CHANNELS_DEV } = require('../bedrock_unlisted/constants');
 const { REGIONS_WF } = require('../constants');
+const { slackCommandRestrictToChannels } = require('../slack/slack.utils');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
 const { shopifyShippingRatesToggle } = require('../shopify/shopifyShippingRatesToggle');
 
@@ -451,6 +452,10 @@ const slackInteractiveShippingRatesToggleV2 = async (req, res) => {
   
   // If no payload, this is an initiation, e.g. slash command - send the initial blocks
   if (!body?.payload) {
+
+    if (!slackCommandRestrictToChannels(req, res, ALLOWED_CHANNELS)) {
+      return;
+    }
 
     const initialBlocks = [
       blocks.intro,
