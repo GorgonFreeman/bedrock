@@ -4,7 +4,10 @@ const { slackCommandRestrictToChannels } = require('../slack/slack.utils');
 const { stylearcadeProductExport } = require('../stylearcade/stylearcadeProductExport');
 
 const COMMAND_NAME = 'stylearcade_product_export'; // slash command
-const ALLOWED_CHANNELS = ['stylearcadeproductexport', 'foxtron_testing'];
+const ALLOWED_CHANNELS = [
+  `foxtron_${ COMMAND_NAME }`,
+  'foxtron_testing',
+];
 
 const blocks = {
 
