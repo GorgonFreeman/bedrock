@@ -1,4 +1,5 @@
 const { respond, logDeep, customAxios, gidToId, arrayToObj } = require('../utils');
+const { SLACK_CHANNELS_DEV } = require('../bedrock_unlisted/constants');
 const { REGIONS_WF } = require('../constants');
 const { shopifyDeliveryProfilesGet } = require('../shopify/shopifyDeliveryProfilesGet');
 const { shopifyShippingRatesToggle } = require('../shopify/shopifyShippingRatesToggle');
@@ -8,6 +9,10 @@ const ENABLED_SYMBOL = ':white_check_mark:';
 const DISABLED_SYMBOL = ':x:';
 
 const COMMAND_NAME = 'shipping_rates_toggle'; // slash command
+const ALLOWED_CHANNELS = [
+  `foxtron_${ COMMAND_NAME }`,
+  ...SLACK_CHANNELS_DEV,
+];
 
 const blocks = {
 
