@@ -9,7 +9,7 @@ const shopifyProductsAuditZeroPrice = async (
   const variantsResponse = await shopifyVariantsGet(
     region,
     {
-      attrs: `id sku price compareAtPrice inventoryItem { unitCost { amount } }`,
+      attrs: `id sku price compareAtPrice product { id title status publishedAt } inventoryItem { unitCost { amount } }`,
       queries: [`price:<=0`],
     },
   );
