@@ -1,9 +1,15 @@
 const { respond, logDeep, customAxios, gidToId, arrayToObj } = require('../utils');
 const { REGIONS_WF } = require('../constants');
+const { SLACK_CHANNELS_DEV } = require('../bedrock_unlisted/constants');
+const { slackCommandRestrictToChannels } = require('../slack/slack.utils');
 const { shopifyCustomerGet } = require('../shopify/shopifyCustomerGet');
 const { collabsCustomerErase } = require('../collabs/collabsCustomerErase');
 
 const COMMAND_NAME = 'customer_delete'; // slash command
+const ALLOWED_CHANNELS = [
+  `foxtron_${ COMMAND_NAME }`,
+  ...SLACK_CHANNELS_DEV,
+];
 
 const blocks = {
   email_select: {
@@ -91,6 +97,10 @@ const slackInteractiveCustomerDelete = async (req, res) => {
   
   // If no payload, this is an initiation, e.g. slash command - send the initial blocks
   if (!body?.payload) {
+
+    if (!slackCommandRestrictToChannels(req, res, ALLOWED_CHANNELS)) {
+      return;
+    }
 
     const initialBlocks = [
       ...blocks.email_select.ask,
