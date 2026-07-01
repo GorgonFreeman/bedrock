@@ -6,10 +6,18 @@ module.exports = {
     'whitefoxboutique.co.uk': 'uk',
     'white-fox-boutique-develop.myshopify.com': 'develop',
   },
+  STORE_TO_SHOP_DOMAIN: {
+    au: 'white-fox-boutique-aus',
+    us: 'white-fox-boutique-usa',
+    uk: 'white-fox-boutique-uk',
+    baddest: 'baddest-bod',
+    develop: 'white-fox-boutique-develop',
+  },
   SHOP_DOMAIN_TO_STORE: {
     'white-fox-boutique-aus': 'au',
     'white-fox-boutique-usa': 'us',
     'white-fox-boutique-uk': 'uk',
+    'baddest-bod': 'baddest',
     'white-fox-boutique-develop': 'develop',
   },
   MAX_TAG_LENGTH: 255,
