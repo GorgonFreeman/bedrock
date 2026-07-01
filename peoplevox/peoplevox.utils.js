@@ -334,7 +334,7 @@ const peoplevoxGetSingle = async (
     context: { 
       credsPath,
       action,
-     },
+    },
     interpreter: peoplevoxStandardInterpreter({ expectOne: true }),
   });
 
