@@ -114,41 +114,44 @@ const collabsInventoryReviewOnHand = async (
   !HOSTED && logDeep('locationId', locationId);
 
   const inventoryExcludedProductQueries = shopifyStoreToInventoryExcludedProductQueries(store);
-
-  const invHoldProductsResponse = await shopifyProductsGet(store, {
-    queries: inventoryExcludedProductQueries,
-    attrs: `
-      id
-      variants (first: 100) {
-        edges {
-          node {
-            sku
+  
+  let invHoldSkus = [];
+  if (inventoryExcludedProductQueries?.length) {
+    const invHoldProductsResponse = await shopifyProductsGet(store, {
+      queries: inventoryExcludedProductQueries,
+      attrs: `
+        id
+        variants (first: 100) {
+          edges {
+            node {
+              sku
+            }
           }
         }
-      }
-    `,
-  });
-
-  const {
-    success: invHoldProductsSuccess,
-    result: invHoldProducts,
-  } = invHoldProductsResponse;
-  if (!invHoldProductsSuccess) {
-    return invHoldProductsResponse;
+      `,
+    });
+  
+    const {
+      success: invHoldProductsSuccess,
+      result: invHoldProducts,
+    } = invHoldProductsResponse;
+    if (!invHoldProductsSuccess) {
+      return invHoldProductsResponse;
+    }
+  
+    const productsWithTooManyVariants = invHoldProducts.filter(product => product.variants?.length === 100);
+    if (productsWithTooManyVariants.length) {
+      const productIds = productsWithTooManyVariants.map(product => gidToId(product.id)).join(', ');
+      return {
+        success: false,
+        error: [`Product(s) have more than 100 variants (${ productIds }) - adjust the function`],
+      };
+    }
+  
+    invHoldSkus = invHoldProducts.flatMap(product => (
+      product.variants?.map(variant => variant.sku).filter(Boolean) || []
+    ));
   }
-
-  const productsWithTooManyVariants = invHoldProducts.filter(product => product.variants?.length === 100);
-  if (productsWithTooManyVariants.length) {
-    const productIds = productsWithTooManyVariants.map(product => gidToId(product.id)).join(', ');
-    return {
-      success: false,
-      error: [`Product(s) have more than 100 variants (${ productIds }) - adjust the function`],
-    };
-  }
-
-  const invHoldSkus = invHoldProducts.flatMap(product => (
-    product.variants?.map(variant => variant.sku).filter(Boolean) || []
-  ));
 
   const invHoldSkusSet = new Set(invHoldSkus);
 
@@ -207,8 +210,13 @@ const collabsInventoryReviewOnHand = async (
 
     const inventoryItemId = gidToId(inventoryItemGid);
     // TODO: Handle unactivated inventory - this will show as a missing inventory level at that location. Default to 0 and support activation.
-    const inventoryLevel = inventoryLevels.find(level => level.location.id === `gid://shopify/Location/${ locationId }`);
-    const quantity = inventoryLevel.quantities.find(quantity => quantity.name === 'on_hand').quantity;
+    const inventoryLevel = inventoryLevels.find(level => level?.location?.id === `gid://shopify/Location/${ locationId }`);
+
+    if (!inventoryLevel) {
+      continue;
+    }
+
+    const quantity = inventoryLevel.quantities?.find(quantity => quantity.name === 'on_hand')?.quantity ?? 0;
     inventoryDataObj[sku] = {
       shopifyOnHand: quantity,
       shopifyInventoryItemId: inventoryItemId,
