@@ -31,7 +31,7 @@ const shopifyInventoryQuantitiesSetChunk = async (
   {
     apiVersion,
     returnAttrs = defaultAttrs,
-    ignoreCompareQuantity = true, // TODO: Consider allowing this to be set as Shopify intends.
+    changeFromQuantity = null, // TODO: Consider utilising changeFromQuantity. It only allows a change to go through if the current value is as provided, meaning updates are never stale.
   } = {},
 ) => {
 
@@ -43,7 +43,7 @@ const shopifyInventoryQuantitiesSetChunk = async (
       value: {
         name: inventoryName,
         reason,
-        ignoreCompareQuantity,
+        changeFromQuantity,
         quantities,
       },
     },
