@@ -31,11 +31,15 @@ const shopifyInventoryQuantitiesSetChunk = async (
   {
     apiVersion,
     returnAttrs = defaultAttrs,
-    changeFromQuantity = null, // TODO: Consider utilising changeFromQuantity. It only allows a change to go through if the current value is as provided, meaning updates are never stale.
   } = {},
 ) => {
 
   const mutationName = 'inventorySetQuantities';
+
+  const quantitiesWithChangeFromQuantity = quantities.map(quantity => ({
+    ...quantity,
+    changeFromQuantity: quantity.changeFromQuantity || null,
+  }));
   
   const mutationVariables = {
     input: {
@@ -43,8 +47,7 @@ const shopifyInventoryQuantitiesSetChunk = async (
       value: {
         name: inventoryName,
         reason,
-        changeFromQuantity,
-        quantities,
+        quantities: quantitiesWithChangeFromQuantity,
       },
     },
   };
