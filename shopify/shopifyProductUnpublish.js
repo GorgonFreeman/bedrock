@@ -1,7 +1,7 @@
 // https://shopify.dev/docs/api/admin-graphql/latest/mutations/productUnpublish
 
 const { HOSTED } = require('../constants');
-const { funcApi, logDeep } = require('../utils');
+const { funcApi, logDeep, askQuestion } = require('../utils');
 const { shopifyMutationDo } = require('../shopify/shopify.utils');
 const { shopifyProductGet } = require('../shopify/shopifyProductGet');
 
@@ -41,12 +41,11 @@ const shopifyProductUnpublish = async (
     if (!productGetSuccess) {
       return productGetResponse;
     }
-
-    publications = productData.resourcePublicationsV2.map(publication => ({ publicationId: publication.id }));
+    
+    // logDeep(productData);
+    // await askQuestion('?');
+    publications = productData.resourcePublicationsV2.map(publication => ({ publicationId: publication.publication.id }));
   }
-
-  // logDeep(publications);
-  // await askQuestion('?');
 
   if (!publications?.length) {
     return {
@@ -54,6 +53,9 @@ const shopifyProductUnpublish = async (
       error: ['No publications to unpublish'],
     };
   }
+
+  // logDeep(publications);
+  // await askQuestion('?');
 
   const response = await shopifyMutationDo(
     credsPath,
