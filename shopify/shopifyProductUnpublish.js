@@ -14,22 +14,6 @@ const shopifyProductUnpublish = async (
   } = {},
 ) => {
 
-  const response = await shopifyMutationDo(
-    credsPath,
-    'pageCreate',
-    {
-      page: {
-        type: 'PageCreateInput!',
-        value: pageInput,
-      },
-    },
-    `page { ${ returnAttrs } }`,
-    { 
-      apiVersion,
-    },
-  );
-  logDeep(response);
-  return response;
 };
 
 const shopifyProductUnpublishApi = funcApi(shopifyProductUnpublish, {
