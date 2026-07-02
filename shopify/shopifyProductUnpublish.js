@@ -42,7 +42,7 @@ const shopifyProductUnpublish = async (
       return productGetResponse;
     }
 
-    publications = productData.resourcePublicationsV2.edges.map(edge => ({ publicationId: edge.node.publication.id }));
+    publications = productData.resourcePublicationsV2.map(publication => ({ publicationId: publication.id }));
   }
 
   // logDeep(publications);
