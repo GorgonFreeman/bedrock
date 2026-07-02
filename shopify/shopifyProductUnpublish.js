@@ -55,6 +55,26 @@ const shopifyProductUnpublish = async (
     };
   }
 
+  const response = await shopifyMutationDo(
+    credsPath,
+    'productUnpublish',
+    {
+      input: {
+        type: 'ProductUnpublishInput!',
+        value: {
+          id: `gid://shopify/Product/${ productId }`,
+          productPublications: publications,
+        },
+      },
+    },
+    `product { id title publishedAt }`,
+    { 
+      apiVersion,
+    },
+  );
+  !HOSTED && logDeep(response);
+  return response;
+
 };
 
 const shopifyProductUnpublishApi = funcApi(shopifyProductUnpublish, {
