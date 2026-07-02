@@ -45,6 +45,9 @@ const shopifyProductUnpublish = async (
     publications = productData.resourcePublicationsV2.edges.map(edge => ({ publicationId: edge.node.publication.id }));
   }
 
+  // logDeep(publications);
+  // await askQuestion('?');
+
 };
 
 const shopifyProductUnpublishApi = funcApi(shopifyProductUnpublish, {
