@@ -151,6 +151,7 @@ module.exports = {
   shopifyProductDelete: lazy(() => require('./shopify/shopifyProductDelete').shopifyProductDeleteApi),
   shopifyProductGet: lazy(() => require('./shopify/shopifyProductGet').shopifyProductGetApi),
   shopifyProductPublish: lazy(() => require('./shopify/shopifyProductPublish').shopifyProductPublishApi),
+  shopifyProductUnpublish: lazy(() => require('./shopify/shopifyProductUnpublish').shopifyProductUnpublishApi),
   shopifyProductUpdate: lazy(() => require('./shopify/shopifyProductUpdate').shopifyProductUpdateApi),
   shopifyProductsAuditZeroPrice: lazy(() => require('./shopify/shopifyProductsAuditZeroPrice').shopifyProductsAuditZeroPriceApi),
   shopifyProductsGet: lazy(() => require('./shopify/shopifyProductsGet').shopifyProductsGetApi),
