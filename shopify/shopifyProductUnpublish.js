@@ -50,7 +50,7 @@ const shopifyProductUnpublish = async (
   if (!publications?.length) {
     return {
       success: false,
-      error: ['No publications to unpublish'],
+      error: ['All publications already unpublished'],
     };
   }
 
