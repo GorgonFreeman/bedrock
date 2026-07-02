@@ -7,17 +7,17 @@ const defaultAttrs = `id title handle`;
 
 const shopifyProductUnpublish = async (
   credsPath,
-  pageInput,
+  productId,
   {
     apiVersion,
-    returnAttrs = defaultAttrs,
+    publications, // https://shopify.dev/docs/api/admin-graphql/latest/input-objects/ProductPublicationInput
   } = {},
 ) => {
 
 };
 
 const shopifyProductUnpublishApi = funcApi(shopifyProductUnpublish, {
-  argNames: ['credsPath', 'pageInput', 'options'],
+  argNames: ['credsPath', 'productId', 'options'],
 });
 
 module.exports = {
