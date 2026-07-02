@@ -48,6 +48,13 @@ const shopifyProductUnpublish = async (
   // logDeep(publications);
   // await askQuestion('?');
 
+  if (!publications?.length) {
+    return {
+      success: false,
+      error: ['No publications to unpublish'],
+    };
+  }
+
 };
 
 const shopifyProductUnpublishApi = funcApi(shopifyProductUnpublish, {
