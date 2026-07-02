@@ -37,13 +37,13 @@ const shopifyProductUnpublish = async (
         `,
       },
     );
-  }
-  const { success: productGetSuccess, result: productData } = productGetResponse;
-  if (!productGetSuccess) {
-    return productGetResponse;
-  }
+    const { success: productGetSuccess, result: productData } = productGetResponse;
+    if (!productGetSuccess) {
+      return productGetResponse;
+    }
 
-  logDeep(productData);
+    publications = productData.resourcePublicationsV2.edges.map(edge => ({ publicationId: edge.node.publication.id }));
+  }
 
 };
 
@@ -56,5 +56,5 @@ module.exports = {
   shopifyProductUnpublishApi,
 };
 
-// curl http://localhost:8000/shopifyProductUnpublish -H 'Content-Type: application/json' -d '{ "credsPath": "au", "productId": "gid://shopify/Product/7077149507656" }'
-// curl http://localhost:8000/shopifyProductUnpublish -H 'Content-Type: application/json' -d '{ "credsPath": "au", "productId": "gid://shopify/Product/7077149507656", "publications": [ { "publicationId": "gid://shopify/Publication/1234567890" } ] }'
+// curl http://localhost:8000/shopifyProductUnpublish -H 'Content-Type: application/json' -d '{ "credsPath": "au", "productId": "7077149507656" }'
+// curl http://localhost:8000/shopifyProductUnpublish -H 'Content-Type: application/json' -d '{ "credsPath": "au", "productId": "7077149507656", "publications": [ { "publicationId": "gid://shopify/Publication/1234567890" } ] }'
