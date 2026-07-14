@@ -8,10 +8,18 @@ const defaultAttrs = `
 `;
 
 const linearDevIssueCreate = async (
-  thingId,
+  title,
   {
-    attrs = defaultAttrs,
     credsPath,
+    
+    teamHandle = 'whi',
+    stateHandle = 'whi.triage',
+    description,
+    priority,
+    assigneeId,
+    dueDate,
+
+    attrs = defaultAttrs,
   } = {},
 ) => {
 
