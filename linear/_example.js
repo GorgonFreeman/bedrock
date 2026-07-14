@@ -10,8 +10,9 @@ const defaultAttrs = `
 const FUNC = async (
   thingId,
   {
-    attrs = defaultAttrs,
     credsPath,
+
+    attrs = defaultAttrs,
   } = {},
 ) => {
 

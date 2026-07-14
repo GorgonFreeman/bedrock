@@ -10,8 +10,9 @@ const defaultAttrs = `
 const FUNC = async (
   createPayload, // ThingCreateInput
   {
-    attrs = defaultAttrs,
     credsPath,
+
+    attrs = defaultAttrs,
   } = {},
 ) => {
 

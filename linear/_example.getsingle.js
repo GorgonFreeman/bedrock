@@ -13,8 +13,9 @@ const FUNC = async (
     identifier,
   },
   {
-    attrs = defaultAttrs,
     credsPath,
+  
+    attrs = defaultAttrs,
   } = {},
 ) => {
 
