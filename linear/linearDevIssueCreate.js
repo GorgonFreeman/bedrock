@@ -2,7 +2,7 @@
 
 const { funcApi, logDeep } = require('../utils');
 
-const { linearTeamHandleToId, linearTeamStateHandleToId } = require('../bedrock_unlisted/mappings');
+const { linearTeamHandleToId, linearTeamStateHandleToId, priorityHandleToId } = require('../bedrock_unlisted/mappings');
 
 const { linearIssueCreate } = require('../linear/linearIssueCreate');
 
@@ -30,7 +30,7 @@ const linearDevIssueCreate = async (
     teamHandle = 'whi',
     stateHandle = 'triage',
     description,
-    priority,
+    priorityHandle = 'medium',
     assigneeId,
     dueDate,
 
@@ -40,6 +40,7 @@ const linearDevIssueCreate = async (
 
   const teamId = linearTeamHandleToId[teamHandle];
   const stateId = linearTeamStateHandleToId[teamHandle][stateHandle];
+  const priorityId = priorityHandleToId[priorityHandle] || 3; // Default to medium priority
 
   const response = await linearIssueCreate(
     title,
@@ -48,7 +49,7 @@ const linearDevIssueCreate = async (
       credsPath,
       stateId,
       ...description && { description },
-      ...priority && { priority },
+      ...priorityId && { priorityId },
       ...assigneeId && { assigneeId },
       ...dueDate && { dueDate },
       attrs,
