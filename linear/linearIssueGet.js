@@ -11,6 +11,10 @@ const defaultAttrs = `
     id
     name
   }
+  team {
+    id
+    name
+  }
   createdAt
   updatedAt
 `;

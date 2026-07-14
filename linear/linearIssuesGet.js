@@ -8,6 +8,14 @@ const defaultAttrs = `
   id
   identifier
   title
+  state {
+    id
+    name
+  }
+  team {
+    id
+    name
+  }
   createdAt
   updatedAt
 `;
