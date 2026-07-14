@@ -8,6 +8,18 @@ const { linearIssueCreate } = require('../linear/linearIssueCreate');
 
 const defaultAttrs = `
   id
+  identifier
+  title
+  state {
+    id
+    name
+  }
+  team {
+    id
+    name
+  }
+  createdAt
+  updatedAt
 `;
 
 const linearDevIssueCreate = async (
