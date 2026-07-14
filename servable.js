@@ -256,6 +256,7 @@ module.exports = {
   logiwaWebhookSubscribe: lazy(() => require('./logiwa/logiwaWebhookSubscribe').logiwaWebhookSubscribeApi),
   logiwaWebhookUnsubscribe: lazy(() => require('./logiwa/logiwaWebhookUnsubscribe').logiwaWebhookUnsubscribeApi),
   logiwaWebhooksGet: lazy(() => require('./logiwa/logiwaWebhooksGet').logiwaWebhooksGetApi),
+  linearIssuesGet: lazy(() => require('./linear/linearIssuesGet').linearIssuesGetApi),
   iwishCustomerWishlistCountGet: lazy(() => require('./iwish/iwishCustomerWishlistCountGet').iwishCustomerWishlistCountGetApi),
   iwishCustomerWishlistGet: lazy(() => require('./iwish/iwishCustomerWishlistGet').iwishCustomerWishlistGetApi),
   iwishStoreWishlistDataGet: lazy(() => require('./iwish/iwishStoreWishlistDataGet').iwishStoreWishlistDataGetApi),
