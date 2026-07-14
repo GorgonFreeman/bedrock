@@ -7,6 +7,10 @@ const defaultAttrs = `
   id
   identifier
   title
+  state {
+    id
+    name
+  }
   createdAt
   updatedAt
 `;
@@ -17,8 +21,9 @@ const linearIssueGet = async (
     identifier,
   },
   {
-    attrs = defaultAttrs,
     credsPath,
+
+    attrs = defaultAttrs,
   } = {},
 ) => {
 
