@@ -1,7 +1,7 @@
 // https://linear.app/developers/graphql
 
 const { funcApi, logDeep } = require('../utils');
-const { linearClient } = require('../linear/linear.utils');
+const { linearIssueCreate } = require('../linear/linearIssueCreate');
 
 const defaultAttrs = `
   id
