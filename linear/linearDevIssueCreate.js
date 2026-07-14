@@ -22,13 +22,14 @@ const defaultAttrs = `
   updatedAt
 `;
 
+const DEV_TEAM_HANDLE = 'whi';
+const DEV_TEAM_STATE_HANDLE = 'triage';
+
 const linearDevIssueCreate = async (
   title,
   {
     credsPath,
-    
-    teamHandle = 'whi',
-    stateHandle = 'triage',
+
     description,
     priorityHandle = 'medium',
     assigneeId,
@@ -38,8 +39,8 @@ const linearDevIssueCreate = async (
   } = {},
 ) => {
 
-  const teamId = linearTeamHandleToId[teamHandle];
-  const stateId = linearTeamStateHandleToId[teamHandle][stateHandle];
+  const teamId = linearTeamHandleToId[DEV_TEAM_HANDLE];
+  const stateId = linearTeamStateHandleToId[DEV_TEAM_HANDLE][DEV_TEAM_STATE_HANDLE];
   const priorityId = priorityHandleToId[priorityHandle] || 3; // Default to medium priority
 
   const response = await linearIssueCreate(
