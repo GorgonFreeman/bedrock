@@ -1,6 +1,9 @@
 // https://linear.app/developers/graphql
 
 const { funcApi, logDeep } = require('../utils');
+
+const { linearTeamHandleToId, linearTeamStateHandleToId } = require('../bedrock_unlisted/mappings');
+
 const { linearIssueCreate } = require('../linear/linearIssueCreate');
 
 const defaultAttrs = `
@@ -13,7 +16,7 @@ const linearDevIssueCreate = async (
     credsPath,
     
     teamHandle = 'whi',
-    stateHandle = 'whi.triage',
+    stateHandle = 'triage',
     description,
     priority,
     assigneeId,
@@ -23,36 +26,31 @@ const linearDevIssueCreate = async (
   } = {},
 ) => {
 
-  const query = `
-    query GetThing($id: String!) {
-      thing(id: $id) {
-        ${ attrs }
-      }
-    }
-  `;
+  const teamId = linearTeamHandleToId[teamHandle];
+  const stateId = linearTeamStateHandleToId[teamHandle][stateHandle];
 
-  const response = await linearClient.fetch({
-    method: 'post',
-    body: {
-      query,
-      variables: {
-        id: thingId,
-      },
-    },
-    context: {
+  const response = await linearIssueCreate(
+    title,
+    teamId,
+    {
       credsPath,
-      resultsNode: 'thing',
+      stateId,
+      ...description && { description },
+      ...priority && { priority },
+      ...assigneeId && { assigneeId },
+      ...dueDate && { dueDate },
+      attrs,
     },
-  });
+  );
 
   logDeep(response);
   return response;
 };
 
 const linearDevIssueCreateApi = funcApi(linearDevIssueCreate, {
-  argNames: ['thingId', 'options'],
+  argNames: ['title', 'options'],
   validatorsByArg: {
-    thingId: Boolean,
+    title: Boolean,
   },
 });
 
@@ -61,4 +59,4 @@ module.exports = {
   linearDevIssueCreateApi,
 };
 
-// curl localhost:8000/linearDevIssueCreate -H "Content-Type: application/json" -d '{ "thingId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" }'
+// curl localhost:8000/linearDevIssueCreate -H "Content-Type: application/json" -d '{ "title": "Test issue" }'
