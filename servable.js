@@ -256,6 +256,7 @@ module.exports = {
   logiwaWebhookSubscribe: lazy(() => require('./logiwa/logiwaWebhookSubscribe').logiwaWebhookSubscribeApi),
   logiwaWebhookUnsubscribe: lazy(() => require('./logiwa/logiwaWebhookUnsubscribe').logiwaWebhookUnsubscribeApi),
   logiwaWebhooksGet: lazy(() => require('./logiwa/logiwaWebhooksGet').logiwaWebhooksGetApi),
+  linearAnalyticsIssueCreate: lazy(() => require('./linear/linearAnalyticsIssueCreate').linearAnalyticsIssueCreateApi),
   linearDevIssueCreate: lazy(() => require('./linear/linearDevIssueCreate').linearDevIssueCreateApi),
   linearIssueCreate: lazy(() => require('./linear/linearIssueCreate').linearIssueCreateApi),
   linearIssueGet: lazy(() => require('./linear/linearIssueGet').linearIssueGetApi),
