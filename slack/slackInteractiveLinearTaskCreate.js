@@ -93,7 +93,13 @@ const slackInteractiveLinearTaskCreate = async (req, res) => {
     response_url: responseUrl,
     state, 
     actions, 
+    user,
   } = payload;
+
+  const {
+    id: callerUserId,
+    name: callerUserName,
+  } = user;
 
   const action = actions?.[0];
   const { 
