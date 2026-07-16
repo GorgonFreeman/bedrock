@@ -182,7 +182,7 @@ const slackInteractiveLinearTaskCreate = async (req, res) => {
         url: taskUrl,
       } = createTaskResult;
 
-      const resultMessage = `Dev task created successfully: ${ taskTitle } | ${ taskIdentifier } | <${ taskUrl }|View in Linear>`;
+      const resultMessage = `Dev task created successfully!\n${ taskTitle } | ${ taskIdentifier } | <${ taskUrl }|View in Linear>`;
       response = {
         replace_original: 'true',
         blocks: [blocks.result(resultMessage)],
