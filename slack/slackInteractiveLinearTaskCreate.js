@@ -25,7 +25,7 @@ const blocks = {
       element: {
         type: 'plain_text_input',
         action_id: `${ COMMAND_NAME }:title_input`,
-        initial_value: initialValue,
+        ...initialValue && { initial_value: initialValue },
       },
     };
   },
@@ -41,7 +41,7 @@ const blocks = {
       element: {
         type: 'plain_text_input',
         multiline: true,
-        initial_value: initialValue,
+        ...initialValue && { initial_value: initialValue },
         action_id: `${ COMMAND_NAME }:description_input`,
       },
     };
