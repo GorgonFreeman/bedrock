@@ -14,31 +14,37 @@ const blocks = {
     },
   },
 
-  title_input: {
-    type: 'input',
-    block_id: 'title_input',
-    label: {
-      type: 'plain_text',
-      text: 'Title',
-    },
-    element: {
-      type: 'plain_text_input',
-      action_id: `${ COMMAND_NAME }:title_input`,
-    },
+  title_input: ({ initialValue = '' }) => {
+      return {
+      type: 'input',
+      block_id: 'title_input',
+      label: {
+        type: 'plain_text',
+        text: 'Title',
+      },
+      element: {
+        type: 'plain_text_input',
+        action_id: `${ COMMAND_NAME }:title_input`,
+        initial_value: initialValue,
+      },
+    };
   },
 
-  description_input: {
-    type: 'input',
-    block_id: 'description_input',
-    label: {
-      type: 'plain_text',
-      text: 'Description',
-    },
-    element: {
-      type: 'plain_text_input',
-      "multiline": true,
-      action_id: `${ COMMAND_NAME }:description_input`,
-    },
+  description_input: ({ initialValue = '' }) => {
+    return {
+      type: 'input',
+      block_id: 'description_input',
+      label: {
+        type: 'plain_text',
+        text: 'Description',
+      },
+      element: {
+        type: 'plain_text_input',
+        multiline: true,
+        initial_value: initialValue,
+        action_id: `${ COMMAND_NAME }:description_input`,
+      },
+    };
   },
   
   buttons: {
@@ -64,6 +70,16 @@ const blocks = {
     ],
   },
 
+  error_block: (message) => {
+    return {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `*Error:* ${ message }`,
+      },
+    };
+  },
+
   result: (message) => {
     return {
       type: 'section',
@@ -86,8 +102,8 @@ const slackInteractiveLinearTaskCreate = async (req, res) => {
 
     const initialBlocks = [
       blocks.intro,
-      blocks.title_input,
-      blocks.description_input,
+      blocks.title_input(),
+      blocks.description_input(),
       blocks.buttons,
     ];
 
@@ -145,8 +161,18 @@ const slackInteractiveLinearTaskCreate = async (req, res) => {
       const createTaskResponse = await linearDevIssueCreate(title, { description: fullDescription, attrs });
       const { success: createTaskSuccess, result: createTaskResult } = createTaskResponse;
       if (!createTaskSuccess) {
-        console.error('Error creating task in linear', createTaskResponse);
-        return;
+        console.error('Error creating dev task', createTaskResponse);
+        response = {
+          replace_original: 'true',
+          blocks: [
+            blocks.intro,
+            blocks.title_input({ initialValue: title }),
+            blocks.description_input({ initialValue: description }),
+            blocks.error_block(createTaskResponse.error?.[0] || 'Error creating dev task'),
+            blocks.buttons,
+          ],
+        };
+        break;
       }
       
       // Respond with result
