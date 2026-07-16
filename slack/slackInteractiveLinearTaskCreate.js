@@ -196,7 +196,7 @@ const slackInteractiveLinearTaskCreate = async (req, res) => {
             blocks.title_input(title),
             blocks.description_input(description),
             blocks.priority_select(priority),
-            blocks.error_block(createTaskResponse.error?.[0] || 'Error creating dev task'),
+            blocks.error_block(JSON.stringify(createTaskResponse.error?.[0]?.data?.errors?.[0]?.message) || 'Error creating dev task'),
             blocks.buttons,
           ],
         };
