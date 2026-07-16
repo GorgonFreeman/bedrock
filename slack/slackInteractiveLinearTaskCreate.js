@@ -127,10 +127,10 @@ const slackInteractiveLinearTaskCreate = async (req, res) => {
       const title = state.values.title_input[`${ COMMAND_NAME }:title_input`]?.value;
       const description = state.values.description_input[`${ COMMAND_NAME }:description_input`]?.value;
 
-      response = {
-        replace_original: 'true',
-        blocks: [blocks.intro],
-      };
+      // Create task in linear
+
+      // respond with result
+
       break;
 
     case 'cancel':
