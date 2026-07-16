@@ -140,7 +140,11 @@ const slackInteractiveLinearTaskCreate = async (req, res) => {
       return;
   }
 
-  return respond(res, 200, response);
+  logDeep('response', response);
+  return customAxios(responseUrl, {
+    method: 'post',
+    body: response,
+  });
 };
 
 module.exports = slackInteractiveLinearTaskCreate;
