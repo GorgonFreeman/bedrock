@@ -14,7 +14,7 @@ const blocks = {
     },
   },
 
-  title_input: ({ initialValue = '' }) => {
+  title_input: (initialValue = '') => {
       return {
       type: 'input',
       block_id: 'title_input',
@@ -30,7 +30,7 @@ const blocks = {
     };
   },
 
-  description_input: ({ initialValue = '' }) => {
+  description_input: (initialValue = '') => {
     return {
       type: 'input',
       block_id: 'description_input',
@@ -166,8 +166,8 @@ const slackInteractiveLinearTaskCreate = async (req, res) => {
           replace_original: 'true',
           blocks: [
             blocks.intro,
-            blocks.title_input({ initialValue: title }),
-            blocks.description_input({ initialValue: description }),
+            blocks.title_input(title),
+            blocks.description_input(description),
             blocks.error_block(createTaskResponse.error?.[0] || 'Error creating dev task'),
             blocks.buttons,
           ],
