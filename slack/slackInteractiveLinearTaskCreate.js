@@ -21,6 +21,7 @@ const blocks = {
     },
     element: {
       type: 'plain_text_input',
+      action_id: `${ COMMAND_NAME }:title_input`,
     },
   },
 
@@ -34,6 +35,7 @@ const blocks = {
     element: {
       type: 'plain_text_input',
       "multiline": true,
+      action_id: `${ COMMAND_NAME }:description_input`,
     },
   },
   
@@ -121,6 +123,9 @@ const slackInteractiveLinearTaskCreate = async (req, res) => {
   switch (actionName) {
 
     case 'submit':
+
+      const title = state.values.title_input[`${ COMMAND_NAME }:title_input`]?.value;
+      const description = state.values.description_input[`${ COMMAND_NAME }:description_input`]?.value;
 
       response = {
         replace_original: 'true',
