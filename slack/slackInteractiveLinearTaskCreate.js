@@ -21,7 +21,6 @@ const blocks = {
     },
     element: {
       type: 'plain_text_input',
-      emoji: true,
     },
   },
 
@@ -35,7 +34,6 @@ const blocks = {
     element: {
       type: 'plain_text_input',
       "multiline": true,
-      emoji: true,
     },
   },
   
