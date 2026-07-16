@@ -1,4 +1,6 @@
-const { respond, logDeep, customAxios } = require('../utils');
+const { respond, logDeep, customAxios, capitaliseString } = require('../utils');
+
+const { priorityHandleToId } = require('../bedrock_unlisted/mappings');
 
 const { linearDevIssueCreate } = require('../linear/linearDevIssueCreate');
 
@@ -43,6 +45,29 @@ const blocks = {
         multiline: true,
         ...initialValue && { initial_value: initialValue },
         action_id: `${ COMMAND_NAME }:description_input`,
+      },
+    };
+  },
+
+  priority_select: (initialValue = 'medium') => {
+    return {
+      type: 'input',
+      block_id: 'priority_select',
+      label: {
+        type: 'plain_text',
+        text: 'Priority',
+      },
+      element: {
+        type: 'static_select',
+        action_id: `${ COMMAND_NAME }:priority_select`,
+        options: Object.keys(priorityHandleToId).map((handle) => ({
+          text: { type: 'plain_text', text: capitaliseString(handle) },
+          value: handle,
+        })),
+        initial_option: {
+          text: { type: 'plain_text', text: capitaliseString(initialValue) },
+          value: initialValue,
+        },
       },
     };
   },
@@ -104,6 +129,7 @@ const slackInteractiveLinearTaskCreate = async (req, res) => {
       blocks.intro,
       blocks.title_input(),
       blocks.description_input(),
+      blocks.priority_select(),
       blocks.buttons,
     ];
 
@@ -155,10 +181,11 @@ const slackInteractiveLinearTaskCreate = async (req, res) => {
       const title = state.values.title_input[`${ COMMAND_NAME }:title_input`]?.value;
       const description = state.values.description_input[`${ COMMAND_NAME }:description_input`]?.value;
       const fullDescription = `Form submitted by \`${ callerUserName }\`\n\n${ description }`;
+      const priority = state.values.priority_select[`${ COMMAND_NAME }:priority_select`]?.selected_option?.value;
 
       // Create task in linear
       const attrs = `id identifier title description state { id name } priority assignee { id name } team { id name } url`;
-      const createTaskResponse = await linearDevIssueCreate(title, { description: fullDescription, attrs });
+      const createTaskResponse = await linearDevIssueCreate(title, { description: fullDescription, priorityHandle: priority, attrs });
       const { success: createTaskSuccess, result: createTaskResult } = createTaskResponse;
       if (!createTaskSuccess) {
         console.error('Error creating dev task', createTaskResponse);
@@ -168,6 +195,7 @@ const slackInteractiveLinearTaskCreate = async (req, res) => {
             blocks.intro,
             blocks.title_input(title),
             blocks.description_input(description),
+            blocks.priority_select(priority),
             blocks.error_block(createTaskResponse.error?.[0] || 'Error creating dev task'),
             blocks.buttons,
           ],
