@@ -1,5 +1,7 @@
 const { respond, logDeep, customAxios } = require('../utils');
 
+const { linearDevIssueCreate } = require('../linear/linearDevIssueCreate');
+
 const COMMAND_NAME = 'dev_task_form'; // slash command
 
 const blocks = {
@@ -60,6 +62,16 @@ const blocks = {
         action_id: `${ COMMAND_NAME }:cancel`,
       },
     ],
+  },
+
+  result: (message) => {
+    return {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: message,
+      },
+    };
   },
 
 };
@@ -126,10 +138,29 @@ const slackInteractiveLinearTaskCreate = async (req, res) => {
 
       const title = state.values.title_input[`${ COMMAND_NAME }:title_input`]?.value;
       const description = state.values.description_input[`${ COMMAND_NAME }:description_input`]?.value;
+      const fullDescription = `Form submitted by \`${ callerUserName }\`\n\n${ description }`;
 
       // Create task in linear
+      const attrs = `id identifier title description state { id name } priority assignee { id name } team { id name } url`;
+      const createTaskResponse = await linearDevIssueCreate(title, { description: fullDescription, attrs });
+      const { success: createTaskSuccess, result: createTaskResult } = createTaskResponse;
+      if (!createTaskSuccess) {
+        console.error('Error creating task in linear', createTaskResponse);
+        return;
+      }
+      
+      // Respond with result
+      const {
+        title: taskTitle,
+        identifier: taskIdentifier,
+        url: taskUrl,
+      } = createTaskResult;
 
-      // respond with result
+      const resultMessage = `Dev task created successfully: ${ taskTitle } | ${ taskIdentifier } | <${ taskUrl }|View in Linear>`;
+      response = {
+        replace_original: 'true',
+        blocks: [blocks.result(resultMessage)],
+      };
 
       break;
 
