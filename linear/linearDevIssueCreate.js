@@ -41,7 +41,7 @@ const linearDevIssueCreate = async (
 
   const teamId = linearTeamHandleToId[DEV_TEAM_HANDLE];
   const stateId = linearTeamStateHandleToId[DEV_TEAM_HANDLE][DEV_TEAM_STATE_HANDLE];
-  const priorityId = priorityHandleToId[priorityHandle] || 3; // Default to medium priority
+  const priority = priorityHandleToId[priorityHandle] || 3; // Default to medium priority
 
   const response = await linearIssueCreate(
     title,
@@ -50,7 +50,7 @@ const linearDevIssueCreate = async (
       credsPath,
       stateId,
       ...description && { description },
-      ...priorityId && { priorityId },
+      ...priority && { priority },
       ...assigneeId && { assigneeId },
       ...dueDate && { dueDate },
       attrs,
