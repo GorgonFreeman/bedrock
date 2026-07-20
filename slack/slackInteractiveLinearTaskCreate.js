@@ -117,6 +117,37 @@ const blocks = {
 
 };
 
+const modal = {
+
+  initial: (metadata = {}) => {
+    const { messageText = '' } = metadata;
+    return {
+      type: 'modal',
+      callback_id: COMMAND_NAME,
+      title: {
+        type: 'plain_text',
+        text: 'Create a dev task',
+      },
+      blocks: [
+        blocks.intro,
+        blocks.title_input(),
+        blocks.description_input(messageText),
+        blocks.priority_select(),
+      ],
+      private_metadata: JSON.stringify(metadata),
+      close: {
+        type: 'plain_text',
+        text: 'Close',
+      },
+      submit: {
+        type: 'plain_text',
+        text: 'Create task',
+      },
+    };
+  },
+
+}
+
 const slackInteractiveLinearTaskCreate = async (req, res) => {
   console.log('slackInteractiveLinearTaskCreate');
 
