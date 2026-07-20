@@ -1,7 +1,10 @@
-const { respond, logDeep, customAxios, capitaliseString } = require('../utils');
+const { respond, logDeep, customAxios, capitaliseString, askQuestion } = require('../utils');
+const { TEAM_DOMAIN_TO_CREDSPATH, DEV_CHANNEL_ID } = require('../slack/slack.constants');
 
 const { priorityHandleToId } = require('../bedrock_unlisted/mappings');
 
+const { slackClient } = require('../slack/slack.utils');
+const { slackMessagePost } = require('../slack/slackMessagePost');
 const { linearDevIssueCreate } = require('../linear/linearDevIssueCreate');
 
 const COMMAND_NAME = 'dev_task_form'; // slash command
@@ -175,6 +178,134 @@ const slackInteractiveLinearTaskCreate = async (req, res) => {
 
   const payload = JSON.parse(body.payload);
   logDeep('payload', payload);
+
+  const {
+    trigger_id: triggerId,
+    type: payloadType,
+    team,
+  } = payload;
+
+  const { domain: teamDomain } = team;
+  const credsPath = TEAM_DOMAIN_TO_CREDSPATH[teamDomain];
+
+  // No actions in payload - this is a message shortcut or modal action
+  if (!payload?.actions) {
+
+    let metadataObject;
+
+    switch(payloadType) {
+
+      // this is a message action initiation - send the initial blocks in a modal
+      case 'message_action':
+
+        metadataObject = {
+          messageText: payload?.message?.text,
+          messageBlocks: payload?.message?.blocks,
+          messageId: payload?.message?.ts,
+          // Send to dev channel if direct message or private group
+          channelId: payload?.channel?.id,
+          channelName: payload?.channel?.name,
+          ...(payload?.message?.files?.length > 0 && { messageFiles: payload?.message?.files.map(file => ({
+              name: file.name,
+              url: file.permalink,
+            })),
+          }),
+        };
+
+        return slackClient.fetch({
+          url: '/views.open',
+          method: 'post',
+          body: {
+            trigger_id: triggerId,
+            view: modal.initial(metadataObject),
+          },
+          context: {
+            // credsPath: 'dev',
+            credsPath,
+          },
+        });
+
+        break;
+
+      // this is a view submission - process the form data
+      case 'view_submission':
+
+        metadataObject = JSON.parse(payload.view.private_metadata);
+
+        const {
+          messageText,
+          messageBlocks,
+          channelId,
+          channelName,
+          messageId,
+        } = metadataObject;
+
+        const messageFiles = metadataObject?.messageFiles || [];
+
+        const {
+          title_input: titleInput,
+          description_input: descriptionInput,
+          priority_select: prioritySelect,
+        } = payload.view.state.values;
+
+        const {
+          id: userId,
+          name: callerUserName,
+        } = payload.user;
+
+        // Fetch title and description from message and form
+        const taskTitle = titleInput[`${ COMMAND_NAME }:title_input`]?.value;
+        const taskDescription = [
+          `Created from Slack by \`${ callerUserName }\``,
+          ``,
+          `${ descriptionInput[`${ COMMAND_NAME }:description_input`]?.value || messageText }`,
+          ...messageId ? [`https://${ teamDomain }.slack.com/archives/${ channelId }/p${ messageId.replace('.', '') }`] : [],
+        ].join('\n');
+        const priority = prioritySelect[`${ COMMAND_NAME }:priority_select`]?.selected_option?.value;
+
+        logDeep({
+          taskTitle,
+          taskDescription,
+          priority,
+        });
+        await askQuestion('Continue?');
+
+        // Create task in linear
+        const attrs = `id identifier title description state { id name } priority assignee { id name } team { id name } url`;
+        const createTaskResponse = await linearDevIssueCreate(taskTitle, { description: taskDescription, priorityHandle: priority, attrs });
+        const { success: createTaskSuccess, result: createTaskResult } = createTaskResponse;
+        if (!createTaskSuccess) {
+          console.error('Error creating dev task', createTaskResponse);
+          return;
+        }
+
+        const {
+          identifier: taskIdentifier,
+          url: taskUrl,
+        } = createTaskResult;
+        
+        await slackMessagePost(
+          {
+            channelId: DEV_CHANNEL_ID,
+          },
+          {
+            blocks: [
+              blocks.result(`Dev task created by \`${ callerUserName }\`!\n${ taskTitle } | ${ taskIdentifier } | <${ taskUrl }|View in Linear>`),
+            ],
+          },
+          {
+            credsPath,
+          },
+        );
+
+        break;
+
+      default:
+        break;
+    }
+
+    return;
+  }
 
   const { 
     response_url: responseUrl,
