@@ -140,9 +140,6 @@ const slackInteractiveShopifySmartCollectionCreate = async (req, res) => {
 
     const initialBlocks = [
       blocks.initial,
-      blocks.region_select(),
-      blocks.title_input(),
-      blocks.description_input(),
       blocks.tag_input(),
       blocks.buttons,
     ];
@@ -187,22 +184,19 @@ const slackInteractiveShopifySmartCollectionCreate = async (req, res) => {
     case 'submit':
 
       // Fetch the form input values from state
-      const region = state.values.region_select?.[`${ COMMAND_NAME }:region_select`]?.selected_option?.value;
-      const title = state?.values?.title_input?.[`${ COMMAND_NAME }:title_input`]?.value?.trim();
-      const description = state?.values?.description_input?.[`${ COMMAND_NAME }:description_input`]?.value?.trim();
       const tag = state?.values?.tag_input?.[`${ COMMAND_NAME }:tag_input`]?.value?.trim();
 
+      const tagValidation = validateTagInput(tag);
+
       // Validate the form input values and show an error message if any required fields are missing
-      if ( !region || !title || !tag) {
+      if (!tagValidation) {
+
         response = {
           replace_original: 'true',
           blocks: [
             blocks.initial,
-            blocks.region_select(region),
-            blocks.title_input(title),
-            blocks.description_input(description),
             blocks.tag_input(tag),
-            blocks.error('Please fill in all required fields'),
+            blocks.error('Invalid tag format. Please use the format: grin_region_title_month_year'),
             blocks.buttons,
           ],
         };
