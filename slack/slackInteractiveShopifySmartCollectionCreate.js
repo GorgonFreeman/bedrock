@@ -21,38 +21,53 @@ const blocks = {
     },
   },
 
-  title_input: {
-    type: 'input',
-    label: {
-      type: 'plain_text',
-      text: 'Title',
-    },
-    element: {
-      type: 'plain_text_input',
-    },
+  title_input: (initialValue = '') => {
+    return {
+      type: 'input',
+      block_id: 'title_input',
+      label: {
+        type: 'plain_text',
+        text: 'Title (required)',
+      },
+      element: {
+        type: 'plain_text_input',
+        action_id: `${ COMMAND_NAME }:title_input`,
+        initial_value: initialValue,
+      },
+    };
   },
 
-  description_input: {
-    type: 'input',
-    label: {
-      type: 'plain_text',
-      text: 'Description',
-    },
-    element: {
-      type: 'plain_text_input',
-      multiline: true,
-    },
+  description_input: (initialValue = '') => {
+    return {
+      type: 'input',
+      block_id: 'description_input',
+      label: {
+        type: 'plain_text',
+        text: 'Description',
+      },
+      element: {
+        type: 'plain_text_input',
+        multiline: true,
+        action_id: `${ COMMAND_NAME }:description_input`,
+        initial_value: initialValue,
+      },
+    };
   },
 
-  tag_input: {
-    type: 'input',
-    label: {
-      type: 'plain_text',
-      text: 'Tag',
-    },
-    element: {
-      type: 'plain_text_input',
-    },
+  tag_input: (initialValue = '') => {
+    return {
+      type: 'input',
+      block_id: 'tag_input',
+      label: {
+        type: 'plain_text',
+        text: 'Tag (required)',
+      },
+      element: {
+        type: 'plain_text_input',
+        action_id: `${ COMMAND_NAME }:tag_input`,
+        initial_value: initialValue,
+      },
+    };
   },
 
   buttons: {
@@ -103,23 +118,21 @@ const slackInteractiveShopifySmartCollectionCreate = async (req, res) => {
   console.log('slackInteractiveShopifySmartCollectionCreate');
 
   const { body } = req;
-
-  if (!slackCommandRestrictToChannels(req, res, ALLOWED_CHANNELS)) {
-    return;
-  }
   
   // If no payload, this is an initiation, e.g. slash command - send the initial blocks
   if (!body?.payload) {
 
+    if (!slackCommandRestrictToChannels(req, res, ALLOWED_CHANNELS)) {
+      return;
+    }
+
     const initialBlocks = [
       blocks.initial,
-      blocks.title_input,
-      blocks.description_input,
-      blocks.tag_input,
+      blocks.title_input(),
+      blocks.description_input(),
+      blocks.tag_input(),
       blocks.buttons,
     ];
-
-    logDeep('initialBlocks', initialBlocks);
 
     return respond(res, 200, {
       response_type: 'in_channel',
