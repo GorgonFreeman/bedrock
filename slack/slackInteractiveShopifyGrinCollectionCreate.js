@@ -1,4 +1,4 @@
-const { respond, logDeep, customAxios, gidToId } = require('../utils');
+const { respond, logDeep, customAxios, gidToId, askQuestion, capitaliseString } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 const { slackCommandRestrictToChannels } = require('../slack/slack.utils');
 // const { SLACK_CHANNELS_DEV } = require('../slack/slack.constants'); // Only available on another channel at the moment
@@ -11,6 +11,14 @@ const ALLOWED_CHANNELS = [
   'foxtron_testing',
   // ...SLACK_CHANNELS_DEV,
 ];
+
+// TODO: Use the shopify constants from the other git branch
+// Map the region to the domain
+const domain = {
+  au: 'white-fox-boutique-aus',
+  us: 'white-fox-boutique-usa',
+  uk: 'white-fox-boutique-uk',
+}[region];
 
 // Tag format validator
 // grin_region_title_month_year
@@ -203,62 +211,69 @@ const slackInteractiveShopifySmartCollectionCreate = async (req, res) => {
         break;
       }
 
-      // Create the Shopify smart collection
-      const collectionCreateResponse = await shopifyCollectionCreate(region, {
-        title,
-        descriptionHtml: description,
-        ruleSet: {
-          appliedDisjunctively: false,
-          rules: [
-            {
-              column: 'TAG',
-              relation: 'EQUALS',
-              condition: tag,
-            },
-          ],
-        },
-        sortOrder: 'CREATED_DESC',
-      });
-
-      // Handle the Shopify smart collection creation response
-      const { success: collectionCreateSuccess, result: collectionCreateResult } = collectionCreateResponse;
-
-      // If the Shopify smart collection creation failed, show an error message on form
-      if (!collectionCreateSuccess) {
-        response = {
-          replace_original: 'true',
-          blocks: [
-            blocks.initial,
-            blocks.region_select(region),
-            blocks.title_input(title),
-            blocks.description_input(description),
-            blocks.tag_input(tag),
-            blocks.error(`Error creating collection: ${ collectionCreateResponse?.error?.[0]?.message }`),
-            blocks.buttons,
-          ],
-        };
-        
-        break;
-      }
-
       const {
-        id: collectionId,
-        title: collectionTitle,
-      } = collectionCreateResult;
-      
-      // TODO: Use the shopify constants from the other branch
-      // Map the region to the domain
-      const domain = {
-        au: 'white-fox-boutique-aus',
-        us: 'white-fox-boutique-usa',
-        uk: 'white-fox-boutique-uk',
-      }[region];
+        source,
+        // region, // We don't use this for tag creation, just for validation
+        title,
+        titleSlug,
+        month,
+        year,
+      } = tagValidation;
+
+      const collectionCreateResults = {};
+
+      // Loop through each region and create the Shopify smart collection
+      for (const region of REGIONS_WF) {
+
+        const collectionTag = `${ source }_${ region }_${ titleSlug }_${ month }_${ year }`;
+        const collectionTitle = `${ source.toUpperCase() } ${ title } ${ capitaliseString(month) } ${ year }`;
+
+        // Create the Shopify smart collection
+        const collectionCreateResponse = await shopifyCollectionCreate(region, {
+          title: collectionTitle,
+          ruleSet: {
+            appliedDisjunctively: false,
+            rules: [
+              {
+                column: 'TAG',
+                relation: 'EQUALS',
+                condition: collectionTag,
+              },
+            ],
+          },
+          sortOrder: 'CREATED_DESC',
+        });
+
+        // Handle the Shopify smart collection creation response
+        const { success: collectionCreateSuccess, result: collectionCreateResult } = collectionCreateResponse;
+
+        // If the Shopify smart collection creation failed, show an error message on form
+        if (!collectionCreateSuccess) {
+          collectionCreateResults[region] = {
+            success: false,
+            error: collectionCreateResponse?.error?.[0]?.message,
+          };
+          break;
+        }
+
+        const {
+          id: collectionId,
+        } = collectionCreateResult;
+
+        collectionCreateResults[region] = {
+          success: true,
+          collectionId,
+          collectionTitle,
+          collectionTag,
+          collectionAdminUrl: `https://admin.shopify.com/store/${ domain }/collections/${ gidToId(collectionId) }`,
+        };
+      }
 
       // Show the success message and the collection link
       response = {
         replace_original: 'true',
         blocks: [
-          blocks.result(`Shopify smart collection created successfull!\n<${ `https://admin.shopify.com/store/${ domain }/collections/${ gidToId(collectionId) }` }|${ collectionTitle }>`),
+          blocks.result(collectionCreateResults),
         ],
       }
 
