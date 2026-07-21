@@ -136,6 +136,10 @@ const blocks = {
         type: 'plain_text_input',
         action_id: `${ COMMAND_NAME }:tag_input`,
         initial_value: initialValue,
+        placeholder: {
+          type: 'plain_text',
+          text: 'Enter tag in format (e.g. grin_au_new_arrivals_june_2026)',
+        },
       },
     };
   },
