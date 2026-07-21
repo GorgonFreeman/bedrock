@@ -12,6 +12,46 @@ const ALLOWED_CHANNELS = [
   // ...SLACK_CHANNELS_DEV,
 ];
 
+// Tag format validator
+// grin_region_title_month_year
+const validateTagInput = (tag) => {
+  if (!tag) {
+    return;
+  }
+
+  const tagMatch = tag.match(/^([^_]+)_([^_]+)_(.+)_(.+)_(\d{4})$/);
+  if (!tagMatch) {
+    return;
+  }
+
+  const [, source, region, titleSlug, month, year] = tagMatch;
+
+  if (source !== 'grin') {
+    return;
+  }
+
+  if (!REGIONS_WF.includes(region)) {
+    return;
+  }
+
+  if (!month || !year) {
+    return;
+  }
+
+  if (!titleSlug) {
+    return;
+  }
+
+  return {
+    source,
+    region,
+    title: titleSlug.split('_').map(part => capitaliseString(part)).join(' '),
+    titleSlug,
+    month,
+    year,
+  }
+}
+
 const blocks = {
 
   initial: {
