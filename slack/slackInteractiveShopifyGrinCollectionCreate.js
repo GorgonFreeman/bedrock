@@ -13,12 +13,12 @@ const ALLOWED_CHANNELS = [
 ];
 
 // TODO: Use the shopify constants from the other git branch
-// Map the region to the domain
-const domain = {
+// Map the region to the Shopify admin store slug
+const regionToShopifyDomain = {
   au: 'white-fox-boutique-aus',
   us: 'white-fox-boutique-usa',
   uk: 'white-fox-boutique-uk',
-}[region];
+};
 
 // Tag format validator
 // grin_region_title_month_year
@@ -122,14 +122,30 @@ const blocks = {
     };
   },
 
-  result: (message) => {
+  result: (collectionCreateResults) => {
+
+    const resultLines = Object.entries(collectionCreateResults).map(([region, result]) => {
+      if (result.success) {
+        const {
+          collectionTitle,
+          collectionTag,
+          collectionAdminUrl,
+        } = result;
+        return `:white_check_mark: ${ region.toUpperCase() } <${ collectionAdminUrl }|${ collectionTitle }> \`${ collectionTag }\` `;
+      }
+      const {
+        error,
+      } = result;
+      return `:x: ${ region.toUpperCase() } Error: ${ error }`;
+    });
+
     return {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `${ message }`,
+        text: `*Collection creation results*\n${ resultLines.join('\n') }`,
       },
-    };
+    }
   },
 
 }
@@ -247,13 +263,13 @@ const slackInteractiveShopifySmartCollectionCreate = async (req, res) => {
         // Handle the Shopify smart collection creation response
         const { success: collectionCreateSuccess, result: collectionCreateResult } = collectionCreateResponse;
 
-        // If the Shopify smart collection creation failed, show an error message on form
+        // If the Shopify smart collection creation failed, record the error and continue
         if (!collectionCreateSuccess) {
           collectionCreateResults[region] = {
             success: false,
             error: collectionCreateResponse?.error?.[0]?.message,
           };
-          break;
+          continue;
         }
 
         const {
@@ -265,7 +281,7 @@ const slackInteractiveShopifySmartCollectionCreate = async (req, res) => {
           collectionId,
           collectionTitle,
           collectionTag,
-          collectionAdminUrl: `https://admin.shopify.com/store/${ domain }/collections/${ gidToId(collectionId) }`,
+          collectionAdminUrl: `https://admin.shopify.com/store/${ regionToShopifyDomain[region] }/collections/${ gidToId(collectionId) }`,
         };
       }
 
