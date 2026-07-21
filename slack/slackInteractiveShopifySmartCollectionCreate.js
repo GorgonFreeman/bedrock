@@ -1,7 +1,9 @@
-const { respond, logDeep, customAxios } = require('../utils');
+const { respond, logDeep, customAxios, gidToId } = require('../utils');
 const { REGIONS_WF } = require('../constants');
 const { slackCommandRestrictToChannels } = require('../slack/slack.utils');
 // const { SLACK_CHANNELS_DEV } = require('../slack/slack.constants'); // Only available on another channel at the moment
+
+const { shopifyCollectionCreate } = require('../shopify/shopifyCollectionCreate');
 
 const COMMAND_NAME = 'smart_collection_create'; // slash command
 const ALLOWED_CHANNELS = [
@@ -196,10 +198,106 @@ const slackInteractiveShopifySmartCollectionCreate = async (req, res) => {
 
   let response;
 
-  response = {
-    replace_original: 'true',
-    text: `I don't do anything yet :hugging_face:`,
-  };
+  const [commandName, actionName, ...actionNodes] = actionId.split(':');
+
+  switch (actionName) {
+
+    case 'submit':
+
+      // Fetch the form input values from state
+      const region = state.values.region_select?.[`${ COMMAND_NAME }:region_select`]?.selected_option?.value;
+      const title = state?.values?.title_input?.[`${ COMMAND_NAME }:title_input`]?.value?.trim();
+      const description = state?.values?.description_input?.[`${ COMMAND_NAME }:description_input`]?.value?.trim();
+      const tag = state?.values?.tag_input?.[`${ COMMAND_NAME }:tag_input`]?.value?.trim();
+
+      // Validate the form input values and show an error message if any required fields are missing
+      if ( !region || !title || !tag) {
+        response = {
+          replace_original: 'true',
+          blocks: [
+            blocks.initial,
+            blocks.region_select(region),
+            blocks.title_input(title),
+            blocks.description_input(description),
+            blocks.tag_input(tag),
+            blocks.error('Please fill in all required fields'),
+            blocks.buttons,
+          ],
+        };
+        break;
+      }
+
+      // Create the Shopify smart collection
+      const collectionCreateResponse = await shopifyCollectionCreate(region, {
+        title,
+        descriptionHtml: description,
+        ruleSet: {
+          appliedDisjunctively: false,
+          rules: [
+            {
+              column: 'TAG',
+              relation: 'EQUALS',
+              condition: tag,
+            },
+          ],
+        },
+        sortOrder: 'CREATED_DESC',
+      });
+
+      // Handle the Shopify smart collection creation response
+      const { success: collectionCreateSuccess, result: collectionCreateResult } = collectionCreateResponse;
+
+      // If the Shopify smart collection creation failed, show an error message on form
+      if (!collectionCreateSuccess) {
+        response = {
+          replace_original: 'true',
+          blocks: [
+            blocks.initial,
+            blocks.region_select(region),
+            blocks.title_input(title),
+            blocks.description_input(description),
+            blocks.tag_input(tag),
+            blocks.error(`Error creating collection: ${ collectionCreateResponse?.error?.[0]?.message }`),
+            blocks.buttons,
+          ],
+        };
+        
+        break;
+      }
+
+      const {
+        id: collectionId,
+        title: collectionTitle,
+      } = collectionCreateResult;
+      
+      // TODO: Use the shopify constants from the other branch
+      // Map the region to the domain
+      const domain = {
+        au: 'white-fox-boutique-aus',
+        us: 'white-fox-boutique-usa',
+        uk: 'white-fox-boutique-uk',
+      }[region];
+
+      // Show the success message and the collection link
+      response = {
+        replace_original: 'true',
+        blocks: [
+          blocks.result(`Shopify smart collection created successfull!\n<${ `https://admin.shopify.com/store/${ domain }/collections/${ gidToId(collectionId) }` }|${ collectionTitle }>`),
+        ],
+      }
+
+      break;
+
+    case 'cancel':
+      response = {
+        delete_original: 'true',
+      };
+      break;
+
+    default:
+      console.warn(`Unknown actionName: ${ actionName }`);
+      return;
+  }
 
   logDeep('response', response);
   return customAxios(responseUrl, {
