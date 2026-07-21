@@ -17,7 +17,7 @@ const commandNameToFunc = {
   'order_sync_check': require('../slack/slackInteractiveOrderSyncCheck'),
   'shipping_rates_disabled_report': require('../slack/slackInteractiveShippingRatesDisabledReport'),
   'dev_task_form': require('../slack/slackInteractiveLinearTaskCreate'),
-  'smart_collection_create': require('../slack/slackInteractiveShopifySmartCollectionCreate'),
+  'grin_collection_create': require('../slack/slackInteractiveShopifyGrinCollectionCreate'),
 };
 
 const slackWebhookRouterApi = async (req, res) => {

@@ -5,7 +5,7 @@ const { slackCommandRestrictToChannels } = require('../slack/slack.utils');
 
 const { shopifyCollectionCreate } = require('../shopify/shopifyCollectionCreate');
 
-const COMMAND_NAME = 'smart_collection_create'; // slash command
+const COMMAND_NAME = 'grin_collection_create'; // slash command
 const ALLOWED_CHANNELS = [
   `foxtron_${ COMMAND_NAME }`,
   'foxtron_testing',
