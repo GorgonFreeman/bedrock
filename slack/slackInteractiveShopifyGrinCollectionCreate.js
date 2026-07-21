@@ -62,68 +62,6 @@ const blocks = {
     },
   },
 
-  region_select: (initialValue = '') => {
-    return {
-      type: 'input',
-      block_id: 'region_select',
-      label: {
-        type: 'plain_text',
-        text: 'Region (required)',
-      },
-      element: {
-        type: 'static_select',
-        action_id: `${ COMMAND_NAME }:region_select`,
-        options: REGIONS_WF.map(region => ({
-          text: {
-            type: 'plain_text',
-            text: region.toUpperCase(),
-          },
-          value: region,
-        })),
-        ...initialValue ? { initial_option: {
-          text: {
-            type: 'plain_text',
-            text: initialValue.toUpperCase(),
-          },
-          value: initialValue,
-        } } : {},
-      },
-    };
-  },
-
-  title_input: (initialValue = '') => {
-    return {
-      type: 'input',
-      block_id: 'title_input',
-      label: {
-        type: 'plain_text',
-        text: 'Title (required)',
-      },
-      element: {
-        type: 'plain_text_input',
-        action_id: `${ COMMAND_NAME }:title_input`,
-        initial_value: initialValue,
-      },
-    };
-  },
-
-  description_input: (initialValue = '') => {
-    return {
-      type: 'input',
-      block_id: 'description_input',
-      label: {
-        type: 'plain_text',
-        text: 'Description',
-      },
-      element: {
-        type: 'plain_text_input',
-        multiline: true,
-        action_id: `${ COMMAND_NAME }:description_input`,
-        initial_value: initialValue,
-      },
-    };
-  },
-
   tag_input: (initialValue = '') => {
     return {
       type: 'input',
