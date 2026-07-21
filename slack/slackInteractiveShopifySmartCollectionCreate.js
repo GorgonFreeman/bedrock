@@ -1,8 +1,7 @@
 const { respond, logDeep, customAxios } = require('../utils');
-
-// const { SLACK_CHANNELS_DEV } = require('../slack/slack.constants'); // Only available on another channel at the moment
-
+const { REGIONS_WF } = require('../constants');
 const { slackCommandRestrictToChannels } = require('../slack/slack.utils');
+// const { SLACK_CHANNELS_DEV } = require('../slack/slack.constants'); // Only available on another channel at the moment
 
 const COMMAND_NAME = 'smart_collection_create'; // slash command
 const ALLOWED_CHANNELS = [
@@ -19,6 +18,35 @@ const blocks = {
       type: 'mrkdwn',
       text: `*Create a new smart collection*`,
     },
+  },
+
+  region_select: (initialValue = '') => {
+    return {
+      type: 'input',
+      block_id: 'region_select',
+      label: {
+        type: 'plain_text',
+        text: 'Region (required)',
+      },
+      element: {
+        type: 'static_select',
+        action_id: `${ COMMAND_NAME }:region_select`,
+        options: REGIONS_WF.map(region => ({
+          text: {
+            type: 'plain_text',
+            text: region.toUpperCase(),
+          },
+          value: region,
+        })),
+        ...initialValue ? { initial_option: {
+          text: {
+            type: 'plain_text',
+            text: initialValue.toUpperCase(),
+          },
+          value: initialValue,
+        } } : {},
+      },
+    };
   },
 
   title_input: (initialValue = '') => {
