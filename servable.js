@@ -72,6 +72,7 @@ module.exports = {
   shopifyChannelsGet: lazy(() => require('./shopify/shopifyChannelsGet').shopifyChannelsGetApi),
   shopifyCheckoutAndAccountsConfigurationGet: lazy(() => require('./shopify/shopifyCheckoutAndAccountsConfigurationGet').shopifyCheckoutAndAccountsConfigurationGetApi),
   shopifyCheckoutAndAccountsConfigurationsGet: lazy(() => require('./shopify/shopifyCheckoutAndAccountsConfigurationsGet').shopifyCheckoutAndAccountsConfigurationsGetApi),
+  shopifyCollectionCreate: lazy(() => require('./shopify/shopifyCollectionCreate').shopifyCollectionCreateApi),
   shopifyCollectionGet: lazy(() => require('./shopify/shopifyCollectionGet').shopifyCollectionGetApi),
   shopifyCollectionsGet: lazy(() => require('./shopify/shopifyCollectionsGet').shopifyCollectionsGetApi),
   shopifyCountriesGet: lazy(() => require('./shopify/shopifyCountriesGet').shopifyCountriesGetApi),
