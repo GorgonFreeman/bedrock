@@ -156,6 +156,7 @@ const slackInteractiveShopifySmartCollectionCreate = async (req, res) => {
 
     const initialBlocks = [
       blocks.initial,
+      blocks.region_select(),
       blocks.title_input(),
       blocks.description_input(),
       blocks.tag_input(),
