@@ -112,6 +112,16 @@ const blocks = {
     ],
   },
 
+  loading: (message) => {
+    return {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `_${ message }_`,
+      },
+    };
+  },
+
   error: (message) => {
     return {
       type: 'section',
@@ -226,6 +236,19 @@ const slackInteractiveShopifySmartCollectionCreate = async (req, res) => {
         };
         break;
       }
+
+      // Show the loading message and wait for the Shopify smart collection creation response
+      response = {
+        replace_original: 'true',
+        blocks: [
+          blocks.loading('Creating collections...'),
+        ],
+      };
+
+      await customAxios(responseUrl, {
+        method: 'post',
+        body: response,
+      });
 
       const {
         source,
