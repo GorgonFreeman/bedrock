@@ -141,7 +141,7 @@ const blocks = {
           collectionTag,
           collectionAdminUrl,
         } = result;
-        return `:white_check_mark: ${ region.toUpperCase() } <${ collectionAdminUrl }|${ collectionTitle }> \`${ collectionTag }\` `;
+        return `:white_check_mark: ${ region.toUpperCase() } <${ collectionAdminUrl }|${ collectionTitle }> => tag: \`${ collectionTag }\` `;
       }
       const {
         error,
