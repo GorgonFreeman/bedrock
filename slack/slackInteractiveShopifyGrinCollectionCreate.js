@@ -66,7 +66,7 @@ const blocks = {
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: `*Create a new smart collection*`,
+      text: `*Create a new GRIN smart collection*`,
     },
   },
 
