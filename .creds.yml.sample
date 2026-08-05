@@ -144,3 +144,7 @@ asana:
 workable:
   BASE_URL: https://[subdomain].workable.com/spi/v3  # e.g. https://white-fox-boutique.workable.com/spi/v3
   ACCESS_TOKEN: ______________________________  # Workable Settings > Integrations > API Access Token > Generate Token
+
+linear:
+  BASE_URL: https://api.linear.app/graphql
+  API_KEY: ______________________________  # Linear Settings > API
