@@ -20,6 +20,19 @@ const regionToShopifyDomain = {
   uk: 'white-fox-boutique-uk',
 };
 
+// Month names derived from Date (long + short), so we don't hardcode them
+const VALID_MONTHS = new Set(
+  Array.from({ length: 12 }, (_, i) => {
+    const date = new Date(2000, i, 1);
+    return [
+      date.toLocaleString('en-US', { month: 'long' }).toLowerCase(),
+      date.toLocaleString('en-US', { month: 'short' }).toLowerCase(),
+    ];
+  }).flat(),
+);
+
+const isValidMonth = (month) => VALID_MONTHS.has(month?.toLowerCase());
+
 // Tag format validator
 // grin_region_title_month_year
 const validateTagInput = (tag) => {
