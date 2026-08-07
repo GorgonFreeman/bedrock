@@ -43,7 +43,7 @@ const validateTagInput = (tag) => {
     };
   }
 
-  const tagMatch = tag.match(/^([^_]+)_([^_]+)_(.+)_(.+)_(\d{4})$/);
+  const tagMatch = tag.match(/^([^_]+)_([^_]+)_(.+)_(.+)_(.+)$/);
   if (!tagMatch) {
     return {
       success: false,
@@ -92,6 +92,13 @@ const validateTagInput = (tag) => {
     return {
       success: false,
       message: 'Missing year - tag must end with a 4-digit year (e.g. grin_au_new_arrivals_june_2026)',
+    };
+  }
+
+  if (!/^\d{4}$/.test(year)) {
+    return {
+      success: false,
+      message: `Invalid year \`${ year }\` - must be a 4-digit year (e.g. 2026)`,
     };
   }
 
