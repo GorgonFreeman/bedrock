@@ -37,40 +37,73 @@ const isValidMonth = (month) => VALID_MONTHS.has(month?.toLowerCase());
 // grin_region_title_month_year
 const validateTagInput = (tag) => {
   if (!tag) {
-    return;
+    return {
+      success: false,
+      message: 'No tag provided - please enter a tag in the format: grin_region_title_month_year (e.g. grin_au_new_arrivals_june_2026)',
+    };
   }
 
   const tagMatch = tag.match(/^([^_]+)_([^_]+)_(.+)_(.+)_(\d{4})$/);
   if (!tagMatch) {
-    return;
+    return {
+      success: false,
+      message: 'Invalid tag format - please use: grin_region_title_month_year (e.g. grin_au_new_arrivals_june_2026)',
+    };
   }
 
   const [, source, region, titleSlug, month, year] = tagMatch;
 
   if (source !== 'grin') {
-    return;
+    return {
+      success: false,
+      message: `Tag must start with \`grin_\` - please use the format: grin_region_title_month_year (e.g. grin_au_new_arrivals_june_2026)`,
+    };
   }
 
   if (!REGIONS_WF.includes(region)) {
-    return;
-  }
-
-  if (!month || !year) {
-    return;
+    return {
+      success: false,
+      message: `Invalid region \`${ region }\` - must be one of: ${ REGIONS_WF.join(', ') }`,
+    };
   }
 
   if (!titleSlug) {
-    return;
+    return {
+      success: false,
+      message: 'Missing title - include the title between region and month (e.g. grin_au_new_arrivals_june_2026)',
+    };
+  }
+
+  if (!month) {
+    return {
+      success: false,
+      message: 'Missing month - include a month before the year (e.g. grin_au_new_arrivals_june_2026)',
+    };
+  }
+
+  if (!isValidMonth(month)) {
+    return {
+      success: false,
+      message: `Invalid month \`${ month }\` - use a full or short month name (e.g. june or jun)`,
+    };
+  }
+
+  if (!year) {
+    return {
+      success: false,
+      message: 'Missing year - tag must end with a 4-digit year (e.g. grin_au_new_arrivals_june_2026)',
+    };
   }
 
   return {
+    success: true,
     source,
     region,
     title: titleSlug.split('_').map(part => capitaliseString(part)).join(' '),
     titleSlug,
-    month,
+    month: month.toLowerCase(),
     year,
-  }
+  };
 }
 
 const blocks = {
@@ -236,14 +269,14 @@ const slackInteractiveShopifySmartCollectionCreate = async (req, res) => {
       const tagValidation = validateTagInput(tag);
 
       // Validate the form input values and show an error message if any required fields are missing
-      if (!tagValidation) {
+      if (!tagValidation.success) {
 
         response = {
           replace_original: 'true',
           blocks: [
             blocks.initial,
             blocks.tag_input(tag),
-            blocks.error('Invalid tag format. Please use the format: grin_region_title_month_year'),
+            blocks.error(tagValidation.message),
             blocks.buttons,
           ],
         };
