@@ -216,6 +216,7 @@ module.exports = {
   pipe17JobResultsGet: lazy(() => require('./pipe17/pipe17JobResultsGet').pipe17JobResultsGetApi),
   pipe17LocationGet: lazy(() => require('./pipe17/pipe17LocationGet').pipe17LocationGetApi),
   pipe17LocationsGet: lazy(() => require('./pipe17/pipe17LocationsGet').pipe17LocationsGetApi),
+  pipe17OrderDailyExport: lazy(() => require('./pipe17/pipe17OrderDailyExport').pipe17OrderDailyExportApi),
   pipe17OrderGet: lazy(() => require('./pipe17/pipe17OrderGet').pipe17OrderGetApi),
   pipe17OrdersGet: lazy(() => require('./pipe17/pipe17OrdersGet').pipe17OrdersGetApi),
   pipe17ProductGet: lazy(() => require('./pipe17/pipe17ProductGet').pipe17ProductGetApi),
