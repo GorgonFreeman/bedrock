@@ -209,6 +209,7 @@ module.exports = {
   pipe17GetSingle: lazy(() => require('./pipe17/pipe17GetSingle').pipe17GetSingleApi),
   pipe17InventoryItemGet: lazy(() => require('./pipe17/pipe17InventoryItemGet').pipe17InventoryItemGetApi),
   pipe17InventoryItemsGet: lazy(() => require('./pipe17/pipe17InventoryItemsGet').pipe17InventoryItemsGetApi),
+  pipe17InventorySnapshotExport: lazy(() => require('./pipe17/pipe17InventorySnapshotExport').pipe17InventorySnapshotExportApi),
   pipe17JobCreate: lazy(() => require('./pipe17/pipe17JobCreate').pipe17JobCreateApi),
   pipe17JobDo: lazy(() => require('./pipe17/pipe17JobDo').pipe17JobDoApi),
   pipe17JobGet: lazy(() => require('./pipe17/pipe17JobGet').pipe17JobGetApi),
