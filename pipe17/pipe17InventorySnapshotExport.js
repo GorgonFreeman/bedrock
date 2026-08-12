@@ -1,5 +1,6 @@
 const { funcApi, logDeep, askQuestion } = require('../utils');
 const { pipe17InventoryItemsGet } = require('./pipe17InventoryItemsGet');
+const { googlesheetsSpreadsheetSheetAdd } = require('../googlesheets/googlesheetsSpreadsheetSheetAdd');
 
 const pipe17InventorySnapshotExport = async (
   receiptId,
@@ -52,10 +53,32 @@ const pipe17InventorySnapshotExport = async (
   }
 
   // Upload to google sheets
+  const sheetAddResponse = await googlesheetsSpreadsheetSheetAdd(
+    {
+      spreadsheetHandle: 'us_audit_sheet',
+    },
+    {
+      objArray: Object.entries(inventoryLevels).map(([sku, inventoryLevel]) => ({
+        'SKU': sku,
+        'On Hand': inventoryLevel.onHand,
+        'Committed': inventoryLevel.committed,
+        'Available': inventoryLevel.available,
+      })),
+    },
+  );
+
+  const { success: sheetAddSuccess, result: sheetAddResult } = sheetAddResponse;
+
+  if (!sheetAddSuccess) {
+    return {
+      success: false,
+      message: 'Failed to upload to google sheets',
+    };
+  }
 
   return {
     success: true,
-    result: {},
+    result: sheetAddResult,
   };
 };
 
