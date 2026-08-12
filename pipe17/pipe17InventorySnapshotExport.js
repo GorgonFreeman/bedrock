@@ -65,6 +65,9 @@ const pipe17InventorySnapshotExport = async (
         'Available': inventoryLevel.available,
       })),
     },
+    {
+      sheetName: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+    },
   );
 
   const { success: sheetAddSuccess, result: sheetAddResult } = sheetAddResponse;
