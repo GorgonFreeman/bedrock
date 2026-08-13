@@ -1,34 +1,43 @@
-const { funcApi, logDeep } = require('../utils');
-const { pipe17Client } = require('../pipe17/pipe17.utils');
+const { funcApi, logDeep, askQuestion, dateFromNow, days } = require('../utils');
+const { pipe17OrdersGet } = require('./pipe17OrdersGet');
 
 const pipe17OrderDailyExport = async (
-  receiptId,
   {
     credsPath,
   } = {},
 ) => {
 
-  const response = await pipe17Client.fetch({
-    url: `/receipts/${ receiptId }`,
-    context: {
-      credsPath,
-    },
-    interpreter: (response) => {
-      return {
-        ...response,
-        ...response.result ? {
-          result: response.result.receipt,
-        } : {},
-      };
-    },
+  const since = new Date(dateFromNow({ dateOnly: true, minus: days(1) }));
+  const until = new Date(dateFromNow({ dateOnly: true }));
+  logDeep({ since, until });
+  await askQuestion('Continue?');
+
+  // Fetch all orders for the current day
+  const ordersResponse = await pipe17OrdersGet({
+    credsPath,
+    since,
+    until,
+    count: 2000, // Page size
   });
+
+  const { success: ordersSuccess, result: orders } = ordersResponse;
+  if (!ordersSuccess) {
+    return {
+      success: false,
+      message: 'Failed to fetch orders',
+    };
+  }
+
+  // Fetch more order details
+
+  // Upload to google sheets
   
   logDeep(response);
   return response;
 };
 
 const pipe17OrderDailyExportApi = funcApi(pipe17OrderDailyExport, {
-  argNames: ['receiptId', 'options'],
+  argNames: ['options'],
 });
 
 module.exports = {
@@ -36,4 +45,4 @@ module.exports = {
   pipe17OrderDailyExportApi,
 };
 
-// curl localhost:8000/pipe17OrderDailyExport -H "Content-Type: application/json" -d '{ "receiptId": "b9d03991a844e340" }'
+// curl localhost:8000/pipe17OrderDailyExport
