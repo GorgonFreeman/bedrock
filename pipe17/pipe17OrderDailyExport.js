@@ -29,6 +29,18 @@ const pipe17OrderDailyExport = async (
   }
 
   // Fetch more order details
+  const detailedOrders = await Promise.all(orders.map(async (order) => {
+    const detailedOrderResponse = await pipe17OrderGet({
+      credsPath,
+      orderId: order.orderId,
+    });
+    const { success: detailedOrderSuccess, result: detailedOrder } = detailedOrderResponse;
+    if (!detailedOrderSuccess) {
+      return order;
+    }
+    logDeep(detailedOrder);
+    return detailedOrder;
+  }));
 
   // Upload to google sheets
   
