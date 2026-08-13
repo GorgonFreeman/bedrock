@@ -3,7 +3,6 @@ const { pipe17InventoryItemsGet } = require('./pipe17InventoryItemsGet');
 const { googlesheetsSpreadsheetSheetAdd } = require('../googlesheets/googlesheetsSpreadsheetSheetAdd');
 
 const pipe17InventorySnapshotExport = async (
-  receiptId,
   {
     credsPath,
   } = {},
@@ -85,7 +84,9 @@ const pipe17InventorySnapshotExport = async (
   };
 };
 
-const pipe17InventorySnapshotExportApi = funcApi(pipe17InventorySnapshotExport);
+const pipe17InventorySnapshotExportApi = funcApi(pipe17InventorySnapshotExport, {
+  argNames: ['options'],
+});
 
 module.exports = {
   pipe17InventorySnapshotExport,
