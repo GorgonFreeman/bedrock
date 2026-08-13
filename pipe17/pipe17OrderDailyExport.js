@@ -10,8 +10,6 @@ const pipe17OrderDailyExport = async (
 
   const since = new Date(dateFromNow({ dateOnly: true, minus: days(1) }));
   const until = new Date(dateFromNow({ dateOnly: true }));
-  logDeep({ since, until });
-  await askQuestion('Continue?');
 
   // Fetch all orders for the current day
   const ordersResponse = await pipe17OrdersGet({
