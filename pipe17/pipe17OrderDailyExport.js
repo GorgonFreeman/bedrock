@@ -1,6 +1,7 @@
 const { funcApi, logDeep, askQuestion, dateFromNow, days } = require('../utils');
 const { pipe17OrdersGet } = require('./pipe17OrdersGet');
 const { pipe17OrderGet } = require('./pipe17OrderGet');
+const { googlesheetsSpreadsheetSheetAdd } = require('../googlesheets/googlesheetsSpreadsheetSheetAdd');
 
 const pipe17OrderDailyExport = async (
   {
@@ -54,9 +55,34 @@ const pipe17OrderDailyExport = async (
   }, {});
 
   // Upload to google sheets
-  
-  logDeep(response);
-  return response;
+  const sheetAddResponse = await googlesheetsSpreadsheetSheetAdd(
+    {
+      spreadsheetHandle: 'us_audit_sheet',
+    },
+    {
+      objArray: orders.map((order) => ({
+        'Order': order.extOrderId,
+        'Order Date': order.createdAt,
+      })),
+    },
+    {
+      sheetName: `Orders ${ since.split('T')[0] }`,
+    },
+  );
+
+  const { success: sheetAddSuccess, result: sheetAddResult } = sheetAddResponse;
+  if (!sheetAddSuccess) {
+    return {
+      success: false,
+      message: 'Failed to upload to google sheets',
+    };
+  }
+
+  return {
+    success: true,
+    result: sheetAddResult,
+  };
+
 };
 
 const pipe17OrderDailyExportApi = funcApi(pipe17OrderDailyExport, {
