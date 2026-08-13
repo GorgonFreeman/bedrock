@@ -8,8 +8,8 @@ const pipe17OrderDailyExport = async (
   } = {},
 ) => {
 
-  const since = new Date(dateFromNow({ dateOnly: true, minus: days(1) }));
-  const until = new Date(dateFromNow({ dateOnly: true }));
+  const since = new Date(dateFromNow({ dateOnly: true, minus: days(1) })).toISOString();
+  const until = new Date(dateFromNow({ dateOnly: true })).toISOString();
 
   // Fetch all orders for the current day
   const ordersResponse = await pipe17OrdersGet({
