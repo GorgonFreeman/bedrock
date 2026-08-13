@@ -3,7 +3,7 @@ const { pipe17OrdersGet } = require('./pipe17OrdersGet');
 const { pipe17OrderGet } = require('./pipe17OrderGet');
 const { googlesheetsSpreadsheetSheetAdd } = require('../googlesheets/googlesheetsSpreadsheetSheetAdd');
 
-const pipe17OrderDailyExport = async (
+const pipe17UnitsSoldDailyExport = async (
   {
     credsPath,
   } = {},
@@ -85,13 +85,13 @@ const pipe17OrderDailyExport = async (
 
 };
 
-const pipe17OrderDailyExportApi = funcApi(pipe17OrderDailyExport, {
+const pipe17UnitsSoldDailyExportApi = funcApi(pipe17UnitsSoldDailyExport, {
   argNames: ['options'],
 });
 
 module.exports = {
-  pipe17OrderDailyExport,
-  pipe17OrderDailyExportApi,
+  pipe17UnitsSoldDailyExport,
+  pipe17UnitsSoldDailyExportApi,
 };
 
-// curl localhost:8000/pipe17OrderDailyExport
+// curl localhost:8000/pipe17UnitsSoldDailyExport
