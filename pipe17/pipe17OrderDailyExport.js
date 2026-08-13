@@ -43,6 +43,18 @@ const pipe17OrderDailyExport = async (
     return detailedOrder;
   }));
 
+  // Calculate units sold
+  const unitsSold = detailedOrders.reduce((acc, order) => {
+    for (const lineItem of order.lineItems || []) {
+      const { sku, quantity = 0 } = lineItem;
+      if (!sku) {
+        continue;
+      }
+      acc[sku] = (acc[sku] || 0) + quantity;
+    }
+    return acc;
+  }, {});
+
   // Upload to google sheets
   
   logDeep(response);
