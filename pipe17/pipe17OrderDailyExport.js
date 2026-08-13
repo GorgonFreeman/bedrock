@@ -60,13 +60,10 @@ const pipe17OrderDailyExport = async (
       spreadsheetHandle: 'us_audit_sheet',
     },
     {
-      objArray: orders.map((order) => ({
-        'Order': order.extOrderId,
-        'Order Date': order.createdAt,
-      })),
+      objArray: unitsSold,
     },
     {
-      sheetName: `Orders ${ since.split('T')[0] }`,
+      sheetName: `Units Sold ${ since.split('T')[0] }`,
     },
   );
 
