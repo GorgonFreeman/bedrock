@@ -54,6 +54,21 @@ const pipe17UnitsSoldDailyExport = async (
     return acc;
   }, {});
 
+  // Delete old sheet from google sheets
+  const oldSheetName = `Units Sold ${ new Date(dateFromNow({ dateOnly: true, minus: days(2) })).toISOString().split('T')[0] }`;
+  const sheetDeleteResponse = await googlesheetsSpreadsheetSheetDelete(
+    {
+      spreadsheetHandle: 'us_audit_sheet',
+    },
+    {
+      sheetName: oldSheetName,
+    },
+  );
+  const { success: sheetDeleteSuccess, result: sheetDeleteResult } = sheetDeleteResponse;
+  if (!sheetDeleteSuccess) {
+    console.error(`Failed to delete old sheet from google sheets: ${ oldSheetName }`, sheetDeleteResult);
+  }
+
   // Upload to google sheets
   const sheetAddResponse = await googlesheetsSpreadsheetSheetAdd(
     {
