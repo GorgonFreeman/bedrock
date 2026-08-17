@@ -52,7 +52,7 @@ const pipe17InventorySnapshotExport = async (
   }
 
   // Delete old sheet from google sheets
-  const oldSheetName = new Date(dateFromNow({ dateOnly: true, minus: days(2) })).toISOString().split('T')[0];
+  const oldSheetName = `Inventory ${ new Date(dateFromNow({ dateOnly: true, minus: days(2) })).toISOString().split('T')[0] }`;
   const sheetDeleteResponse = await googlesheetsSpreadsheetSheetDelete(
     {
       spreadsheetHandle: 'us_audit_sheet',
@@ -81,7 +81,7 @@ const pipe17InventorySnapshotExport = async (
       })),
     },
     {
-      sheetName: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+      sheetName: `Inventory ${ new Date(dateFromNow({ dateOnly: true })).toISOString().split('T')[0] }`,
     },
   );
 
