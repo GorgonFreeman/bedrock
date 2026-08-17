@@ -1,6 +1,7 @@
 const { funcApi, logDeep, askQuestion, dateFromNow, days } = require('../utils');
 const { pipe17InventoryItemsGet } = require('./pipe17InventoryItemsGet');
 const { googlesheetsSpreadsheetSheetAdd } = require('../googlesheets/googlesheetsSpreadsheetSheetAdd');
+const { googlesheetsSpreadsheetSheetDelete } = require('../googlesheets/googlesheetsSpreadsheetSheetDelete');
 
 const pipe17InventorySnapshotExport = async (
   {

@@ -2,6 +2,7 @@ const { funcApi, logDeep, askQuestion, dateFromNow, days } = require('../utils')
 const { pipe17OrdersGet } = require('./pipe17OrdersGet');
 const { pipe17OrderGet } = require('./pipe17OrderGet');
 const { googlesheetsSpreadsheetSheetAdd } = require('../googlesheets/googlesheetsSpreadsheetSheetAdd');
+const { googlesheetsSpreadsheetSheetDelete } = require('../googlesheets/googlesheetsSpreadsheetSheetDelete');
 
 const pipe17UnitsSoldDailyExport = async (
   {
