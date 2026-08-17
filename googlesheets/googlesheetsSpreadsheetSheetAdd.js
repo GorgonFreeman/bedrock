@@ -91,7 +91,8 @@ const googlesheetsSpreadsheetSheetAdd = async (
 
   if (trim) {
     // Trim, but don't particularly care about the result, and don't hold up response.
-    googlesheetsSpreadsheetTrim(
+    // I have added an await here to make sure the trimming is completed before the response is sent.
+    await googlesheetsSpreadsheetTrim(
       { spreadsheetId, spreadsheetHandle },
       { credsPath },
     );
