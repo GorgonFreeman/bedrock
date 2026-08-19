@@ -74,12 +74,14 @@ const pipe17InventorySnapshotExport = async (
       spreadsheetHandle: 'us_audit_sheet',
     },
     {
-      objArray: Object.entries(inventoryLevels).map(([sku, inventoryLevel]) => ({
-        'SKU': sku,
-        'On Hand': inventoryLevel.onHand,
-        'Committed': inventoryLevel.committed,
-        'Available': inventoryLevel.available,
-      })),
+      objArray: Object.entries(inventoryLevels)
+        .filter(([, inventoryLevel]) => inventoryLevel.onHand > 0)
+        .map(([sku, inventoryLevel]) => ({
+          'SKU': sku,
+          'On Hand': inventoryLevel.onHand,
+          'Committed': inventoryLevel.committed,
+          'Available': inventoryLevel.available,
+        })),
     },
     {
       sheetName: `Inventory ${ new Date(dateFromNow({ dateOnly: true })).toISOString().split('T')[0] }`,
