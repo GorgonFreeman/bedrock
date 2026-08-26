@@ -1,6 +1,6 @@
 // https://loyaltyapi.yotpo.com/reference/fetch-customer-details
 
-const { respond, mandateParam, logDeep, objHasAny, strictlyFalsey } = require('../utils');
+const { funcApi, logDeep, objHasAny, strictlyFalsey } = require('../utils');
 const { yotpoClient } = require('../yotpo/yotpo.utils');
 
 const yotpoCustomerGet = async ( 
@@ -41,28 +41,14 @@ const yotpoCustomerGet = async (
   return response;
 };
 
-const yotpoCustomerGetApi = async (req, res) => {
-  const { 
-    credsPath,
-    customerIdentifier,
-    options,
-  } = req.body;
-
-  const paramsValid = await Promise.all([
-    mandateParam(res, 'credsPath', credsPath),
-    mandateParam(res, 'customerIdentifier', customerIdentifier, p => objHasAny(p, ['customerId', 'customerEmail', 'customerPhone', 'posAccountId'])),
-  ]);
-  if (paramsValid.some(valid => valid === false)) {
-    return;
-  }
-
-  const result = await yotpoCustomerGet(
-    credsPath,
-    customerIdentifier,
-    options,
-  );
-  respond(res, 200, result);
-};
+const yotpoCustomerGetApi = funcApi(yotpoCustomerGet, {
+  argNames: ['credsPath', 'customerIdentifier', 'options'],
+  validatorsByArg: {
+    credsPath: Boolean,
+    customerIdentifier: p => objHasAny(p, ['customerId', 'customerEmail', 'customerPhone', 'posAccountId']),
+  },
+  allowCrossOrigin: true,
+});
 
 module.exports = {
   yotpoCustomerGet,
